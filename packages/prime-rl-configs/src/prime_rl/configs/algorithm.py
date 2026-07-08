@@ -1,7 +1,7 @@
 """Algorithm abstraction: sampling and the per-token training signal.
 
 An algorithm is a named, self-contained config — a discriminated union keyed
-on ``type`` (``grpo``, ``max_rl``, ``ppo``, ``opd``, ``opsd``, ``sft``, ``echo``).
+on ``type`` (``grpo``, ``vanilla_grpo``, ``max_rl``, ``ppo``, ``opd``, ``opsd``, ``sft``, ``echo``).
 The bundle *is* the algorithm: each variant carries
 its sampling component and its credit-assignment / loss-routing parameters,
 and its class defaults are the vetted setting — ``type = "opd"`` with a
@@ -232,6 +232,24 @@ class MaxRLAlgoConfig(BaseAlgoConfig):
     action_loss_type: ClassVar[ActionLossType] = "rl"
 
 
+class VanillaGRPOAlgoConfig(BaseAlgoConfig):
+    type: Literal["vanilla_grpo"] = "vanilla_grpo"
+    """Vanilla GRPO as introduced by DeepSeekMath (https://arxiv.org/abs/2402.03300):
+    scalar advantage = (reward − group mean) / group std — the original
+    whitened form, where the ``grpo`` type is the Dr.GRPO revision that drops
+    the std division (std-normalization upweights near-uniform groups, whose
+    baseline is noisiest). A group with zero reward variance carries all-zero
+    advantages (the zero-advantage filter drops it). The paper's remaining
+    pieces live elsewhere in prime-rl: the clipped/trust-region policy loss is
+    ``trainer.loss``, and there is no per-sequence 1/|o| normalization (the
+    trainer normalizes by the global token count). The paper's KL to a frozen
+    reference policy is not available — prime-rl hosts no reference model for
+    the rl loss; the loss-level trust region to the rollout policy plays that
+    role."""
+
+    action_loss_type: ClassVar[ActionLossType] = "rl"
+
+
 class PPOAlgoConfig(BaseAlgoConfig):
     type: Literal["ppo"] = "ppo"
     """Vanilla PPO (Schulman et al. 2017, https://arxiv.org/abs/1707.06347):
@@ -321,7 +339,14 @@ class SFTAlgoConfig(BaseAlgoConfig):
 
 
 AlgoConfig: TypeAlias = Annotated[
-    GRPOAlgoConfig | EchoAlgoConfig | MaxRLAlgoConfig | PPOAlgoConfig | OPDAlgoConfig | OPSDAlgoConfig | SFTAlgoConfig,
+    GRPOAlgoConfig
+    | VanillaGRPOAlgoConfig
+    | EchoAlgoConfig
+    | MaxRLAlgoConfig
+    | PPOAlgoConfig
+    | OPDAlgoConfig
+    | OPSDAlgoConfig
+    | SFTAlgoConfig,
     Field(discriminator="type"),
 ]
 """The training algorithm: sampling plus the per-token training signal (credit
@@ -329,6 +354,7 @@ assignment and loss routing, fused). The ``type`` selects the algorithm, and
 its class defaults are the vetted setting.
 
 - ``grpo`` — policy group sampling, group-relative advantage, RL loss (the default).
+- ``vanilla_grpo`` — original DeepSeekMath GRPO: the group advantage divided by the group std (``grpo`` is the Dr.GRPO mean-only revision).
 - ``max_rl`` — GRPO with mean-normalized advantages (maximum-likelihood RL).
 - ``ppo`` — vanilla PPO: clipped surrogate + GAE from the trainer's value head. Needs ``trainer.loss.type = "ppo"`` and ``trainer.model.ppo_value_head``.
 - ``opd`` — on-policy distillation: policy samples, per-token reverse KL against a reference model. Needs ``teacher``.

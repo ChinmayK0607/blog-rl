@@ -36,6 +36,7 @@ def _ref_kind(ref):
     ("algorithm_type", "build_kwargs", "source", "action_loss_type"),
     [
         ("grpo", {}, "policy", "rl"),
+        ("vanilla_grpo", {}, "policy", "rl"),
         ("max_rl", {}, "policy", "rl"),
         ("ppo", {}, "policy", "rl"),
         ("opd", {"teacher": FROZEN}, "policy", "ref_kl"),
@@ -206,6 +207,42 @@ def test_assign_advantages_list_rejects_misaligned():
     rollout = _make_rollout([_make_sample()])
     with pytest.raises(ValueError, match="align"):
         rollout.assign_advantages([0.5])
+
+
+# --------------------------------------------------------------------------
+# Vanilla GRPO: the original DeepSeekMath whitened advantage — the ``grpo``
+# type is the Dr.GRPO mean-only revision, this one divides by the group std.
+# --------------------------------------------------------------------------
+
+
+def _reward_rollout(reward: float) -> Rollout:
+    rollout = Rollout(task=vf.Task(idx=0, prompt=None), nodes=[], rewards={"reward": reward}, env_name="test-env")
+    rollout.samples = [_make_sample()]
+    return rollout
+
+
+def test_vanilla_grpo_whitens_group_rewards():
+    from prime_rl.orchestrator.algo import VanillaGRPOAlgorithm
+
+    group = [_reward_rollout(r) for r in (0.0, 1.0)]
+    algo = VanillaGRPOAlgorithm(_build(type="vanilla_grpo"), MagicMock())
+    asyncio.run(algo.score_group(group))
+    # mean 0.5, std (unbiased) ~0.7071 -> advantages ±0.7071, broadcast over
+    # the action tokens of mask [F, F, T, T, F, T].
+    lo, hi = group[0].advantages, group[1].advantages
+    assert lo[0] == lo[1] == lo[4] == 0.0
+    assert lo[2] == pytest.approx(-0.7071, abs=1e-4)
+    assert hi[2] == hi[3] == hi[5] == pytest.approx(0.7071, abs=1e-4)
+
+
+def test_vanilla_grpo_uniform_group_gets_zero_advantages():
+    from prime_rl.orchestrator.algo import VanillaGRPOAlgorithm
+
+    group = [_reward_rollout(1.0) for _ in range(3)]
+    algo = VanillaGRPOAlgorithm(_build(type="vanilla_grpo"), MagicMock())
+    asyncio.run(algo.score_group(group))
+    for rollout in group:
+        assert all(a == 0.0 for a in rollout.advantages)
 
 
 # --------------------------------------------------------------------------

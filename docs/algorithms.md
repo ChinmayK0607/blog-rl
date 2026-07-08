@@ -65,7 +65,8 @@ type = "grpo"  # the default
 
 | `type` | Sampling | Loss | What it is |
 |---|---|---|---|
-| `grpo` | policy | `rl` on actions | Standard group-relative RL. |
+| `grpo` | policy | `rl` on actions | Standard group-relative RL (Dr.GRPO form: mean baseline, no std division). |
+| `vanilla_grpo` | policy | `rl` on actions | Original GRPO ([DeepSeekMath, arXiv:2402.03300](https://arxiv.org/abs/2402.03300)): the group advantage divided by the group std — the paper's whitened form. Zero-variance groups carry all-zero advantages. |
 | `max_rl` | policy | `rl` on actions | MaxRL ([arXiv:2602.02710](https://arxiv.org/abs/2602.02710)): GRPO's centered reward normalized by the group **mean** instead of the standard deviation — the gradient is unbiased for the order-`group_size` truncation of the maximum-likelihood objective, upweighting hard examples like `1/p`. |
 | `ppo` | policy | `rl` on actions (clipped surrogate) + value loss | Vanilla PPO ([arXiv:1707.06347](https://arxiv.org/abs/1707.06347)): actor-critic, per-rollout credit — the terminal reward ships as a per-token stream and the trainer computes GAE advantages and λ-return value targets from its own value head. Needs `trainer.loss.type = "ppo"` and `trainer.model.ppo_value_head = true`. |
 | `opd` | policy | `ref_kl` on actions | On-policy distillation ([Thinking Machines](https://thinkingmachines.ai/blog/on-policy-distillation/)): the policy samples, per-token reverse KL against a reference model as the gradient signal. Needs a `teacher`. |
@@ -132,6 +133,7 @@ At runtime, each env's resolved config builds two objects: a `Sampler` (`prime_r
 | `algo.type` | Class | hook(s) — stage |
 |---|---|---|
 | `grpo` | `GRPOAlgorithm` | `score_group`: group-norm credit (optional length penalty) |
+| `vanilla_grpo` | `VanillaGRPOAlgorithm` | `score_group`: std-whitened group credit (original DeepSeekMath form) |
 | `echo` | `EchoAlgorithm` | `score_rollout`: weighted ce on observation tokens; `score_group`: group-norm credit (inherited) |
 | `max_rl` | `MaxRLAlgorithm` | `score_group`: mean-normalized group credit |
 | `ppo` | `PPOAlgorithm` | `score_rollout`: terminal reward stamped on each sample's last action token (`rewards` stream; GAE runs in the trainer) |
@@ -272,6 +274,7 @@ The per-token training signal is set by `algo.type` and the [algorithm](#the-alg
 | Type | Component | Effect |
 |---|---|---|
 | `grpo` | `rl` | Group-norm: reward minus per-group baseline, optional length penalty. |
+| `vanilla_grpo` | `rl` | Original GRPO: (reward − group mean) / group std. |
 | `max_rl` | `rl` | Mean-normalized group credit (maximum-likelihood RL). |
 | `ppo` | `rl` + value loss | Vanilla PPO: GAE(γ, λ) advantages evaluated in the trainer against its own value head, clipped-surrogate policy loss, clipped value loss. Rollouts keep `advantages = None` (credit is trainer-side; advantage-based filters never fire); each sample ships a `rewards` stream instead. |
 | `echo` | `rl` + `ce` | Group-norm on action tokens, plus weighted CE on env-provided tokens selected by message role (each role's `alpha` is its ECHO λ), optionally narrowed by a user filter. |
@@ -281,7 +284,7 @@ The per-token training signal is set by `algo.type` and the [algorithm](#the-alg
 
 ### Default Advantage
 
-The default advantage is per-group reward minus per-group baseline (DR-GRPO without std normalization). For each prompt's group of `group_size` rollouts, every token in rollout $i$ receives advantage $s_i - \bar{s}$ where $\bar{s}$ is the group mean.
+The default advantage is per-group reward minus per-group baseline (DR-GRPO without std normalization). For each prompt's group of `group_size` rollouts, every token in rollout $i$ receives advantage $s_i - \bar{s}$ where $\bar{s}$ is the group mean. For the original DeepSeekMath form that also divides by the group std, use `type = "vanilla_grpo"`.
 
 This is intentionally simple — it does the right thing for most envs. Write a named algorithm class when you need group-aware shaping that depends on trajectory metadata (sub-agent rollouts, relative-rank shaping, …) — see [Authoring an Algorithm](#authoring-an-algorithm).
 
