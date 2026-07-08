@@ -1,0 +1,33 @@
+max_turns = 14
+max_total_tokens = 32768
+model = "Qwen/Qwen3-4B-Thinking-2507"
+num_tasks = 12
+num_rollouts = 8
+max_concurrent = 16
+rich = false
+
+[taskset]
+id = "symbolic-tool-calling-v1"
+num_tasks = 12
+seed = 801
+horizon_bucket = "short"
+branching_factor = 2
+distractor_ratio = 0.0
+recovery_cost = 2
+verbosity_setting = "low"
+imbalance_setting = "low"
+
+[taskset.tools]
+colocated = true
+
+[harness]
+id = "default"
+edit = false
+
+[client]
+base_url = "http://localhost:8011/v1"
+api_key_var = "EMPTY"
+
+[sampling]
+max_tokens = 1024
+temperature = 0.7

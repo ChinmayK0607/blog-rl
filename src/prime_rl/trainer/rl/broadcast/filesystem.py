@@ -14,6 +14,7 @@ from prime_rl.trainer.runs import get_multi_run_manager
 from prime_rl.trainer.utils import maybe_clean
 from prime_rl.trainer.weights import (
     gather_weights_on_master,
+    policy_only_state_dict,
     save_state_dict,
 )
 from prime_rl.trainer.world import get_world
@@ -43,6 +44,7 @@ class FileSystemWeightBroadcast(WeightBroadcast):
 
         if not adapter_only:
             state_dict = gather_weights_on_master(model, is_master=self.world.is_master)
+            state_dict = policy_only_state_dict(state_dict)
             if isinstance(model, PreTrainedModelPrimeRL) and model.is_prime_state_dict(state_dict):
                 model.convert_to_hf(state_dict)
             else:

@@ -117,6 +117,8 @@ class DebugModelConfig(BaseConfig):
 
 
 class ModelConfig(BaseModelConfig):
+    ppo_value_head: bool = False
+    """Attach a checkpointed scalar value head to supported custom causal LMs."""
     seq_len: int = 2048
     """Sequence length the model is trained on."""
 
@@ -441,6 +443,14 @@ class IPOLossConfig(BaseConfig):
     """Temperature for the KL term."""
 
 
+class PPOLossConfig(BaseConfig):
+    type: Literal["ppo"] = "ppo"
+    policy_clip: float = Field(0.2, gt=0)
+    value_clip: float = Field(0.2, gt=0)
+    value_coef: float = Field(0.5, ge=0)
+    entropy_coef: float = Field(0.0, ge=0)
+
+
 class CustomLossConfig(BaseConfig):
     type: Literal["custom"] = "custom"
 
@@ -451,7 +461,9 @@ class CustomLossConfig(BaseConfig):
     """Kwargs forwarded to the loss function."""
 
 
-LossConfig: TypeAlias = Annotated[DefaultLossConfig | IPOLossConfig | CustomLossConfig, Field(discriminator="type")]
+LossConfig: TypeAlias = Annotated[
+    DefaultLossConfig | IPOLossConfig | PPOLossConfig | CustomLossConfig, Field(discriminator="type")
+]
 
 
 class FakeDataLoaderConfig(BaseConfig):
@@ -515,6 +527,16 @@ class TrainerConfig(BaseConfig):
 
     loss: LossConfig = DefaultLossConfig()
     """Loss config for the rl loss component (see ``setup_rl_loss_fn``). The ce / ref_kl components are fixed and do not read this."""
+
+    @model_validator(mode="after")
+    def ppo_requires_value_head(self):
+        if isinstance(self.loss, PPOLossConfig) and not self.model.ppo_value_head:
+            raise ValueError("trainer.loss.type='ppo' requires trainer.model.ppo_value_head=true")
+        if self.model.ppo_value_head and not isinstance(self.loss, PPOLossConfig):
+            raise ValueError("trainer.model.ppo_value_head=true requires trainer.loss.type='ppo'")
+        if self.model.ppo_value_head and self.model.impl not in ("custom", "auto"):
+            raise ValueError("ppo_value_head requires model.impl='custom' or 'auto'")
+        return self
 
     optim: OptimizerConfig = AdamWConfig()
 

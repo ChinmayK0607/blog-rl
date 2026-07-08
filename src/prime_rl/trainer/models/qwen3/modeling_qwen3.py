@@ -198,8 +198,14 @@ class Qwen3ForCausalLM(Qwen3PreTrainedModel, GenerationMixin):
         self.model = Qwen3Model(config)
         self.vocab_size = config.vocab_size
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-
+        self.value_head = (
+            nn.Linear(config.hidden_size, 1, bias=False)
+            if getattr(config, "prime_rl_ppo_value_head", False)
+            else None
+        )
         self.post_init()
+        if self.value_head is not None:
+            nn.init.zeros_(self.value_head.weight)
 
     def set_decoder(self, decoder):
         self.model = decoder
@@ -244,11 +250,14 @@ class Qwen3ForCausalLM(Qwen3PreTrainedModel, GenerationMixin):
         )
         hidden_states = outputs.last_hidden_state
         slice_indices = slice(-logits_to_keep, None) if isinstance(logits_to_keep, int) else logits_to_keep
-        return self.lm_head(
+        output = self.lm_head(
             hidden_states[:, slice_indices, :],
             labels[:, slice_indices] if labels is not None else None,
             temperature=temperature,
         )
+        if self.value_head is not None:
+            output["values"] = self.value_head(hidden_states[:, slice_indices, :]).squeeze(-1).float()
+        return output
 
     def init_buffers_post_meta(self):
         buffer_names = [name for name, _ in self.named_buffers()]

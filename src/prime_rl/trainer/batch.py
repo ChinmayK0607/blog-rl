@@ -16,7 +16,14 @@ ROUTED_EXPERTS_DTYPE_ITEMSIZE = {
 # Backfill value per component weight stream when a packed sample doesn't
 # carry it: absent rl means weight 1.0 on the loss mask, absent ce/ref_kl
 # means no component (weight 0.0).
-STREAM_FILL = {"rl_weights": 1.0, "ce_weights": 0.0, "ref_kl_weights": 0.0}
+STREAM_FILL = {
+    "rl_weights": 1.0,
+    "ce_weights": 0.0,
+    "ref_kl_weights": 0.0,
+    "old_values": 0.0,
+    "value_targets": 0.0,
+    "value_weights": 0.0,
+}
 
 
 def _copy_routed_experts(routed_experts: RoutedExperts) -> RoutedExperts:
@@ -124,6 +131,9 @@ def prepare_sample(training_example: TrainingSample, seq_len: int) -> MicroBatch
     rl_weights = list(training_example.rl_weights) if training_example.rl_weights is not None else None
     ce_weights = list(training_example.ce_weights) if training_example.ce_weights is not None else None
     ref_kl_weights = list(training_example.ref_kl_weights) if training_example.ref_kl_weights is not None else None
+    old_values = list(training_example.old_values) if training_example.old_values is not None else None
+    value_targets = list(training_example.value_targets) if training_example.value_targets is not None else None
+    value_weights = list(training_example.value_weights) if training_example.value_weights is not None else None
     position_ids = list(range(len(input_ids)))
     mm_token_type_ids = training_example.mm_token_type_ids
     mm_kwargs = training_example.mm_kwargs
@@ -160,6 +170,12 @@ def prepare_sample(training_example: TrainingSample, seq_len: int) -> MicroBatch
             ce_weights = ce_weights[:cut]
         if ref_kl_weights is not None:
             ref_kl_weights = ref_kl_weights[:cut]
+        if old_values is not None:
+            old_values = old_values[:cut]
+        if value_targets is not None:
+            value_targets = value_targets[:cut]
+        if value_weights is not None:
+            value_weights = value_weights[:cut]
         if routed_experts is not None:
             routed_experts = _slice_routed_experts(routed_experts, cut)
         if mm_token_type_ids is not None:
@@ -182,6 +198,9 @@ def prepare_sample(training_example: TrainingSample, seq_len: int) -> MicroBatch
         ("rl_weights", rl_weights),
         ("ce_weights", ce_weights),
         ("ref_kl_weights", ref_kl_weights),
+        ("old_values", old_values),
+        ("value_targets", value_targets),
+        ("value_weights", value_weights),
     ):
         if stream is not None:
             assert len(stream) == len(input_ids), f"{stream_name}: {len(stream)}"
@@ -214,6 +233,9 @@ def prepare_sample(training_example: TrainingSample, seq_len: int) -> MicroBatch
         rl_weights=rl_weights,
         ce_weights=ce_weights,
         ref_kl_weights=ref_kl_weights,
+        old_values=old_values,
+        value_targets=value_targets,
+        value_weights=value_weights,
     )
 
 
@@ -345,6 +367,9 @@ def _materialize_bin(bin_content: _MicroBatchBin, num_loras: int) -> MicroBatch:
         rl_weights=streams["rl_weights"],
         ce_weights=streams["ce_weights"],
         ref_kl_weights=streams["ref_kl_weights"],
+        old_values=streams["old_values"],
+        value_targets=streams["value_targets"],
+        value_weights=streams["value_weights"],
     )
 
 
@@ -487,6 +512,9 @@ def _assert_token_arrays_aligned(micro_batch: MicroBatch) -> None:
         "rl_weights",
         "ce_weights",
         "ref_kl_weights",
+        "old_values",
+        "value_targets",
+        "value_weights",
         "mm_token_type_ids",
     )
     for name in per_token_fields:

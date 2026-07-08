@@ -52,6 +52,9 @@ class TensorMicroBatch(TypedDict):
     rl_weights: Float[Tensor, "batch seq"] | None
     ce_weights: Float[Tensor, "batch seq"] | None
     ref_kl_weights: Float[Tensor, "batch seq"] | None
+    old_values: Float[Tensor, "batch seq"] | None
+    value_targets: Float[Tensor, "batch seq"] | None
+    value_weights: Float[Tensor, "batch seq"] | None
 
     # Packer-derived metadata used for run-local debug exports.
     run_id: str | None
@@ -135,6 +138,9 @@ class FakeDataLoader:
             "rl_weights": None,
             "ce_weights": None,
             "ref_kl_weights": None,
+            "old_values": None,
+            "value_targets": None,
+            "value_weights": None,
             "run_id": None,
             "run_step": None,
         }
@@ -167,6 +173,9 @@ class FakeDataLoader:
             "rl_weights": None,
             "ce_weights": None,
             "ref_kl_weights": None,
+            "old_values": None,
+            "value_targets": None,
+            "value_weights": None,
             "run_id": None,
             "run_step": None,
         }
@@ -269,6 +278,15 @@ class DataLoader:
             else None,
             ref_kl_weights=torch.tensor(micro_batch.ref_kl_weights, dtype=torch.float).unsqueeze(0)
             if micro_batch.ref_kl_weights is not None
+            else None,
+            old_values=torch.tensor(micro_batch.old_values, dtype=torch.float).unsqueeze(0)
+            if micro_batch.old_values is not None
+            else None,
+            value_targets=torch.tensor(micro_batch.value_targets, dtype=torch.float).unsqueeze(0)
+            if micro_batch.value_targets is not None
+            else None,
+            value_weights=torch.tensor(micro_batch.value_weights, dtype=torch.float).unsqueeze(0)
+            if micro_batch.value_weights is not None
             else None,
             run_id=micro_batch.run_id,
             run_step=micro_batch.run_step,

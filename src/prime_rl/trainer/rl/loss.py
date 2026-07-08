@@ -6,7 +6,7 @@ from beartype import beartype as typechecker
 from jaxtyping import Bool, Float, Int, jaxtyped
 from torch import Tensor
 
-from prime_rl.configs.trainer import CustomLossConfig, DefaultLossConfig, IPOLossConfig, LossConfig
+from prime_rl.configs.trainer import CustomLossConfig, DefaultLossConfig, IPOLossConfig, LossConfig, PPOLossConfig
 from prime_rl.utils.utils import import_object
 
 
@@ -34,6 +34,20 @@ class LossOutputs:
 
     loss: Float[Tensor, ""]
     metrics: dict[str, Tensor]
+
+
+@dataclass
+class PPOLossInputs:
+    trainer_logprobs: Tensor
+    inference_logprobs: Tensor
+    advantages: Tensor
+    values: Tensor
+    old_values: Tensor
+    value_targets: Tensor
+    policy_mask: Tensor
+    value_mask: Tensor
+    policy_weights: Tensor | None = None
+    value_weights: Tensor | None = None
 
 
 LossFn = Callable[..., LossOutputs]
@@ -104,6 +118,61 @@ def compute_importance_ratio_and_mismatch_kl(
     importance_ratio = torch.exp(log_importance_ratio)
     mismatch_kl = importance_ratio - log_importance_ratio - 1
     return log_importance_ratio, importance_ratio, mismatch_kl
+
+
+def ppo_actor_critic_loss(
+    inputs: PPOLossInputs,
+    *,
+    policy_clip: float = 0.2,
+    value_clip: float = 0.2,
+    value_coef: float = 0.5,
+    entropy: Tensor | None = None,
+    entropy_coef: float = 0.0,
+) -> LossOutputs:
+    """Clipped PPO policy and value objectives over independently masked tokens."""
+    log_ratio = inputs.trainer_logprobs - inputs.inference_logprobs
+    ratio = torch.exp(log_ratio)
+    unclipped = ratio * inputs.advantages
+    clipped = torch.clamp(ratio, 1.0 - policy_clip, 1.0 + policy_clip) * inputs.advantages
+    policy_terms = -torch.minimum(unclipped, clipped)
+    if inputs.policy_weights is not None:
+        policy_terms = policy_terms * inputs.policy_weights
+    policy_loss = _safe_mean(policy_terms, inputs.policy_mask)
+
+    clipped_values = inputs.old_values + torch.clamp(
+        inputs.values - inputs.old_values, -value_clip, value_clip
+    )
+    value_error = (inputs.values - inputs.value_targets).square()
+    clipped_value_error = (clipped_values - inputs.value_targets).square()
+    value_terms = torch.maximum(value_error, clipped_value_error)
+    if inputs.value_weights is not None:
+        value_terms = value_terms * inputs.value_weights
+    value_loss = 0.5 * _safe_mean(value_terms, inputs.value_mask)
+
+    entropy_bonus = torch.zeros((), device=policy_loss.device)
+    if entropy is not None:
+        entropy_bonus = _safe_mean(entropy, inputs.policy_mask)
+    loss = policy_loss + value_coef * value_loss - entropy_coef * entropy_bonus
+
+    target_values = inputs.value_targets[inputs.value_mask]
+    prediction_errors = value_error[inputs.value_mask]
+    target_variance = torch.var(target_values, unbiased=False) if target_values.numel() else torch.zeros_like(loss)
+    explained_variance = (
+        1.0 - prediction_errors.mean() / target_variance
+        if target_variance > 0
+        else torch.zeros_like(loss)
+    )
+    clip_fraction = _safe_mean((torch.abs(ratio - 1.0) > policy_clip), inputs.policy_mask)
+    return LossOutputs(
+        loss=loss,
+        metrics={
+            "ppo/policy_loss": policy_loss.detach(),
+            "ppo/value_loss": value_loss.detach(),
+            "ppo/clip_fraction": clip_fraction.detach(),
+            "ppo/explained_variance": explained_variance.detach(),
+            "ppo/entropy": entropy_bonus.detach(),
+        },
+    )
 
 
 def default_loss_fn(inputs: LossInputs, loss_config: DefaultLossConfig) -> LossOutputs:
@@ -196,6 +265,20 @@ def ipo_loss_fn(inputs: LossInputs, loss_config: IPOLossConfig) -> LossOutputs:
     return LossOutputs(loss=loss, metrics=metrics)
 
 
+def ppo_policy_loss_fn(inputs: LossInputs, loss_config: PPOLossConfig) -> LossOutputs:
+    ratio = torch.exp(inputs.trainer_logprobs - inputs.inference_logprobs)
+    unclipped = ratio * inputs.advantages
+    clipped = torch.clamp(ratio, 1.0 - loss_config.policy_clip, 1.0 + loss_config.policy_clip) * inputs.advantages
+    terms = -torch.minimum(unclipped, clipped)
+    if inputs.loss_weights is not None:
+        terms = terms * inputs.loss_weights
+    loss = terms[inputs.loss_mask].sum()
+    return LossOutputs(
+        loss=loss,
+        metrics={"ppo/clip_fraction": _safe_mean(torch.abs(ratio - 1.0) > loss_config.policy_clip, inputs.loss_mask)},
+    )
+
+
 def ref_kl_loss_fn(inputs: LossInputs) -> LossOutputs:
     """
     Ref-KL loss type (on-policy distillation): the reverse KL to the reference
@@ -274,6 +357,11 @@ def setup_rl_loss_fn(loss_config: LossConfig) -> LossFn:
 
         def rl_fn(inputs: LossInputs) -> LossOutputs:
             return ipo_loss_fn(inputs, loss_config)
+
+    elif isinstance(loss_config, PPOLossConfig):
+
+        def rl_fn(inputs: LossInputs) -> LossOutputs:
+            return ppo_policy_loss_fn(inputs, loss_config)
     else:
 
         def rl_fn(inputs: LossInputs) -> LossOutputs:

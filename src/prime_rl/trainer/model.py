@@ -586,6 +586,11 @@ def get_model(
     if getattr(model_config, "model_type", "") == "nemotron_h":
         model_config.use_mamba_kernels = False
 
+    if config.ppo_value_head:
+        if getattr(model_config, "model_type", "") != "qwen3":
+            raise NotImplementedError("ppo_value_head currently supports the custom Qwen3 model only")
+        model_config.prime_rl_ppo_value_head = True
+
     if config.debug.num_layers is not None:
         # VLM configs nest num_hidden_layers under text_config
         target_config = getattr(model_config, "text_config", model_config)

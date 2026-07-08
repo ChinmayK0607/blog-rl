@@ -72,3 +72,28 @@ def stamp_advantages(rollout: Rollout) -> None:
         num_tokens = len(sample.token_ids)
         sample.advantages = list(advantages[offset : offset + num_tokens])
         offset += num_tokens
+
+
+def stamp_ppo_streams(
+    sample: TrainingSample,
+    *,
+    policy_advantage: float,
+    old_value: float,
+    value_target: float,
+    policy_weight: float = 1.0,
+    value_weight: float = 1.0,
+) -> None:
+    """Attach PPO actor credit and one causal segment-start critic target."""
+    if not any(sample.mask):
+        raise ValueError("cannot stamp PPO credit onto a sample without trainable action tokens")
+    length = len(sample.token_ids)
+    first_action = sample.mask.index(True)
+    critic_position = max(first_action - 1, 0)
+    sample.advantages = [policy_advantage if action else 0.0 for action in sample.mask]
+    sample.rl_weights = [policy_weight if action else 0.0 for action in sample.mask]
+    sample.old_values = [0.0] * length
+    sample.value_targets = [0.0] * length
+    sample.value_weights = [0.0] * length
+    sample.old_values[critic_position] = old_value
+    sample.value_targets[critic_position] = value_target
+    sample.value_weights[critic_position] = value_weight

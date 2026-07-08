@@ -45,6 +45,15 @@ def load_state_dict(save_dir: Path) -> dict[str, Tensor]:
     return state_dict
 
 
+def policy_only_state_dict(state_dict: dict[str, Tensor]) -> dict[str, Tensor]:
+    """Remove trainer-only critic parameters before updating the inference policy."""
+    return {
+        key: value
+        for key, value in state_dict.items()
+        if not (key.startswith("value_head.") or ".value_head." in key)
+    }
+
+
 def save_state_dict(
     state_dict: dict[str, Tensor],
     save_dir: Path,

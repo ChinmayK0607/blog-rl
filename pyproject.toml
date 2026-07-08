@@ -133,6 +133,7 @@ envs = [
     "wikispeedia-v1",
     "wordle",
     "wordle-v1",
+    "symbolic-tool-calling-v1",
 ]
 disagg = [
     "deep-ep ; platform_machine == 'x86_64'",
@@ -308,6 +309,7 @@ wiki-search-v1 = { path = "deps/verifiers/environments/wiki_search_v1", editable
 wikispeedia-v1 = { path = "deps/research-environments/environments/wikispeedia_v1", editable = true }
 wordle = { path = "deps/verifiers/environments/wordle", editable = true }
 wordle-v1 = { path = "deps/verifiers/environments/wordle_v1", editable = true }
+symbolic-tool-calling-v1 = { path = "environments/symbolic_tool_calling_v1", editable = true }
 torch = { index = "pytorch-cu128" }
 torchvision = { index = "pytorch-cu128" }
 torchaudio = { index = "pytorch-cu128" }

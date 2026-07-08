@@ -17,7 +17,7 @@ from prime_rl.trainer.ckpt import setup_ckpt_managers
 from prime_rl.trainer.multi_ckpt import setup_multi_checkpoint_manager
 from prime_rl.trainer.optim import setup_optimizer, setup_multi_optimizer
 from prime_rl.trainer.scheduler import setup_scheduler, setup_multi_scheduler
-from prime_rl.configs.trainer import TrainerConfig
+from prime_rl.configs.trainer import PPOLossConfig, TrainerConfig
 from prime_rl.trainer.rl.data import DataLoader, FakeDataLoader
 from prime_rl.utils.cp import (
     gather_for_cp,
@@ -296,6 +296,7 @@ def train(config: TrainerConfig):
         local_rl_scale = 0
         local_ce_scale = 0
         local_ref_kl_scale = 0
+        local_value_scale = 0
         for micro_batch in micro_batches:
             mask = micro_batch["loss_mask"]
             rl_w = micro_batch["rl_weights"]
@@ -304,12 +305,18 @@ def train(config: TrainerConfig):
                 local_ce_scale += int((micro_batch["ce_weights"] != 0).sum())
             if micro_batch["ref_kl_weights"] is not None:
                 local_ref_kl_scale += int((micro_batch["ref_kl_weights"] != 0).sum())
+            if micro_batch["value_weights"] is not None:
+                local_value_scale += int((micro_batch["value_weights"] != 0).sum())
         global_scales = torch.tensor(
-            [local_rl_scale, local_ce_scale, local_ref_kl_scale], dtype=torch.int64, device="cuda"
+            [local_rl_scale, local_ce_scale, local_ref_kl_scale, local_value_scale],
+            dtype=torch.int64,
+            device="cuda",
         )
         dp_cp_group = parallel_dims.get_mesh("dp_cp").get_group()
         dist.all_reduce(global_scales, op=dist.ReduceOp.SUM, group=dp_cp_group)
-        rl_scale, ce_scale, ref_kl_scale = (max(scale, 1) for scale in global_scales.tolist())
+        if isinstance(config.loss, PPOLossConfig) and global_scales[3].item() == 0:
+            raise ValueError("PPO batches require non-empty critic value targets")
+        rl_scale, ce_scale, ref_kl_scale, value_scale = (max(scale, 1) for scale in global_scales.tolist())
 
         logger.debug(f"Starting forward and backward pass ({batch_size=})")
         tensors = Tensors()  # Used to accumulate tensor statistics across micro-batches and ranks for logging
@@ -329,6 +336,13 @@ def train(config: TrainerConfig):
             ce_weights = micro_batch["ce_weights"].to("cuda") if micro_batch["ce_weights"] is not None else None
             ref_kl_weights = (
                 micro_batch["ref_kl_weights"].to("cuda") if micro_batch["ref_kl_weights"] is not None else None
+            )
+            old_values = micro_batch["old_values"].to("cuda") if micro_batch["old_values"] is not None else None
+            value_targets = (
+                micro_batch["value_targets"].to("cuda") if micro_batch["value_targets"] is not None else None
+            )
+            value_weights = (
+                micro_batch["value_weights"].to("cuda") if micro_batch["value_weights"] is not None else None
             )
             routed_experts = (
                 micro_batch["routed_experts"].to("cuda") if micro_batch["routed_experts"] is not None else None
@@ -415,6 +429,8 @@ def train(config: TrainerConfig):
             if cp_enabled:
                 out["logprobs"] = gather_for_cp(out["logprobs"], cp_group)
                 out["entropy"] = gather_for_cp_wo_grad(out["entropy"], cp_size, cp_group)
+                if out.get("values") is not None:
+                    out["values"] = gather_for_cp(out["values"], cp_group)
 
             vocab_size = getattr(model.config, "vocab_size", None) or model.config.text_config.vocab_size
             # This is not really necessary as the first token should be masked out, but we do it anyway to be sure
@@ -441,6 +457,39 @@ def train(config: TrainerConfig):
                 ce_scale=ce_scale,
                 ref_kl_scale=ref_kl_scale,
             )
+
+            if isinstance(config.loss, PPOLossConfig) and config.loss.entropy_coef:
+                entropy_bonus = out["entropy"][loss_mask].sum() / rl_scale
+                loss = loss - config.loss.entropy_coef * entropy_bonus
+                loss_tensors["ppo/entropy"] = entropy_bonus.detach()
+
+            if value_weights is not None:
+                if not isinstance(config.loss, PPOLossConfig):
+                    raise ValueError("critic-bearing samples require trainer.loss.type='ppo'")
+                if out.get("values") is None or old_values is None or value_targets is None:
+                    raise ValueError("PPO requires model values, old values, and value targets")
+                values = out["values"]
+                value_mask = value_weights != 0
+                value_error = (values - value_targets).square()
+                if value_mask.any():
+                    clipped_values = old_values + torch.clamp(
+                        values - old_values, -config.loss.value_clip, config.loss.value_clip
+                    )
+                    clipped_error = (clipped_values - value_targets).square()
+                    weighted_value_loss = torch.maximum(value_error, clipped_error) * value_weights
+                    critic_loss = 0.5 * weighted_value_loss[value_mask].sum() / value_scale
+                    target_variance = torch.var(value_targets[value_mask], unbiased=False)
+                    explained_variance = torch.where(
+                        target_variance > 0,
+                        1.0 - value_error[value_mask].mean() / target_variance,
+                        torch.zeros_like(target_variance),
+                    )
+                else:
+                    critic_loss = values.sum() * 0.0
+                    explained_variance = torch.zeros((), device=values.device)
+                loss = loss + config.loss.value_coef * critic_loss
+                loss_tensors["ppo/value_loss"] = critic_loss.detach()
+                loss_tensors["ppo/explained_variance"] = explained_variance.detach()
 
             # Backward pass
             with maybe_record_function("backward"):

@@ -1,0 +1,36 @@
+{
+  "tasks": {
+    "dataset_version": "1.0.0",
+    "seed": 17,
+    "tasks_per_condition": 2,
+    "horizon_buckets": ["short", "medium", "long"],
+    "imbalance_settings": ["low", "high"],
+    "branching_factor": 2,
+    "distractor_ratio": 0.5,
+    "recovery_cost": 2
+  },
+  "rollouts": {
+    "dataset_version": "1.0.0",
+    "group_size": 4,
+    "policy_ids": [
+      "scripted-optimal-v1",
+      "scripted-exploratory-v1",
+      "scripted-exploratory-v1",
+      "scripted-broken-code-v1"
+    ],
+    "policy_checkpoint": "deterministic-scripted-v1",
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "top_k": null,
+      "max_turns": 128,
+      "max_tokens": 32768,
+      "stop": []
+    }
+  },
+  "compaction": {
+    "compaction_version": "1.0.0",
+    "token_budget": 80,
+    "inherit_group_advantage": true
+  }
+}

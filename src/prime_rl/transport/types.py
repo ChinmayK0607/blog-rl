@@ -68,6 +68,14 @@ class TrainingSample(msgspec.Struct, array_like=True, gc=False, omit_defaults=Tr
     # samples without live rl member tokens (the trainer raises otherwise).
     advantages: list[float] | None = None
 
+    # PPO critic streams, aligned to token_ids. value_weights selects the state
+    # positions where the scalar value head is trained; absent means this is not
+    # a critic-bearing sample. old_values are behavior-policy predictions used
+    # for clipped value loss, and value_targets are bootstrapped returns.
+    old_values: list[float] | None = None
+    value_targets: list[float] | None = None
+    value_weights: list[float] | None = None
+
 
 class TrainingBatch(msgspec.Struct, array_like=True, gc=False, omit_defaults=True):
     """A batch of training examples with metadata for transport."""
@@ -104,6 +112,9 @@ class MicroBatch(msgspec.Struct, array_like=True, gc=False, omit_defaults=True):
     rl_weights: list[float] | None = None
     ce_weights: list[float] | None = None
     ref_kl_weights: list[float] | None = None
+    old_values: list[float] | None = None
+    value_targets: list[float] | None = None
+    value_weights: list[float] | None = None
 
     # Packer-derived metadata used for run-local token exports.
     run_id: str | None = None

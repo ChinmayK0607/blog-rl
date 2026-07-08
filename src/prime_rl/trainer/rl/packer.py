@@ -177,6 +177,13 @@ class MultiPacker(BasePacker):
                 False,
                 f"Run wrote a sample with ref logprobs length != sample length ({len(sample.ref_logprobs)} != {sample_length})",
             )
+        critic_streams = (sample.old_values, sample.value_targets, sample.value_weights)
+        if any(stream is not None for stream in critic_streams):
+            if not all(stream is not None for stream in critic_streams):
+                return False, "PPO critic streams must be provided together"
+            for name, stream in zip(("old_values", "value_targets", "value_weights"), critic_streams, strict=True):
+                if len(stream) != sample_length:
+                    return False, f"Run wrote a sample with {name} length != sample length ({len(stream)} != {sample_length})"
         return True, None
 
     def _get_batch(self) -> None:
