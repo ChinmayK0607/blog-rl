@@ -23,6 +23,7 @@ STREAM_FILL = {
     "old_values": 0.0,
     "value_targets": 0.0,
     "value_weights": 0.0,
+    "rewards": 0.0,
 }
 
 
@@ -134,6 +135,7 @@ def prepare_sample(training_example: TrainingSample, seq_len: int) -> MicroBatch
     old_values = list(training_example.old_values) if training_example.old_values is not None else None
     value_targets = list(training_example.value_targets) if training_example.value_targets is not None else None
     value_weights = list(training_example.value_weights) if training_example.value_weights is not None else None
+    rewards = list(training_example.rewards) if training_example.rewards is not None else None
     position_ids = list(range(len(input_ids)))
     mm_token_type_ids = training_example.mm_token_type_ids
     mm_kwargs = training_example.mm_kwargs
@@ -176,6 +178,8 @@ def prepare_sample(training_example: TrainingSample, seq_len: int) -> MicroBatch
             value_targets = value_targets[:cut]
         if value_weights is not None:
             value_weights = value_weights[:cut]
+        if rewards is not None:
+            rewards = rewards[:cut]
         if routed_experts is not None:
             routed_experts = _slice_routed_experts(routed_experts, cut)
         if mm_token_type_ids is not None:
@@ -201,6 +205,7 @@ def prepare_sample(training_example: TrainingSample, seq_len: int) -> MicroBatch
         ("old_values", old_values),
         ("value_targets", value_targets),
         ("value_weights", value_weights),
+        ("rewards", rewards),
     ):
         if stream is not None:
             assert len(stream) == len(input_ids), f"{stream_name}: {len(stream)}"
@@ -236,6 +241,7 @@ def prepare_sample(training_example: TrainingSample, seq_len: int) -> MicroBatch
         old_values=old_values,
         value_targets=value_targets,
         value_weights=value_weights,
+        rewards=rewards,
     )
 
 
@@ -370,6 +376,7 @@ def _materialize_bin(bin_content: _MicroBatchBin, num_loras: int) -> MicroBatch:
         old_values=streams["old_values"],
         value_targets=streams["value_targets"],
         value_weights=streams["value_weights"],
+        rewards=streams["rewards"],
     )
 
 
@@ -515,6 +522,7 @@ def _assert_token_arrays_aligned(micro_batch: MicroBatch) -> None:
         "old_values",
         "value_targets",
         "value_weights",
+        "rewards",
         "mm_token_type_ids",
     )
     for name in per_token_fields:

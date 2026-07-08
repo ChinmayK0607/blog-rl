@@ -444,11 +444,35 @@ class IPOLossConfig(BaseConfig):
 
 
 class PPOLossConfig(BaseConfig):
+    """Vanilla PPO (Schulman et al. 2017): clipped-surrogate policy loss plus a
+    clipped value loss on the trainer's value head, with GAE advantages computed
+    in the trainer from its own value predictions and the per-token reward
+    stream the ``ppo`` algorithm ships."""
+
     type: Literal["ppo"] = "ppo"
+
     policy_clip: float = Field(0.2, gt=0)
+    """Clip range epsilon of the surrogate objective: the ratio is clamped to [1 - eps, 1 + eps]."""
+
     value_clip: float = Field(0.2, gt=0)
+    """Clip range for the value update around the behavior values."""
+
     value_coef: float = Field(0.5, ge=0)
+    """Coefficient c1 on the value loss."""
+
     entropy_coef: float = Field(0.0, ge=0)
+    """Coefficient c2 on the entropy bonus. The paper's Atari setting is 0.01; 0 disables it."""
+
+    gamma: float = Field(1.0, ge=0, le=1)
+    """Discount factor for GAE. 1.0 (undiscounted) is the standard LLM-RL setting."""
+
+    gae_lambda: float = Field(0.95, ge=0, le=1)
+    """GAE lambda. 1.0 reduces to Monte-Carlo returns, 0.0 to one-step TD."""
+
+    normalize_advantages: bool = False
+    """Whiten GAE advantages (zero mean, unit std) over each micro batch's action
+    tokens before the surrogate loss, as in common PPO implementations. Off by
+    default — the paper's objective uses raw GAE."""
 
 
 class CustomLossConfig(BaseConfig):

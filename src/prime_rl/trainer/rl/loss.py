@@ -175,6 +175,71 @@ def ppo_actor_critic_loss(
     )
 
 
+@dataclass
+class GAEOutputs:
+    """Per-token GAE credit for one sample, aligned to its token stream.
+
+    ``advantages`` land on the action tokens; ``value_targets`` and
+    ``value_weights`` land on the state positions (one before each action
+    token — the hidden state that decided it), matching the critic-position
+    convention of ``stamp_ppo_streams``."""
+
+    advantages: Float[Tensor, " seq"]
+    value_targets: Float[Tensor, " seq"]
+    value_weights: Float[Tensor, " seq"]
+
+
+def compute_token_gae(
+    rewards: Float[Tensor, " seq"],
+    values: Float[Tensor, " seq"],
+    loss_mask: Bool[Tensor, " seq"],
+    *,
+    gamma: float = 1.0,
+    gae_lambda: float = 0.95,
+) -> GAEOutputs:
+    """Token-level GAE (Schulman et al. 2015) over one sample's action tokens.
+
+    Each action (mask-True) token is one timestep. ``values`` are the model's
+    per-position value predictions, where position ``i`` scores the state after
+    tokens ``0..i`` — so the state value for the action token at position ``a``
+    is ``values[a - 1]`` (clamped to 0 for a degenerate action at position 0).
+    Masked-out context tokens (prompt, tool responses) are part of the
+    environment transition between consecutive actions, not timesteps of their
+    own. With deltas over the action positions ``a_1 < ... < a_T``:
+
+        delta_k = rewards[a_k] + gamma * V(s_{k+1}) - V(s_k)       (V(s_{T+1}) = 0)
+        A_k     = delta_k + gamma * lambda * A_{k+1}
+        target_k = A_k + V(s_k)                                    (the lambda-return)
+
+    ``values`` is consumed detached — GAE is credit assignment, not a gradient
+    path into the critic (the critic trains against ``value_targets``).
+    """
+    action_positions = loss_mask.nonzero(as_tuple=True)[0]
+    advantages = torch.zeros_like(rewards)
+    value_targets = torch.zeros_like(rewards)
+    value_weights = torch.zeros_like(rewards)
+    if action_positions.numel() == 0:
+        return GAEOutputs(advantages=advantages, value_targets=value_targets, value_weights=value_weights)
+
+    values = values.detach()
+    state_positions = (action_positions - 1).clamp(min=0)
+    state_values = values[state_positions]
+
+    num_actions = action_positions.numel()
+    next_advantage = values.new_zeros(())
+    action_advantages = values.new_zeros(num_actions)
+    for k in range(num_actions - 1, -1, -1):
+        next_value = state_values[k + 1] if k + 1 < num_actions else values.new_zeros(())
+        delta = rewards[action_positions[k]] + gamma * next_value - state_values[k]
+        next_advantage = delta + gamma * gae_lambda * next_advantage
+        action_advantages[k] = next_advantage
+
+    advantages[action_positions] = action_advantages
+    value_targets[state_positions] = action_advantages + state_values
+    value_weights[state_positions] = 1.0
+    return GAEOutputs(advantages=advantages, value_targets=value_targets, value_weights=value_weights)
+
+
 def default_loss_fn(inputs: LossInputs, loss_config: DefaultLossConfig) -> LossOutputs:
     """
     DPPO+KL loss for RL training, combining:

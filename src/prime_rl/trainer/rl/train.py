@@ -30,6 +30,7 @@ from prime_rl.trainer.rl.loss import (
     compute_entropy,
     compute_loss,
     compute_importance_ratio_and_mismatch_kl,
+    compute_token_gae,
     selective_log_softmax,
     setup_rl_loss_fn,
     shift_tensor_left,
@@ -307,6 +308,11 @@ def train(config: TrainerConfig):
                 local_ref_kl_scale += int((micro_batch["ref_kl_weights"] != 0).sum())
             if micro_batch["value_weights"] is not None:
                 local_value_scale += int((micro_batch["value_weights"] != 0).sum())
+            elif micro_batch["rewards"] is not None:
+                # Online PPO: the trainer derives one critic position per action
+                # token from the reward stream (see compute_token_gae), so the
+                # value denominator is the action-token count.
+                local_value_scale += int(mask.sum())
         global_scales = torch.tensor(
             [local_rl_scale, local_ce_scale, local_ref_kl_scale, local_value_scale],
             dtype=torch.int64,
@@ -344,6 +350,7 @@ def train(config: TrainerConfig):
             value_weights = (
                 micro_batch["value_weights"].to("cuda") if micro_batch["value_weights"] is not None else None
             )
+            rewards = micro_batch["rewards"].to("cuda") if micro_batch["rewards"] is not None else None
             routed_experts = (
                 micro_batch["routed_experts"].to("cuda") if micro_batch["routed_experts"] is not None else None
             )
@@ -441,8 +448,50 @@ def train(config: TrainerConfig):
                 out["entropy"], pad_value=torch.log(torch.tensor(float(vocab_size))).item()
             )
 
-            # Compute loss
+            # Online PPO: the reward stream ships raw terminal rewards; turn them
+            # into GAE advantages and lambda-return value targets against the
+            # trainer's own value predictions. Each batch is trained exactly once,
+            # so the pre-update forward values are the behavior values (old_values)
+            # of vanilla PPO. Shipped critic streams (the offline compacted
+            # pipeline) take precedence — this path only fires on reward-bearing
+            # batches without them.
             sequence_lengths = micro_batch["sequence_lengths"]
+            if rewards is not None:
+                if not isinstance(config.loss, PPOLossConfig):
+                    raise ValueError("reward-bearing samples require trainer.loss.type='ppo'")
+                if value_weights is not None:
+                    raise ValueError(
+                        "a micro batch mixes reward-bearing samples (online PPO) with shipped critic streams "
+                        "(offline PPO) — the two credit paths cannot pack together"
+                    )
+                if out.get("values") is None:
+                    raise ValueError("PPO requires model values — set trainer.model.ppo_value_head=true")
+                gae_outputs = [
+                    compute_token_gae(
+                        rewards=seq_rewards,
+                        values=seq_values,
+                        loss_mask=seq_mask,
+                        gamma=config.loss.gamma,
+                        gae_lambda=config.loss.gae_lambda,
+                    )
+                    for seq_rewards, seq_values, seq_mask in zip(
+                        rewards.squeeze(0).split(sequence_lengths),
+                        out["values"].squeeze(0).split(sequence_lengths),
+                        loss_mask.squeeze(0).split(sequence_lengths),
+                    )
+                ]
+                advantages = torch.cat([g.advantages for g in gae_outputs]).unsqueeze(0)
+                value_targets = torch.cat([g.value_targets for g in gae_outputs]).unsqueeze(0)
+                value_weights = torch.cat([g.value_weights for g in gae_outputs]).unsqueeze(0)
+                old_values = out["values"].detach()
+                if config.loss.normalize_advantages:
+                    action_advantages = advantages[loss_mask]
+                    if action_advantages.numel() > 1:
+                        mean = action_advantages.mean()
+                        std = action_advantages.std().clamp_min(1e-8)
+                        advantages = torch.where(loss_mask, (advantages - mean) / std, advantages)
+
+            # Compute loss
             loss, loss_tensors = compute_loss(
                 trainer_logprobs=out["logprobs"].squeeze().split(sequence_lengths),
                 inference_logprobs=inference_logprobs.squeeze().split(sequence_lengths),

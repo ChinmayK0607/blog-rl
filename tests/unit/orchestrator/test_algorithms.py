@@ -37,6 +37,7 @@ def _ref_kind(ref):
     [
         ("grpo", {}, "policy", "rl"),
         ("max_rl", {}, "policy", "rl"),
+        ("ppo", {}, "policy", "rl"),
         ("opd", {"teacher": FROZEN}, "policy", "ref_kl"),
         ("sft", {"sampling": {"source": FROZEN}}, "frozen", "ce"),
         ("opsd", {}, "policy", "ref_kl"),
@@ -205,6 +206,43 @@ def test_assign_advantages_list_rejects_misaligned():
     rollout = _make_rollout([_make_sample()])
     with pytest.raises(ValueError, match="align"):
         rollout.assign_advantages([0.5])
+
+
+# --------------------------------------------------------------------------
+# PPO: per-rollout credit — the terminal reward ships as a per-token stream;
+# the trainer (which hosts the critic) computes GAE, so no advantage stream
+# ships and no group math runs.
+# --------------------------------------------------------------------------
+
+
+def test_ppo_stamps_terminal_reward_on_last_action_token():
+    from prime_rl.orchestrator.algo import PPOAlgorithm
+
+    rollout = Rollout(task=vf.Task(idx=0, prompt=None), nodes=[], rewards={"reward": 0.5}, env_name="test-env")
+    rollout.samples = [_make_sample()]
+    algo = PPOAlgorithm(_build(type="ppo"), MagicMock())
+    asyncio.run(algo.score_rollout(rollout))
+    sample = rollout.samples[0]
+    # Last action token of mask [F, F, T, T, F, T] is position 5.
+    assert sample.rewards == [0.0, 0.0, 0.0, 0.0, 0.0, 0.5]
+    # The advantage stream is a zero placeholder (the trainer overwrites it
+    # with GAE) and the rollout ships no credit, so advantage filters skip.
+    assert sample.advantages == [0.0] * 6
+    assert rollout.advantages is None
+
+
+def test_ppo_finalize_group_keeps_rl_hot_path():
+    from prime_rl.orchestrator.algo import PPOAlgorithm
+
+    rollout = Rollout(task=vf.Task(idx=0, prompt=None), nodes=[], rewards={"reward": 1.0}, env_name="test-env")
+    rollout.samples = [_make_sample()]
+    algo = PPOAlgorithm(_build(type="ppo"), MagicMock())
+    asyncio.run(algo.finalize_rollout(rollout))
+    asyncio.run(algo.finalize_group([rollout]))
+    sample = rollout.samples[0]
+    # rl action routing ships no weight streams; the reward stream is intact.
+    assert sample.rl_weights is None
+    assert sample.rewards == [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 
 
 # --------------------------------------------------------------------------

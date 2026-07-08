@@ -67,6 +67,7 @@ type = "grpo"  # the default
 |---|---|---|---|
 | `grpo` | policy | `rl` on actions | Standard group-relative RL. |
 | `max_rl` | policy | `rl` on actions | MaxRL ([arXiv:2602.02710](https://arxiv.org/abs/2602.02710)): GRPO's centered reward normalized by the group **mean** instead of the standard deviation — the gradient is unbiased for the order-`group_size` truncation of the maximum-likelihood objective, upweighting hard examples like `1/p`. |
+| `ppo` | policy | `rl` on actions (clipped surrogate) + value loss | Vanilla PPO ([arXiv:1707.06347](https://arxiv.org/abs/1707.06347)): actor-critic, per-rollout credit — the terminal reward ships as a per-token stream and the trainer computes GAE advantages and λ-return value targets from its own value head. Needs `trainer.loss.type = "ppo"` and `trainer.model.ppo_value_head = true`. |
 | `opd` | policy | `ref_kl` on actions | On-policy distillation ([Thinking Machines](https://thinkingmachines.ai/blog/on-policy-distillation/)): the policy samples, per-token reverse KL against a reference model as the gradient signal. Needs a `teacher`. |
 | `sft` | *(the teacher)* | `ce` on actions | Hard distillation: a frozen model generates rollouts, the policy trains with CE on its tokens. Needs a frozen `sampling.source` (the teacher it samples from). |
 | `opsd` | policy | `ref_kl` on actions | SDFT ([arXiv:2601.19897](https://arxiv.org/abs/2601.19897)): the model is its own reference, conditioned on an expert demonstration. The teacher *is* the live policy (the paper's setting, no extra deployment) — no model to configure. |
@@ -133,6 +134,7 @@ At runtime, each env's resolved config builds two objects: a `Sampler` (`prime_r
 | `grpo` | `GRPOAlgorithm` | `score_group`: group-norm credit (optional length penalty) |
 | `echo` | `EchoAlgorithm` | `score_rollout`: weighted ce on observation tokens; `score_group`: group-norm credit (inherited) |
 | `max_rl` | `MaxRLAlgorithm` | `score_group`: mean-normalized group credit |
+| `ppo` | `PPOAlgorithm` | `score_rollout`: terminal reward stamped on each sample's last action token (`rewards` stream; GAE runs in the trainer) |
 | `opd` | `OPDAlgorithm` | `score_rollout`: own-context prefill under the teacher |
 | `opsd` | `OPSDAlgorithm` | `score_rollout`: demo-conditioned prefill under the live policy |
 | `sft` | `SFTDistillAlgorithm` | `score_group`: group-norm credit (feeds filters) |
@@ -271,6 +273,7 @@ The per-token training signal is set by `algo.type` and the [algorithm](#the-alg
 |---|---|---|
 | `grpo` | `rl` | Group-norm: reward minus per-group baseline, optional length penalty. |
 | `max_rl` | `rl` | Mean-normalized group credit (maximum-likelihood RL). |
+| `ppo` | `rl` + value loss | Vanilla PPO: GAE(γ, λ) advantages evaluated in the trainer against its own value head, clipped-surrogate policy loss, clipped value loss. Rollouts keep `advantages = None` (credit is trainer-side; advantage-based filters never fire); each sample ships a `rewards` stream instead. |
 | `echo` | `rl` + `ce` | Group-norm on action tokens, plus weighted CE on env-provided tokens selected by message role (each role's `alpha` is its ECHO λ), optionally narrowed by a user filter. |
 | `opd` | `ref_kl` | On-policy distillation: per-token reverse KL to a reference model (`model`, an inline frozen hosted model), evaluated in the trainer from shipped reference logprobs. No credit — rollouts keep `advantages = None` (advantage-based filters never fire) and ship no advantage stream; `group_size` only fans out sampling. |
 | `opsd` | `ref_kl` | SDFT: per-token reverse KL to a demo-conditioned reference. No credit — rollouts keep `advantages = None` (advantage-based filters never fire) and ship no advantage stream. |

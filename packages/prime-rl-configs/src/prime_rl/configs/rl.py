@@ -335,6 +335,29 @@ class RLConfig(BaseConfig):
         return self
 
     @model_validator(mode="after")
+    def validate_ppo_algo_matches_ppo_loss(self):
+        """The ``ppo`` algorithm and ``trainer.loss.type = "ppo"`` come as a pair.
+
+        The trainer's PPO path treats every micro batch as PPO (GAE from the
+        reward stream, critic loss on the value head), so mixing PPO and
+        non-PPO envs in one run is not supported: either every train env runs
+        the ``ppo`` algorithm and the trainer loss is ``ppo``, or neither.
+        """
+        env_algo_types = {env.algo.type for env in self.orchestrator.train.env if env.algo is not None}
+        if not env_algo_types:
+            return self
+        if self.trainer.loss.type == "ppo" and env_algo_types != {"ppo"}:
+            raise ValueError(
+                f"trainer.loss.type='ppo' requires every train env to use the 'ppo' algorithm, got {sorted(env_algo_types)}"
+            )
+        if "ppo" in env_algo_types and (self.trainer.loss.type != "ppo" or env_algo_types != {"ppo"}):
+            raise ValueError(
+                "the 'ppo' algorithm requires trainer.loss.type='ppo' and cannot be mixed with other algorithms "
+                f"(got trainer.loss.type={self.trainer.loss.type!r}, env algorithms {sorted(env_algo_types)})"
+            )
+        return self
+
+    @model_validator(mode="after")
     def auto_setup_weight_broadcast(self):
         """Auto-setup shared weight broadcast config for trainer, orchestrator, and inference."""
         if self.weight_broadcast is not None:

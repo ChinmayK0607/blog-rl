@@ -1,7 +1,7 @@
 """Algorithm abstraction: sampling and the per-token training signal.
 
 An algorithm is a named, self-contained config — a discriminated union keyed
-on ``type`` (``grpo``, ``max_rl``, ``opd``, ``opsd``, ``sft``, ``echo``).
+on ``type`` (``grpo``, ``max_rl``, ``ppo``, ``opd``, ``opsd``, ``sft``, ``echo``).
 The bundle *is* the algorithm: each variant carries
 its sampling component and its credit-assignment / loss-routing parameters,
 and its class defaults are the vetted setting — ``type = "opd"`` with a
@@ -232,6 +232,22 @@ class MaxRLAlgoConfig(BaseAlgoConfig):
     action_loss_type: ClassVar[ActionLossType] = "rl"
 
 
+class PPOAlgoConfig(BaseAlgoConfig):
+    type: Literal["ppo"] = "ppo"
+    """Vanilla PPO (Schulman et al. 2017, https://arxiv.org/abs/1707.06347):
+    actor-critic with clipped-surrogate policy loss and GAE advantages from a
+    learned value head. Credit is per-rollout — no group baseline — so
+    ``group_size`` only fans out sampling. The orchestrator ships a per-token
+    reward stream (the terminal reward on each sample's last action token);
+    the trainer, which hosts the critic (``trainer.model.ppo_value_head``),
+    computes GAE and the value targets from its own value predictions and
+    trains both heads in one pass. Requires ``trainer.loss.type = "ppo"``
+    (which carries the PPO knobs: clip ranges, ``gamma``, ``gae_lambda``,
+    ``value_coef``, ``entropy_coef``)."""
+
+    action_loss_type: ClassVar[ActionLossType] = "rl"
+
+
 class OPDAlgoConfig(BaseAlgoConfig):
     type: Literal["opd"] = "opd"
     """On-policy distillation: the per-token signal is the reverse KL to
@@ -305,7 +321,7 @@ class SFTAlgoConfig(BaseAlgoConfig):
 
 
 AlgoConfig: TypeAlias = Annotated[
-    GRPOAlgoConfig | EchoAlgoConfig | MaxRLAlgoConfig | OPDAlgoConfig | OPSDAlgoConfig | SFTAlgoConfig,
+    GRPOAlgoConfig | EchoAlgoConfig | MaxRLAlgoConfig | PPOAlgoConfig | OPDAlgoConfig | OPSDAlgoConfig | SFTAlgoConfig,
     Field(discriminator="type"),
 ]
 """The training algorithm: sampling plus the per-token training signal (credit
@@ -314,6 +330,7 @@ its class defaults are the vetted setting.
 
 - ``grpo`` — policy group sampling, group-relative advantage, RL loss (the default).
 - ``max_rl`` — GRPO with mean-normalized advantages (maximum-likelihood RL).
+- ``ppo`` — vanilla PPO: clipped surrogate + GAE from the trainer's value head. Needs ``trainer.loss.type = "ppo"`` and ``trainer.model.ppo_value_head``.
 - ``opd`` — on-policy distillation: policy samples, per-token reverse KL against a reference model. Needs ``teacher``.
 - ``opsd`` — SDFT: policy samples, demo-conditioned reverse KL against the live policy (the teacher is the policy itself).
 - ``sft`` — a frozen model samples, the policy trains with CE on its tokens. Needs a frozen ``sampling.source``.

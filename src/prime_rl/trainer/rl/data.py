@@ -55,6 +55,7 @@ class TensorMicroBatch(TypedDict):
     old_values: Float[Tensor, "batch seq"] | None
     value_targets: Float[Tensor, "batch seq"] | None
     value_weights: Float[Tensor, "batch seq"] | None
+    rewards: Float[Tensor, "batch seq"] | None
 
     # Packer-derived metadata used for run-local debug exports.
     run_id: str | None
@@ -141,6 +142,7 @@ class FakeDataLoader:
             "old_values": None,
             "value_targets": None,
             "value_weights": None,
+            "rewards": None,
             "run_id": None,
             "run_step": None,
         }
@@ -176,6 +178,7 @@ class FakeDataLoader:
             "old_values": None,
             "value_targets": None,
             "value_weights": None,
+            "rewards": None,
             "run_id": None,
             "run_step": None,
         }
@@ -287,6 +290,9 @@ class DataLoader:
             else None,
             value_weights=torch.tensor(micro_batch.value_weights, dtype=torch.float).unsqueeze(0)
             if micro_batch.value_weights is not None
+            else None,
+            rewards=torch.tensor(micro_batch.rewards, dtype=torch.float).unsqueeze(0)
+            if micro_batch.rewards is not None
             else None,
             run_id=micro_batch.run_id,
             run_step=micro_batch.run_step,

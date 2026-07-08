@@ -184,6 +184,11 @@ class MultiPacker(BasePacker):
             for name, stream in zip(("old_values", "value_targets", "value_weights"), critic_streams, strict=True):
                 if len(stream) != sample_length:
                     return False, f"Run wrote a sample with {name} length != sample length ({len(stream)} != {sample_length})"
+        if sample.rewards is not None and len(sample.rewards) != sample_length:
+            return (
+                False,
+                f"Run wrote a sample with rewards length != sample length ({len(sample.rewards)} != {sample_length})",
+            )
         return True, None
 
     def _get_batch(self) -> None:

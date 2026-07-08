@@ -76,6 +76,13 @@ class TrainingSample(msgspec.Struct, array_like=True, gc=False, omit_defaults=Tr
     value_targets: list[float] | None = None
     value_weights: list[float] | None = None
 
+    # Per-token environment rewards (online PPO): the ``ppo`` algorithm stamps
+    # the rollout's terminal reward on each sample's last action token, 0.0
+    # elsewhere. The trainer — which hosts the critic — turns this into GAE
+    # advantages and value targets against its own value predictions. Absent
+    # for every other algorithm.
+    rewards: list[float] | None = None
+
 
 class TrainingBatch(msgspec.Struct, array_like=True, gc=False, omit_defaults=True):
     """A batch of training examples with metadata for transport."""
@@ -115,6 +122,7 @@ class MicroBatch(msgspec.Struct, array_like=True, gc=False, omit_defaults=True):
     old_values: list[float] | None = None
     value_targets: list[float] | None = None
     value_weights: list[float] | None = None
+    rewards: list[float] | None = None
 
     # Packer-derived metadata used for run-local token exports.
     run_id: str | None = None

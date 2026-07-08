@@ -233,6 +233,31 @@ def test_multi_node_auto_inference_client_dp_rank_count_uses_router_url():
     assert config.orchestrator.model.client.dp_rank_count == 1
 
 
+def test_ppo_algo_and_ppo_loss_come_as_a_pair():
+    # A legacy (v0) env reference — a v1 taskset id would import its plugin here.
+    env = {"id": "reverse_text"}
+    config = RLConfig.model_validate(
+        {
+            "trainer": {"loss": {"type": "ppo"}, "model": {"ppo_value_head": True}},
+            "orchestrator": {"algo": {"type": "ppo"}, "train": {"env": [env]}},
+        }
+    )
+    assert config.trainer.loss.type == "ppo"
+    assert all(env_cfg.algo.type == "ppo" for env_cfg in config.orchestrator.train.env)
+
+    with pytest.raises(ValidationError, match="requires every train env to use the 'ppo' algorithm"):
+        RLConfig.model_validate(
+            {
+                "trainer": {"loss": {"type": "ppo"}, "model": {"ppo_value_head": True}},
+                "orchestrator": {"train": {"env": [env]}},
+            }
+        )
+    with pytest.raises(ValidationError, match="requires trainer.loss.type='ppo'"):
+        RLConfig.model_validate(
+            {"trainer": {}, "orchestrator": {"algo": {"type": "ppo"}, "train": {"env": [env]}}}
+        )
+
+
 def test_orchestrator_vlm_requires_renderer():
     with pytest.raises(ValidationError, match="renderer"):
         OrchestratorConfig.model_validate(
