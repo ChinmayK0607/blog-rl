@@ -200,6 +200,41 @@ class GRPOAlgoConfig(BaseAlgoConfig):
     """Linear length penalty subtracted from each reward before the GRPO baseline (see ``LinearLengthPenaltyConfig``): a ``pass_rate``-scaled sum of output-token, input-token, and turns terms, each normalized by the group's own max for that quantity. None disables it."""
 
 
+class CompactedGRPOAlgoConfig(GRPOAlgoConfig):
+    type: Literal["compacted_grpo"] = "compacted_grpo"  # type: ignore[assignment]
+    """GRPO whose completed online rollouts are split into message-boundary
+    segments. Each segment inherits its rollout's group-relative advantage and
+    has equal total actor weight, independent of its number of action tokens."""
+
+    token_budget: int = Field(512, ge=1)
+    """Maximum newly introduced tokens targeted per segment. Whole message
+    nodes are never split, so a single oversized turn may exceed this value."""
+
+
+class SegmentNormalizedGRPOAlgoConfig(CompactedGRPOAlgoConfig):
+    type: Literal["segment_normalized_grpo"] = "segment_normalized_grpo"  # type: ignore[assignment]
+    """Compacted GRPO with each segment additionally weighted by the inverse
+    number of segments in its source rollout, preserving equal rollout mass."""
+
+
+class CompactedPPOAlgoConfig(CompactedGRPOAlgoConfig):
+    type: Literal["compacted_ppo"] = "compacted_ppo"  # type: ignore[assignment]
+    """Compacted actor-critic pilot.
+
+    Policy credit is inherited from compacted GRPO. Each compacted segment
+    additionally carries one segment-start critic target for trainer-side PPO
+    value-head training. The initial behavior-value source is a zero baseline;
+    this is intentionally conservative until inference-time value prediction is
+    wired into rollout collection.
+    """
+
+    critic_target: Literal["rollout_reward"] = "rollout_reward"
+    """Target assigned to each segment-start critic state."""
+
+    critic_old_value: float = 0.0
+    """Behavior value attached to each segment for clipped PPO value loss."""
+
+
 class EchoAlgoConfig(GRPOAlgoConfig):
     type: Literal["echo"] = "echo"  # type: ignore[assignment]
     """ECHO: group-relative advantage on action tokens (GRPO), plus weighted
@@ -305,7 +340,15 @@ class SFTAlgoConfig(BaseAlgoConfig):
 
 
 AlgoConfig: TypeAlias = Annotated[
-    GRPOAlgoConfig | EchoAlgoConfig | MaxRLAlgoConfig | OPDAlgoConfig | OPSDAlgoConfig | SFTAlgoConfig,
+    GRPOAlgoConfig
+    | CompactedGRPOAlgoConfig
+    | SegmentNormalizedGRPOAlgoConfig
+    | CompactedPPOAlgoConfig
+    | EchoAlgoConfig
+    | MaxRLAlgoConfig
+    | OPDAlgoConfig
+    | OPSDAlgoConfig
+    | SFTAlgoConfig,
     Field(discriminator="type"),
 ]
 """The training algorithm: sampling plus the per-token training signal (credit
@@ -314,6 +357,7 @@ its class defaults are the vetted setting.
 
 - ``grpo`` — policy group sampling, group-relative advantage, RL loss (the default).
 - ``max_rl`` — GRPO with mean-normalized advantages (maximum-likelihood RL).
+- ``compacted_ppo`` — compacted GRPO policy credit plus segment-start critic targets for trainer-side PPO.
 - ``opd`` — on-policy distillation: policy samples, per-token reverse KL against a reference model. Needs ``teacher``.
 - ``opsd`` — SDFT: policy samples, demo-conditioned reverse KL against the live policy (the teacher is the policy itself).
 - ``sft`` — a frozen model samples, the policy trains with CE on its tokens. Needs a frozen ``sampling.source``.

@@ -8,8 +8,8 @@ from verifiers.v1.graph import MessageNode
 from verifiers.v1.types import AssistantMessage, ToolMessage, UserMessage
 
 from prime_rl.configs.algorithm import AlgoConfig, FrozenModelConfig
-from prime_rl.orchestrator.algo import EchoAlgorithm, stamp_advantages, stamp_loss_routing
-from prime_rl.orchestrator.trajectories import trace_to_samples
+from prime_rl.orchestrator.algo import EchoAlgorithm, build_algorithm, stamp_advantages, stamp_loss_routing
+from prime_rl.orchestrator.trajectories import trace_to_compacted_samples, trace_to_samples
 from prime_rl.orchestrator.types import Rollout
 from prime_rl.transport.types import TrainingSample
 
@@ -36,6 +36,9 @@ def _ref_kind(ref):
     ("algorithm_type", "build_kwargs", "source", "action_loss_type"),
     [
         ("grpo", {}, "policy", "rl"),
+        ("compacted_grpo", {}, "policy", "rl"),
+        ("segment_normalized_grpo", {}, "policy", "rl"),
+        ("compacted_ppo", {}, "policy", "rl"),
         ("max_rl", {}, "policy", "rl"),
         ("opd", {"teacher": FROZEN}, "policy", "ref_kl"),
         ("sft", {"sampling": {"source": FROZEN}}, "frozen", "ce"),
@@ -116,7 +119,27 @@ def test_stamp_loss_routing_uniform_rl():
     # Hot path: absent streams mean rl weight 1.0 on the loss mask
     assert sample.rl_weights is None
     assert sample.ce_weights is None
-    assert sample.ref_kl_weights is None
+
+
+@pytest.mark.asyncio
+async def test_compacted_ppo_adds_value_streams():
+    rollout = _two_turn_rollout()
+    rollout.samples = trace_to_compacted_samples(rollout, token_budget=4, env_name="test")
+    loser = _two_turn_rollout()
+    loser.rewards = {"reward": 0.0}
+    loser.samples = trace_to_compacted_samples(loser, token_budget=4, env_name="test")
+    algo = build_algorithm(_build(type="compacted_ppo", token_budget=4), MagicMock())
+
+    await algo.finalize_group([rollout, loser])
+
+    assert rollout.samples
+    for sample in rollout.samples:
+        assert sample.old_values is not None
+        assert sample.value_targets is not None
+        assert sample.value_weights is not None
+        assert sum(sample.value_weights) == pytest.approx(1.0)
+        assert max(sample.value_targets) == pytest.approx(1.0)
+        assert any(sample.rl_weights)
 
 
 def test_stamp_loss_routing_ref_kl_action():
@@ -205,6 +228,34 @@ def test_assign_advantages_list_rejects_misaligned():
     rollout = _make_rollout([_make_sample()])
     with pytest.raises(ValueError, match="align"):
         rollout.assign_advantages([0.5])
+
+
+def test_online_compaction_preserves_prefix_and_masks_previous_actions():
+    rollout = _two_turn_rollout()
+    segments = trace_to_compacted_samples(rollout, token_budget=4, env_name="test-env")
+    assert len(segments) == 2
+    assert segments[0].token_ids == [1, 2, 3, 4]
+    assert segments[0].mask == [False, False, True, True]
+    assert segments[1].token_ids == [1, 2, 3, 4, 5, 6, 7, 8]
+    assert segments[1].mask == [False, False, False, False, False, False, True, True]
+    assert len(segments[1].logprobs) == len(segments[1].token_ids)
+
+
+@pytest.mark.parametrize(
+    ("algo_type", "expected_mass"),
+    [("compacted_grpo", [1.0, 1.0]), ("segment_normalized_grpo", [0.5, 0.5])],
+)
+def test_compacted_grpo_segment_weighting(algo_type, expected_mass):
+    rollout = _two_turn_rollout()
+    rollout.samples = trace_to_compacted_samples(rollout, token_budget=4, env_name="test-env")
+    peer = _two_turn_rollout()
+    peer.rewards = {"r": 0.0}
+    peer.samples = trace_to_compacted_samples(peer, token_budget=4, env_name="test-env")
+    algo = build_algorithm(_build(type=algo_type, token_budget=4), policy_pool=MagicMock())
+    asyncio.run(algo.finalize_group([rollout, peer]))
+    assert rollout.num_compaction_segments == 2
+    assert [sum(s.rl_weights) for s in rollout.samples] == pytest.approx(expected_mass)
+    assert all(s.advantages is not None for s in rollout.samples)
 
 
 # --------------------------------------------------------------------------

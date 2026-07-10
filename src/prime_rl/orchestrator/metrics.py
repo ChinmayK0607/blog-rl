@@ -265,6 +265,25 @@ class TrainMetrics(RolloutMetrics):
     def is_filtered(self) -> Stat:
         return Stat([float(r.is_filtered) for r in self.rollouts])
 
+    @property
+    def num_compaction_segments(self) -> Stat:
+        return Stat([float(getattr(r, "num_compaction_segments", 1)) for r in self.rollouts])
+
+    @property
+    def compaction_segment_action_tokens(self) -> Stat:
+        return Stat([float(n) for r in self.rollouts for n in getattr(r, "compaction_segment_lengths", [])])
+
+    def compaction_group_segment_count_cv(self) -> Stat:
+        groups: dict = {}
+        for rollout in self.rollouts:
+            groups.setdefault(rollout.group_id, []).append(float(getattr(rollout, "num_compaction_segments", 1)))
+        values = []
+        for counts in groups.values():
+            mean = sum(counts) / len(counts)
+            variance = sum((count - mean) ** 2 for count in counts) / len(counts)
+            values.append(variance**0.5 / mean if mean else 0.0)
+        return Stat(values)
+
     def filter_rates(self) -> dict[str, float]:
         """Per-filter detection rate over all rollouts."""
         names = sorted({name for r in self.rollouts for name in r.filter_results})
@@ -278,6 +297,9 @@ class TrainMetrics(RolloutMetrics):
             return out
         p = f"{prefix}/{subset}"
         out |= self.reward.to_dict(f"{p}/reward")
+        out |= self.num_compaction_segments.to_dict(f"{p}/compaction/segments_per_rollout")
+        out |= self.compaction_segment_action_tokens.to_dict(f"{p}/compaction/action_tokens_per_segment")
+        out |= self.compaction_group_segment_count_cv().to_dict(f"{p}/compaction/group_segment_count_cv")
         out[f"{p}/is_trainable/mean"] = self.is_trainable.mean()
         out[f"{p}/is_filtered/mean"] = self.is_filtered.mean()
         out |= {f"{p}/filters/{k}/mean": v for k, v in self.filter_rates().items()}

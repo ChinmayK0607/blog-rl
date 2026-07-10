@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-GENERATOR_VERSION = "1.0.0"
+GENERATOR_VERSION = "1.1.0"
 VERIFIER_SPEC_VERSION = "1.0.0"
 
 
@@ -32,7 +32,7 @@ class BenchmarkTask(FrozenModel):
     task_id: str
     generator_version: str = GENERATOR_VERSION
     seed: int
-    horizon_bucket: Literal["short", "medium", "long"]
+    horizon_bucket: Literal["short", "medium", "long", "xlong", "xxlong"]
     dependency_depth: int
     branching_factor: int
     distractor_ratio: float

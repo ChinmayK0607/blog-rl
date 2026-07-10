@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Literal
 
 import verifiers.v1 as vf
@@ -14,7 +15,7 @@ from symbolic_tool_calling_v1.validation import validate_task
 class SymbolicCondition(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    horizon_bucket: Literal["short", "medium", "long"]
+    horizon_bucket: Literal["short", "medium", "long", "xlong", "xxlong"]
     distractor_ratio: float = Field(default=0.5, ge=0, le=1)
     recovery_cost: int = Field(default=2, ge=1)
     verbosity_setting: Literal["low", "high"] = "low"
@@ -24,13 +25,14 @@ class SymbolicCondition(BaseModel):
 class SymbolicToolCallingConfig(vf.TasksetConfig):
     num_tasks: int = Field(default=100, ge=1)
     seed: int = 17
-    horizon_bucket: Literal["short", "medium", "long"] = "medium"
+    horizon_bucket: Literal["short", "medium", "long", "xlong", "xxlong"] = "medium"
     branching_factor: int = Field(default=2, ge=1, le=2)
     distractor_ratio: float = Field(default=0.5, ge=0, le=1)
     recovery_cost: int = Field(default=2, ge=1)
     verbosity_setting: Literal["low", "high"] = "low"
     imbalance_setting: Literal["low", "high"] = "low"
     conditions: tuple[SymbolicCondition, ...] = ()
+    task_file: Path | None = None
     tools: vf.ToolsetConfig = vf.ToolsetConfig()
 
 
@@ -40,6 +42,22 @@ class SymbolicTask(vf.Task):
 
 class SymbolicToolCallingTaskset(vf.Taskset[SymbolicTask, SymbolicToolCallingConfig, SymbolicState]):
     def load_tasks(self) -> list[SymbolicTask]:
+        if self.config.task_file is not None:
+            specs = [
+                BenchmarkTask.model_validate_json(line)
+                for line in self.config.task_file.read_text().splitlines()
+                if line
+            ]
+            if not specs:
+                raise ValueError(f"curated task file is empty: {self.config.task_file}")
+            if len({spec.task_id for spec in specs}) != len(specs):
+                raise ValueError("curated task file contains duplicate task ids")
+            for spec in specs:
+                validate_task(spec)
+            return [
+                SymbolicTask(idx=idx, name=spec.task_id, prompt=TASK_PROMPT, system_prompt=SYSTEM_PROMPT, spec=spec)
+                for idx, spec in enumerate(specs)
+            ]
         tasks = []
         for idx in range(self.config.num_tasks):
             condition = (

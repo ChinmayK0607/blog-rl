@@ -1,0 +1,77 @@
+max_steps = 20
+seq_len = 32768
+output_dir = "/home/ubuntu/semi/artifacts/rl-qwen3-instruct-curated-6i2t-pilot-v3"
+
+[deployment]
+num_train_gpus = 2
+num_infer_gpus = 6
+
+[model]
+name = "Qwen/Qwen3-4B-Instruct-2507"
+
+[ckpt]
+interval = 10
+
+[trainer]
+
+[trainer.model]
+cp = 1
+
+[trainer.model.ac]
+freq = 1
+
+[trainer.model.compile]
+
+[orchestrator]
+batch_size = 64
+group_size = 8
+max_off_policy_steps = 8
+
+[orchestrator.renderer]
+name = "qwen3"
+
+[orchestrator.model.client]
+base_url = ["http://localhost:8040/v1"]
+
+[orchestrator.train.sampling]
+temperature = 0.7
+max_completion_tokens = 4096
+
+[[orchestrator.train.env]]
+name = "symbolic-curated-600"
+group_size = 8
+max_turns = 24
+max_total_tokens = 32768
+taskset = { id = "symbolic-tool-calling-v1", task_file = "/home/ubuntu/semi/artifacts/symbolic-curated-600-v2/tasks_train.jsonl", tools = { colocated = true } }
+harness = { id = "default" }
+
+[orchestrator.eval]
+interval = 10
+num_examples = -1
+group_size = 1
+skip_first_step = true
+
+[orchestrator.eval.sampling]
+temperature = 0.0
+max_completion_tokens = 4096
+
+[[orchestrator.eval.env]]
+name = "symbolic-curated-600-val"
+interval = 10
+group_size = 1
+max_turns = 24
+max_total_tokens = 32768
+taskset = { id = "symbolic-tool-calling-v1", task_file = "/home/ubuntu/semi/artifacts/symbolic-curated-600-v2/tasks_val.jsonl", tools = { colocated = true } }
+harness = { id = "default" }
+
+[inference]
+gpu_memory_utilization = 0.85
+
+[inference.server]
+port = 8040
+
+[inference.model]
+max_model_len = 32768
+
+[inference.parallel]
+dp = 6

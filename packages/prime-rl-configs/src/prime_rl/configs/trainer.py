@@ -119,6 +119,10 @@ class DebugModelConfig(BaseConfig):
 class ModelConfig(BaseModelConfig):
     ppo_value_head: bool = False
     """Attach a checkpointed scalar value head to supported custom causal LMs."""
+    ppo_value_head_init: str | None = None
+    """Optional path to a safetensors file holding a pretrained ``value_head.weight``
+    (shape ``[1, hidden_size]``). When set, the value head is warm-started from this
+    tensor instead of being zero-initialized, avoiding the PPO critic cold-start."""
     seq_len: int = 2048
     """Sequence length the model is trained on."""
 

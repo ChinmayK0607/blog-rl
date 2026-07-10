@@ -1,0 +1,18 @@
+{
+  "sources": [
+    {
+      "name": "easy",
+      "results_jsonl": "/home/ubuntu/semi/artifacts/qwen3-4b-instruct-easy-medium-pass4-v1/eval/results.jsonl",
+      "groups_jsonl": "/home/ubuntu/semi/artifacts/qwen3-4b-instruct-easy-medium-pass4-v1/pass_at_4/groups.jsonl",
+      "quota": 300,
+      "allowed_horizons": ["short"]
+    },
+    {
+      "name": "medium",
+      "results_jsonl": "/home/ubuntu/semi/artifacts/qwen3-4b-instruct-medium-low-pass4-v1/eval/results.jsonl",
+      "groups_jsonl": "/home/ubuntu/semi/artifacts/qwen3-4b-instruct-medium-low-pass4-v1/pass_at_4/groups.jsonl",
+      "quota": 300,
+      "allowed_horizons": ["medium"]
+    }
+  ]
+}

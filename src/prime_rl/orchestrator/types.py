@@ -97,6 +97,8 @@ class Rollout(vf.Trace[TaskT], Generic[TaskT]):
     is_filtered: bool = Field(default=False, exclude=True)
     filter_results: dict[str, bool] = Field(default_factory=dict, exclude=True)
     eval_step: int | None = Field(default=None, exclude=True)
+    num_compaction_segments: int = Field(default=1, exclude=True)
+    compaction_segment_lengths: list[int] = Field(default_factory=list, exclude=True)
 
     def assign_advantages(self, values: float | list[float]) -> None:
         """Write the rl advantage stream: a scalar broadcast over the

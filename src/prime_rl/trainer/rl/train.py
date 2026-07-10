@@ -552,7 +552,12 @@ def train(config: TrainerConfig):
 
             # Add loss tensors to tensor dict for logging purposes
             for key, loss_tensor in loss_tensors.items():
-                tensors[key].append(loss_tensor.detach().to("cpu"))
+                loss_tensor = loss_tensor.detach().to("cpu")
+                # Scalar (0-dim) metrics such as PPO value_loss / explained_variance must be
+                # made 1-D so the downstream torch.cat aggregation in compute_stats works.
+                if loss_tensor.dim() == 0:
+                    loss_tensor = loss_tensor.unsqueeze(0)
+                tensors[key].append(loss_tensor)
 
             # Debug log with *local, micro step* stats
             micro_step_message = f"Micro Step {micro_step}/{len(micro_batches)} | Loss {tensors['loss'][-1].mean().item():.4f} | Entropy {tensors['entropy/all'][-1].mean().item():.4f}"

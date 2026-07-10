@@ -376,11 +376,18 @@ def _patch_model_forward(model: nn.Module) -> None:
         )
 
         # Pass through the wrapped lm_head
-        return self.lm_head(
+        output = self.lm_head(
             hidden_states[:, slice_indices, :],
             labels[:, slice_indices] if labels is not None else None,
             temperature=temperature[:, slice_indices] if temperature is not None else None,
         )
+        # This patched forward replaces the model's own forward, so a PPO value head
+        # (attached in the custom model's __init__ when prime_rl_ppo_value_head is set)
+        # would otherwise be skipped. Emit per-token values here to keep PPO working.
+        value_head = getattr(self, "value_head", None)
+        if value_head is not None:
+            output["values"] = value_head(hidden_states[:, slice_indices, :]).squeeze(-1).float()
+        return output
 
     # Bind the new forward to the model
     model.forward = types.MethodType(new_forward, model)

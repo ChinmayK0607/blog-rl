@@ -4,7 +4,7 @@ import random
 
 from symbolic_tool_calling_v1.models import BenchmarkTask, HiddenGraphSpec, RoomSpec
 
-_DEPTHS = {"short": 3, "medium": 5, "long": 8}
+_DEPTHS = {"short": 3, "medium": 5, "long": 8, "xlong": 12, "xxlong": 16}
 
 
 def _task_id(payload: dict) -> str:

@@ -24,7 +24,7 @@ from prime_rl.configs.orchestrator import OrchestratorConfig
 from prime_rl.orchestrator.envs import TrainEnvs
 from prime_rl.orchestrator.filters import RolloutFilter, apply_filters
 from prime_rl.orchestrator.metrics import TrainRollouts
-from prime_rl.orchestrator.trajectories import trace_to_samples
+from prime_rl.orchestrator.trajectories import trace_to_compacted_samples, trace_to_samples
 from prime_rl.orchestrator.types import Rollout, TrainBatch
 from prime_rl.transport import TrainingSample
 from prime_rl.utils.logger import get_logger
@@ -140,17 +140,21 @@ class TrainSink:
         level, so skip them here."""
         if rollout.has_error:
             return
+        algorithm = self.train_envs.get(rollout.env_name).algorithm
+        sample_builder = trace_to_compacted_samples if hasattr(algorithm, "token_budget") else trace_to_samples
+        builder_kwargs = {"token_budget": algorithm.token_budget} if hasattr(algorithm, "token_budget") else {}
         samples = await asyncio.to_thread(
-            trace_to_samples,
+            sample_builder,
             rollout,
             env_name=rollout.env_name,
             mm_token_type_ids_mapping=self.mm_token_type_ids_mapping,
+            **builder_kwargs,
         )
         rollout.samples = samples or []
         # Arrival phase: rollout-local scoring (raw reward, echo observation
         # weighting, opd/opsd reference logprobs) runs as soon as the rollout is
         # tokenized — before its group is complete.
-        await self.train_envs.get(rollout.env_name).algorithm.finalize_rollout(rollout)
+        await algorithm.finalize_rollout(rollout)
 
     async def process_group(self, group_id: uuid.UUID) -> None:
         """Finalize one GRPO group: drop errored rollouts (the whole group
