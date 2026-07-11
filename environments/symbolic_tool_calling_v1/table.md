@@ -16,15 +16,21 @@ The headline experiment: does PPO's per-segment critic beat GRPO on genuinely ha
 (long+xlong, optimal plan 13 & 17) when **every arm is warm-started from the same full-GRPO policy**
 (`cmp-full-grpo-v1` step 90) at `token_budget=384`? Plus a **value-head warm-start** ablation for PPO.
 
-| Run | Run ID | Steps | Train reward | Best val | Status / role |
-|---|---|---|---|---|---|
-| hardb-full-grpo-v1 | `6b9ce13d` | 70 | ~0.90¹ | —² | Full GRPO on hard set (reference). Completed 70 steps. ²In-run val hit the tool-parser bug; scored offline. |
-| hardb-compacted-grpo-v1 | `1bfed1ed` | 26+ | 0.543 | 0.500 | Compacted GRPO — **rerun in progress** (after disk fix + eval fix). |
-| hardb-compacted-grpo-v1 | `344aa54e` | 21 | 0.543 | — | First attempt; killed by disk-full at step 21. |
-| hardb-compacted-ppo-v1 | `ad12a5c5` | — | — | — | Compacted PPO, **cold critic**; crashed at inference start (disk-full). Rerun queued. |
-| hardb-compacted-ppo-warmcritic-v1 | `66d9a055` | — | — | — | Compacted PPO, **warm critic** (value head pretrained offline, R²=0.71); crashed at start (disk-full). Rerun queued. |
+Final policies (step 70) scored by **pass@4 on the held-out hard val set** (40 groups, identical hermes
+harness): full GRPO **0.93**, compacted GRPO **0.78**, compacted PPO cold **0.25**, warm **0.14**.
+Warm-start fixes the PPO critic (explained variance −0.55 → +0.30; peak train reward 0.625 → 0.80) but
+does not close the gap to GRPO.
 
-¹ from the training log (`Step 70 | Reward 0.90`); this run's W&B train-agg summary key was not populated.
+| Run | Run ID | Steps | Train reward | Best val (in-run) | pass@4 (hard val) | Role / result |
+|---|---|---|---|---|---|---|
+| hardb-full-grpo-v1 | `6b9ce13d` | 70 | 0.90 | —¹ | **0.93** | Full GRPO on hard set (no compaction) — strongest. ¹in-run val hit the tool-parser bug; scored offline. |
+| hardb-compacted-grpo-v1 | `1bfed1ed` | 70 | 0.69 (peak 0.91) | 0.825 | 0.78 | Compacted GRPO — learns hard set well; compaction gap vs full GRPO. |
+| hardb-compacted-ppo-v1 | `7515e0a5` | 70 | 0.32 (peak 0.63) | 0.225 | 0.25 | Compacted PPO, **cold critic**; explained var stays ≤0.01. |
+| hardb-compacted-ppo-warmcritic-v1 | `cdbd4b36` | 70 | 0.29 (peak 0.80) | 0.30 | 0.14 | Compacted PPO, **warm critic** (R²=0.71 pretrain); explained var +0.30, but final policy still collapses. |
+| _earlier attempts (disk-full)_ | `344aa54e`, `ad12a5c5`, `66d9a055` | — | — | — | Killed by disk-full mid/at-startup; superseded by the reruns above. |
+
+Value-head warm-start: `scripts/pretrain_ppo_value_head.py` (ridge-regress segment-start hidden states →
+rollout return under the PPO-init policy) → loaded via `trainer.model.ppo_value_head_init`.
 
 ---
 

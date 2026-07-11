@@ -211,6 +211,40 @@ Two clean results. (1) **The compaction penalty transfers.** Compacted GRPO gene
 
 <sub>Reproduce: `scripts/run_symbolic_hard_eval_checkpoints.sh` (serves each checkpoint, pass@4 over the three bands).</sub>
 
+## When PPO *should* win: train on hard tasks, and warm the critic
+
+The frozen-checkpoint eval holds PPO at a disadvantage it might escape if it actually *trained* on hard tasks with a working critic. So I ran the cleanest version of the question: warm-start **every** arm from the same converged full-GRPO policy (so they differ only by objective), then train on a hard long+xlong curriculum (optimal plan 13 & 17, distractor 0.4, high imbalance) at `token_budget=384` — real segment imbalance. Arms: full GRPO (no compaction), compacted GRPO, compacted PPO.
+
+And I gave PPO the one thing it was missing. A from-scratch value head spends its early steps learning a value *scale* while the policy is already competent — a cold start that, on sparse terminal rewards, it may never recover from. So I **pretrained the critic offline**: under the exact warm-start policy, take the hidden state at each segment-start critic position (where the value head is actually trained) and ridge-regress it onto the rollout return. Closed-form, backbone frozen, seconds of linear algebra. It fits **R²=0.71** on the critic states — a genuinely useful value function before a single PPO step.
+
+**The warm-start does exactly what it should — to the critic:**
+
+| PPO critic | explained variance (start → run) | peak train reward |
+|---|---|---:|
+| cold (zero-init) | −0.55 → stays ≤ 0.01 | 0.625 |
+| warm (R²=0.71 init) | **+0.30 → holds 0.24–0.32** | **0.800** |
+
+The cold critic is worse than predicting the mean and never recovers; the warm one is useful from step 1 and lifts PPO's peak reward ~28%. The cold-start is real, and this fixes it.
+
+**But it doesn't rescue PPO.** Final policies (step 70), pass@4 on the held-out hard val set (40 groups, identical hermes harness):
+
+| arm (final) | pass@4 | all-fail / mixed / all-pass |
+|---|---:|---:|
+| Full GRPO (no compaction) | **0.93** | 0 / 10 / 30 |
+| Compacted GRPO | 0.78 | 1 / 22 / 17 |
+| Compacted PPO — cold critic | 0.25 | 17 / 23 / 0 |
+| Compacted PPO — warm critic | 0.14 | 24 / 16 / 0 |
+
+Three takeaways, and they sharpen the whole study:
+
+- **Compaction still costs GRPO.** Even warm-started, full GRPO (0.93) beats compacted GRPO (0.78) on hard tasks — the penalty the SNR analysis predicted, now a real generalization gap and not just a slower climb.
+- **The per-segment critic doesn't pay off here.** Both PPO arms trail GRPO badly and their val *degrades* over training. Even a warm critic tops out at ~0.32 explained variance: predicting terminal success from a mid-rollout state on long, sparse-reward tasks is genuinely hard, and a weak critic makes PPO worse, not better. (The final-checkpoint ordering even flips cold vs warm — both PPO policies collapse late; the warm critic's win is in critic quality and peak reward, not the endgame.)
+- **Warm-starting helped the critic, not the ranking.** It's a clean, isolated win for the idea — better value estimates, higher peak reward — but on this budget it left compacted PPO no better than cold. The bottleneck isn't the cold start; it's the value function itself.
+
+So the hypothesis that PPO's per-segment credit would shine on hard tasks doesn't hold on this environment — and warming the critic, the most obvious rescue, isolates *why*: you can initialize the critic well and it still can't track sparse terminal reward well enough to beat GRPO's essentially-free group baseline.
+
+<sub>Reproduce: warm critic `scripts/pretrain_ppo_value_head.py` → `trainer.model.ppo_value_head_init`; training `scripts/supervise_symbolic_hard_phaseb_rerun.sh`; unified eval `scripts/run_hardb_unified_passk.sh`. Runs `hardb-*` in W&B group `symbolic-compaction-hard-v1`.</sub>
+
 ## One infra scar worth keeping
 
 On a shared box, the supervisor's failure modes matter as much as the algorithm's. The compacted-GRPO arm trained fine to step 75, then the orchestrator's rollout loop **deadlocked** — `0 inflight rollouts`, GPUs idle, *inference still healthy* — for six hours. My supervisor waited on session-exit, so a wedged-but-not-dead run meant the queue never advanced. A hang is worse than a crash: a crash advances the queue, a hang eats your night. Fix: a stall watchdog that kills-and-advances if the training step hasn't moved in 25 minutes. Boring code, load-bearing.
