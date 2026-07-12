@@ -101,11 +101,36 @@ degeneration with `entropy_coef=0` and no KL-to-reference: entropy collapsed
 0.16 → 0.08, a spurious token got reinforced, and trainer↔inference mismatch
 KL exploded 0.002 → 0.19.
 
-**Takeaway so far**: the critic side works (explained variance rose from a
-cold start, unlike compacted PPO's), and PPO *learned* (val 0.556 → 0.764 by
-step 60 — his GRPO runs were near their ceiling by then, but PPO clearly
-climbs). The failure is the missing entropy/KL regularization in the
-schulman-pure objective, not credit assignment. Next arm:
-`entropy_coef=0.01` (the paper's Atari setting).
+### Final: it recovered — 0.972 val at step 150
 
-_(final table + wandb screenshots after step 150)_
+| Step | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 100 | 110 | 120 | 130 | 140 | 150 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Val | .556 | .639 | .639 | .681 | .653 | .764 | .681 | .000 | .000 | .000 | .514 | .611 | .542 | .903 | **.972** |
+
+The degenerate greedy mode (steps 80–100) **self-corrected**: temp-0.7
+training rollouts kept sampling past the junk token, failures fed negative
+advantages back into it, and by step 110 greedy evals worked again — then
+climbed to **0.972 by step 150** with more efficient solutions (turns
+14.3 → 11.8). Final train reward 0.822.
+
+**Bottom line vs the study** (same regime, our rebuilt curriculum):
+
+| Run | Best val |
+|---|---|
+| cmp-full-grpo-v1 (his) | 1.000 |
+| cmp-compacted-grpo-v1 (his) | 0.986 |
+| cmp-segnorm-grpo-v1 (his) | 0.986 |
+| cmp-compacted-ppo-v1 (his) | — (collapsed; hard pass@4 0.25) |
+| **cmp-vanilla-ppo-4gpu-v1 (ours)** | **0.972** |
+
+Real vanilla PPO ≈ GRPO on this benchmark. The blog's "PPO loses badly"
+result is an artifact of the compacted rollout-reward critic, not of PPO
+itself. Cost of PPO here: a transient degeneracy window (steps 80–100,
+entropy collapse → corrupted greedy tool calls) that GRPO didn't show —
+motivation for the `entropy_coef=0.01` follow-up arm
+(`rl_qwen3_instruct_cmp_vanilla_ppo_ent001.toml`).
+
+Checkpoint: step-150 policy + trained value head pushed to
+`Occupying-Mars/qwen3-4b-symbolic-vanilla-ppo-v1` on HF.
+
+_(wandb screenshots below)_
