@@ -245,14 +245,14 @@ def test_ppo_algo_and_ppo_loss_come_as_a_pair():
     assert config.trainer.loss.type == "ppo"
     assert all(env_cfg.algo.type == "ppo" for env_cfg in config.orchestrator.train.env)
 
-    with pytest.raises(ValidationError, match="requires every train env to use the 'ppo' algorithm"):
+    with pytest.raises(ValidationError, match="requires every train env to use a PPO-family algorithm"):
         RLConfig.model_validate(
             {
                 "trainer": {"loss": {"type": "ppo"}, "model": {"ppo_value_head": True}},
                 "orchestrator": {"train": {"env": [env]}},
             }
         )
-    with pytest.raises(ValidationError, match="requires trainer.loss.type='ppo'"):
+    with pytest.raises(ValidationError, match="require trainer.loss.type='ppo'"):
         RLConfig.model_validate(
             {"trainer": {}, "orchestrator": {"algo": {"type": "ppo"}, "train": {"env": [env]}}}
         )
