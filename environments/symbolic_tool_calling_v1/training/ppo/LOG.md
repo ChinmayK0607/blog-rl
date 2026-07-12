@@ -29,8 +29,9 @@ Numbers to beat/compare (his Phase A, medium curriculum, from base model):
 
 ## Setup deltas vs his runs (honest differences)
 
-- **Hardware**: 8× RTX 6000 Ada 48GB on Lium (his: 8× H100 80GB). Same 5
-  inference / 3 trainer split. Slower wall-clock, same math.
+- **Hardware**: 4× RTX PRO 6000 Blackwell Server Edition 96GB on Lium
+  ($3.24/hr; his: 8× H100 80GB). Rebalanced to 2 inference / 2 trainer
+  (FSDP-sharded) via the 4-GPU config. Slower wall-clock, same math.
 - **Taskset**: his exact `symbolic-curriculum-v1` (624 train / 69 val) lives on
   his box and its curation depends on stochastic frozen-model rollouts, so we
   rebuilt it the same way as `symbolic-curriculum-v2`: deterministic candidate
@@ -47,9 +48,17 @@ Numbers to beat/compare (his Phase A, medium curriculum, from base model):
 - **2026-07-12**: Merged Chinmay's latest `synth-env` (Phase-A/B code + results)
   into `feat/vanilla-ppo`; fixed the ppo⇔ppo-loss config validator to accept his
   `compacted_ppo`; all algorithm/PPO unit tests green. Created
-  `cmp-vanilla-ppo-v1` config. Rented Lium pod `lunar-matrix-19`
-  (8× RTX 6000 Ada, $4.72/hr, 24h TTL). H100s ruled out on cost; no multi-GPU
-  A100s were available.
+  `cmp-vanilla-ppo-v1` config. H100s ruled out on cost; no multi-GPU A100s were
+  available. First pod (8× RTX 6000 Ada) died to a Lium SSH-key provisioning
+  bug; switched to 4× RTX PRO 6000 Blackwell 96GB ($3.24/hr) with the 4-GPU
+  config (2 inference / 2 trainer).
+- **2026-07-12, later**: Rebuilt the medium curriculum on the pod as
+  `symbolic-curriculum-v2`: frozen-model pass@4 sweeps over the deterministic
+  candidate pools (800 short/medium-verbose seed 4001 + 400 medium-low seed
+  6001, 4 rollouts each) → mixed-task curation at full quota (330 short + 330
+  medium) → **588 train / 72 val** (his: 624/69). Launched
+  `cmp-vanilla-ppo-4gpu-v1` — live at
+  https://wandb.ai/krishnapg2315/blog-rl/runs/5c4f977de99343c7b44edfe8d05fb5c0.
 
 ## Results
 
