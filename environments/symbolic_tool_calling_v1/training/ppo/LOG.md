@@ -80,4 +80,32 @@ policy still collapsed). Clip fraction ~2%, entropy 0.16 → 0.08 (policy
 sharpening), mismatch KL ~0.002, grad norm ~0.3–0.5 — no instability.
 Trainer: ~35 s/step at 77% MFU, 39 GiB peak of 97 GiB per GPU.
 
+### Collapse at step ~80: greedy-mode tool-call corruption
+
+Val reward: 0.556 (10) → 0.639 (20/30) → 0.681 (40) → 0.653 (50) → **0.764
+(60)** → 0.681 (70) → **0.000 (80, 90, 100)**. From step 80 every greedy
+eval ends after 2 turns with reward 0. The rollouts show why — the policy
+emits corrupted tool calls under greedy decoding:
+
+```
+<tool_call>
+{"name": "symbolic_move", "arguments": {"direction": "east"}}ysqli
+</tool_call>
+```
+
+A junk token (`ysqli`) inside the tool-call block breaks the hermes parser →
+no tool call extracted → episode terminates. At temp 0.7 (training) the junk
+token only sometimes samples, so train rollouts still run 11–14 turns with
+reward 0.6–0.9; at temp 0 it is the argmax, so val is 0. Classic vanilla-PPO
+degeneration with `entropy_coef=0` and no KL-to-reference: entropy collapsed
+0.16 → 0.08, a spurious token got reinforced, and trainer↔inference mismatch
+KL exploded 0.002 → 0.19.
+
+**Takeaway so far**: the critic side works (explained variance rose from a
+cold start, unlike compacted PPO's), and PPO *learned* (val 0.556 → 0.764 by
+step 60 — his GRPO runs were near their ceiling by then, but PPO clearly
+climbs). The failure is the missing entropy/KL regularization in the
+schulman-pure objective, not credit assignment. Next arm:
+`entropy_coef=0.01` (the paper's Atari setting).
+
 _(final table + wandb screenshots after step 150)_
