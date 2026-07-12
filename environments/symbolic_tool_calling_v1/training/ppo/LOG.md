@@ -135,6 +135,40 @@ Checkpoint: step-150 policy + trained value head pushed to
 
 ![run 1 overview](assets/run1_overview.png)
 
+## Run 2 — entropy_coef = 0.01 (cmp-vanilla-ppo-ent001-v1)
+
+Same config plus the PPO paper's entropy bonus. Two operational notes: the
+fused LM head has **no backward through entropy** (crashed at step 1 —
+fixed with `trainer.model.fused_lm_head_token_chunk_size = "disabled"`),
+and the first crashed wandb run id is `ac9d6180`; the real run is
+[fc57f926](https://wandb.ai/krishnapg2315/blog-rl/runs/fc57f9265a2d4ff8aaa80fabcc9058ab).
+
+| Step | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 100–150 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Val | .528 | .611 | .694 | .708 | .778 | .722 | .708 | .611 | **.833** | **.000** |
+
+The entropy arm **sailed through run 1's collapse window** (0.833 at step 90,
+the best pre-collapse val either arm reached) — then collapsed at ~100 and
+**never recovered**: entropy thrashed to 0.17 and pinned at 1e-4, critic
+explained variance dove to −5, and every eval from 100 to 150 was a 1-turn
+zero. The final policy is dead in greedy mode.
+
+![arms compare](assets/arms_compare.png)
+
+**Combined story**: vanilla PPO on this benchmark learns as well as GRPO
+(both arms out-climbed to 0.76–0.83 val while his compacted PPO never got
+off the ground) but lives on a knife's edge around steps 80–120. A 0.01
+entropy bonus *moves* the collapse (~20 steps later) and makes it *worse*
+when it lands; it does not remove it. Run 1's "success" at 0.972 partly
+reflects where training stopped relative to its collapse/recovery cycle.
+The principled fix to try next is a KL-to-reference leash (what DeepSeekMath
+GRPO has and this pure-Schulman objective lacks) rather than more entropy.
+
+**Artifacts** (HF, public):
+- [qwen3-4b-symbolic-vanilla-ppo-v1](https://huggingface.co/Occupying-Mars/qwen3-4b-symbolic-vanilla-ppo-v1) — run 1 step-150 policy (val 0.972) + value head
+- [qwen3-4b-symbolic-vanilla-ppo-ent001-v1](https://huggingface.co/Occupying-Mars/qwen3-4b-symbolic-vanilla-ppo-ent001-v1) — run 2: step-90 pre-collapse peak (val 0.833) at root + step-120/step-150 collapse-forensic checkpoints + value heads
+- [curriculum_v2/](curriculum_v2/) — the exact 588/72 train/val task files both runs used
+
 Charts rendered from the wandb run history. Full-history correction to the
 log-sampled account above: the collapse window (~75–105) hit **training
 rewards too**, not just greedy eval — a full policy collapse with critic
