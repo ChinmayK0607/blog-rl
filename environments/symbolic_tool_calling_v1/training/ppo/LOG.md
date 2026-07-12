@@ -62,4 +62,22 @@ Numbers to beat/compare (his Phase A, medium curriculum, from base model):
 
 ## Results
 
-_(pending — filled in from the wandb run `krishnapg2315/blog-rl/cmp-vanilla-ppo-v1`)_
+Run: [cmp-vanilla-ppo-4gpu-v1](https://wandb.ai/krishnapg2315/blog-rl/runs/5c4f977de99343c7b44edfe8d05fb5c0)
+
+### Mid-run (step ~50 of 150)
+
+**Vanilla PPO is learning.** Val reward (greedy, 72 held-out tasks):
+
+| Step | 10 | 20 | 30 | 40 |
+|---|---|---|---|---|
+| Val reward | 0.556 | 0.639 | 0.639 | 0.681 |
+
+Train reward 0.746 at step 50 (started ~0.55–0.70). Critic **explained
+variance 0.012 → 0.070 and rising** — the value head is learning from
+scratch off trainer-side GAE targets, where Chinmay's compacted-PPO cold
+critic stayed ≤ 0.01 for all 70 steps (his warm-start reached +0.30 but the
+policy still collapsed). Clip fraction ~2%, entropy 0.16 → 0.08 (policy
+sharpening), mismatch KL ~0.002, grad norm ~0.3–0.5 — no instability.
+Trainer: ~35 s/step at 77% MFU, 39 GiB peak of 97 GiB per GPU.
+
+_(final table + wandb screenshots after step 150)_
