@@ -133,4 +133,12 @@ motivation for the `entropy_coef=0.01` follow-up arm
 Checkpoint: step-150 policy + trained value head pushed to
 `Occupying-Mars/qwen3-4b-symbolic-vanilla-ppo-v1` on HF.
 
-_(wandb screenshots below)_
+![run 1 overview](assets/run1_overview.png)
+
+Charts rendered from the wandb run history. Full-history correction to the
+log-sampled account above: the collapse window (~75–105) hit **training
+rewards too**, not just greedy eval — a full policy collapse with critic
+explained variance diving to −1.2, entropy pinned at 0.02, and mismatch
+KL/clip-fraction spikes — followed by a complete self-recovery: entropy
+re-expanded, the critic re-converged (ending at **+0.4**, its best), and val
+finished at 0.972.
