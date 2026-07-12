@@ -35,6 +35,9 @@ gae_lambda = 0.95
 [trainer.model]
 cp = 1
 ppo_value_head = true
+# entropy bonus needs backward through entropy; the fused LM head kernel
+# doesn't implement it — fall back to the vanilla LM head.
+fused_lm_head_token_chunk_size = "disabled"
 
 [trainer.model.ac]
 freq = 1
