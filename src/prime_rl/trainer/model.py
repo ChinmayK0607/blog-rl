@@ -20,6 +20,7 @@ from torch.distributed.checkpoint.hf_storage import HuggingFaceStorageReader
 from torch.distributed.checkpoint.state_dict_loader import load as dcp_load
 from torch.distributed.device_mesh import DeviceMesh
 from torch.distributed.fsdp import CPUOffloadPolicy, FSDPModule, MixedPrecisionPolicy, OffloadPolicy, fully_shard
+from torch.distributed.tensor import DTensor
 from torch.distributed.tensor.parallel import parallelize_module
 from torchtitan.distributed.expert_parallel import ExpertParallel
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, GenerationConfig, PretrainedConfig
@@ -809,6 +810,33 @@ def setup_fsdp(model: nn.Module, config: ModelConfig, parallel_dims: ParallelDim
                 transformer_block.set_modules_to_backward_prefetch([embed_module])
 
 
+def _warm_start_value_head(value_head: nn.Module, init_path: str, logger) -> None:
+    """Copy a pretrained ``value_head.weight`` into a (possibly sharded) value head.
+
+    Loads the full tensor on every rank, then re-distributes it to match the live
+    parameter's DTensor placement so no manual shard arithmetic is needed.
+    """
+    from safetensors.torch import load_file
+
+    path = Path(init_path)
+    if not path.exists():
+        logger.warning(f"ppo_value_head_init={init_path} not found; leaving value head zero-initialized")
+        return
+    state = load_file(str(path))
+    key = "value_head.weight" if "value_head.weight" in state else next(iter(state))
+    full = state[key]
+    weight = value_head.weight
+    full = full.to(weight.dtype).reshape(weight.shape)
+    if isinstance(weight, DTensor):
+        from torch.distributed.tensor import distribute_tensor
+
+        full = full.to(weight.device)
+        weight.data.copy_(distribute_tensor(full, weight.device_mesh, weight.placements))
+    else:
+        weight.data.copy_(full.to(weight.device))
+    logger.info(f"Warm-started PPO value head from {init_path} (norm={full.float().norm().item():.4f})")
+
+
 def load_dcp_from_hf(model: nn.Module, config: ModelConfig, parallel_dims: ParallelDims):
     device = "cpu" if config.fsdp_cpu_offload else "cuda"
     model.to_empty(device=device)
@@ -879,10 +907,24 @@ def load_dcp_from_hf(model: nn.Module, config: ModelConfig, parallel_dims: Paral
     state_dict = strip_lora_from_state_dict(state_dict)
     if model.config.tie_word_embeddings:
         del state_dict["lm_head.weight"]
+    if config.ppo_value_head:
+        # PPO adds a trainer-only value head that is not present in base HF
+        # policy checkpoints.  Leave it out of the HF DCP load and initialize
+        # it explicitly below; normal Prime-RL checkpoints still include it and
+        # resume strictly through the checkpoint manager path.
+        for key in [key for key in state_dict if key.endswith("value_head.weight")]:
+            del state_dict[key]
     dcp_load(
         state_dict,
         storage_reader=HuggingFaceStorageReader(path=snapshot_path.as_posix()),
     )
+    if config.ppo_value_head:
+        value_head = getattr(model, "value_head", None)
+        if value_head is not None:
+            with torch.no_grad():
+                value_head.weight.zero_()
+                if config.ppo_value_head_init is not None:
+                    _warm_start_value_head(value_head, config.ppo_value_head_init, logger)
     # Restore weight tying broken by to_empty() for HF models
     if not isinstance(model, PreTrainedModelPrimeRL) and model.config.tie_word_embeddings:
         model.tie_weights()

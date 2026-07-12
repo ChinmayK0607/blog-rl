@@ -1,0 +1,98 @@
+max_steps = 30
+seq_len = 32768
+output_dir = "/home/ubuntu/semi/artifacts/rl-qwen3-instruct-hard-compacted-ppo-pilot-v1"
+
+[deployment]
+num_train_gpus = 3
+num_infer_gpus = 5
+
+[model]
+name = "Qwen/Qwen3-4B-Instruct-2507"
+
+[wandb]
+project = "blog-rl"
+name = "qwen3-4b-instruct-hard-compacted-ppo-pilot-v1"
+group = "symbolic-compaction-rl-hard"
+tags = ["qwen3-4b-instruct-2507", "hard-long-high", "compacted-ppo", "segment-budget-2048", "5i3t"]
+
+[ckpt]
+interval = 10
+
+[trainer]
+
+[trainer.loss]
+type = "ppo"
+policy_clip = 0.2
+value_clip = 0.2
+value_coef = 0.5
+entropy_coef = 0.0
+
+[trainer.model]
+cp = 1
+ppo_value_head = true
+
+[trainer.model.ac]
+freq = 1
+
+[trainer.model.compile]
+
+[orchestrator]
+batch_size = 64
+group_size = 8
+max_off_policy_steps = 8
+collect_inference_metrics = true
+
+[orchestrator.algo]
+type = "compacted_ppo"
+token_budget = 2048
+critic_target = "rollout_reward"
+critic_old_value = 0.0
+
+[orchestrator.renderer]
+name = "qwen3"
+
+[orchestrator.model.client]
+base_url = ["http://localhost:8040/v1"]
+
+[orchestrator.train.sampling]
+temperature = 0.7
+max_completion_tokens = 4096
+
+[[orchestrator.train.env]]
+name = "symbolic-hard-long-high-540"
+group_size = 8
+max_turns = 32
+max_total_tokens = 32768
+taskset = { id = "symbolic-tool-calling-v1", task_file = "/home/ubuntu/semi/artifacts/symbolic-hard-long-high-v1/tasks_train.jsonl", tools = { colocated = true } }
+harness = { id = "default" }
+
+[orchestrator.eval]
+interval = 10
+num_examples = -1
+group_size = 1
+skip_first_step = true
+
+[orchestrator.eval.sampling]
+temperature = 0.0
+max_completion_tokens = 4096
+
+[[orchestrator.eval.env]]
+name = "symbolic-hard-long-high-60-val"
+interval = 10
+group_size = 1
+max_turns = 32
+max_total_tokens = 32768
+taskset = { id = "symbolic-tool-calling-v1", task_file = "/home/ubuntu/semi/artifacts/symbolic-hard-long-high-v1/tasks_val.jsonl", tools = { colocated = true } }
+harness = { id = "default" }
+
+[inference]
+gpu_memory_utilization = 0.85
+
+[inference.server]
+port = 8040
+
+[inference.model]
+max_model_len = 32768
+
+[inference.parallel]
+dp = 5

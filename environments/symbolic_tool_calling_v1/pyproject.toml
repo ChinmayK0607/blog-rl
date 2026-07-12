@@ -9,6 +9,7 @@ dependencies = ["verifiers"]
 symbolic-benchmark = "symbolic_tool_calling_v1.pipeline:main"
 symbolic-training-examples = "symbolic_tool_calling_v1.training:main"
 symbolic-pass-at-k = "symbolic_tool_calling_v1.pass_at_k:main"
+symbolic-curate = "symbolic_tool_calling_v1.curation:main"
 
 [build-system]
 requires = ["hatchling"]

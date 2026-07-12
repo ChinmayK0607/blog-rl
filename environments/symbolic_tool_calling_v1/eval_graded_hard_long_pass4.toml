@@ -1,0 +1,32 @@
+max_turns = 40
+max_total_tokens = 32768
+model = "__MODEL__"
+num_tasks = 60
+num_rollouts = 4
+max_concurrent = 32
+rich = false
+
+[taskset]
+id = "symbolic-tool-calling-v1"
+num_tasks = 60
+seed = 71000
+horizon_bucket = "long"
+branching_factor = 2
+distractor_ratio = 0.4
+recovery_cost = 3
+verbosity_setting = "low"
+imbalance_setting = "high"
+
+[taskset.tools]
+colocated = true
+
+[harness]
+id = "default"
+
+[client]
+base_url = "http://localhost:8055/v1"
+api_key_var = "EMPTY"
+
+[sampling]
+max_tokens = 4096
+temperature = 0.7

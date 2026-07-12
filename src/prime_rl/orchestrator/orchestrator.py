@@ -93,7 +93,7 @@ SHUTDOWN_TIMEOUT_S = 300
 # Abort after this many consecutive train batches drop all rollouts to
 # post-batch filters — usually a misconfigured filter or homogeneous-reward
 # dataset; fail loudly instead of spinning
-MAX_CONSECUTIVE_EMPTY_BATCHES = 10
+MAX_CONSECUTIVE_EMPTY_BATCHES = 5
 
 # Maximum batches the orchestrator may run ahead of the trainer. The
 # dispatcher is paused via ``update_dispatch_gate`` once this is exceeded;
@@ -607,7 +607,9 @@ class Orchestrator:
         self.log_train_batch(batch, step=step, step_time=step_time)
 
         self.train_sink.reset_pre_filter_stats()
-        self.maybe_trigger_eval(self.progress.step)
+        # Trigger interval evals for the train step that was just shipped so
+        # eval rollout paths/metrics line up with checkpoint/weight step_N.
+        self.maybe_trigger_eval(step)
         trim_process_memory()
 
     def maybe_trigger_eval(self, step: int) -> None:

@@ -28,7 +28,9 @@ def test_generation_is_deterministic_and_content_addressed():
     validate_task(first)
 
 
-@pytest.mark.parametrize("bucket,depth", [("short", 3), ("medium", 5), ("long", 8)])
+@pytest.mark.parametrize(
+    "bucket,depth", [("short", 3), ("medium", 5), ("long", 8), ("xlong", 12), ("xxlong", 16)]
+)
 @pytest.mark.parametrize("seed", range(20))
 def test_generated_graphs_satisfy_invariants(bucket, depth, seed):
     task = generate_task(
@@ -43,6 +45,25 @@ def test_generated_graphs_satisfy_invariants(bucket, depth, seed):
     validate_task(task)
     assert task.dependency_depth == depth
     assert task.optimal_plan_length == depth + 5
+
+
+@pytest.mark.parametrize("bucket,depth", [("xlong", 12), ("xxlong", 16)])
+def test_deep_horizon_optimal_trace_succeeds_and_replays_exactly(bucket, depth):
+    task = generate_task(
+        4242,
+        horizon_bucket=bucket,
+        branching_factor=2,
+        distractor_ratio=1.0,
+        recovery_cost=4,
+        verbosity_setting="high",
+        imbalance_setting="high",
+    )
+    assert task.dependency_depth == depth
+    actions = optimal_actions(task)
+    first = replay(task, actions)
+    second = replay(task, actions)
+    assert [transition.model_dump() for transition in first] == [transition.model_dump() for transition in second]
+    assert first[-1].state.success
 
 
 def test_optimal_trace_succeeds_and_replays_exactly():

@@ -29,6 +29,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from prime_rl.orchestrator.algo.base import Algorithm, connect_frozen_pool
+from prime_rl.orchestrator.algo.compacted_grpo import (
+    CompactedGRPOAlgorithm,
+    CompactedPPOAlgorithm,
+    SegmentNormalizedGRPOAlgorithm,
+)
 from prime_rl.orchestrator.algo.echo import EchoAlgorithm
 from prime_rl.orchestrator.algo.grpo import GRPOAlgorithm
 from prime_rl.orchestrator.algo.max_rl import MaxRLAlgorithm
@@ -49,6 +54,9 @@ if TYPE_CHECKING:
 ALGORITHM_CLASSES: dict[str, type[Algorithm]] = {
     "grpo": GRPOAlgorithm,
     "vanilla_grpo": VanillaGRPOAlgorithm,
+    "compacted_grpo": CompactedGRPOAlgorithm,
+    "segment_normalized_grpo": SegmentNormalizedGRPOAlgorithm,
+    "compacted_ppo": CompactedPPOAlgorithm,
     "echo": EchoAlgorithm,
     "max_rl": MaxRLAlgorithm,
     "ppo": PPOAlgorithm,
@@ -73,6 +81,9 @@ __all__ = [
     "Algorithm",
     "EchoAlgorithm",
     "GRPOAlgorithm",
+    "CompactedGRPOAlgorithm",
+    "CompactedPPOAlgorithm",
+    "SegmentNormalizedGRPOAlgorithm",
     "MaxRLAlgorithm",
     "OPDAlgorithm",
     "OPSDAlgorithm",

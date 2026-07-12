@@ -27,3 +27,11 @@ def test_taskset_cycles_through_all_declared_conditions():
     tasks = SymbolicToolCallingTaskset(config).load_tasks()
     assert [task.spec.horizon_bucket for task in tasks] == ["short", "medium"] * 3
     assert [task.spec.imbalance_setting for task in tasks] == ["low", "high"] * 3
+
+
+def test_taskset_loads_exact_curated_specs(tmp_path):
+    specs = SymbolicToolCallingTaskset(SymbolicToolCallingConfig(num_tasks=2)).load_tasks()
+    task_file = tmp_path / "tasks.jsonl"
+    task_file.write_text("".join(f"{task.spec.model_dump_json()}\n" for task in reversed(specs)))
+    loaded = SymbolicToolCallingTaskset(SymbolicToolCallingConfig(task_file=task_file)).load_tasks()
+    assert [task.spec for task in loaded] == [task.spec for task in reversed(specs)]

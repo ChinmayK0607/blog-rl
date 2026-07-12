@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import numpy as np
 import verifiers.v1 as vf
+from verifiers.v1.trace import Branch
 
 from prime_rl.transport import TrainingSample
 from prime_rl.transport.types import EncodedTensor, RoutedExperts
@@ -110,4 +111,87 @@ def trace_to_samples(
         get_logger().warning(
             f"No trainable samples (error={trace.has_error}, stop={trace.stop_condition}, num_turns={trace.num_turns})."
         )
+    return samples
+
+
+def _compaction_node_groups(nodes: list, token_budget: int) -> list[list[int]]:
+    """Group sampled message nodes without ever cutting a message token span."""
+    groups: list[list[int]] = []
+    current: list[int] = []
+    introduced = 0
+    previous_sampled = -1
+    for index, node in enumerate(nodes):
+        introduced += len(node.token_ids)
+        if not node.sampled or not any(node.mask):
+            continue
+        turn_tokens = sum(len(n.token_ids) for n in nodes[previous_sampled + 1 : index + 1])
+        if current and introduced > token_budget:
+            groups.append(current)
+            current = []
+            introduced = turn_tokens
+        current.append(index)
+        previous_sampled = index
+    if current:
+        groups.append(current)
+    return groups
+
+
+def trace_to_compacted_samples(
+    trace: vf.Trace,
+    *,
+    token_budget: int,
+    env_name: str = "",
+    mm_token_type_ids_mapping: dict[int, int] | None = None,
+) -> list[TrainingSample]:
+    """Compile each branch into causal, message-aligned online segments.
+
+    A segment includes the exact cumulative prefix through its final selected
+    assistant node. Earlier sampled actions remain causal context but are masked
+    from loss; only assistant nodes assigned to this segment are trainable.
+    """
+    samples: list[TrainingSample] = []
+    for branch in trace.branches:
+        for sampled_nodes in _compaction_node_groups(branch.nodes, token_budget):
+            selected = set(sampled_nodes)
+            prefix_nodes = branch.nodes[: sampled_nodes[-1] + 1]
+            token_ids: list[int] = []
+            mask: list[bool] = []
+            logprobs: list[float] = []
+            routed_parts: list[np.ndarray] = []
+            routed_template = next((n.routed_experts for n in prefix_nodes if n.routed_experts is not None), None)
+            for index, node in enumerate(prefix_nodes):
+                token_ids.extend(node.token_ids)
+                node_mask = node.mask if index in selected else [False] * len(node.mask)
+                mask.extend(node_mask)
+                source_logprobs = Branch(index=0, nodes=[node]).logprobs
+                logprobs.extend(source_logprobs if index in selected else [0.0] * len(node.token_ids))
+                if routed_template is not None:
+                    routed_parts.append(
+                        node.routed_experts
+                        if node.routed_experts is not None
+                        else np.zeros(
+                            (len(node.token_ids), *routed_template.shape[1:]), dtype=routed_template.dtype
+                        )
+                    )
+            if not any(mask):
+                continue
+            prefix = Branch(index=branch.index, nodes=prefix_nodes)
+            mm_kwargs = _encode_mm_kwargs(prefix.multi_modal_data.mm_items) if prefix.multi_modal_data else None
+            mapping = mm_token_type_ids_mapping or {}
+            mm_token_type_ids = [mapping.get(t, 0) for t in token_ids] if mm_kwargs is not None else None
+            routed = np.concatenate(routed_parts, axis=0) if routed_parts else None
+            samples.append(
+                TrainingSample(
+                    token_ids=token_ids,
+                    mask=mask,
+                    logprobs=logprobs,
+                    temperatures=[],
+                    env_name=env_name,
+                    mm_kwargs=mm_kwargs,
+                    mm_token_type_ids=mm_token_type_ids,
+                    routed_experts=_encode_routed_experts(routed, len(token_ids)),
+                )
+            )
+    if not samples:
+        get_logger().warning(f"No trainable compacted samples (error={trace.has_error}, turns={trace.num_turns}).")
     return samples
