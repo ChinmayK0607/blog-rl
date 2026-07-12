@@ -1,0 +1,100 @@
+max_steps = 150
+seq_len = 32768
+output_dir = "/root/artifacts/cmp-vanilla-ppo-4gpu-v1"
+
+[deployment]
+gpus_per_node = 4
+num_train_gpus = 2
+num_infer_gpus = 2
+
+[model]
+name = "Qwen/Qwen3-4B-Instruct-2507"
+
+[wandb]
+entity = "krishnapg2315"
+project = "blog-rl"
+name = "cmp-vanilla-ppo-4gpu-v1"
+group = "symbolic-compaction-compare-v1"
+tags = ["qwen3-4b-instruct-2507", "vanilla-ppo", "full-rollout", "gae", "curriculum-v2", "4gpu", "2i2t"]
+
+[ckpt]
+interval = 30
+keep_last = 2
+
+[trainer]
+
+[trainer.loss]
+type = "ppo"
+policy_clip = 0.2
+value_clip = 0.2
+value_coef = 0.5
+entropy_coef = 0.0
+gamma = 1.0
+gae_lambda = 0.95
+
+[trainer.model]
+cp = 1
+ppo_value_head = true
+
+[trainer.model.ac]
+freq = 1
+
+[trainer.model.compile]
+
+[orchestrator]
+batch_size = 64
+group_size = 8
+max_off_policy_steps = 8
+collect_inference_metrics = true
+
+[orchestrator.algo]
+type = "ppo"
+
+[orchestrator.renderer]
+name = "qwen3"
+
+[orchestrator.model.client]
+base_url = ["http://localhost:8040/v1"]
+
+[orchestrator.train.sampling]
+temperature = 0.7
+max_completion_tokens = 4096
+
+[[orchestrator.train.env]]
+name = "symbolic-curriculum-train"
+group_size = 8
+max_turns = 24
+max_total_tokens = 32768
+taskset = { id = "symbolic-tool-calling-v1", task_file = "/root/artifacts/symbolic-curriculum-v2/tasks_train.jsonl", tools = { colocated = true } }
+harness = { id = "default" }
+
+[orchestrator.eval]
+interval = 10
+num_examples = -1
+group_size = 1
+skip_first_step = true
+
+[orchestrator.eval.sampling]
+temperature = 0.0
+max_completion_tokens = 4096
+
+[[orchestrator.eval.env]]
+name = "symbolic-curriculum-val"
+interval = 10
+group_size = 1
+max_turns = 24
+max_total_tokens = 32768
+taskset = { id = "symbolic-tool-calling-v1", task_file = "/root/artifacts/symbolic-curriculum-v2/tasks_val.jsonl", tools = { colocated = true } }
+harness = { id = "default" }
+
+[inference]
+gpu_memory_utilization = 0.85
+
+[inference.server]
+port = 8040
+
+[inference.model]
+max_model_len = 32768
+
+[inference.parallel]
+dp = 2
