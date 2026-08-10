@@ -1,0 +1,28 @@
+{
+  "arena_version": "arena-core-v1",
+  "content_sha256": "edad09bb301748621a0fab73ebf3de60d60abfd9f56c9afcc6ca02ffe12f3a80",
+  "dataset_version": "arena-sft-v2",
+  "examples_by_phase": {
+    "ACT": 900,
+    "BROADCAST": 4608
+  },
+  "examples_by_split": {
+    "test": 275,
+    "train": 4958,
+    "validation": 275
+  },
+  "generation_workers": 4,
+  "generator_version": "arena-gen-v1",
+  "num_examples": 5508,
+  "num_seeds": 1024,
+  "prompt_version": "arena-v2-structured-priority",
+  "rejections": {
+    "ambiguous_optimal_action": 1102,
+    "conflicting_declared_intent": 244,
+    "not_prompt_identifiable": 1946,
+    "targeted_transfer_rejected": 180
+  },
+  "start_seed": 0,
+  "targeted_mechanics_per_kind": 32,
+  "targeted_silence_examples": 512
+}

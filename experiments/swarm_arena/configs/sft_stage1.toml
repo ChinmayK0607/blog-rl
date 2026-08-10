@@ -1,0 +1,71 @@
+output_dir = "outputs/swarm_arena/qwen3_4b_stage1"
+max_steps = 310
+
+[model]
+name = "Qwen/Qwen3-4B-Instruct-2507"
+attn = "flash_attention_2"
+impl = "auto"
+
+[model.ac]
+mode = "full"
+
+[model.lora]
+rank = 32
+alpha = 64
+dropout = 0.05
+
+[renderer]
+name = "qwen3"
+enable_thinking = false
+
+[data]
+type = "sft"
+name = "CK0607/swarm-arena-sft-v2"
+splits = ["train_broadcast", "train_action", "train_action_rare"]
+probabilities = [0.6, 0.31, 0.09]
+stopping_strategy = "all_exhausted"
+seq_len = 2048
+batch_size = 32
+micro_batch_size = 2
+pack_function = "stack"
+shuffle = true
+seed = 20260811
+
+[val]
+interval = 40
+eval_on_start = true
+
+[val.data]
+type = "sft"
+name = "CK0607/swarm-arena-sft-v2"
+splits = ["validation"]
+seq_len = 2048
+batch_size = 32
+micro_batch_size = 2
+pack_function = "stack"
+shuffle = false
+
+[optim]
+lr = 0.0001
+weight_decay = 0.01
+max_norm = 1.0
+
+[scheduler]
+type = "cosine"
+warmup_steps = 10
+min_lr = 0.000005
+
+[ckpt]
+interval = 40
+weights_only = true
+
+[ckpt.weights]
+save_adapter_separately = true
+
+[wandb]
+project = "swarm-arena-sft"
+name = "qwen3-4b-stage1-r32"
+
+[deployment]
+type = "single_node"
+num_gpus = 1
