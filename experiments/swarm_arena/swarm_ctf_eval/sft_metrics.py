@@ -64,9 +64,7 @@ def validate_dataset_response(row: dict[str, Any], raw: str) -> dict[str, bool]:
             known = user["observation"]["known_nodes"]
             supported_facts = all(isinstance(fact, dict) and fact in known for fact in facts)
             canonical_facts = _canonical_facts(facts)
-            facts_are_unique = canonical_facts is not None and all(
-                count == 1 for count in canonical_facts.values()
-            )
+            facts_are_unique = canonical_facts is not None and all(count == 1 for count in canonical_facts.values())
             legal_actions = [
                 {key: value for key, value in action.items() if key != "id"} for action in user["legal_actions"]
             ]
