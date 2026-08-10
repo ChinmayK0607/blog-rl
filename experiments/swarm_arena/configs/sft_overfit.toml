@@ -25,7 +25,7 @@ splits = ["overfit"]
 seq_len = 2048
 batch_size = 16
 micro_batch_size = 2
-pack_function = "stack"
+pack_function = "concat"
 shuffle = true
 seed = 20260811
 
