@@ -27,7 +27,7 @@ stopping_strategy = "all_exhausted"
 seq_len = 2048
 batch_size = 32
 micro_batch_size = 2
-pack_function = "concat"
+pack_function = "cat"
 shuffle = true
 seed = 20260811
 
