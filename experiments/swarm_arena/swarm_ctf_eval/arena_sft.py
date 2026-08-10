@@ -5,7 +5,6 @@ import hashlib
 import json
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +22,6 @@ from .arena_protocol import (
     parse_broadcast,
 )
 from .arena_splits import FROZEN_EVAL_SEEDS
-
 
 DATASET_VERSION = "arena-sft-v2"
 
@@ -57,10 +55,7 @@ def oracle_broadcast(state: GameState, agent_id: str, intent: Action) -> Broadca
     useful = [
         fact
         for fact in candidates
-        if fact.node == intent.target
-        or fact.owner != agent.team
-        or fact.status != "SECURE"
-        or fact.critical
+        if fact.node == intent.target or fact.owner != agent.team or fact.status != "SECURE" or fact.critical
     ][:3]
     request = int(agent.resource == 0 and intent.kind == "WAIT")
     declared = None if intent.kind == "WAIT" else intent
@@ -72,9 +67,7 @@ def _row_id(messages: list[dict[str, str]], metadata: dict[str, Any]) -> str:
     return hashlib.sha256(payload.encode()).hexdigest()
 
 
-def _example(
-    prompt: list[dict[str, str]], target: str, metadata: dict[str, Any]
-) -> dict[str, Any]:
+def _example(prompt: list[dict[str, str]], target: str, metadata: dict[str, Any]) -> dict[str, Any]:
     messages = [*prompt, {"role": "assistant", "content": target}]
     row = {"messages": messages, "metadata": metadata}
     row["id"] = _row_id(messages, metadata)
@@ -91,15 +84,8 @@ def generate_seed_examples(seed: int) -> tuple[list[dict[str, Any]], Counter[str
     rejected: Counter[str] = Counter()
     split = split_for_seed(seed)
 
-    broadcasts = {
-        agent_id: oracle_broadcast(state, agent_id, action)
-        for agent_id, action in blue_local.items()
-    }
-    intent_counts = Counter(
-        (action.kind, action.target)
-        for action in blue_local.values()
-        if action.kind != "WAIT"
-    )
+    broadcasts = {agent_id: oracle_broadcast(state, agent_id, action) for agent_id, action in blue_local.items()}
+    intent_counts = Counter((action.kind, action.target) for action in blue_local.values() if action.kind != "WAIT")
     for index, agent_id in enumerate(sorted(blue_local)):
         prompt, _ = broadcast_prompt(state, agent_id, seed + index)
         target = encode_broadcast(broadcasts[agent_id])
@@ -175,9 +161,7 @@ def generate_seed_examples(seed: int) -> tuple[list[dict[str, Any]], Counter[str
     return rows, rejected
 
 
-def _mechanics_examples(
-    start_seed: int, per_kind: int
-) -> tuple[list[dict[str, Any]], Counter[str]]:
+def _mechanics_examples(start_seed: int, per_kind: int) -> tuple[list[dict[str, Any]], Counter[str]]:
     rows: list[dict[str, Any]] = []
     rejected: Counter[str] = Counter()
     for skill_index, skill in enumerate(("WAIT", "SCAN", "TRANSFER")):
@@ -320,9 +304,7 @@ def generate_dataset(
         "examples_by_split": dict(sorted(by_split.items())),
         "examples_by_phase": dict(sorted(by_phase.items())),
         "rejections": dict(sorted(rejected.items())),
-        "content_sha256": hashlib.sha256(
-            "".join(sorted(row["id"] for row in rows)).encode()
-        ).hexdigest(),
+        "content_sha256": hashlib.sha256("".join(sorted(row["id"] for row in rows)).encode()).hexdigest(),
     }
     return rows, manifest
 
@@ -334,9 +316,7 @@ def write_dataset(rows: list[dict[str, Any]], manifest: dict[str, Any], output_d
         (output_dir / f"{split}.jsonl").write_text(
             "".join(json.dumps(row, sort_keys=True) + "\n" for row in subset), encoding="utf-8"
         )
-    (output_dir / "manifest.json").write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def main() -> None:

@@ -24,9 +24,7 @@ class JointSolution:
         return dict(self.action_options)[agent_id]
 
 
-def local_priority(
-    state: GameState, agent_id: str, action: Action, style: str = "balanced"
-) -> tuple[float, str, str]:
+def local_priority(state: GameState, agent_id: str, action: Action, style: str = "balanced") -> tuple[float, str, str]:
     agent = state.agents[agent_id]
     score = 0.0
     seen = state.knowledge[agent_id].get(action.target or "")
@@ -84,9 +82,7 @@ def deterministic_policy(state: GameState, team: Team, style: str = "balanced") 
     return selected
 
 
-def local_policy_action(
-    state: GameState, agent_id: str, style: str = "balanced"
-) -> Action:
+def local_policy_action(state: GameState, agent_id: str, style: str = "balanced") -> Action:
     """Choose from one agent's prompt-visible state without teammate leakage."""
 
     return max(

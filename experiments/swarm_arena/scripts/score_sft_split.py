@@ -9,9 +9,8 @@ from typing import Any
 
 import torch
 from datasets import load_dataset
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
 from swarm_ctf_eval.sft_metrics import validate_dataset_response
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
 def render_prompt(tokenizer: Any, messages: list[dict[str, str]]) -> str:
@@ -93,9 +92,7 @@ def score(
                 for key in ("schema_valid", "supported", "legal", "exact")
             },
         }
-    summary["selection_score"] = statistics.mean(
-        [summary["broadcast"]["exact"], summary["act"]["exact"]]
-    )
+    summary["selection_score"] = statistics.mean([summary["broadcast"]["exact"], summary["act"]["exact"]])
     return rows, summary
 
 

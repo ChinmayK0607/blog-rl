@@ -29,9 +29,7 @@ def validate_dataset_response(row: dict[str, Any], raw: str) -> dict[str, bool]:
     legal = False
 
     if phase == "ACT" and predicted is not None:
-        schema = set(predicted) == {"action_id"} and isinstance(
-            predicted.get("action_id"), str
-        )
+        schema = set(predicted) == {"action_id"} and isinstance(predicted.get("action_id"), str)
         legal_ids = {item["id"] for item in user["legal_actions"]}
         legal = schema and predicted["action_id"] in legal_ids
         supported = legal
@@ -40,12 +38,9 @@ def validate_dataset_response(row: dict[str, Any], raw: str) -> dict[str, bool]:
         facts = predicted.get("facts") if schema else None
         if schema and isinstance(facts, list) and len(facts) <= 3:
             known = user["observation"]["known_nodes"]
-            supported_facts = all(
-                isinstance(fact, dict) and fact in known for fact in facts
-            )
+            supported_facts = all(isinstance(fact, dict) and fact in known for fact in facts)
             legal_actions = [
-                {key: value for key, value in action.items() if key != "id"}
-                for action in user["legal_actions"]
+                {key: value for key, value in action.items() if key != "id"} for action in user["legal_actions"]
             ]
             intent = predicted.get("intent")
             legal_intent = intent is None or intent in legal_actions

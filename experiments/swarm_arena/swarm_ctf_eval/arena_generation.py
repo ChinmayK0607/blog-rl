@@ -4,7 +4,6 @@ import random
 
 from .arena import AgentState, GameState, Node, observe_node
 
-
 GENERATOR_VERSION = "arena-gen-v1"
 
 
@@ -12,10 +11,7 @@ def _connected_edges(rng: random.Random, size: int, extra_edges: int) -> set[tup
     edges = {(index, (index + 1) % size) for index in range(size)}
     edges = {tuple(sorted(edge)) for edge in edges}
     candidates = [
-        (left, right)
-        for left in range(size)
-        for right in range(left + 1, size)
-        if (left, right) not in edges
+        (left, right) for left in range(size) for right in range(left + 1, size) if (left, right) not in edges
     ]
     rng.shuffle(candidates)
     for edge in candidates:
@@ -114,8 +110,7 @@ def generate_mechanics_state(seed: int, skill: str) -> GameState:
                 node.exposed = False
                 node.fortification = 0
         state.knowledge[actor.id] = {
-            node_id: observe_node(state.nodes[node_id], state.turn)
-            for node_id in (actor.position, *home.neighbors)
+            node_id: observe_node(state.nodes[node_id], state.turn) for node_id in (actor.position, *home.neighbors)
         }
     elif skill == "SCAN":
         unknown = sorted(home.neighbors)[0]
@@ -133,8 +128,6 @@ def generate_mechanics_state(seed: int, skill: str) -> GameState:
         need.exposed = False
         need.fortification = 0
         state.knowledge[actor.id] = {actor.position: observe_node(home, state.turn)}
-        state.knowledge[receiver.id] = {
-            receiver.position: observe_node(need, state.turn)
-        }
+        state.knowledge[receiver.id] = {receiver.position: observe_node(need, state.turn)}
     state.validate()
     return state

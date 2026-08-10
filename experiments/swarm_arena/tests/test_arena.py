@@ -4,20 +4,20 @@ import unittest
 from pathlib import Path
 
 from swarm_ctf_eval.arena import (
+    WAIT,
     Action,
     AgentState,
     ArenaEnv,
     GameState,
     Node,
-    WAIT,
     legal_actions,
     observe_node,
     redundant_agents,
     state_to_dict,
     step,
 )
-from swarm_ctf_eval.arena_generation import generate_state
 from swarm_ctf_eval.arena_eval import OracleArenaModel, evaluate_case
+from swarm_ctf_eval.arena_generation import generate_state
 from swarm_ctf_eval.arena_oracle import deterministic_policy, solve_joint_action
 from swarm_ctf_eval.arena_protocol import (
     action_prompt,
@@ -38,10 +38,7 @@ def two_node_state() -> GameState:
         for index in range(4):
             aid = f"{team.lower()}-{index}"
             agents[aid] = AgentState(aid, team, position, 2)
-    knowledge = {
-        aid: {node_id: observe_node(node, 0) for node_id, node in nodes.items()}
-        for aid in agents
-    }
+    knowledge = {aid: {node_id: observe_node(node, 0) for node_id, node in nodes.items()} for aid in agents}
     state = GameState(0, nodes, agents, knowledge)
     state.validate()
     return state
@@ -114,7 +111,16 @@ class ArenaTests(unittest.TestCase):
         self.assertFalse(parse_broadcast('answer: {"facts":[],"intent":null,"request_resource":0}', state, aid).valid)
         hallucination = json.dumps(
             {
-                "facts": [{"node": "ZZ", "owner": "RED", "status": "EXPOSED", "value": 3, "critical": False, "observed_turn": 0}],
+                "facts": [
+                    {
+                        "node": "ZZ",
+                        "owner": "RED",
+                        "status": "EXPOSED",
+                        "value": 3,
+                        "critical": False,
+                        "observed_turn": 0,
+                    }
+                ],
                 "intent": None,
                 "request_resource": 0,
             }
@@ -124,7 +130,16 @@ class ArenaTests(unittest.TestCase):
         known = next(iter(state.knowledge[aid].values()))
         stale_lie = json.dumps(
             {
-                "facts": [{"node": known.node, "owner": known.owner, "status": known.status, "value": known.value, "critical": known.critical, "observed_turn": known.observed_turn + 1}],
+                "facts": [
+                    {
+                        "node": known.node,
+                        "owner": known.owner,
+                        "status": known.status,
+                        "value": known.value,
+                        "critical": known.critical,
+                        "observed_turn": known.observed_turn + 1,
+                    }
+                ],
                 "intent": None,
                 "request_resource": 0,
             }
@@ -151,7 +166,9 @@ class ArenaTests(unittest.TestCase):
             output = Path(directory)
             write_dataset(rows, manifest, output)
             self.assertTrue((output / "manifest.json").is_file())
-            written = sum(len((output / f"{split}.jsonl").read_text().splitlines()) for split in ("train", "validation", "test"))
+            written = sum(
+                len((output / f"{split}.jsonl").read_text().splitlines()) for split in ("train", "validation", "test")
+            )
             self.assertEqual(written, len(rows))
 
     def test_targeted_sft_covers_wait_scan_and_transfer(self) -> None:
@@ -193,10 +210,7 @@ class ArenaTests(unittest.TestCase):
     def test_oracle_has_no_protocol_false_negatives_and_reaches_optimum(self) -> None:
         state = generate_state(101)
         reference = deterministic_policy(state, "BLUE")
-        shuffled = {
-            aid: oracle_broadcast(state, aid, reference[aid])
-            for aid in reference
-        }
+        shuffled = {aid: oracle_broadcast(state, aid, reference[aid]) for aid in reference}
         row = evaluate_case(OracleArenaModel(), 101, 12, "balanced", shuffled)
         self.assertEqual(row["message_strict_rate"], 1.0)
         self.assertTrue(row["action_order_consistent"])

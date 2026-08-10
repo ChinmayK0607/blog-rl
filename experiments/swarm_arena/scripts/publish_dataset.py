@@ -8,7 +8,6 @@ from pathlib import Path
 
 from huggingface_hub import HfApi
 
-
 METADATA_DEFAULTS = {
     "agent_id": "",
     "arena_version": "",
@@ -77,9 +76,7 @@ def normalize_row(row: dict) -> dict:
 
 
 def write_normalized_split(source: Path, destination: Path) -> None:
-    with source.open(encoding="utf-8") as input_handle, destination.open(
-        "w", encoding="utf-8"
-    ) as output_handle:
+    with source.open(encoding="utf-8") as input_handle, destination.open("w", encoding="utf-8") as output_handle:
         for line in input_handle:
             output_handle.write(json.dumps(normalize_row(json.loads(line)), sort_keys=True) + "\n")
 
@@ -91,11 +88,12 @@ def split_train(
     rare_action_path: Path,
 ) -> None:
     rare_types = {"WAIT", "SCAN", "TRANSFER"}
-    with source.open(encoding="utf-8") as input_handle, broadcast_path.open(
-        "w", encoding="utf-8"
-    ) as broadcast_handle, common_action_path.open(
-        "w", encoding="utf-8"
-    ) as common_handle, rare_action_path.open("w", encoding="utf-8") as rare_handle:
+    with (
+        source.open(encoding="utf-8") as input_handle,
+        broadcast_path.open("w", encoding="utf-8") as broadcast_handle,
+        common_action_path.open("w", encoding="utf-8") as common_handle,
+        rare_action_path.open("w", encoding="utf-8") as rare_handle,
+    ):
         for line in input_handle:
             row = normalize_row(json.loads(line))
             if row["metadata"]["phase"] == "BROADCAST":

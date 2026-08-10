@@ -33,9 +33,7 @@ def audit_dataset(path: Path, require_split_action_coverage: bool = False) -> di
     ids: set[str] = set()
     phases: Counter[str] = Counter()
     action_kinds: Counter[str] = Counter()
-    action_kinds_by_split: dict[str, Counter[str]] = {
-        split: Counter() for split in ("train", "validation", "test")
-    }
+    action_kinds_by_split: dict[str, Counter[str]] = {split: Counter() for split in ("train", "validation", "test")}
     action_positions: Counter[int] = Counter()
     broadcast_facts: Counter[int] = Counter()
     seeds_by_split: dict[int, set[str]] = {}
@@ -108,9 +106,7 @@ def audit_dataset(path: Path, require_split_action_coverage: bool = False) -> di
             action_kinds_by_split[expected_split][selected.kind] += 1
             action_positions[displayed.index(selected)] += 1
             if seed not in solver_cache:
-                solver_cache[seed] = solve_joint_action(
-                    state, "BLUE", deterministic_policy(state, "RED")
-                )
+                solver_cache[seed] = solve_joint_action(state, "BLUE", deterministic_policy(state, "RED"))
             solution = solver_cache[seed]
             if selected not in solution.acceptable_for(agent_id):
                 failures.append(f"{prefix}: not_solver_optimal")
@@ -163,8 +159,7 @@ def audit_dataset(path: Path, require_split_action_coverage: bool = False) -> di
         "phases": dict(sorted(phases.items())),
         "action_kinds": dict(sorted(action_kinds.items())),
         "action_kinds_by_split": {
-            split: dict(sorted(counts.items()))
-            for split, counts in action_kinds_by_split.items()
+            split: dict(sorted(counts.items())) for split, counts in action_kinds_by_split.items()
         },
         "action_positions": {str(key): value for key, value in sorted(action_positions.items())},
         "broadcast_fact_counts": {str(key): value for key, value in sorted(broadcast_facts.items())},

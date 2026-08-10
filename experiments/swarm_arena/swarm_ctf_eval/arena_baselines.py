@@ -26,9 +26,7 @@ def run(random_repeats: int = 16) -> dict[str, Any]:
         blue_agents = sorted(agent.id for agent in state.agents.values() if agent.team == "BLUE")
         policies = {
             "wait": {agent_id: WAIT for agent_id in blue_agents},
-            "independent_local": {
-                agent_id: local_policy_action(state, agent_id) for agent_id in blue_agents
-            },
+            "independent_local": {agent_id: local_policy_action(state, agent_id) for agent_id in blue_agents},
             "sequential_heuristic": deterministic_policy(state, "BLUE"),
             "centralized_oracle": dict(solution.canonical_assignment),
         }
@@ -44,10 +42,7 @@ def run(random_repeats: int = 16) -> dict[str, Any]:
         random_rewards = []
         for repeat in range(random_repeats):
             rng = random.Random(seed * 10_000 + repeat)
-            policy = {
-                agent_id: rng.choice(legal_actions(state, agent_id))
-                for agent_id in blue_agents
-            }
+            policy = {agent_id: rng.choice(legal_actions(state, agent_id)) for agent_id in blue_agents}
             random_rewards.append(step(state, {**red, **policy}).rewards["BLUE"])
         random_reward = statistics.mean(random_rewards)
         per_policy["random_legal"].append(

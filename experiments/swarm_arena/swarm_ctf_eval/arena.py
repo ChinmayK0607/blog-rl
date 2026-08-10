@@ -5,7 +5,6 @@ from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
-
 Team = Literal["BLUE", "RED"]
 Owner = Literal["BLUE", "RED", "NEUTRAL"]
 ActionKind = Literal["WAIT", "SCAN", "PROBE", "CAPTURE", "FORTIFY", "RECOVER", "TRANSFER"]
@@ -201,9 +200,7 @@ def observation_for(state: GameState, agent_id: str) -> dict[str, Any]:
             and teammate.position in state.nodes[agent.position].neighbors
         ],
         "unknown_neighbors": sorted(
-            neighbor
-            for neighbor in state.nodes[agent.position].neighbors
-            if neighbor not in memory
+            neighbor for neighbor in state.nodes[agent.position].neighbors if neighbor not in memory
         ),
     }
 
@@ -292,9 +289,7 @@ def _resource_potential(state: GameState, team: Team) -> float:
     return potential
 
 
-def _duplicate_targets(
-    state: GameState, joint_actions: dict[str, Action]
-) -> dict[Team, tuple[str, ...]]:
+def _duplicate_targets(state: GameState, joint_actions: dict[str, Action]) -> dict[Team, tuple[str, ...]]:
     result: dict[Team, tuple[str, ...]] = {}
     for team in TEAMS:
         counts = Counter(
@@ -302,9 +297,7 @@ def _duplicate_targets(
             for agent_id, action in joint_actions.items()
             if state.agents[agent_id].team == team and action.kind != "WAIT" and action.target is not None
         )
-        result[team] = tuple(
-            sorted(f"{kind}:{target}" for (kind, target), count in counts.items() if count > 1)
-        )
+        result[team] = tuple(sorted(f"{kind}:{target}" for (kind, target), count in counts.items() if count > 1))
     return result
 
 
@@ -430,16 +423,15 @@ def step(state: GameState, joint_actions: dict[str, Action]) -> StepResult:
         other = opponent(team)
         rewards[team] = (
             delta
-            + scan_bonus[team] - scan_bonus[other]
+            + scan_bonus[team]
+            - scan_bonus[other]
             - 1.0 * sum(state.agents[agent_id].team == team for agent_id in invalid)
             + 1.0 * sum(state.agents[agent_id].team == other for agent_id in invalid)
         )
     return StepResult(next_state, rewards, tuple(events), tuple(invalid), duplicates)
 
 
-def redundant_agents(
-    state: GameState, joint_actions: dict[str, Action], team: Team
-) -> tuple[str, ...]:
+def redundant_agents(state: GameState, joint_actions: dict[str, Action], team: Team) -> tuple[str, ...]:
     """Return actions with non-positive leave-one-out marginal team reward.
 
     This counterfactual definition avoids falsely calling complementary repeated
@@ -492,18 +484,12 @@ class ArenaEnv:
     def observations(self) -> dict[str, dict[str, Any]]:
         if self.state is None:
             raise RuntimeError("call reset before observations")
-        return {
-            agent_id: observation_for(self.state, agent_id)
-            for agent_id in sorted(self.state.agents)
-        }
+        return {agent_id: observation_for(self.state, agent_id) for agent_id in sorted(self.state.agents)}
 
     def legal_action_map(self) -> dict[str, tuple[Action, ...]]:
         if self.state is None:
             raise RuntimeError("call reset before legal_action_map")
-        return {
-            agent_id: legal_actions(self.state, agent_id)
-            for agent_id in sorted(self.state.agents)
-        }
+        return {agent_id: legal_actions(self.state, agent_id) for agent_id in sorted(self.state.agents)}
 
     def advance(
         self, joint_actions: dict[str, Action]
@@ -519,9 +505,7 @@ class ArenaEnv:
         info = {
             "events": [event.to_dict() for event in result.events],
             "invalid_agents": list(result.invalid_agents),
-            "same_action_targets": {
-                team: list(targets) for team, targets in result.duplicate_targets.items()
-            },
+            "same_action_targets": {team: list(targets) for team, targets in result.duplicate_targets.items()},
             "team_value": {team: team_value(self.state, team) for team in TEAMS},
         }
         return self.observations(), result.rewards, terminated, truncated, info

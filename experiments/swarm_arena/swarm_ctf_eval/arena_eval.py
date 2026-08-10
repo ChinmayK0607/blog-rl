@@ -5,11 +5,12 @@ import json
 import math
 import statistics
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
-from .arena import ARENA_VERSION, Action, GameState, WAIT, redundant_agents, step
+from .arena import ARENA_VERSION, WAIT, Action, GameState, redundant_agents, step
 from .arena_generation import GENERATOR_VERSION, generate_state
 from .arena_oracle import deterministic_policy, solve_joint_action
 from .arena_protocol import (
@@ -25,7 +26,6 @@ from .arena_protocol import (
 from .arena_sft import oracle_broadcast
 from .arena_splits import FROZEN_EVAL_CASES, FROZEN_EVAL_MANIFEST_SHA256
 from .providers import OpenAICompatibleProvider
-
 
 EVAL_VERSION = "arena-eval-v2"
 CONDITIONS = ("generated", "dropped", "reference", "shuffled")
@@ -56,13 +56,8 @@ class OpenAIArenaModel:
         return self.provider.generate(None, messages).text  # type: ignore[arg-type]
 
 
-def _reference_broadcasts(
-    state: GameState, reference: dict[str, Action]
-) -> dict[str, Broadcast]:
-    return {
-        agent_id: oracle_broadcast(state, agent_id, reference[agent_id])
-        for agent_id in sorted(reference)
-    }
+def _reference_broadcasts(state: GameState, reference: dict[str, Action]) -> dict[str, Broadcast]:
+    return {agent_id: oracle_broadcast(state, agent_id, reference[agent_id]) for agent_id in sorted(reference)}
 
 
 def _inbox(broadcasts: dict[str, Broadcast], receiver: str) -> list[dict[str, Any]]:
@@ -204,12 +199,7 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         radius = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denominator
         return [center - radius, center + radius]
 
-    main = [
-        condition
-        for row in rows
-        for condition in row["conditions"]
-        if condition["permutation"] == 0
-    ]
+    main = [condition for row in rows for condition in row["conditions"] if condition["permutation"] == 0]
     by_condition: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in main:
         by_condition[row["condition"]].append(row)
@@ -242,15 +232,20 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }.items():
         slices[label] = {}
         for key in keys:
-            group = [
-                generated_lookup[(row["seed"], row["size"], row["opponent_style"])]
-                for row in rows
-                if str(row["size"]) == key if label == "topology_size"
-            ] if label == "topology_size" else [
-                generated_lookup[(row["seed"], row["size"], row["opponent_style"])]
-                for row in rows
-                if row["opponent_style"] == key
-            ]
+            group = (
+                [
+                    generated_lookup[(row["seed"], row["size"], row["opponent_style"])]
+                    for row in rows
+                    if str(row["size"]) == key
+                    if label == "topology_size"
+                ]
+                if label == "topology_size"
+                else [
+                    generated_lookup[(row["seed"], row["size"], row["opponent_style"])]
+                    for row in rows
+                    if row["opponent_style"] == key
+                ]
+            )
             slices[label][key] = {
                 "cases": len(group),
                 "optimal_outcome_rate": statistics.mean(item["optimal_outcome"] for item in group),
@@ -266,43 +261,52 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "action_order_consistency_rate": statistics.mean(row["action_order_consistent"] for row in rows),
         "conditions": conditions,
         "generated_slices": slices,
-        "generated_minus_dropped_reward": generated["mean_environment_reward"] - conditions["dropped"]["mean_environment_reward"],
-        "reference_message_headroom": conditions["reference"]["mean_environment_reward"] - generated["mean_environment_reward"],
+        "generated_minus_dropped_reward": generated["mean_environment_reward"]
+        - conditions["dropped"]["mean_environment_reward"],
+        "reference_message_headroom": conditions["reference"]["mean_environment_reward"]
+        - generated["mean_environment_reward"],
     }
 
 
-def run(model: ArenaModel, output_dir: Path) -> dict[str, Any]:
-    rows = []
-    for index, (seed, size, style) in enumerate(FROZEN_EVAL_CASES):
-        shuffled_seed, shuffled_size, _ = FROZEN_EVAL_CASES[(index + 1) % len(FROZEN_EVAL_CASES)]
-        shuffled_state = generate_state(shuffled_seed, shuffled_size)
-        shuffled_reference = dict(
-            solve_joint_action(
-                shuffled_state,
-                "BLUE",
-                deterministic_policy(shuffled_state, "RED", style),
-            ).canonical_assignment
+def _evaluate_frozen_case(model: ArenaModel, index: int) -> dict[str, Any]:
+    seed, size, style = FROZEN_EVAL_CASES[index]
+    shuffled_seed, shuffled_size, _ = FROZEN_EVAL_CASES[(index + 1) % len(FROZEN_EVAL_CASES)]
+    shuffled_state = generate_state(shuffled_seed, shuffled_size)
+    shuffled_reference = dict(
+        solve_joint_action(
+            shuffled_state,
+            "BLUE",
+            deterministic_policy(shuffled_state, "RED", style),
+        ).canonical_assignment
+    )
+    shuffled = _reference_broadcasts(shuffled_state, shuffled_reference)
+    # Preserve receiver identities while substituting semantically unrelated
+    # broadcasts from the next frozen case.
+    remapped = {
+        agent_id: shuffled[source]
+        for agent_id, source in zip(
+            sorted(agent.id for agent in generate_state(seed, size).agents.values() if agent.team == "BLUE"),
+            sorted(shuffled),
+            strict=True,
         )
-        shuffled = _reference_broadcasts(shuffled_state, shuffled_reference)
-        # Preserve receiver identities while substituting semantically unrelated
-        # broadcasts from the next frozen case.
-        remapped = {
-            agent_id: shuffled[source]
-            for agent_id, source in zip(
-                sorted(agent.id for agent in generate_state(seed, size).agents.values() if agent.team == "BLUE"),
-                sorted(shuffled),
-                strict=True,
-            )
-        }
-        rows.append(evaluate_case(model, seed, size, style, remapped))
+    }
+    return evaluate_case(model, seed, size, style, remapped)
+
+
+def run(model: ArenaModel, output_dir: Path, workers: int = 1) -> dict[str, Any]:
+    if workers < 1:
+        raise ValueError("workers must be at least one")
+    if workers == 1:
+        rows = [_evaluate_frozen_case(model, index) for index in range(len(FROZEN_EVAL_CASES))]
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            rows = list(executor.map(lambda index: _evaluate_frozen_case(model, index), range(len(FROZEN_EVAL_CASES))))
     summary = summarize(rows)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "rows.jsonl").write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8"
     )
-    (output_dir / "summary.json").write_text(
-        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return summary
 
 
@@ -313,6 +317,7 @@ def main() -> None:
     parser.add_argument("--adapter", default=None)
     parser.add_argument("--base-url", default="http://127.0.0.1:8080/v1")
     parser.add_argument("--api-key", default="local")
+    parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--output-dir", type=Path, default=Path("results/arena_oracle"))
     args = parser.parse_args()
     if args.provider == "oracle":
@@ -326,7 +331,9 @@ def main() -> None:
         from .local_hf import LocalHFArenaModel
 
         model = LocalHFArenaModel(args.model, args.adapter)
-    print(json.dumps(run(model, args.output_dir), indent=2, sort_keys=True))
+    if args.provider == "local-hf" and args.workers != 1:
+        parser.error("local-hf requires --workers 1; use the OpenAI provider for concurrent serving")
+    print(json.dumps(run(model, args.output_dir, args.workers), indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
