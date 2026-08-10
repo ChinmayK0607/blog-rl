@@ -1,5 +1,5 @@
 output_dir = "outputs/swarm_arena/qwen3_4b_overfit"
-max_steps = 32
+max_steps = 96
 
 [model]
 name = "Qwen/Qwen3-4B-Instruct-2507"
@@ -36,10 +36,10 @@ max_norm = 1.0
 
 [scheduler]
 type = "cosine"
-warmup_steps = 2
+warmup_steps = 4
 
 [ckpt]
-interval = 8
+interval = 96
 weights_only = true
 
 [ckpt.weights]

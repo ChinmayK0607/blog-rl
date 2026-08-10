@@ -82,14 +82,17 @@ def score(
         "dataset": dataset_id,
         "split": split,
         "examples": total,
-        **{key: counts[key] / total for key in ("schema_valid", "supported", "legal", "exact")},
+        **{
+            key: counts[key] / total
+            for key in ("schema_valid", "supported", "legal", "ordered_exact", "exact")
+        },
     }
     for phase in ("BROADCAST", "ACT"):
         summary[phase.lower()] = {
             "examples": phase_counts[phase],
             **{
                 key: phase_metrics[phase][key] / max(1, phase_counts[phase])
-                for key in ("schema_valid", "supported", "legal", "exact")
+                for key in ("schema_valid", "supported", "legal", "ordered_exact", "exact")
             },
         }
     summary["selection_score"] = statistics.mean([summary["broadcast"]["exact"], summary["act"]["exact"]])
