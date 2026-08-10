@@ -9,6 +9,25 @@ from pathlib import Path
 from huggingface_hub import HfApi
 
 
+METADATA_DEFAULTS = {
+    "agent_id": "",
+    "arena_version": "",
+    "dataset_version": "",
+    "generator_version": "",
+    "label_source": "",
+    "phase": "",
+    "prompt_version": "",
+    "seed": 0,
+    "split": "",
+    "policy_reward": 0.0,
+    "solver_joint_actions_explored": 0,
+    "solver_optimal_count": 0,
+    "solver_reward": 0.0,
+    "generator_mode": "",
+    "targeted_skill": "",
+}
+
+
 DATASET_CARD = """---
 license: apache-2.0
 task_categories:
@@ -43,9 +62,26 @@ reweighted.
 The simulator, oracle, audit, frozen evaluation, and Prime-RL configs live in
 <https://github.com/ChinmayK0607/blog-rl/tree/exp/swarm-arena-4b/experiments/swarm_arena>.
 
+Optional provenance fields use typed zero/empty-string defaults so every JSONL
+split has one stable Arrow schema. They do not affect prompts or targets.
+
 Dataset content SHA-256:
 `edad09bb301748621a0fab73ebf3de60d60abfd9f56c9afcc6ca02ffe12f3a80`.
 """
+
+
+def normalize_row(row: dict) -> dict:
+    row = dict(row)
+    row["metadata"] = {**METADATA_DEFAULTS, **row["metadata"]}
+    return row
+
+
+def write_normalized_split(source: Path, destination: Path) -> None:
+    with source.open(encoding="utf-8") as input_handle, destination.open(
+        "w", encoding="utf-8"
+    ) as output_handle:
+        for line in input_handle:
+            output_handle.write(json.dumps(normalize_row(json.loads(line)), sort_keys=True) + "\n")
 
 
 def split_train(
@@ -61,7 +97,7 @@ def split_train(
         "w", encoding="utf-8"
     ) as common_handle, rare_action_path.open("w", encoding="utf-8") as rare_handle:
         for line in input_handle:
-            row = json.loads(line)
+            row = normalize_row(json.loads(line))
             if row["metadata"]["phase"] == "BROADCAST":
                 destination = broadcast_handle
             else:
@@ -88,7 +124,7 @@ def make_overfit(source: Path, destination: Path, count: int = 256) -> None:
     common = [row for row in actions if not is_rare(row)][: count - 154 - len(rare)]
     with destination.open("w", encoding="utf-8") as handle:
         for row in broadcasts + rare + common:
-            handle.write(json.dumps(row, sort_keys=True) + "\n")
+            handle.write(json.dumps(normalize_row(row), sort_keys=True) + "\n")
 
 
 def main() -> None:
@@ -109,14 +145,16 @@ def main() -> None:
             staging / "train_action_rare.jsonl",
         )
         make_overfit(args.source / "train.jsonl", staging / "overfit.jsonl")
-        for filename in ("validation.jsonl", "test.jsonl", "manifest.json", "audit.json"):
+        for filename in ("validation.jsonl", "test.jsonl"):
+            write_normalized_split(args.source / filename, staging / filename)
+        for filename in ("manifest.json", "audit.json"):
             shutil.copy2(args.source / filename, staging / filename)
         (staging / "README.md").write_text(DATASET_CARD, encoding="utf-8")
         if args.experiment_root:
             shutil.copytree(
                 args.experiment_root,
                 staging / "code",
-                ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "data"),
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "data", ".venv", "uv.lock"),
             )
         api.upload_folder(
             repo_id=args.repo_id,
