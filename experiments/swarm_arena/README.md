@@ -89,3 +89,18 @@ uv run --with ./experiments/swarm_arena \
 The selector rejects non-validation summaries and any checkpoint with
 unsupported broadcast facts. Only after `selection.json` is written may the
 chosen adapter be evaluated on the held-out test split.
+
+The final base-versus-SFT arena claim uses paired case-level statistics. It is
+only promoted when the 95% intervals support lower oracle regret, generated
+messages beating dropped messages, and generated messages beating shuffled
+messages:
+
+```bash
+uv run --with ./experiments/swarm_arena \
+  python -m swarm_ctf_eval.arena_compare \
+  --base-rows experiments/swarm_arena/results/base/arena/rows.jsonl \
+  --base-summary experiments/swarm_arena/results/base/arena/summary.json \
+  --sft-rows experiments/swarm_arena/results/stage1/selected/arena/rows.jsonl \
+  --sft-summary experiments/swarm_arena/results/stage1/selected/arena/summary.json \
+  --output experiments/swarm_arena/results/stage1/arena_comparison.json
+```
