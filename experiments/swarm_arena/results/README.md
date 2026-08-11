@@ -37,3 +37,51 @@ renderer as training. On all 256 fixed examples it reached:
 This passed the warm-start promotion gate and authorized the full stage-1 SFT
 run. Held-out test data remains untouched until a checkpoint is selected using
 validation data only.
+
+## Full stage-1 SFT
+
+The 310-step rank-32 LoRA run completed without NaNs. Validation loss fell from
+2.5093 to 0.0690. All eight stable checkpoints were then generated over the same
+275-example validation split with Prime-RL's exact Qwen3 renderer.
+
+The frozen behavioral selector chose step 240. Steps 240 and 310 tied at a
+phase-balanced exactness of 0.99776 and passed every gate; the predeclared final
+tie-break prefers the earlier checkpoint. Four of eight checkpoints were
+eligible. The complete decision is in `stage1/selection.json`.
+
+The selected checkpoint was then evaluated exactly once on the untouched
+275-example SFT test split:
+
+- schema validity: 1.0000;
+- supported/legal output rate: 1.0000;
+- action exactness: 0.9783 (45/46);
+- broadcast exactness: 0.9869 (226/229);
+- phase-balanced selection score: 0.9826.
+
+## Frozen 4v4 arena result
+
+The selected adapter improves the primary task endpoint over the untouched base
+model in the generated-message condition:
+
+- mean oracle regret: 3.2300 -> 2.2250;
+- mean environment reward: -0.5850 -> 0.4200;
+- paired regret difference (SFT minus base): -1.0050;
+- paired 95% interval: [-1.6400, -0.3700];
+- two-sided paired randomization p-value: 0.00201;
+- strict message/action rates: 1.0000 / 1.0000.
+
+This is a positive protocol-and-task warm-start result, but **not evidence of a
+learned swarm mechanism yet**. Generated messages beat dropped messages by
+0.3858 reward on average, but its paired interval includes zero
+([-0.0056, 0.7773], p=0.05545). Generated messages do not reliably beat shuffled
+messages ([-0.2070, 0.3586], p=0.62998). The predeclared coordination claim
+gate therefore remains false. Subsequent MARL work should target causal message
+use rather than presenting the SFT capability gain as emergent cooperation.
+
+Artifacts:
+
+- training: <https://wandb.ai/ChinmayK0604/swarm-arena-sft/runs/o0ioy6jt>;
+- final evaluation and raw trajectories:
+  <https://wandb.ai/ChinmayK0604/swarm-arena-sft/runs/jc8uroip>;
+- verified selected adapter:
+  <https://huggingface.co/CK0607/Qwen3-4B-Swarm-Arena-SFT-v2>.

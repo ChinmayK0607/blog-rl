@@ -1,0 +1,29 @@
+{
+  "act": {
+    "exact": 0.9782608695652174,
+    "examples": 46,
+    "legal": 1.0,
+    "ordered_exact": 0.9782608695652174,
+    "schema_valid": 1.0,
+    "supported": 1.0
+  },
+  "adapter": "outputs/swarm_arena/qwen3_4b_stage1_run2/weights/step_240/lora_adapters",
+  "broadcast": {
+    "exact": 0.9868995633187773,
+    "examples": 229,
+    "legal": 1.0,
+    "ordered_exact": 0.9781659388646288,
+    "schema_valid": 1.0,
+    "supported": 1.0
+  },
+  "dataset": "CK0607/swarm-arena-sft-v2",
+  "exact": 0.9854545454545455,
+  "examples": 275,
+  "legal": 1.0,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "ordered_exact": 0.9781818181818182,
+  "schema_valid": 1.0,
+  "selection_score": 0.9825802164419973,
+  "split": "test",
+  "supported": 1.0
+}

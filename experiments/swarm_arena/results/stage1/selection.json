@@ -1,0 +1,131 @@
+{
+  "candidates": [
+    {
+      "act_exact": 0.7307692307692307,
+      "broadcast_exact": 0.5739910313901345,
+      "eligible": false,
+      "gate_failures": [
+        "validation contains unsupported broadcast facts"
+      ],
+      "legal": 0.9745454545454545,
+      "schema_valid": 1.0,
+      "selection_score": 0.6523801310796826,
+      "selection_score_delta_vs_base": 0.44053984132459467,
+      "step": 40,
+      "summary": "experiments/swarm_arena/results/stage1/checkpoints/step_40/validation/summary.json",
+      "supported": 0.9745454545454545
+    },
+    {
+      "act_exact": 0.9423076923076923,
+      "broadcast_exact": 0.8878923766816144,
+      "eligible": false,
+      "gate_failures": [
+        "validation contains unsupported broadcast facts"
+      ],
+      "legal": 0.9854545454545455,
+      "schema_valid": 1.0,
+      "selection_score": 0.9151000344946534,
+      "selection_score_delta_vs_base": 0.7032597447395654,
+      "step": 80,
+      "summary": "experiments/swarm_arena/results/stage1/checkpoints/step_80/validation/summary.json",
+      "supported": 0.9854545454545455
+    },
+    {
+      "act_exact": 1.0,
+      "broadcast_exact": 0.9641255605381166,
+      "eligible": true,
+      "gate_failures": [],
+      "legal": 1.0,
+      "schema_valid": 1.0,
+      "selection_score": 0.9820627802690582,
+      "selection_score_delta_vs_base": 0.7702224905139703,
+      "step": 120,
+      "summary": "experiments/swarm_arena/results/stage1/checkpoints/step_120/validation/summary.json",
+      "supported": 1.0
+    },
+    {
+      "act_exact": 0.9807692307692307,
+      "broadcast_exact": 0.9910313901345291,
+      "eligible": false,
+      "gate_failures": [
+        "validation contains unsupported broadcast facts"
+      ],
+      "legal": 0.9963636363636363,
+      "schema_valid": 1.0,
+      "selection_score": 0.98590031045188,
+      "selection_score_delta_vs_base": 0.774060020696792,
+      "step": 160,
+      "summary": "experiments/swarm_arena/results/stage1/checkpoints/step_160/validation/summary.json",
+      "supported": 0.9963636363636363
+    },
+    {
+      "act_exact": 1.0,
+      "broadcast_exact": 0.9820627802690582,
+      "eligible": false,
+      "gate_failures": [
+        "validation contains unsupported broadcast facts"
+      ],
+      "legal": 0.9963636363636363,
+      "schema_valid": 1.0,
+      "selection_score": 0.9910313901345291,
+      "selection_score_delta_vs_base": 0.7791911003794412,
+      "step": 200,
+      "summary": "experiments/swarm_arena/results/stage1/checkpoints/step_200/validation/summary.json",
+      "supported": 0.9963636363636363
+    },
+    {
+      "act_exact": 1.0,
+      "broadcast_exact": 0.9955156950672646,
+      "eligible": true,
+      "gate_failures": [],
+      "legal": 1.0,
+      "schema_valid": 1.0,
+      "selection_score": 0.9977578475336323,
+      "selection_score_delta_vs_base": 0.7859175577785443,
+      "step": 240,
+      "summary": "experiments/swarm_arena/results/stage1/checkpoints/step_240/validation/summary.json",
+      "supported": 1.0
+    },
+    {
+      "act_exact": 0.9807692307692307,
+      "broadcast_exact": 0.9955156950672646,
+      "eligible": true,
+      "gate_failures": [],
+      "legal": 1.0,
+      "schema_valid": 1.0,
+      "selection_score": 0.9881424629182476,
+      "selection_score_delta_vs_base": 0.7763021731631596,
+      "step": 280,
+      "summary": "experiments/swarm_arena/results/stage1/checkpoints/step_280/validation/summary.json",
+      "supported": 1.0
+    },
+    {
+      "act_exact": 1.0,
+      "broadcast_exact": 0.9955156950672646,
+      "eligible": true,
+      "gate_failures": [],
+      "legal": 1.0,
+      "schema_valid": 1.0,
+      "selection_score": 0.9977578475336323,
+      "selection_score_delta_vs_base": 0.7859175577785443,
+      "step": 310,
+      "summary": "experiments/swarm_arena/results/stage1/checkpoints/step_310/validation/summary.json",
+      "supported": 1.0
+    }
+  ],
+  "examples_per_candidate": 275,
+  "num_candidates": 8,
+  "num_eligible": 4,
+  "selected_step": 240,
+  "selected_summary": "experiments/swarm_arena/results/stage1/checkpoints/step_240/validation/summary.json",
+  "selection_protocol": "validation-only-behavioral-v1",
+  "selection_rule": [
+    "pass all fixed protocol gates",
+    "maximize phase-balanced exactness",
+    "maximize broadcast exactness",
+    "maximize action exactness",
+    "maximize broadcast supported rate",
+    "maximize legal action rate",
+    "prefer the earlier step on an exact tie"
+  ]
+}
