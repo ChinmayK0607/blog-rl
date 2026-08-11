@@ -62,6 +62,40 @@ The order is fixed to avoid tuning on the final result:
 Prime-RL configs are in `configs/`. See `GPU_HANDOFF.md` for promotion gates and
 `ENVIRONMENT_CARD.md` for the exact mechanics and threat model.
 
+## RL-native episode task
+
+The one-turn frozen arena remains a protocol and SFT warm-start gate. The main
+RL task is `arena-episode-v2`: 4-8 turns, private observations, grounded and
+budgeted communication, opponent-policy switches, and terminal-only team
+reward. It deliberately has no oracle message or long-horizon action labels.
+See `RL_TASK_V2.md` for the task boundary and required causal controls.
+
+Run its model-free audit and a learned-policy evaluation with:
+
+```bash
+uv run --with ./experiments/swarm_arena \
+  python -m swarm_ctf_eval.episode_baselines \
+  --output-dir experiments/swarm_arena/results/episode_v2/baselines
+
+uv run --with ./experiments/swarm_arena --with peft \
+  python experiments/swarm_arena/scripts/run_episode_eval.py \
+  --model Qwen/Qwen3-4B-Instruct-2507 \
+  --adapter /path/to/lora_adapters \
+  --output-dir experiments/swarm_arena/results/episode_v2/adapter
+```
+
+The learned-policy evaluator runs generated, dropped, sender-shuffled,
+one-turn-delayed, and zero-budget episodes on the same frozen cases. A return
+gain without positive paired communication effects is capability learning, not
+evidence of swarm cooperation.
+
+## Non-arena regression gate
+
+`REGRESSION_PLAN.md` defines a frozen 256-case overspecialization suite and the
+paired base-versus-adapter promotion thresholds. This is run before any RL
+checkpoint is promoted and complements pinned IFEval, GSM8K, and ARC-Challenge
+runs before a public capability claim.
+
 ## Score an SFT checkpoint
 
 Prime-RL writes the unchanged base weights and the learned LoRA adapter
