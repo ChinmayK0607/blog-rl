@@ -1,0 +1,29 @@
+{
+  "act": {
+    "exact": 1.0,
+    "examples": 102,
+    "legal": 1.0,
+    "ordered_exact": 1.0,
+    "schema_valid": 1.0,
+    "supported": 1.0
+  },
+  "adapter": "outputs/swarm_arena/qwen3_4b_overfit_run4_96/weights/step_96/lora_adapters",
+  "broadcast": {
+    "exact": 0.974025974025974,
+    "examples": 154,
+    "legal": 0.9935064935064936,
+    "ordered_exact": 0.974025974025974,
+    "schema_valid": 1.0,
+    "supported": 0.9935064935064936
+  },
+  "dataset": "CK0607/swarm-arena-sft-v2",
+  "exact": 0.984375,
+  "examples": 256,
+  "legal": 0.99609375,
+  "model": "outputs/swarm_arena/qwen3_4b_overfit_run4_96/weights/step_96",
+  "ordered_exact": 0.984375,
+  "schema_valid": 1.0,
+  "selection_score": 0.987012987012987,
+  "split": "overfit",
+  "supported": 0.99609375
+}
