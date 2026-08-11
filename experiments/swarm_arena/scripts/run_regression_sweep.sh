@@ -13,7 +13,13 @@ shift 3
 
 swarm_repo_root=$(git rev-parse --show-toplevel)
 swarm_uv_bin=${SWARM_UV_BIN:-uv}
-export PYTHONPATH="${swarm_repo_root}/experiments/swarm_arena${PYTHONPATH:+:${PYTHONPATH}}"
+if [[ ${swarm_checkpoint_root} != /* ]]; then
+  swarm_checkpoint_root="${swarm_repo_root}/${swarm_checkpoint_root}"
+fi
+if [[ ${swarm_output_root} != /* ]]; then
+  swarm_output_root="${swarm_repo_root}/${swarm_output_root}"
+fi
+cd "${swarm_repo_root}/experiments/swarm_arena"
 
 for swarm_step in "$@"; do
   swarm_adapter="${swarm_checkpoint_root}/step_${swarm_step}/lora_adapters"
@@ -23,8 +29,8 @@ for swarm_step in "$@"; do
     exit 1
   fi
   mkdir -p "${swarm_output}"
-  "${swarm_uv_bin}" run --no-sync python \
-    "${swarm_repo_root}/experiments/swarm_arena/scripts/score_regressions.py" \
+  "${swarm_uv_bin}" run --project "${swarm_repo_root}" --no-sync python \
+    -m scripts.score_regressions \
     --model "${swarm_model}" \
     --adapter "${swarm_adapter}" \
     --batch-size 16 \
