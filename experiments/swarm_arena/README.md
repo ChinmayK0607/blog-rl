@@ -74,3 +74,18 @@ uv run --with peft python experiments/swarm_arena/scripts/score_sft_split.py \
   --split validation \
   --output-dir experiments/swarm_arena/results/stage1/validation
 ```
+
+After scoring every stable checkpoint on the validation split, select one with
+the frozen behavioral gates and deterministic tie-breakers:
+
+```bash
+uv run --with ./experiments/swarm_arena \
+  python -m swarm_ctf_eval.checkpoint_selection \
+  --results-root experiments/swarm_arena/results/stage1/checkpoints \
+  --base-summary experiments/swarm_arena/results/stage1/base_validation_corrected/summary.json \
+  --output experiments/swarm_arena/results/stage1/selection.json
+```
+
+The selector rejects non-validation summaries and any checkpoint with
+unsupported broadcast facts. Only after `selection.json` is written may the
+chosen adapter be evaluated on the held-out test split.
