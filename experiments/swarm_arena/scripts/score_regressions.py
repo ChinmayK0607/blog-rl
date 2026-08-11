@@ -8,6 +8,11 @@ from typing import Any
 import torch
 from renderers import Qwen3Renderer, Qwen3RendererConfig
 from swarm_ctf_eval.regression import FROZEN_REGRESSION_CASES, summarize_regression_rows, validate_response
+from swarm_ctf_eval.regression_v2 import (
+    FROZEN_REGRESSION_V2_CASES,
+    summarize_v2_rows,
+    validate_v2_response,
+)
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
@@ -22,7 +27,16 @@ def resolve_device(raw: str) -> str:
 
 
 @torch.inference_mode()
-def score(model_path: str, adapter_path: str | None, batch_size: int, device: str) -> tuple[list[dict], dict]:
+def score(
+    model_path: str,
+    adapter_path: str | None,
+    batch_size: int,
+    device: str,
+    suite: str = "v1",
+) -> tuple[list[dict], dict]:
+    cases = FROZEN_REGRESSION_CASES if suite == "v1" else FROZEN_REGRESSION_V2_CASES
+    validator = validate_response if suite == "v1" else validate_v2_response
+    summarizer = summarize_regression_rows if suite == "v1" else summarize_v2_rows
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     tokenizer.padding_side = "left"
     if tokenizer.pad_token_id is None:
@@ -40,8 +54,8 @@ def score(model_path: str, adapter_path: str | None, batch_size: int, device: st
     model = model.to(device)
     model.eval()
     rows = []
-    for start in range(0, len(FROZEN_REGRESSION_CASES), batch_size):
-        batch = FROZEN_REGRESSION_CASES[start : start + batch_size]
+    for start in range(0, len(cases), batch_size):
+        batch = cases[start : start + batch_size]
         prompt_ids = [renderer.render_ids(list(case.messages), add_generation_prompt=True) for case in batch]
         encoded = tokenizer.pad(
             [{"input_ids": input_ids} for input_ids in prompt_ids], padding=True, return_tensors="pt"
@@ -61,14 +75,14 @@ def score(model_path: str, adapter_path: str | None, batch_size: int, device: st
                     "category": case.category,
                     "response": raw,
                     "expected": case.expected,
-                    **validate_response(case, raw),
+                    **validator(case, raw),
                 }
             )
     summary = {
         "model": model_path,
         "adapter": adapter_path,
         "device": device,
-        **summarize_regression_rows(rows),
+        **summarizer(rows),
     }
     return rows, summary
 
@@ -79,9 +93,10 @@ def main() -> None:
     parser.add_argument("--adapter")
     parser.add_argument("--device", default="auto")
     parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("--suite", choices=("v1", "v2"), default="v1")
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
-    rows, summary = score(args.model, args.adapter, args.batch_size, resolve_device(args.device))
+    rows, summary = score(args.model, args.adapter, args.batch_size, resolve_device(args.device), args.suite)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     (args.output_dir / "rows.jsonl").write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8"

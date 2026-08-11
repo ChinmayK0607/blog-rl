@@ -9,7 +9,13 @@ from swarm_ctf_eval.regression import (
     validate_response,
 )
 from swarm_ctf_eval.regression_compare import compare
+from swarm_ctf_eval.regression_v2 import (
+    FROZEN_REGRESSION_V2_CASES,
+    REGRESSION_V2_MANIFEST_SHA256,
+    validate_v2_response,
+)
 from swarm_ctf_eval.warm_start_selection import select_warm_start
+from swarm_ctf_eval.warmstart_v3 import generate_arena_rows, generate_preservation_rows
 
 
 def test_frozen_regression_manifest_is_balanced_and_unique() -> None:
@@ -112,3 +118,24 @@ def test_warm_start_selection_prefers_safe_checkpoint(tmp_path) -> None:
     result = select_warm_start(validation_root, regression_root, base_path)
     assert result["decision"] == "adapter"
     assert result["selected_step"] == 40
+
+
+def test_regression_v2_is_frozen_balanced_and_strict() -> None:
+    assert len(FROZEN_REGRESSION_V2_CASES) == 256
+    assert len({case.id for case in FROZEN_REGRESSION_V2_CASES}) == 256
+    counts = {}
+    for case in FROZEN_REGRESSION_V2_CASES:
+        counts[case.category] = counts.get(case.category, 0) + 1
+        assert validate_v2_response(case, json.dumps(case.expected))["exact"]
+    assert set(counts.values()) == {64}
+    assert len(REGRESSION_V2_MANIFEST_SHA256) == 64
+
+
+def test_warmstart_v3_balances_phases_and_preservation() -> None:
+    arena = generate_arena_rows(7_200_000, 2, "test")
+    assert len(arena) == 16
+    assert sum(json.loads(row["metadata_json"])["phase"] == "BROADCAST" for row in arena) == 8
+    assert sum(json.loads(row["metadata_json"])["phase"] == "ACT" for row in arena) == 8
+    preservation = generate_preservation_rows(20260920, 12, "test")
+    assert len(preservation) == 12
+    assert len({row["id"] for row in preservation}) == 12
