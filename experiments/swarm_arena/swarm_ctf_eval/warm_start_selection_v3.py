@@ -50,16 +50,12 @@ def select_warm_start_v3(
                 "validation": validation,
                 "regression_v1": v1,
                 "regression_v2": v2,
-                "eligible": (
-                    all(protocol_gates.values()) and v1["gates"]["passed"] and v2["gates"]["passed"]
-                ),
+                "eligible": (all(protocol_gates.values()) and v1["gates"]["passed"] and v2["gates"]["passed"]),
             }
         )
     eligible = [candidate for candidate in candidates if candidate["eligible"]]
     selected = (
-        max(eligible, key=lambda candidate: (candidate["selection_score"], -candidate["step"]))
-        if eligible
-        else None
+        max(eligible, key=lambda candidate: (candidate["selection_score"], -candidate["step"])) if eligible else None
     )
     return {
         "selection_protocol": "swarm-warm-start-v3",
