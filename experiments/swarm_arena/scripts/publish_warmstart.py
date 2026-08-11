@@ -38,9 +38,7 @@ def build_model_card(
     training_run_url: str,
 ) -> str:
     selected_step = selection["selected_step"]
-    candidate = next(
-        item for item in selection["candidates"] if item["step"] == selected_step
-    )
+    candidate = next(item for item in selection["candidates"] if item["step"] == selected_step)
     validation = candidate["validation"]
     broadcast = validation["groups"]["BROADCAST"]
     action = validation["groups"]["ACT"]
@@ -129,9 +127,7 @@ def publish(
     audit = load_json(audit_path)
     token = get_token()
     if not token:
-        raise RuntimeError(
-            "Hugging Face authentication is required; run `hf auth login`"
-        )
+        raise RuntimeError("Hugging Face authentication is required; run `hf auth login`")
 
     api = HfApi(token=token)
     api.create_repo(repo_id, repo_type="model", exist_ok=True)
@@ -186,9 +182,7 @@ def publish(
         )
         remote_hash = sha256(downloaded)
     if remote_hash != local_hash:
-        raise RuntimeError(
-            "downloaded adapter hash does not match the selected local adapter"
-        )
+        raise RuntimeError("downloaded adapter hash does not match the selected local adapter")
     return {
         "repo_id": repo_id,
         "url": f"https://huggingface.co/{repo_id}",
@@ -200,9 +194,7 @@ def publish(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Publish and verify a promoted Swarm Arena warm-start adapter."
-    )
+    parser = argparse.ArgumentParser(description="Publish and verify a promoted Swarm Arena warm-start adapter.")
     parser.add_argument("--repo-id", default="CK0607/Qwen3-4B-Swarm-Arena-Warmstart-v4")
     parser.add_argument("--adapter", type=Path, required=True)
     parser.add_argument("--selection", type=Path, required=True)

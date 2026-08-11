@@ -54,11 +54,7 @@ def select_warm_start_v3(
                 "validation": validation,
                 "regression_v1": v1,
                 "regression_v2": v2,
-                "eligible": (
-                    all(protocol_gates.values())
-                    and v1["gates"]["passed"]
-                    and v2["gates"]["passed"]
-                ),
+                "eligible": (all(protocol_gates.values()) and v1["gates"]["passed"] and v2["gates"]["passed"]),
             }
         )
     eligible = [candidate for candidate in candidates if candidate["eligible"]]
@@ -84,9 +80,7 @@ def select_warm_start_v3(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Select the replay-protected regression-safe warm start."
-    )
+    parser = argparse.ArgumentParser(description="Select the replay-protected regression-safe warm start.")
     parser.add_argument("--validation-root", type=Path, required=True)
     parser.add_argument("--regression-v1-root", type=Path, required=True)
     parser.add_argument("--regression-v2-root", type=Path, required=True)
@@ -104,9 +98,7 @@ def main() -> None:
         args.protocol_name,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))
 
 
