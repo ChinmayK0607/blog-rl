@@ -249,6 +249,34 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "nonredundant_joint_action_rate": statistics.mean(not item["redundant_agents"] for item in group),
         }
     generated = conditions["generated"]
+    paired_conditions = {
+        (row["seed"], row["size"], row["opponent_style"]): {
+            item["condition"]: item
+            for item in row["conditions"]
+            if item["permutation"] == 0
+        }
+        for row in rows
+    }
+
+    def paired_reward_effect(left: str, right: str) -> dict[str, Any]:
+        differences = [
+            float(case[left]["environment_reward"]) - float(case[right]["environment_reward"])
+            for case in paired_conditions.values()
+        ]
+        return {
+            "left": left,
+            "right": right,
+            "mean_reward_difference": statistics.mean(differences),
+            "mean_reward_difference_95": mean_ci(differences),
+            "positive_case_rate": statistics.mean(value > 0 for value in differences),
+            "zero_case_rate": statistics.mean(value == 0 for value in differences),
+        }
+
+    communication_effects = {
+        "generated_minus_dropped": paired_reward_effect("generated", "dropped"),
+        "generated_minus_shuffled": paired_reward_effect("generated", "shuffled"),
+        "reference_minus_generated": paired_reward_effect("reference", "generated"),
+    }
     generated_lookup = {
         (row["seed"], row["size"], row["opponent_style"]): next(
             item for item in row["conditions"] if item["condition"] == "generated" and item["permutation"] == 0
@@ -290,11 +318,14 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "message_strict_rate": statistics.mean(row["message_strict_rate"] for row in rows),
         "action_order_consistency_rate": statistics.mean(row["action_order_consistent"] for row in rows),
         "conditions": conditions,
+        "communication_effects": communication_effects,
         "generated_slices": slices,
-        "generated_minus_dropped_reward": generated["mean_environment_reward"]
-        - conditions["dropped"]["mean_environment_reward"],
-        "reference_message_headroom": conditions["reference"]["mean_environment_reward"]
-        - generated["mean_environment_reward"],
+        "generated_minus_dropped_reward": communication_effects["generated_minus_dropped"][
+            "mean_reward_difference"
+        ],
+        "reference_message_headroom": communication_effects["reference_minus_generated"][
+            "mean_reward_difference"
+        ],
     }
 
 

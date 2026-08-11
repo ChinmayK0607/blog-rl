@@ -16,7 +16,7 @@ from swarm_ctf_eval.arena import (
     state_to_dict,
     step,
 )
-from swarm_ctf_eval.arena_eval import OracleArenaModel, evaluate_case
+from swarm_ctf_eval.arena_eval import OracleArenaModel, evaluate_case, summarize
 from swarm_ctf_eval.arena_generation import generate_state
 from swarm_ctf_eval.arena_oracle import deterministic_policy, solve_joint_action
 from swarm_ctf_eval.arena_protocol import (
@@ -217,6 +217,10 @@ class ArenaTests(unittest.TestCase):
         for condition in row["conditions"]:
             self.assertEqual(condition["strict_action_rate"], 1.0)
             self.assertTrue(condition["optimal_outcome"])
+        summary = summarize([row])
+        effect = summary["communication_effects"]["generated_minus_dropped"]
+        self.assertEqual(effect["mean_reward_difference"], 0.0)
+        self.assertEqual(effect["mean_reward_difference_95"], [0.0, 0.0])
 
     def test_evaluator_uses_four_agent_batch_interface(self) -> None:
         class BatchOracle:
