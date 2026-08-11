@@ -41,7 +41,7 @@ The default train mix is 640 arena-protocol rows, 640 exact preservation rows,
 and 1,280 base-behavior replay rows. The held-out validation split contains 96
 arena rows and 96 disjoint preservation rows.
 
-The LoRA dose is deliberately small: rank 8, Q/V attention projections only,
+The v3 LoRA dose is deliberately small: rank 8, Q/V attention projections only,
 `1e-5` peak learning rate, 32 steps, and checkpoints every 8 steps. The training
 goal is parser reliability with minimal movement from the base model, not policy
 quality.
@@ -85,6 +85,27 @@ Protocol-target exact match chooses among candidates that pass the safety
 gates. It is not itself evidence of cooperation. If no adapter passes, the base
 model plus constrained parsing remains the correct RL initialization.
 
-## Results
+## v3 result
 
-Results are written only after all checkpoint comparisons have completed.
+Replay and preservation rehearsal solved the regression failure. Every v3
+checkpoint passes both paired regression suites, including the stricter
+calibrated suite. At step 32, v1 exactness improves by 0.39 points and v2 loses
+only 0.39 points; the largest v2 category drop is 4.69 points, inside the frozen
+5-point bound.
+
+The deliberately weak v3 dose does not, however, teach the arena protocol
+reliably enough for promotion. Step 32 reaches 92.71% overall schema validity,
+56.25% grounded broadcasts, and 93.75% legal actions. Inspection shows a clear
+underfitting pattern: responses often reproduce the target fact, then append an
+unseen fact or unsupported intent. The selector therefore correctly retains the
+base model. Full aggregate evidence is stored in `results/warmstart_v3`.
+
+## v4 follow-up
+
+v4 keeps the audited dataset, replay ratio, rank-8 Q/V-only adapter, and frozen
+promotion gates. It changes only the learning dose: a `5e-5` peak learning rate
+over 128 steps with checkpoints every 32 steps. Protocol evaluation is run
+first; paired regression and bootstrap evaluation are reserved for candidates
+that clear, or come closest to clearing, the unchanged protocol gates. This
+separates protocol underfitting from the instruction interference diagnosed in
+the original stage-1 run.
