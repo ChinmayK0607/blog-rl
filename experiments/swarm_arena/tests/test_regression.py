@@ -21,6 +21,7 @@ from swarm_ctf_eval.warmstart_v3 import (
     generate_preservation_rows,
     validate_warmstart_response,
 )
+from swarm_ctf_eval.warmstart_v5 import generate_arena_rows as generate_v5_arena_rows
 
 
 def test_frozen_regression_manifest_is_balanced_and_unique() -> None:
@@ -162,6 +163,22 @@ def test_warmstart_v3_balances_phases_and_preservation() -> None:
     result = validate_warmstart_response(action, '{"action_id":"A999"}')
     assert result["schema_valid"]
     assert not result["legal"]
+
+
+def test_warmstart_v5_broadcast_labels_are_prompt_identifiable() -> None:
+    arena = generate_v5_arena_rows(7_300_000, 2, "test")
+    broadcasts = [row for row in arena if json.loads(row["metadata_json"])["phase"] == "BROADCAST"]
+    assert len(broadcasts) == 8
+    for row in broadcasts:
+        metadata = json.loads(row["metadata_json"])
+        assert metadata["label_source"] == "canonical_prompt_identifiable_local_broadcast"
+        assert "message_mode" not in metadata
+        assert validate_warmstart_response(row, row["messages"][-1]["content"]) == {
+            "schema_valid": True,
+            "grounded": True,
+            "legal": True,
+            "exact": True,
+        }
 
 
 def test_warm_start_v3_requires_both_regression_suites(tmp_path) -> None:
