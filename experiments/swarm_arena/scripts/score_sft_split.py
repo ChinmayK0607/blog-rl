@@ -9,16 +9,13 @@ from typing import Any
 
 import torch
 from datasets import load_dataset
+from renderers import Qwen3Renderer, Qwen3RendererConfig
 from swarm_ctf_eval.sft_metrics import validate_dataset_response
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
-def render_prompt(tokenizer: Any, messages: list[dict[str, str]]) -> str:
-    kwargs = {"tokenize": False, "add_generation_prompt": True}
-    try:
-        return tokenizer.apply_chat_template(messages, enable_thinking=False, **kwargs)
-    except TypeError:
-        return tokenizer.apply_chat_template(messages, **kwargs)
+def render_prompt_ids(renderer: Qwen3Renderer, messages: list[dict[str, str]]) -> list[int]:
+    return renderer.render_ids(messages, add_generation_prompt=True)
 
 
 @torch.inference_mode()
@@ -33,6 +30,7 @@ def score(
     tokenizer.padding_side = "left"
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
+    renderer = Qwen3Renderer(tokenizer, Qwen3RendererConfig(enable_thinking=False))
     model: Any = AutoModelForCausalLM.from_pretrained(
         model_path,
         dtype=torch.bfloat16,
@@ -54,8 +52,12 @@ def score(
     }
     for start in range(0, len(dataset), batch_size):
         batch = [dict(dataset[index]) for index in range(start, min(start + batch_size, len(dataset)))]
-        prompts = [render_prompt(tokenizer, row["messages"][:-1]) for row in batch]
-        encoded = tokenizer(prompts, return_tensors="pt", padding=True).to("cuda")
+        prompt_ids = [render_prompt_ids(renderer, row["messages"][:-1]) for row in batch]
+        encoded = tokenizer.pad(
+            [{"input_ids": input_ids} for input_ids in prompt_ids],
+            padding=True,
+            return_tensors="pt",
+        ).to("cuda")
         generated = model.generate(
             **encoded,
             max_new_tokens=224,
