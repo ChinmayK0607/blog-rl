@@ -35,6 +35,12 @@ action selection. It is not trained on v2 trajectories, preferred messages, or
 long-horizon oracle actions. Reusing optimized v2 trajectories as SFT labels
 would collapse the intended RL question back into imitation.
 
+The available v1 SFT adapters are not used as the v2 initialization: all eight
+evaluated checkpoints fail the frozen general-instruction regression gate. V2
+starts from the untouched instruct model. Strict parsers, legal-action masks,
+and invalid-action costs provide protocol scaffolding without teaching a
+supervised coordination policy.
+
 ## Required controls
 
 Every selected policy is evaluated on identical episodes under:

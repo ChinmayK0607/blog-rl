@@ -68,6 +68,12 @@ If no adapter passes both gate families, the selector returns `base_model`.
 Protocol constraints should then be enforced by parsing/masking during early RL
 rather than accepting a demonstrably regressed SFT checkpoint.
 
+The completed eight-checkpoint sweep selected `base_model`. Every adapter
+failed: step 40 was least damaging at `-0.0625` overall but dropped instruction
+binding by `-0.1719`; steps 80-310 lost `0.0859-0.1172` overall. JSON validity
+remained at or near 100% and arena-key leakage remained zero, indicating narrow
+instruction overspecialization rather than generic output corruption.
+
 ## Arena regressions
 
 Track all of the following against both the untouched base and the selected SFT

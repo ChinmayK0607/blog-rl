@@ -20,10 +20,13 @@ def select_warm_start(
 ) -> dict[str, Any]:
     base_rows = load_rows(base_rows_path)
     candidates = []
-    for validation_dir in sorted(validation_root.iterdir()):
+    validation_dirs = []
+    for validation_dir in validation_root.iterdir():
         match = STEP_PATTERN.fullmatch(validation_dir.name)
         if match is None:
             continue
+        validation_dirs.append((int(match.group(1)), validation_dir))
+    for step, validation_dir in sorted(validation_dirs):
         validation_path = validation_dir / "validation" / "summary.json"
         regression_path = regression_root / validation_dir.name / "rows.jsonl"
         if not validation_path.is_file() or not regression_path.is_file():
@@ -37,7 +40,7 @@ def select_warm_start(
         }
         candidates.append(
             {
-                "step": int(match.group(1)),
+                "step": step,
                 "selection_score": float(validation["selection_score"]),
                 "broadcast_exact": float(validation["broadcast"]["exact"]),
                 "action_exact": float(validation["act"]["exact"]),
