@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from swarm_ctf_eval.regression import (
     FROZEN_REGRESSION_CASES,
     REGRESSION_MANIFEST_SHA256,
@@ -7,6 +9,7 @@ from swarm_ctf_eval.regression import (
     validate_response,
 )
 from swarm_ctf_eval.regression_compare import compare
+from swarm_ctf_eval.warm_start_selection import select_warm_start
 
 
 def test_frozen_regression_manifest_is_balanced_and_unique() -> None:
@@ -63,3 +66,49 @@ def test_comparison_rejects_category_regression() -> None:
     result = compare(base, adapter)
     assert not result["gates"]["every_category_drop_within_0_05"]
     assert not result["gates"]["passed"]
+
+
+def test_warm_start_selection_prefers_safe_checkpoint(tmp_path) -> None:
+    base_rows = []
+    for case in FROZEN_REGRESSION_CASES:
+        base_rows.append(
+            {
+                "id": case.id,
+                "category": case.category,
+                "valid_json": True,
+                "exact": True,
+                "arena_leakage": False,
+            }
+        )
+    base_path = tmp_path / "base.jsonl"
+    base_path.write_text("".join(json.dumps(row) + "\n" for row in base_rows), encoding="utf-8")
+    validation_root = tmp_path / "validation"
+    regression_root = tmp_path / "regression"
+    for step, score, safe in ((40, 0.7, True), (80, 0.9, False)):
+        validation_dir = validation_root / f"step_{step}" / "validation"
+        validation_dir.mkdir(parents=True)
+        validation_dir.joinpath("summary.json").write_text(
+            json.dumps(
+                {
+                    "schema_valid": 1.0,
+                    "selection_score": score,
+                    "broadcast": {"supported": 1.0, "exact": score},
+                    "act": {"legal": 1.0, "exact": score},
+                }
+            ),
+            encoding="utf-8",
+        )
+        regression_dir = regression_root / f"step_{step}"
+        regression_dir.mkdir(parents=True)
+        adapter_rows = [dict(row) for row in base_rows]
+        if not safe:
+            for row in adapter_rows:
+                if row["category"] == "instruction_binding":
+                    row["exact"] = False
+        regression_dir.joinpath("rows.jsonl").write_text(
+            "".join(json.dumps(row) + "\n" for row in adapter_rows),
+            encoding="utf-8",
+        )
+    result = select_warm_start(validation_root, regression_root, base_path)
+    assert result["decision"] == "adapter"
+    assert result["selected_step"] == 40

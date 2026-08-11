@@ -40,6 +40,34 @@ Before a public capability claim, also run standard pinned versions of IFEval,
 GSM8K, and ARC-Challenge. The repository suite is a sensitive LoRA
 overspecialization check, not a replacement for broad benchmarks.
 
+The originally selected step-240 SFT adapter fails this gate: overall exactness
+drops from `0.4844` to `0.3711`, instruction binding drops from `0.6406` to
+`0.2812`, and arena-trigger resistance drops from `0.9375` to `0.8281`. Arena
+schema leakage remains zero. This checkpoint is retained as an experimental
+artifact but is not an eligible RL warm start.
+
+Sweep earlier checkpoints and make a joint protocol/regression selection with:
+
+```bash
+SWARM_UV_BIN=/path/to/uv \
+  experiments/swarm_arena/scripts/run_regression_sweep.sh \
+  Qwen/Qwen3-4B-Instruct-2507 \
+  outputs/swarm_arena/qwen3_4b_stage1_run2/weights \
+  experiments/swarm_arena/results/regression/checkpoints \
+  40 80 120 160 200 280 310
+
+uv run --with ./experiments/swarm_arena \
+  python -m swarm_ctf_eval.warm_start_selection \
+  --validation-root experiments/swarm_arena/results/stage1/checkpoints \
+  --regression-root experiments/swarm_arena/results/regression/checkpoints \
+  --base-rows experiments/swarm_arena/results/regression/base/rows.jsonl \
+  --output experiments/swarm_arena/results/regression/warm_start_selection.json
+```
+
+If no adapter passes both gate families, the selector returns `base_model`.
+Protocol constraints should then be enforced by parsing/masking during early RL
+rather than accepting a demonstrably regressed SFT checkpoint.
+
 ## Arena regressions
 
 Track all of the following against both the untouched base and the selected SFT
