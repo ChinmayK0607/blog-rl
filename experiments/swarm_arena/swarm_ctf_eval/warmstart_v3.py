@@ -91,7 +91,13 @@ def generate_arena_rows(start_seed: int, seeds: int, split: str) -> list[dict[st
     return rows
 
 
-def generate_preservation_rows(seed: int, examples: int, split: str) -> list[dict[str, Any]]:
+def generate_preservation_rows(
+    seed: int,
+    examples: int,
+    split: str,
+    *,
+    dataset_version: str = DATASET_VERSION,
+) -> list[dict[str, Any]]:
     rng = random.Random(seed)
     rows = []
     system = "Follow the user's current instruction carefully and return only the requested JSON object."
@@ -143,7 +149,7 @@ def generate_preservation_rows(seed: int, examples: int, split: str) -> list[dic
             _row(
                 list(messages),
                 "instruction_preservation",
-                {"dataset_version": DATASET_VERSION, "split": split, "seed": seed, "kind": kind, "index": index},
+                {"dataset_version": dataset_version, "split": split, "seed": seed, "kind": kind, "index": index},
             )
         )
     return rows

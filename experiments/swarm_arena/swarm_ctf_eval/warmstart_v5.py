@@ -16,7 +16,13 @@ from .warmstart_v3 import _row, generate_preservation_rows, load_jsonl
 DATASET_VERSION = "arena-warmstart-v5"
 
 
-def generate_arena_rows(start_seed: int, seeds: int, split: str) -> list[dict[str, Any]]:
+def generate_arena_rows(
+    start_seed: int,
+    seeds: int,
+    split: str,
+    *,
+    dataset_version: str = DATASET_VERSION,
+) -> list[dict[str, Any]]:
     """Generate prompt-identifiable protocol targets for a replay-protected warm start."""
 
     rows = []
@@ -40,7 +46,7 @@ def generate_arena_rows(start_seed: int, seeds: int, split: str) -> list[dict[st
                     [*prompt, {"role": "assistant", "content": encode_broadcast(message)}],
                     "arena_protocol",
                     {
-                        "dataset_version": DATASET_VERSION,
+                        "dataset_version": dataset_version,
                         "prompt_version": EPISODE_PROMPT_VERSION,
                         "phase": "BROADCAST",
                         "split": split,
@@ -60,7 +66,7 @@ def generate_arena_rows(start_seed: int, seeds: int, split: str) -> list[dict[st
                     [*prompt, {"role": "assistant", "content": encode_action(action, displayed)}],
                     "arena_protocol",
                     {
-                        "dataset_version": DATASET_VERSION,
+                        "dataset_version": dataset_version,
                         "prompt_version": EPISODE_PROMPT_VERSION,
                         "phase": "ACT",
                         "split": split,
@@ -82,6 +88,7 @@ def write_dataset(
     train_preservation: int = 640,
     validation_preservation: int = 96,
     replay_limit: int = 1280,
+    dataset_version: str = DATASET_VERSION,
 ) -> dict[str, Any]:
     from datasets import Dataset
 
@@ -94,13 +101,13 @@ def write_dataset(
     if len(replay_rows) < replay_limit:
         raise ValueError(f"need {replay_limit} non-truncated replay rows, found {len(replay_rows)}")
     train = [
-        *generate_arena_rows(7_000_000, train_arena_seeds, "train"),
-        *generate_preservation_rows(20260901, train_preservation, "train"),
+        *generate_arena_rows(7_000_000, train_arena_seeds, "train", dataset_version=dataset_version),
+        *generate_preservation_rows(20260901, train_preservation, "train", dataset_version=dataset_version),
         *replay_rows,
     ]
     validation = [
-        *generate_arena_rows(7_100_000, validation_arena_seeds, "validation"),
-        *generate_preservation_rows(20260902, validation_preservation, "validation"),
+        *generate_arena_rows(7_100_000, validation_arena_seeds, "validation", dataset_version=dataset_version),
+        *generate_preservation_rows(20260902, validation_preservation, "validation", dataset_version=dataset_version),
     ]
     random.Random(20260903).shuffle(train)
     random.Random(20260904).shuffle(validation)
@@ -114,7 +121,7 @@ def write_dataset(
         source: sum(row["source"] == source for row in train) for source in sorted({row["source"] for row in train})
     }
     manifest = {
-        "dataset_version": DATASET_VERSION,
+        "dataset_version": dataset_version,
         "train_examples": len(train),
         "validation_examples": len(validation),
         "train_by_source": source_counts,

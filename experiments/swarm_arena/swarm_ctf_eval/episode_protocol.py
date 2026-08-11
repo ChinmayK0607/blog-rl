@@ -7,7 +7,7 @@ from .arena import Action
 from .arena_protocol import displayed_actions
 from .episode import ArenaEpisodeEnv
 
-EPISODE_PROMPT_VERSION = "arena-episode-v2-budgeted"
+EPISODE_PROMPT_VERSION = "arena-episode-v3-explicit-intents"
 
 BASE_SYSTEM_PROMPT = """You are one of four teammates in a deterministic graph-control game against four opponents. The episode lasts several simultaneous turns. You receive no intermediate task reward; the team is scored only at the end.
 
@@ -25,7 +25,7 @@ Communication is optional, consumes your private episodic budget, and is penaliz
 Return exactly:
 {"facts":[{"node":"ID","owner":"BLUE|RED|NEUTRAL","status":"SECURE|FORTIFIED|EXPOSED|COMPROMISED","value":1,"critical":false,"observed_turn":0}],"intent":{"type":"ACTION","target":"ID"}|null,"request_resource":0}
 
-For WAIT, intent is {"type":"WAIT"}. TRANSFER also includes `amount`. Never use action IDs inside `intent`."""
+For WAIT, intent is {"type":"WAIT"}. TRANSFER also includes `amount`. Never use action IDs inside `intent`. If `intent` is non-null, copy exactly one object from `legal_intents`; never synthesize a type and target combination."""
 )
 
 ACTION_SYSTEM_PROMPT = (
@@ -36,7 +36,10 @@ PHASE: ACT
 Choose one legal action. Use current teammate reports when they reveal an adjacent node or prevent duplicated work. Decide silently.
 
 Return exactly:
-{"action_id":"one ID copied from legal_actions"}"""
+{"action_id":"one ID copied from legal_actions"}
+
+The object must contain exactly the one key `action_id`. `type`, `target`, and
+`amount` are invalid in this phase."""
 )
 
 
@@ -65,6 +68,7 @@ def episode_broadcast_prompt(
         },
         "max_facts": env.config.max_facts_per_message,
         "legal_actions": _legal_action_rows(actions),
+        "legal_intents": [action.to_dict() for action in actions],
     }
     return [
         {"role": "system", "content": BROADCAST_SYSTEM_PROMPT},

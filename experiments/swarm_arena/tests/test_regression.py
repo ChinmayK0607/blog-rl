@@ -14,6 +14,8 @@ from swarm_ctf_eval.regression_v2 import (
     REGRESSION_V2_MANIFEST_SHA256,
     validate_v2_response,
 )
+from swarm_ctf_eval.episode import ArenaEpisodeEnv
+from swarm_ctf_eval.episode_protocol import episode_broadcast_prompt
 from swarm_ctf_eval.warm_start_selection import select_warm_start
 from swarm_ctf_eval.warm_start_selection_v3 import select_warm_start_v3
 from swarm_ctf_eval.warmstart_v3 import (
@@ -179,6 +181,15 @@ def test_warmstart_v5_broadcast_labels_are_prompt_identifiable() -> None:
             "legal": True,
             "exact": True,
         }
+
+
+def test_episode_protocol_exposes_exact_legal_intent_shapes() -> None:
+    env = ArenaEpisodeEnv(seed=73, size=13)
+    env.reset()
+    messages, actions = episode_broadcast_prompt(env, "blue-0")
+    body = json.loads(messages[-1]["content"])
+    assert body["legal_intents"] == [action.to_dict() for action in actions]
+    assert "copy exactly one object from `legal_intents`" in messages[0]["content"]
 
 
 def test_warm_start_v3_requires_both_regression_suites(tmp_path) -> None:
