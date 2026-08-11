@@ -1,0 +1,43 @@
+{
+  "adapter": null,
+  "arena_leakage": 0.0,
+  "categories": {
+    "arithmetic_update": {
+      "arena_leakage": 0.0,
+      "exact": 0.96875,
+      "examples": 64,
+      "valid_json": 1.0
+    },
+    "conditional_transform": {
+      "arena_leakage": 0.0,
+      "exact": 0.265625,
+      "examples": 64,
+      "valid_json": 1.0
+    },
+    "domain_trigger_resistance": {
+      "arena_leakage": 0.0,
+      "exact": 0.9375,
+      "examples": 64,
+      "valid_json": 1.0
+    },
+    "record_projection": {
+      "arena_leakage": 0.0,
+      "exact": 0.859375,
+      "examples": 64,
+      "valid_json": 1.0
+    }
+  },
+  "device": "cuda",
+  "exact": 0.7578125,
+  "examples": 256,
+  "failure_counts": {
+    "arithmetic_update": 2,
+    "conditional_transform": 47,
+    "domain_trigger_resistance": 4,
+    "record_projection": 9
+  },
+  "manifest_sha256": "31506405ebd9a9070af693eb89e1722335e15118974b64a4ac5e9d58cebc843d",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "regression_version": "swarm-regression-v2",
+  "valid_json": 1.0
+}
