@@ -34,31 +34,31 @@ def generate_regression_v2_cases(seed: int = 20260831, per_category: int = 64) -
     labels = tuple("ABCDEFGH")
 
     for _ in range(per_category):
-        records = [
-            {"code": label, "score": score}
-            for label, score in zip(rng.sample(labels, 5), rng.sample(range(20, 100), 5), strict=True)
-        ]
-        ranked = sorted(records, key=lambda item: (-item["score"], item["code"]))
-        expected = {"runner_up": ranked[1]["code"], "leader": ranked[0]["code"]}
+        codes = rng.sample(labels, 4)
+        scores = rng.sample(range(20, 100), 4)
+        records = dict(zip(codes, scores, strict=True))
+        leader = max(records, key=records.get)  # type: ignore[arg-type]
+        trailer = min(records, key=records.get)  # type: ignore[arg-type]
+        expected = {"lowest_code": trailer, "highest_code": leader}
         rows.append(
             _case(
                 "record_projection",
-                f"Records: {records}. Rank by score descending. Return only "
-                '{"runner_up":"code in second place","leader":"code in first place"}.',
+                f"Scores by code: {records}. Return only "
+                '{"lowest_code":"code with lowest score","highest_code":"code with highest score"}.',
                 expected,
             )
         )
 
     for _ in range(per_category):
-        values = rng.sample(range(2, 30), 7)
-        shift = rng.randint(1, 6)
-        rotated = values[shift:] + values[:shift]
-        expected = {"tail_sum": sum(rotated[-3:]), "rotated": rotated}
+        values = [rng.randint(-12, 20) for _ in range(7)]
+        threshold = rng.randint(-3, 7)
+        kept = sorted(value for value in values if value > threshold)
+        expected = {"kept_count": len(kept), "kept_values": kept}
         rows.append(
             _case(
                 "conditional_transform",
-                f"Rotate {values} left by {shift} positions, then sum its final three values. "
-                'Return {"tail_sum":integer,"rotated":[integers]}.',
+                f"From {values}, keep values strictly greater than {threshold} and sort them ascending. "
+                'Return {"kept_count":integer,"kept_values":[integers]}.',
                 expected,
             )
         )
@@ -81,17 +81,15 @@ def generate_regression_v2_cases(seed: int = 20260831, per_category: int = 64) -
         )
 
     for _ in range(per_category):
-        start = rng.randint(20, 90)
-        multiplier = rng.randint(2, 7)
+        left = rng.randint(20, 90)
+        right = rng.randint(10, 70)
         fee = rng.randint(3, 25)
-        divisor = rng.randint(2, 6)
-        total = start * multiplier - fee
-        expected = {"quotient": total // divisor, "remainder": total % divisor}
+        expected = {"result": left + right - fee}
         rows.append(
             _case(
-                "arithmetic_division",
-                f"Compute ({start} * {multiplier} - {fee}), divide by {divisor}, and return "
-                '{"quotient":integer,"remainder":integer}.',
+                "arithmetic_update",
+                f"Compute {left} plus {right}, then subtract {fee}. Return "
+                '{"result":integer}.',
                 expected,
             )
         )
