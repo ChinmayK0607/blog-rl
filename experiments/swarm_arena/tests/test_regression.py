@@ -15,6 +15,7 @@ from swarm_ctf_eval.regression_v2 import (
     validate_v2_response,
 )
 from swarm_ctf_eval.warm_start_selection import select_warm_start
+from swarm_ctf_eval.warm_start_selection_v3 import select_warm_start_v3
 from swarm_ctf_eval.warmstart_v3 import (
     generate_arena_rows,
     generate_preservation_rows,
@@ -146,3 +147,52 @@ def test_warmstart_v3_balances_phases_and_preservation() -> None:
     for row in [*arena, *preservation]:
         result = validate_warmstart_response(row, row["messages"][-1]["content"])
         assert result == {"schema_valid": True, "grounded": True, "legal": True, "exact": True}
+
+
+def test_warm_start_v3_requires_both_regression_suites(tmp_path) -> None:
+    base_rows = [
+        {"id": f"case-{index}", "category": f"category-{index}", "exact": True, "arena_leakage": False}
+        for index in range(4)
+    ]
+    base_v1 = tmp_path / "base_v1.jsonl"
+    base_v2 = tmp_path / "base_v2.jsonl"
+    payload = "".join(json.dumps(row) + "\n" for row in base_rows)
+    base_v1.write_text(payload, encoding="utf-8")
+    base_v2.write_text(payload, encoding="utf-8")
+    validation_root = tmp_path / "validation"
+    regression_v1_root = tmp_path / "regression_v1"
+    regression_v2_root = tmp_path / "regression_v2"
+    for step in (8, 16):
+        validation = validation_root / f"step_{step}"
+        v1 = regression_v1_root / f"step_{step}"
+        v2 = regression_v2_root / f"step_{step}"
+        validation.mkdir(parents=True)
+        v1.mkdir(parents=True)
+        v2.mkdir(parents=True)
+        validation.joinpath("summary.json").write_text(
+            json.dumps(
+                {
+                    "schema_valid": 1.0,
+                    "groups": {
+                        "BROADCAST": {"grounded": 1.0, "exact": step / 20},
+                        "ACT": {"legal": 1.0, "exact": step / 20},
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+        v1.joinpath("rows.jsonl").write_text(payload, encoding="utf-8")
+        v2_rows = base_rows if step == 8 else [dict(row, exact=False) for row in base_rows]
+        v2.joinpath("rows.jsonl").write_text(
+            "".join(json.dumps(row) + "\n" for row in v2_rows),
+            encoding="utf-8",
+        )
+    result = select_warm_start_v3(
+        validation_root,
+        regression_v1_root,
+        regression_v2_root,
+        base_v1,
+        base_v2,
+    )
+    assert result["decision"] == "adapter"
+    assert result["selected_step"] == 8
