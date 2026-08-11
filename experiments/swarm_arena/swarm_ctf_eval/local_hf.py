@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 
 @dataclass
@@ -14,10 +13,12 @@ class LocalHFArenaModel:
 
     def __post_init__(self) -> None:
         import torch
+        from renderers import Qwen3Renderer, Qwen3RendererConfig
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self.name = self.adapter_path or self.model_id
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
+        self.renderer = Qwen3Renderer(self.tokenizer, Qwen3RendererConfig(enable_thinking=False))
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_id,
             dtype=torch.bfloat16,
@@ -33,16 +34,11 @@ class LocalHFArenaModel:
         del oracle_target
         import torch
 
-        kwargs: dict[str, Any] = {
-            "tokenize": True,
-            "add_generation_prompt": True,
-            "return_tensors": "pt",
-        }
-        try:
-            input_ids = self.tokenizer.apply_chat_template(messages, enable_thinking=False, **kwargs)
-        except TypeError:
-            input_ids = self.tokenizer.apply_chat_template(messages, **kwargs)
-        input_ids = input_ids.to(self.model.device)
+        input_ids = torch.tensor(
+            [self.renderer.render_ids(messages, add_generation_prompt=True)],
+            dtype=torch.long,
+            device=self.model.device,
+        )
         attention_mask = torch.ones_like(input_ids)
         with torch.inference_mode():
             output = self.model.generate(
