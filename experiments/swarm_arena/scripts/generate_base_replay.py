@@ -77,6 +77,17 @@ def main() -> None:
                     "truncated": not eos_seen or token_count > args.max_sequence_tokens or not response,
                 }
             )
+        if start == 0 or (start // args.batch_size + 1) % 10 == 0:
+            print(
+                json.dumps(
+                    {
+                        "processed": len(output_rows),
+                        "usable": sum(not row["truncated"] for row in output_rows),
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in output_rows),

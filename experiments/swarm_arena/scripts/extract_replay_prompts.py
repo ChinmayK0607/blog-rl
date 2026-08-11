@@ -11,6 +11,8 @@ from datasets import load_dataset
 def main() -> None:
     parser = argparse.ArgumentParser(description="Extract deterministic broad prompts for base-behavior replay.")
     parser.add_argument("--examples", type=int, default=1800)
+    parser.add_argument("--max-user-chars", type=int, default=400)
+    parser.add_argument("--max-reference-chars", type=int, default=600)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     stream = load_dataset("HuggingFaceH4/ultrachat_200k", split="train_sft", streaming=True)
@@ -18,8 +20,20 @@ def main() -> None:
     rows = []
     seen = set()
     for item in stream:
-        user = next((message["content"] for message in item["messages"] if message["role"] == "user"), None)
-        if not isinstance(user, str) or not 80 <= len(user) <= 1200:
+        messages = item["messages"]
+        user_index = next(
+            (index for index, message in enumerate(messages) if message["role"] == "user"),
+            None,
+        )
+        if user_index is None or user_index + 1 >= len(messages):
+            continue
+        user = messages[user_index]["content"]
+        reference = (
+            messages[user_index + 1]["content"] if messages[user_index + 1]["role"] == "assistant" else None
+        )
+        if not isinstance(user, str) or not 40 <= len(user) <= args.max_user_chars:
+            continue
+        if not isinstance(reference, str) or not 40 <= len(reference) <= args.max_reference_chars:
             continue
         digest = hashlib.sha256(user.encode()).hexdigest()
         if digest in seen:
