@@ -15,7 +15,11 @@ from swarm_ctf_eval.regression_v2 import (
     validate_v2_response,
 )
 from swarm_ctf_eval.warm_start_selection import select_warm_start
-from swarm_ctf_eval.warmstart_v3 import generate_arena_rows, generate_preservation_rows
+from swarm_ctf_eval.warmstart_v3 import (
+    generate_arena_rows,
+    generate_preservation_rows,
+    validate_warmstart_response,
+)
 
 
 def test_frozen_regression_manifest_is_balanced_and_unique() -> None:
@@ -139,3 +143,6 @@ def test_warmstart_v3_balances_phases_and_preservation() -> None:
     preservation = generate_preservation_rows(20260920, 12, "test")
     assert len(preservation) == 12
     assert len({row["id"] for row in preservation}) == 12
+    for row in [*arena, *preservation]:
+        result = validate_warmstart_response(row, row["messages"][-1]["content"])
+        assert result == {"schema_valid": True, "grounded": True, "legal": True, "exact": True}

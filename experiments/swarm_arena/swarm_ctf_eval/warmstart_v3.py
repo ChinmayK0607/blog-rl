@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .arena_oracle import local_policy_action
-from .arena_protocol import Broadcast, encode_action, encode_broadcast
+from .arena_protocol import Broadcast, encode_action, encode_broadcast, parse_action, parse_broadcast
 from .arena_sft import oracle_broadcast
 from .episode import ArenaEpisodeEnv, EpisodeConfig
 from .episode_protocol import EPISODE_PROMPT_VERSION, episode_action_prompt, episode_broadcast_prompt
@@ -147,6 +147,59 @@ def generate_preservation_rows(seed: int, examples: int, split: str) -> list[dic
             )
         )
     return rows
+
+
+def validate_warmstart_response(row: dict[str, Any], raw: str) -> dict[str, bool]:
+    metadata = json.loads(row["metadata_json"])
+    target = json.loads(row["messages"][-1]["content"])
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError:
+        return {"schema_valid": False, "grounded": False, "legal": False, "exact": False}
+    if row["source"] == "instruction_preservation":
+        valid = isinstance(value, dict)
+        return {"schema_valid": valid, "grounded": valid, "legal": valid, "exact": valid and value == target}
+    if row["source"] != "arena_protocol":
+        raise ValueError(f"unsupported validation source: {row['source']}")
+
+    seed = int(metadata["seed"])
+    agent_id = str(metadata["agent_id"])
+    env = ArenaEpisodeEnv(seed, 12 + seed % 2, EpisodeConfig(horizon=4))
+    env.reset()
+    state = env._require_state()
+    if metadata["phase"] == "BROADCAST":
+        parsed = parse_broadcast(raw, state, agent_id)
+        grounded = parsed.valid and len(parsed.value.facts) <= env.config.max_facts_per_message
+        legal = grounded and not env.broadcast_phase({agent_id: parsed.value}).errors[agent_id]
+    elif metadata["phase"] == "ACT":
+        broadcasts = {}
+        agents = sorted(agent.id for agent in state.agents.values() if agent.team == "BLUE")
+        for index, current_id in enumerate(agents):
+            intent = local_policy_action(state, current_id)
+            full = oracle_broadcast(state, current_id, intent)
+            mode = (seed + index) % 4
+            if mode == 0:
+                message = Broadcast((), None, 0)
+            elif mode == 1:
+                message = Broadcast(full.facts[:2], None, full.request_resource)
+            elif mode == 2:
+                message = Broadcast(full.facts[:1], full.intent, full.request_resource)
+            else:
+                message = Broadcast(full.facts[:2], full.intent, full.request_resource)
+            broadcasts[current_id] = message
+        env.broadcast_phase(broadcasts)
+        _, displayed = episode_action_prompt(env, agent_id, permutation=seed + agents.index(agent_id))
+        parsed = parse_action(raw, displayed)
+        grounded = parsed.valid
+        legal = parsed.valid
+    else:
+        raise ValueError(f"unsupported arena phase: {metadata['phase']}")
+    return {
+        "schema_valid": parsed.valid,
+        "grounded": grounded,
+        "legal": legal,
+        "exact": isinstance(value, dict) and value == target,
+    }
 
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
