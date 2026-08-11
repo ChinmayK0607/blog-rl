@@ -61,3 +61,16 @@ The order is fixed to avoid tuning on the final result:
 
 Prime-RL configs are in `configs/`. See `GPU_HANDOFF.md` for promotion gates and
 `ENVIRONMENT_CARD.md` for the exact mechanics and threat model.
+
+## Score an SFT checkpoint
+
+Prime-RL writes the unchanged base weights and the learned LoRA adapter
+separately. Always pass the adapter explicitly when scoring a checkpoint:
+
+```bash
+uv run --with peft python experiments/swarm_arena/scripts/score_sft_split.py \
+  --model outputs/swarm_arena/qwen3_4b_stage1/weights/step_310 \
+  --adapter outputs/swarm_arena/qwen3_4b_stage1/weights/step_310/lora_adapters \
+  --split validation \
+  --output-dir experiments/swarm_arena/results/stage1/validation
+```

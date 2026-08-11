@@ -24,6 +24,7 @@ def render_prompt(tokenizer: Any, messages: list[dict[str, str]]) -> str:
 @torch.inference_mode()
 def score(
     model_path: str,
+    adapter_path: str | None,
     dataset_id: str,
     split: str,
     batch_size: int,
@@ -32,11 +33,16 @@ def score(
     tokenizer.padding_side = "left"
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
-    model = AutoModelForCausalLM.from_pretrained(
+    model: Any = AutoModelForCausalLM.from_pretrained(
         model_path,
         dtype=torch.bfloat16,
         attn_implementation="flash_attention_2",
-    ).to("cuda")
+    )
+    if adapter_path is not None:
+        from peft import PeftModel
+
+        model = PeftModel.from_pretrained(model, adapter_path).merge_and_unload()
+    model = model.to("cuda")
     model.eval()
     dataset = load_dataset(dataset_id, split=split)
     rows: list[dict[str, Any]] = []
@@ -79,6 +85,7 @@ def score(
     total = len(rows)
     summary: dict[str, Any] = {
         "model": model_path,
+        "adapter": adapter_path,
         "dataset": dataset_id,
         "split": split,
         "examples": total,
@@ -99,12 +106,13 @@ def score(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
+    parser.add_argument("--adapter")
     parser.add_argument("--dataset", default="CK0607/swarm-arena-sft-v2")
     parser.add_argument("--split", default="validation")
     parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
-    rows, summary = score(args.model, args.dataset, args.split, args.batch_size)
+    rows, summary = score(args.model, args.adapter, args.dataset, args.split, args.batch_size)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     (args.output_dir / "rows.jsonl").write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8"
