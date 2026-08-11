@@ -7,6 +7,10 @@ from pathlib import Path
 
 from datasets import load_dataset
 
+REPLAY_SYSTEM = (
+    "Answer the user's request directly and concisely. Preserve any requested format and do not add unrelated content."
+)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Extract deterministic broad prompts for base-behavior replay.")
@@ -39,7 +43,15 @@ def main() -> None:
         if digest in seen:
             continue
         seen.add(digest)
-        rows.append({"id": f"replay-prompt-{digest}", "messages": [{"role": "user", "content": user}]})
+        rows.append(
+            {
+                "id": f"replay-prompt-{digest}",
+                "messages": [
+                    {"role": "system", "content": REPLAY_SYSTEM},
+                    {"role": "user", "content": user},
+                ],
+            }
+        )
         if len(rows) >= args.examples:
             break
     if len(rows) != args.examples:
