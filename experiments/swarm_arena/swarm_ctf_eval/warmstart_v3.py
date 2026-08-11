@@ -169,8 +169,21 @@ def validate_warmstart_response(row: dict[str, Any], raw: str) -> dict[str, bool
     state = env._require_state()
     if metadata["phase"] == "BROADCAST":
         parsed = parse_broadcast(raw, state, agent_id)
-        grounded = parsed.valid and len(parsed.value.facts) <= env.config.max_facts_per_message
-        legal = grounded and not env.broadcast_phase({agent_id: parsed.value}).errors[agent_id]
+        schema_errors = {
+            "invalid_json",
+            "not_object",
+            "broadcast_schema",
+            "facts_schema",
+            "fact_schema",
+            "fact_node",
+            "fact_value",
+            "fact_priority",
+            "fact_turn",
+            "request_schema",
+        }
+        schema_valid = parsed.valid or not schema_errors.intersection(parsed.errors)
+        grounded = schema_valid and "unsupported_fact" not in parsed.errors
+        legal = parsed.valid and not env.broadcast_phase({agent_id: parsed.value}).errors[agent_id]
     elif metadata["phase"] == "ACT":
         broadcasts = {}
         agents = sorted(agent.id for agent in state.agents.values() if agent.team == "BLUE")
@@ -190,12 +203,13 @@ def validate_warmstart_response(row: dict[str, Any], raw: str) -> dict[str, bool
         env.broadcast_phase(broadcasts)
         _, displayed = episode_action_prompt(env, agent_id, permutation=seed + agents.index(agent_id))
         parsed = parse_action(raw, displayed)
-        grounded = parsed.valid
+        schema_valid = parsed.valid or parsed.errors == ("action_id_range",)
+        grounded = schema_valid
         legal = parsed.valid
     else:
         raise ValueError(f"unsupported arena phase: {metadata['phase']}")
     return {
-        "schema_valid": parsed.valid,
+        "schema_valid": schema_valid,
         "grounded": grounded,
         "legal": legal,
         "exact": isinstance(value, dict) and value == target,

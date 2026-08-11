@@ -147,6 +147,21 @@ def test_warmstart_v3_balances_phases_and_preservation() -> None:
     for row in [*arena, *preservation]:
         result = validate_warmstart_response(row, row["messages"][-1]["content"])
         assert result == {"schema_valid": True, "grounded": True, "legal": True, "exact": True}
+    broadcast = next(
+        row
+        for row in arena
+        if json.loads(row["metadata_json"])["phase"] == "BROADCAST"
+        and json.loads(row["messages"][-1]["content"])["facts"]
+    )
+    unsupported = json.loads(broadcast["messages"][-1]["content"])
+    unsupported["facts"][0]["owner"] = "RED" if unsupported["facts"][0]["owner"] != "RED" else "BLUE"
+    result = validate_warmstart_response(broadcast, json.dumps(unsupported))
+    assert result["schema_valid"]
+    assert not result["grounded"]
+    action = next(row for row in arena if json.loads(row["metadata_json"])["phase"] == "ACT")
+    result = validate_warmstart_response(action, '{"action_id":"A999"}')
+    assert result["schema_valid"]
+    assert not result["legal"]
 
 
 def test_warm_start_v3_requires_both_regression_suites(tmp_path) -> None:
