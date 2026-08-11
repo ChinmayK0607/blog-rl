@@ -211,3 +211,4 @@ def test_warm_start_v3_requires_both_regression_suites(tmp_path) -> None:
     )
     assert result["decision"] == "adapter"
     assert result["selected_step"] == 8
+    assert [candidate["step"] for candidate in result["candidates"]] == [8, 16]

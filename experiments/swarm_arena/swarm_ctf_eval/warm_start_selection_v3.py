@@ -21,10 +21,12 @@ def select_warm_start_v3(
     base_v1 = load_rows(base_v1_rows_path)
     base_v2 = load_rows(base_v2_rows_path)
     candidates = []
-    for candidate_dir in sorted(validation_root.iterdir()):
+    candidate_dirs = []
+    for candidate_dir in validation_root.iterdir():
         match = STEP_PATTERN.fullmatch(candidate_dir.name)
-        if match is None:
-            continue
+        if match is not None:
+            candidate_dirs.append((int(match.group(1)), candidate_dir))
+    for step, candidate_dir in sorted(candidate_dirs):
         validation_path = candidate_dir / "summary.json"
         v1_path = regression_v1_root / candidate_dir.name / "rows.jsonl"
         v2_path = regression_v2_root / candidate_dir.name / "rows.jsonl"
@@ -42,7 +44,7 @@ def select_warm_start_v3(
         selection_score = (groups["BROADCAST"]["exact"] + groups["ACT"]["exact"]) / 2
         candidates.append(
             {
-                "step": int(match.group(1)),
+                "step": step,
                 "selection_score": selection_score,
                 "protocol_gates": {**protocol_gates, "passed": all(protocol_gates.values())},
                 "validation": validation,
