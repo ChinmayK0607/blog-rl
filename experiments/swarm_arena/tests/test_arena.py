@@ -218,6 +218,28 @@ class ArenaTests(unittest.TestCase):
             self.assertEqual(condition["strict_action_rate"], 1.0)
             self.assertTrue(condition["optimal_outcome"])
 
+    def test_evaluator_uses_four_agent_batch_interface(self) -> None:
+        class BatchOracle:
+            name = "batch-oracle"
+
+            def __init__(self) -> None:
+                self.batch_sizes = []
+
+            def respond(self, messages, oracle_target):
+                raise AssertionError("scalar generation should not be used")
+
+            def respond_many(self, prompts, oracle_targets):
+                self.batch_sizes.append(len(prompts))
+                return oracle_targets
+
+        state = generate_state(101)
+        reference = deterministic_policy(state, "BLUE")
+        shuffled = {aid: oracle_broadcast(state, aid, reference[aid]) for aid in reference}
+        model = BatchOracle()
+        row = evaluate_case(model, 101, 12, "balanced", shuffled)
+        self.assertEqual(model.batch_sizes, [4] * 7)
+        self.assertEqual(row["message_strict_rate"], 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()

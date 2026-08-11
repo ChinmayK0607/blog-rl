@@ -37,6 +37,22 @@ class ArenaModel(Protocol):
     def respond(self, messages: list[dict[str, str]], oracle_target: str) -> str: ...
 
 
+def _respond_many(
+    model: ArenaModel,
+    prompts: list[list[dict[str, str]]],
+    oracle_targets: list[str],
+) -> list[str]:
+    if len(prompts) != len(oracle_targets):
+        raise ValueError("prompt and target batch sizes differ")
+    batched = getattr(model, "respond_many", None)
+    if batched is not None:
+        responses = list(batched(prompts, oracle_targets))
+        if len(responses) != len(prompts):
+            raise ValueError("model returned the wrong response batch size")
+        return responses
+    return [model.respond(prompt, target) for prompt, target in zip(prompts, oracle_targets, strict=True)]
+
+
 @dataclass
 class OracleArenaModel:
     name: str = "oracle"
@@ -83,10 +99,17 @@ def evaluate_case(
 
     generated: dict[str, Broadcast] = {}
     message_rows = []
+    broadcast_jobs = []
     for index, agent_id in enumerate(sorted(reference)):
         prompt, _ = broadcast_prompt(state, agent_id, seed + index)
         target = encode_broadcast(reference_broadcasts[agent_id])
-        raw = model.respond(prompt, target)
+        broadcast_jobs.append((agent_id, prompt, target))
+    broadcast_responses = _respond_many(
+        model,
+        [prompt for _, prompt, _ in broadcast_jobs],
+        [target for _, _, target in broadcast_jobs],
+    )
+    for (agent_id, _, _), raw in zip(broadcast_jobs, broadcast_responses, strict=True):
         parsed = parse_broadcast(raw, state, agent_id)
         value = parsed.value if parsed.valid else Broadcast((), None, 0)
         assert isinstance(value, Broadcast)
@@ -115,12 +138,19 @@ def evaluate_case(
             selected: dict[str, Action] = {}
             strict_valid = 0
             action_rows = []
+            action_jobs = []
             for index, agent_id in enumerate(sorted(reference)):
                 prompt, displayed = action_prompt(
                     state, agent_id, _inbox(broadcasts, agent_id), seed + index + permutation
                 )
                 target = encode_action(reference[agent_id], displayed)
-                raw = model.respond(prompt, target)
+                action_jobs.append((agent_id, displayed, prompt, target))
+            action_responses = _respond_many(
+                model,
+                [prompt for _, _, prompt, _ in action_jobs],
+                [target for _, _, _, target in action_jobs],
+            )
+            for (agent_id, displayed, _, _), raw in zip(action_jobs, action_responses, strict=True):
                 parsed = parse_action(raw, displayed)
                 action = parsed.value if parsed.valid else WAIT
                 assert isinstance(action, Action)
