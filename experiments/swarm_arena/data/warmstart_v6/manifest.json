@@ -1,0 +1,14 @@
+{
+  "broadcast_labels": "canonical prompt-identifiable local reports with legal local intents",
+  "content_sha256": "52dc20207636d4084be00df1555fe2bec69854de11e0a6ac353975070ad23609",
+  "dataset_version": "arena-warmstart-v6",
+  "replay_rows_requested": 1280,
+  "replay_source": "Qwen3-4B-Instruct-2507 deterministic responses to filtered UltraChat 200k prompts",
+  "train_by_source": {
+    "arena_protocol": 640,
+    "base_behavior_replay": 1280,
+    "instruction_preservation": 640
+  },
+  "train_examples": 2560,
+  "validation_examples": 192
+}

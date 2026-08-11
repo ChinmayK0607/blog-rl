@@ -1,0 +1,27 @@
+{
+  "ids_sha256": "9d1fec7be3afd3822a58ede98c8b822650fbe681241d69591996f0871d76cf5f",
+  "max_tokens": 1536,
+  "splits": {
+    "train": {
+      "by_source": {
+        "arena_protocol": 640,
+        "base_behavior_replay": 1280,
+        "instruction_preservation": 640
+      },
+      "examples": 2560,
+      "max_tokens_observed": 1045,
+      "mean_tokens": 338.23359375,
+      "min_tokens": 49
+    },
+    "validation": {
+      "by_source": {
+        "arena_protocol": 96,
+        "instruction_preservation": 96
+      },
+      "examples": 192,
+      "max_tokens_observed": 991,
+      "mean_tokens": 500.7708333333333,
+      "min_tokens": 59
+    }
+  }
+}
