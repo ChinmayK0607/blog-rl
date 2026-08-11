@@ -7,7 +7,7 @@ from .arena import Action
 from .arena_protocol import displayed_actions
 from .episode import ArenaEpisodeEnv
 
-EPISODE_PROMPT_VERSION = "arena-episode-v3-explicit-intents"
+EPISODE_PROMPT_VERSION = "arena-episode-v4-observation-boundaries"
 
 BASE_SYSTEM_PROMPT = """You are one of four teammates in a deterministic graph-control game against four opponents. The episode lasts several simultaneous turns. You receive no intermediate task reward; the team is scored only at the end.
 
@@ -25,7 +25,7 @@ Communication is optional, consumes your private episodic budget, and is penaliz
 Return exactly:
 {"facts":[{"node":"ID","owner":"BLUE|RED|NEUTRAL","status":"SECURE|FORTIFIED|EXPOSED|COMPROMISED","value":1,"critical":false,"observed_turn":0}],"intent":{"type":"ACTION","target":"ID"}|null,"request_resource":0}
 
-For WAIT, intent is {"type":"WAIT"}. TRANSFER also includes `amount`. Never use action IDs inside `intent`. If `intent` is non-null, copy exactly one object from `legal_intents`; never synthesize a type and target combination."""
+For WAIT, intent is {"type":"WAIT"}. TRANSFER also includes `amount`. Never use action IDs inside `intent`. If `intent` is non-null, copy exactly one object from `legal_intents`; never synthesize a type and target combination. `unknown_neighbors` contains identifiers only: they are not observations, so never put one in `facts` or infer its owner, status, value, or criticality."""
 )
 
 ACTION_SYSTEM_PROMPT = (

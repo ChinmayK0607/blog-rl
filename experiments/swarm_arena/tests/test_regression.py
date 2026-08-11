@@ -190,6 +190,7 @@ def test_episode_protocol_exposes_exact_legal_intent_shapes() -> None:
     body = json.loads(messages[-1]["content"])
     assert body["legal_intents"] == [action.to_dict() for action in actions]
     assert "copy exactly one object from `legal_intents`" in messages[0]["content"]
+    assert "`unknown_neighbors` contains identifiers only" in messages[0]["content"]
 
 
 def test_warm_start_v3_requires_both_regression_suites(tmp_path) -> None:

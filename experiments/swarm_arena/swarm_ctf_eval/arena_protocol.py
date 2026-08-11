@@ -6,7 +6,7 @@ from typing import Any
 
 from .arena import Action, GameState, NodeObservation, legal_actions, observation_for
 
-ARENA_PROMPT_VERSION = "arena-v3-explicit-intents"
+ARENA_PROMPT_VERSION = "arena-v4-observation-boundaries"
 VALID_OWNERS = {"BLUE", "RED", "NEUTRAL"}
 VALID_STATUSES = {"SECURE", "FORTIFIED", "EXPOSED", "COMPROMISED"}
 
@@ -26,7 +26,7 @@ Send only information present in your observation. Include at most three node fa
 Return exactly this schema:
 {"facts":[{"node":"ID","owner":"BLUE|RED|NEUTRAL","status":"SECURE|FORTIFIED|EXPOSED|COMPROMISED","value":1,"critical":false,"observed_turn":0}],"intent":{"type":"ACTION","target":"ID"}|null,"request_resource":0}
 
-For WAIT, intent is {"type":"WAIT"}. For TRANSFER, intent also includes `amount`. Do not use action IDs inside `intent`. If `intent` is non-null, copy exactly one object from `legal_intents`; never synthesize a type and target combination."""
+For WAIT, intent is {"type":"WAIT"}. For TRANSFER, intent also includes `amount`. Do not use action IDs inside `intent`. If `intent` is non-null, copy exactly one object from `legal_intents`; never synthesize a type and target combination. `unknown_neighbors` contains identifiers only: they are not observations, so never put one in `facts` or infer its owner, status, value, or criticality."""
 )
 
 ACTION_SYSTEM_PROMPT = (
