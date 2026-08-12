@@ -605,8 +605,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run resumable two-model 4v4 Swarm Arena cross-play.")
     parser.add_argument("--blue-base-url", required=True)
     parser.add_argument("--blue-model", required=True)
+    parser.add_argument(
+        "--blue-artifact-id",
+        required=True,
+        help="Immutable HF revision or local adapter SHA-256 for the served BLUE model",
+    )
     parser.add_argument("--red-base-url", required=True)
     parser.add_argument("--red-model", required=True)
+    parser.add_argument(
+        "--red-artifact-id",
+        required=True,
+        help="Immutable HF revision or local adapter SHA-256 for the served RED model",
+    )
     parser.add_argument("--api-key", default="local")
     parser.add_argument("--split", choices=("development", "frozen"), default="development")
     parser.add_argument("--cases", type=int)
@@ -657,7 +667,9 @@ def main() -> None:
     manifest = {
         "version": CROSSPLAY_VERSION,
         "blue_model": args.blue_model,
+        "blue_artifact_id": args.blue_artifact_id,
         "red_model": args.red_model,
+        "red_artifact_id": args.red_artifact_id,
         "generation": {"temperature": 0.0, "max_tokens": 160, "enable_thinking": False},
         "analysis": {
             "unit": "seed after side averaging",

@@ -28,6 +28,8 @@ diagnostic cross-play but is labeled ineligible as an RL initialization.
 - A bounded three-turn private history contains only that agent's accepted
   broadcasts, teammate inbox, selected actions, and locally visible events.
 - Generation is greedy with thinking disabled. Prompts are flushed to raw rows.
+- Every run manifest requires an immutable Hugging Face revision or adapter
+  SHA-256 for each served policy; mutable model names alone are insufficient.
 
 ## Engineering screen
 
