@@ -44,7 +44,9 @@ allocation, opponent modelling, or a communication-dependent swarm policy.
 - base: `Qwen/Qwen3-1.7B`;
 - rank-16 LoRA, alpha 32, dropout 0.05;
 - Q/K/V/O attention projections only;
-- 320 steps, effective batch 16, sequence length 2048;
+- 320 steps, effective batch 16, sequence length 2560. The initial 2048-token
+  draft was rejected by the pre-training audit because the longest untruncated
+  later-turn context rendered to 2385 tokens;
 - learning rate 4e-5 with 16 warm-up steps and cosine decay;
 - checkpoints every 64 steps;
 - assistant-token loss only with thinking disabled.
