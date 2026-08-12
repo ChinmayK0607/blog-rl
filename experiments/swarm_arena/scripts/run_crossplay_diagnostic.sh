@@ -17,11 +17,16 @@ uv_bin=${SWARM_UV_BIN:-uv}
 project_root=${SWARM_PROJECT_ROOT:-/root/blog-rl}
 arena_root="$project_root/experiments/swarm_arena"
 export PYTHONPATH="$arena_root${PYTHONPATH:+:$PYTHONPATH}"
+constraint_args=()
+if [[ "${SWARM_CONSTRAIN_PROTOCOL:-0}" == "1" ]]; then
+  constraint_args+=(--constrain-protocol)
+fi
 
 # Four base self-play games: absolute base capability without a scripted opponent.
 "$uv_bin" run --project "$project_root" --no-sync python -m swarm_ctf_eval.crossplay_eval \
   --blue-base-url "$base_url" --blue-model "$base_model" --blue-artifact-id "$base_artifact" \
   --red-base-url "$base_url" --red-model "$base_model" --red-artifact-id "$base_artifact" \
+  "${constraint_args[@]}" \
   --split development --cases 4 --conditions generated:generated --resume \
   --output-dir "$results_root/selfplay_base"
 
@@ -29,6 +34,7 @@ export PYTHONPATH="$arena_root${PYTHONPATH:+:$PYTHONPATH}"
 "$uv_bin" run --project "$project_root" --no-sync python -m swarm_ctf_eval.crossplay_eval \
   --blue-base-url "$adapter_url" --blue-model "$adapter_model" --blue-artifact-id "$adapter_artifact" \
   --red-base-url "$adapter_url" --red-model "$adapter_model" --red-artifact-id "$adapter_artifact" \
+  "${constraint_args[@]}" \
   --split development --cases 4 --conditions generated:generated --resume \
   --output-dir "$results_root/selfplay_adapter"
 
@@ -38,7 +44,7 @@ export PYTHONPATH="$arena_root${PYTHONPATH:+:$PYTHONPATH}"
 "$uv_bin" run --project "$project_root" --no-sync python -m swarm_ctf_eval.crossplay_eval \
   --blue-base-url "$adapter_url" --blue-model "$adapter_model" --blue-artifact-id "$adapter_artifact" \
   --red-base-url "$base_url" --red-model "$base_model" --red-artifact-id "$base_artifact" \
+  "${constraint_args[@]}" \
   --split development --cases 4 \
   --conditions generated:generated,dropped:generated --swap-sides --resume \
   --output-dir "$results_root/pair_adapter_vs_base"
-

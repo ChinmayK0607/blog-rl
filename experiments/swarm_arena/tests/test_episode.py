@@ -15,7 +15,9 @@ from swarm_ctf_eval.crossplay_eval import (
 )
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, ArenaEpisodeEnv, EpisodeConfig, message_units
 from swarm_ctf_eval.episode_model_eval import evaluate_episode
+from swarm_ctf_eval.episode_protocol import episode_action_prompt, episode_broadcast_prompt
 from swarm_ctf_eval.episode_splits import EPISODE_EVAL_CASES
+from swarm_ctf_eval.structured_protocol import action_json_schema, broadcast_json_schema
 
 
 def waits(env: ArenaEpisodeEnv) -> dict[str, Action]:
@@ -182,3 +184,41 @@ def test_crossplay_resume_requires_an_identical_manifest(tmp_path: Path) -> None
         assert "manifest mismatch" in str(error)
     else:
         raise AssertionError("a changed model pair must not resume into the same rows")
+
+
+def test_dynamic_protocol_schema_only_allows_grounded_budgeted_broadcasts() -> None:
+    env = ArenaEpisodeEnv(seed=21, size=12, config=EpisodeConfig(message_budget_per_agent=2))
+    env.reset()
+    messages, _ = episode_broadcast_prompt(env, "blue-0")
+    body = json.loads(messages[-1]["content"])
+    schema = broadcast_json_schema(body)
+    branches = schema["anyOf"]
+    assert branches
+    assert all(
+        branch["properties"]["facts"].get("maxItems", 0)
+        + int(branch["properties"]["intent"]["const"] is not None)
+        + branch["properties"]["request_resource"]["const"]
+        <= 1
+        for branch in branches
+        if branch["properties"]["facts"].get("const") != []
+        or branch["properties"]["intent"]["const"] is not None
+        or branch["properties"]["request_resource"]["const"]
+    )
+    known = body["observation"]["known_nodes"]
+    for branch in branches:
+        items = branch["properties"]["facts"].get("items")
+        if items:
+            assert [choice["const"] for choice in items["anyOf"]] == known
+        assert branch["properties"]["intent"]["const"] in [None, *body["legal_intents"]]
+
+
+def test_dynamic_action_schema_enumerates_only_displayed_action_ids() -> None:
+    env = ArenaEpisodeEnv(seed=22, size=12)
+    env.reset()
+    env.broadcast_phase({})
+    messages, _ = episode_action_prompt(env, "red-0")
+    body = json.loads(messages[-1]["content"])
+    schema = action_json_schema(body)
+    assert schema["properties"]["action_id"]["enum"] == [
+        row["id"] for row in body["legal_actions"]
+    ]

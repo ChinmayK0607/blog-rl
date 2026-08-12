@@ -31,6 +31,24 @@ diagnostic cross-play but is labeled ineligible as an RL initialization.
 - Every run manifest requires an immutable Hugging Face revision or adapter
   SHA-256 for each served policy; mutable model names alone are insufficient.
 
+## Mechanics-constrained diagnostic
+
+After the raw-output screen, run a matched diagnostic with
+`SWARM_CONSTRAIN_PROTOCOL=1`. For each request, the server receives a dynamic
+strict JSON schema containing only facts in that agent's current observation,
+currently legal intents or action IDs, and messages that fit that agent's live
+budget. Empty communication remains available. The model still decides whether
+to communicate, which grounded facts and intent to send, and which legal action
+to take; the constraint only removes syntax and interface violations.
+
+Raw-output and constrained results must be stored in different result
+directories and reported separately. Constrained protocol validity is true by
+construction, so it is not evidence of learned protocol competence and cannot
+satisfy the raw-output RL-readiness gate. Its purpose is to reveal the gameplay,
+coordination, intervention sensitivity, and throughput left after mechanical
+errors are removed. Compare the constrained adapter to the constrained base so
+both policies receive the same action interface.
+
 ## Engineering screen
 
 Before the result-producing sweep, run two complete development matches for each

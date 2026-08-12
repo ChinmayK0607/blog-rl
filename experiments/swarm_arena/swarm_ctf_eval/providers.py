@@ -5,6 +5,7 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
+from collections.abc import Callable
 from typing import Any, Protocol
 
 from .schema import Scenario
@@ -46,6 +47,7 @@ class OpenAICompatibleProvider:
         max_tokens: int = 128,
         timeout: float = 180.0,
         enable_thinking: bool = False,
+        response_format_factory: Callable[[list[dict[str, str]]], dict[str, Any]] | None = None,
     ) -> None:
         self.url = base_url.rstrip("/") + "/chat/completions"
         self.model = model
@@ -54,6 +56,7 @@ class OpenAICompatibleProvider:
         self.max_tokens = max_tokens
         self.timeout = timeout
         self.enable_thinking = enable_thinking
+        self.response_format_factory = response_format_factory
 
     def generate(self, scenario: Scenario, messages: list[dict[str, str]]) -> Generation:
         del scenario
@@ -65,6 +68,8 @@ class OpenAICompatibleProvider:
             "stream": False,
             "chat_template_kwargs": {"enable_thinking": self.enable_thinking},
         }
+        if self.response_format_factory is not None:
+            payload["response_format"] = self.response_format_factory(messages)
         request = urllib.request.Request(
             self.url,
             data=json.dumps(payload).encode("utf-8"),

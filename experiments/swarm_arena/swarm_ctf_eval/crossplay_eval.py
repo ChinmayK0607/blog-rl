@@ -24,8 +24,9 @@ from .episode import (
 )
 from .episode_protocol import episode_action_prompt, episode_broadcast_prompt
 from .providers import OpenAICompatibleProvider
+from .structured_protocol import STRUCTURED_PROTOCOL_VERSION, protocol_response_format
 
-CROSSPLAY_VERSION = "arena-crossplay-v3-measured"
+CROSSPLAY_VERSION = "arena-crossplay-v4-dynamic-protocol"
 CONDITIONS = ("generated", "dropped", "sender_shuffled", "delayed", "zero_budget")
 Case = tuple[int, int, int]
 FROZEN_CROSSPLAY_CASES: tuple[Case, ...] = tuple(
@@ -699,6 +700,11 @@ def main() -> None:
         help="Immutable HF revision or local adapter SHA-256 for the served RED model",
     )
     parser.add_argument("--api-key", default="local")
+    parser.add_argument(
+        "--constrain-protocol",
+        action="store_true",
+        help="Dynamically constrain JSON to observed facts, legal intents/actions, and live message budget",
+    )
     parser.add_argument("--split", choices=("development", "frozen"), default="development")
     parser.add_argument("--cases", type=int)
     parser.add_argument("--seed-base", type=int, default=1_000_003)
@@ -720,6 +726,7 @@ def main() -> None:
         temperature=0.0,
         max_tokens=160,
         enable_thinking=False,
+        response_format_factory=protocol_response_format if args.constrain_protocol else None,
     )
     same_endpoint = args.blue_base_url == args.red_base_url and args.blue_model == args.red_model
     blue_model: ArenaModel = OpenAIArenaModel(blue_provider, args.blue_model)
@@ -734,6 +741,7 @@ def main() -> None:
                 temperature=0.0,
                 max_tokens=160,
                 enable_thinking=False,
+                response_format_factory=protocol_response_format if args.constrain_protocol else None,
             ),
             args.red_model,
         )
@@ -752,6 +760,10 @@ def main() -> None:
         "red_model": args.red_model,
         "red_artifact_id": args.red_artifact_id,
         "generation": {"temperature": 0.0, "max_tokens": 160, "enable_thinking": False},
+        "protocol_constraint": {
+            "enabled": args.constrain_protocol,
+            "version": STRUCTURED_PROTOCOL_VERSION if args.constrain_protocol else None,
+        },
         "analysis": {
             "unit": "seed after side averaging",
             "bootstrap_resamples": 20_000,
