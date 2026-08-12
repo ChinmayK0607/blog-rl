@@ -4,7 +4,12 @@ import json
 
 from swarm_ctf_eval.arena import WAIT, Action
 from swarm_ctf_eval.arena_protocol import Broadcast
-from swarm_ctf_eval.crossplay_eval import development_cases, evaluate_crossplay, parse_conditions
+from swarm_ctf_eval.crossplay_eval import (
+    FROZEN_CROSSPLAY_CASES,
+    development_cases,
+    evaluate_crossplay,
+    parse_conditions,
+)
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, ArenaEpisodeEnv, EpisodeConfig, message_units
 from swarm_ctf_eval.episode_model_eval import evaluate_episode
 from swarm_ctf_eval.episode_splits import EPISODE_EVAL_CASES
@@ -121,3 +126,6 @@ def test_crossplay_controls_all_eight_agents_and_preserves_private_history() -> 
         ("generated", "generated"),
         ("dropped", "generated"),
     )
+    assert len(FROZEN_CROSSPLAY_CASES) == 24
+    assert {size for _, size, _ in FROZEN_CROSSPLAY_CASES} == {14, 16}
+    assert {horizon for _, _, horizon in FROZEN_CROSSPLAY_CASES} == {6, 8}

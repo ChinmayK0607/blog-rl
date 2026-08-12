@@ -27,6 +27,14 @@ from .providers import OpenAICompatibleProvider
 CROSSPLAY_VERSION = "arena-crossplay-v1-private-history"
 CONDITIONS = ("generated", "dropped", "sender_shuffled", "delayed", "zero_budget")
 Case = tuple[int, int, int]
+FROZEN_CROSSPLAY_CASES: tuple[Case, ...] = tuple(
+    (
+        3_000_003 + 193 * index,
+        14 if index < 12 else 16,
+        6 if index % 2 == 0 else 8,
+    )
+    for index in range(24)
+)
 
 
 def development_cases(count: int, seed_base: int = 1_000_003) -> tuple[Case, ...]:
@@ -358,7 +366,8 @@ def main() -> None:
     parser.add_argument("--red-base-url", required=True)
     parser.add_argument("--red-model", required=True)
     parser.add_argument("--api-key", default="local")
-    parser.add_argument("--cases", type=int, default=6)
+    parser.add_argument("--split", choices=("development", "frozen"), default="development")
+    parser.add_argument("--cases", type=int)
     parser.add_argument("--seed-base", type=int, default=1_000_003)
     parser.add_argument("--history-window", type=int, default=3)
     parser.add_argument(
@@ -394,7 +403,12 @@ def main() -> None:
             args.red_model,
         )
 
-    cases = development_cases(args.cases, args.seed_base)
+    if args.split == "frozen":
+        if args.cases is not None:
+            parser.error("--cases cannot truncate the frozen cross-play split")
+        cases = FROZEN_CROSSPLAY_CASES
+    else:
+        cases = development_cases(args.cases or 6, args.seed_base)
     condition_pairs = parse_conditions(args.conditions)
     manifest = {
         "version": CROSSPLAY_VERSION,
