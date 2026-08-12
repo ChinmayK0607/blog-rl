@@ -29,7 +29,7 @@ for swarm_step in "$@"; do
   fi
   mkdir -p "${swarm_output}"
   PYTHONPATH="${swarm_arena_root}${PYTHONPATH:+:$PYTHONPATH}" \
-    "${swarm_uv_bin}" run --project "${swarm_repo_root}" --no-sync python \
+    "${swarm_uv_bin}" run --project "${swarm_repo_root}" --no-sync --with peft python \
     "${swarm_arena_root}/scripts/score_regressions.py" \
     --model "${swarm_model}" \
     --adapter "${swarm_adapter}" \

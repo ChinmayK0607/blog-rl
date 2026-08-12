@@ -22,7 +22,7 @@ for step in "$@"; do
     exit 1
   fi
   PYTHONPATH="$arena_root${PYTHONPATH:+:$PYTHONPATH}" \
-    "$uv_bin" run --project "$project_root" --no-sync python \
+    "$uv_bin" run --project "$project_root" --no-sync --with peft python \
     "$arena_root/scripts/score_warmstart_v3.py" \
     --model "$model" --adapter "$adapter" --dataset "$dataset" --batch-size 16 \
     --output-dir "$results_root/validation/step_$step"

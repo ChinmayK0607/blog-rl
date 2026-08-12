@@ -39,7 +39,9 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   repository path and prepend the experiment directory to `PYTHONPATH`, or run
   from that experiment's own `--project`. Do not rely on `python -m scripts.*`
   from the repository root: the root `scripts/` namespace can shadow the
-  experiment-local one.
+  experiment-local one. Adapter scoring must also request the optional PEFT
+  runtime explicitly with `uv run --with peft` unless PEFT is a declared project
+  dependency.
 - Environment packages: before launching a config with a non-core verifier env id,
   verify the package imports under `uv run` (for example
   `uv run python -c "import importlib.util; print(importlib.util.find_spec('rlm_swe'))"`).
