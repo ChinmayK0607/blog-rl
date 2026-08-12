@@ -4,6 +4,7 @@ import json
 
 from swarm_ctf_eval.arena import WAIT, Action
 from swarm_ctf_eval.arena_protocol import Broadcast
+from swarm_ctf_eval.crossplay_eval import development_cases, evaluate_crossplay, parse_conditions
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, ArenaEpisodeEnv, EpisodeConfig, message_units
 from swarm_ctf_eval.episode_model_eval import evaluate_episode
 from swarm_ctf_eval.episode_splits import EPISODE_EVAL_CASES
@@ -94,3 +95,29 @@ def test_episode_evaluator_runs_strict_intervention_rollout() -> None:
     assert row["broadcast_grounded_rate"] == 1.0
     assert row["action_protocol_rate"] == 1.0
     assert len(row["turns"]) <= EPISODE_EVAL_CASES[0][2]
+
+
+def test_crossplay_controls_all_eight_agents_and_preserves_private_history() -> None:
+    class FirstOptionModel:
+        def __init__(self, name: str) -> None:
+            self.name = name
+
+        def respond(self, messages: list[dict[str, str]], oracle_target: str) -> str:
+            del oracle_target
+            phase = json.loads(messages[-1]["content"])["phase"]
+            if phase == "BROADCAST":
+                return '{"facts":[],"intent":null,"request_resource":0}'
+            return '{"action_id":"A0"}'
+
+    row = evaluate_crossplay(
+        FirstOptionModel("blue"),
+        FirstOptionModel("red"),
+        development_cases(1)[0],
+    )
+    assert row["metrics"]["BLUE"]["action_protocol_rate"] == 1.0
+    assert row["metrics"]["RED"]["action_protocol_rate"] == 1.0
+    assert all(len(turn["actions"]) == 8 for turn in row["turns"])
+    assert parse_conditions("generated:generated,dropped:generated") == (
+        ("generated", "generated"),
+        ("dropped", "generated"),
+    )

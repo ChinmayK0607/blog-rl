@@ -71,6 +71,23 @@ class OpenAIArenaModel:
         del oracle_target
         return self.provider.generate(None, messages).text  # type: ignore[arg-type]
 
+    def respond_many(
+        self,
+        prompts: list[list[dict[str, str]]],
+        oracle_targets: list[str],
+    ) -> list[str]:
+        if len(prompts) != len(oracle_targets):
+            raise ValueError("prompt and target batch sizes differ")
+        del oracle_targets
+        with ThreadPoolExecutor(max_workers=min(16, len(prompts))) as executor:
+            generations = list(
+                executor.map(
+                    lambda messages: self.provider.generate(None, messages),  # type: ignore[arg-type]
+                    prompts,
+                )
+            )
+        return [generation.text for generation in generations]
+
 
 def _reference_broadcasts(state: GameState, reference: dict[str, Action]) -> dict[str, Broadcast]:
     return {agent_id: oracle_broadcast(state, agent_id, reference[agent_id]) for agent_id in sorted(reference)}
