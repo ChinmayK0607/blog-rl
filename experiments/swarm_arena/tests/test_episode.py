@@ -9,6 +9,7 @@ from swarm_ctf_eval.crossplay_eval import (
     development_cases,
     evaluate_crossplay,
     parse_conditions,
+    summarize_side_swapped,
 )
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, ArenaEpisodeEnv, EpisodeConfig, message_units
 from swarm_ctf_eval.episode_model_eval import evaluate_episode
@@ -129,3 +130,28 @@ def test_crossplay_controls_all_eight_agents_and_preserves_private_history() -> 
     assert len(FROZEN_CROSSPLAY_CASES) == 24
     assert {size for _, size, _ in FROZEN_CROSSPLAY_CASES} == {14, 16}
     assert {horizon for _, _, horizon in FROZEN_CROSSPLAY_CASES} == {6, 8}
+
+
+def test_side_swapped_summary_removes_map_side_bias() -> None:
+    def row(seed: int, blue: str, red: str, blue_return: float, condition: str) -> dict:
+        return {
+            "seed": seed,
+            "blue_model": blue,
+            "red_model": red,
+            "blue_condition": condition if blue == "adapter" else "generated",
+            "red_condition": condition if red == "adapter" else "generated",
+            "metrics": {
+                "BLUE": {"terminal_return": blue_return},
+                "RED": {"terminal_return": -blue_return},
+            },
+        }
+
+    rows = [
+        row(1, "adapter", "base", 2.0, "generated"),
+        row(1, "base", "adapter", -4.0, "generated"),
+        row(1, "adapter", "base", 1.0, "dropped"),
+        row(1, "base", "adapter", -1.0, "dropped"),
+    ]
+    summary = summarize_side_swapped(rows)
+    assert summary["conditions"]["generated:generated"]["focal_mean_side_averaged_return"] == 3.0
+    assert summary["communication_effects"]["generated_minus_dropped"]["mean_return_difference"] == 2.0

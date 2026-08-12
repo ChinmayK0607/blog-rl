@@ -347,6 +347,102 @@ def summarize(rows: list[dict[str, Any]], manifest_sha256: str) -> dict[str, Any
     }
 
 
+def summarize_side_swapped(
+    rows: list[dict[str, Any]],
+    focal_policy: str | None = None,
+) -> dict[str, Any]:
+    if not rows:
+        raise ValueError("side-swapped rows cannot be empty")
+    policies = sorted({row["blue_model"] for row in rows} | {row["red_model"] for row in rows})
+    if len(policies) != 2:
+        raise ValueError("side-swapped summary requires exactly two distinct policies")
+    focal = focal_policy or rows[0]["blue_model"]
+    if focal not in policies:
+        raise ValueError(f"focal policy is absent from rows: {focal}")
+    opponent = next(policy for policy in policies if policy != focal)
+    by_key: dict[tuple[int, str, str], dict[str, dict[str, Any]]] = defaultdict(dict)
+    for row in rows:
+        if {row["blue_model"], row["red_model"]} != {focal, opponent}:
+            raise ValueError("all rows must use the same policy pair")
+        focal_condition = (
+            row["blue_condition"] if row["blue_model"] == focal else row["red_condition"]
+        )
+        opponent_condition = (
+            row["red_condition"] if row["blue_model"] == focal else row["blue_condition"]
+        )
+        orientation = "focal_blue" if row["blue_model"] == focal else "focal_red"
+        key = (row["seed"], focal_condition, opponent_condition)
+        if orientation in by_key[key]:
+            raise ValueError(f"duplicate side assignment for {key}: {orientation}")
+        by_key[key][orientation] = row
+
+    paired = []
+    for (seed, focal_condition, opponent_condition), orientations in sorted(by_key.items()):
+        if set(orientations) != {"focal_blue", "focal_red"}:
+            continue
+        focal_blue = orientations["focal_blue"]
+        focal_red = orientations["focal_red"]
+        focal_return = statistics.mean(
+            (
+                float(focal_blue["metrics"]["BLUE"]["terminal_return"]),
+                float(focal_red["metrics"]["RED"]["terminal_return"]),
+            )
+        )
+        paired.append(
+            {
+                "seed": seed,
+                "focal_condition": focal_condition,
+                "opponent_condition": opponent_condition,
+                "focal_side_averaged_return": focal_return,
+            }
+        )
+    if not paired:
+        raise ValueError("no complete side-swapped pairs")
+
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in paired:
+        grouped[(row["focal_condition"], row["opponent_condition"])].append(row)
+    conditions = {}
+    for condition, group in sorted(grouped.items()):
+        values = [float(row["focal_side_averaged_return"]) for row in group]
+        conditions[":".join(condition)] = {
+            "paired_seeds": len(group),
+            "focal_mean_side_averaged_return": statistics.mean(values),
+            "focal_mean_side_averaged_return_95": _mean_ci(values),
+        }
+
+    effects = {}
+    generated = {
+        row["seed"]: float(row["focal_side_averaged_return"])
+        for row in paired
+        if row["focal_condition"] == "generated" and row["opponent_condition"] == "generated"
+    }
+    for intervention in ("dropped", "sender_shuffled", "delayed", "zero_budget"):
+        intervened = {
+            row["seed"]: float(row["focal_side_averaged_return"])
+            for row in paired
+            if row["focal_condition"] == intervention and row["opponent_condition"] == "generated"
+        }
+        common = sorted(set(generated) & set(intervened))
+        if not common:
+            continue
+        differences = [generated[seed] - intervened[seed] for seed in common]
+        effects[f"generated_minus_{intervention}"] = {
+            "paired_seeds": len(common),
+            "mean_return_difference": statistics.mean(differences),
+            "mean_return_difference_95": _mean_ci(differences),
+            "positive_seed_rate": statistics.mean(value > 0 for value in differences),
+        }
+    return {
+        "crossplay_version": CROSSPLAY_VERSION,
+        "focal_policy": focal,
+        "opponent_policy": opponent,
+        "complete_side_swapped_pairs": len(paired),
+        "conditions": conditions,
+        "communication_effects": effects,
+    }
+
+
 def parse_conditions(value: str) -> tuple[tuple[str, str], ...]:
     pairs = []
     for item in value.split(","):
@@ -376,6 +472,7 @@ def main() -> None:
     )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--swap-sides", action="store_true")
     args = parser.parse_args()
 
     blue_provider = OpenAICompatibleProvider(
@@ -415,6 +512,7 @@ def main() -> None:
         "cases": cases,
         "conditions": condition_pairs,
         "history_window": args.history_window,
+        "swap_sides": args.swap_sides,
     }
     manifest_sha256 = hashlib.sha256(
         json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
@@ -429,32 +527,61 @@ def main() -> None:
     if args.resume and rows_path.is_file():
         rows = [json.loads(line) for line in rows_path.read_text(encoding="utf-8").splitlines() if line]
     completed = {
-        (row["seed"], row["blue_condition"], row["red_condition"])
+        (
+            row["seed"],
+            row["blue_model"],
+            row["red_model"],
+            row["blue_condition"],
+            row["red_condition"],
+        )
         for row in rows
     }
     with rows_path.open("a" if args.resume else "w", encoding="utf-8") as handle:
         for case in cases:
             for blue_condition, red_condition in condition_pairs:
-                key = (case[0], blue_condition, red_condition)
-                if key in completed:
-                    continue
-                row = evaluate_crossplay(
-                    blue_model,
-                    red_model,
-                    case,
-                    blue_condition=blue_condition,
-                    red_condition=red_condition,
-                    history_window=args.history_window,
-                )
-                handle.write(json.dumps(row, sort_keys=True) + "\n")
-                handle.flush()
-                rows.append(row)
-                print(json.dumps({"completed": key, "blue_return": row["metrics"]["BLUE"]["terminal_return"]}))
+                assignments = [(blue_model, red_model, blue_condition, red_condition)]
+                if args.swap_sides and blue_model.name != red_model.name:
+                    assignments.append((red_model, blue_model, red_condition, blue_condition))
+                for assigned_blue, assigned_red, assigned_blue_condition, assigned_red_condition in assignments:
+                    key = (
+                        case[0],
+                        assigned_blue.name,
+                        assigned_red.name,
+                        assigned_blue_condition,
+                        assigned_red_condition,
+                    )
+                    if key in completed:
+                        continue
+                    row = evaluate_crossplay(
+                        assigned_blue,
+                        assigned_red,
+                        case,
+                        blue_condition=assigned_blue_condition,
+                        red_condition=assigned_red_condition,
+                        history_window=args.history_window,
+                    )
+                    handle.write(json.dumps(row, sort_keys=True) + "\n")
+                    handle.flush()
+                    rows.append(row)
+                    print(
+                        json.dumps(
+                            {
+                                "completed": key,
+                                "blue_return": row["metrics"]["BLUE"]["terminal_return"],
+                            }
+                        )
+                    )
     summary = summarize(rows, manifest_sha256)
     (args.output_dir / "summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    if args.swap_sides and blue_model.name != red_model.name:
+        side_swapped = summarize_side_swapped(rows, blue_model.name)
+        (args.output_dir / "side_swapped_summary.json").write_text(
+            json.dumps(side_swapped, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
     print(json.dumps(summary, indent=2, sort_keys=True))
 
 
