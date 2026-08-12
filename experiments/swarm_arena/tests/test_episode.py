@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from swarm_ctf_eval.arena import WAIT, Action
 from swarm_ctf_eval.arena_protocol import Broadcast
@@ -9,6 +10,7 @@ from swarm_ctf_eval.crossplay_eval import (
     development_cases,
     evaluate_crossplay,
     parse_conditions,
+    prepare_manifest,
     summarize_side_swapped,
 )
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, ArenaEpisodeEnv, EpisodeConfig, message_units
@@ -155,3 +157,17 @@ def test_side_swapped_summary_removes_map_side_bias() -> None:
     summary = summarize_side_swapped(rows)
     assert summary["conditions"]["generated:generated"]["focal_mean_side_averaged_return"] == 3.0
     assert summary["communication_effects"]["generated_minus_dropped"]["mean_return_difference"] == 2.0
+
+
+def test_crossplay_resume_requires_an_identical_manifest(tmp_path: Path) -> None:
+    manifest = {"version": "test", "blue_model": "adapter", "red_model": "base"}
+    digest = prepare_manifest(tmp_path, manifest, resume=False)
+    assert prepare_manifest(tmp_path, manifest, resume=True) == digest
+
+    changed = {**manifest, "red_model": "different-base"}
+    try:
+        prepare_manifest(tmp_path, changed, resume=True)
+    except ValueError as error:
+        assert "manifest mismatch" in str(error)
+    else:
+        raise AssertionError("a changed model pair must not resume into the same rows")

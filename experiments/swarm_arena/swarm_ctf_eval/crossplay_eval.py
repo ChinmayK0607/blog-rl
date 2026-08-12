@@ -455,6 +455,41 @@ def parse_conditions(value: str) -> tuple[tuple[str, str], ...]:
     return tuple(pairs)
 
 
+def prepare_manifest(
+    output_dir: Path,
+    manifest: dict[str, Any],
+    *,
+    resume: bool,
+) -> str:
+    """Bind an output directory to one exact protocol before writing rows."""
+    manifest_sha256 = hashlib.sha256(
+        json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    record = {**manifest, "sha256": manifest_sha256}
+    manifest_path = output_dir / "manifest.json"
+    rows_path = output_dir / "rows.jsonl"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if manifest_path.is_file():
+        existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if not resume:
+            raise FileExistsError(
+                f"refusing to overwrite an existing cross-play run: {output_dir}"
+            )
+        if existing != record:
+            raise ValueError(
+                "resume manifest mismatch; use the original arguments or a new output directory"
+            )
+    elif rows_path.is_file():
+        raise ValueError(f"rows exist without a manifest: {rows_path}")
+    else:
+        manifest_path.write_text(
+            json.dumps(record, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    return manifest_sha256
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run resumable two-model 4v4 Swarm Arena cross-play.")
     parser.add_argument("--blue-base-url", required=True)
@@ -509,19 +544,16 @@ def main() -> None:
     condition_pairs = parse_conditions(args.conditions)
     manifest = {
         "version": CROSSPLAY_VERSION,
+        "blue_model": args.blue_model,
+        "red_model": args.red_model,
+        "generation": {"temperature": 0.0, "max_tokens": 160, "enable_thinking": False},
+        "split": args.split,
         "cases": cases,
         "conditions": condition_pairs,
         "history_window": args.history_window,
         "swap_sides": args.swap_sides,
     }
-    manifest_sha256 = hashlib.sha256(
-        json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    (args.output_dir / "manifest.json").write_text(
-        json.dumps({**manifest, "sha256": manifest_sha256}, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    manifest_sha256 = prepare_manifest(args.output_dir, manifest, resume=args.resume)
     rows_path = args.output_dir / "rows.jsonl"
     rows = []
     if args.resume and rows_path.is_file():
