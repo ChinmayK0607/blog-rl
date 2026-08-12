@@ -1,0 +1,140 @@
+{
+  "best_diagnostic_reason": "highest frozen selection exactness (.684375), explicitly noneligible",
+  "best_diagnostic_step": 256,
+  "checkpoints": {
+    "128": {
+      "act": {
+        "exact": 0.628125,
+        "examples": 320,
+        "grounded": 1.0,
+        "legal": 1.0,
+        "schema_valid": 1.0
+      },
+      "broadcast": {
+        "exact": 0.68125,
+        "examples": 320,
+        "grounded": 0.96875,
+        "legal": 0.934375,
+        "schema_valid": 1.0
+      },
+      "overall_exact": 0.657608695652174,
+      "schema_valid": 1.0,
+      "selection_exact": 0.6546875000000001,
+      "strict_gates": {
+        "action_legal": true,
+        "all_schema_valid": true,
+        "broadcast_grounded": false,
+        "broadcast_legal": false,
+        "passed": false
+      }
+    },
+    "192": {
+      "act": {
+        "exact": 0.665625,
+        "examples": 320,
+        "grounded": 1.0,
+        "legal": 1.0,
+        "schema_valid": 1.0
+      },
+      "broadcast": {
+        "exact": 0.675,
+        "examples": 320,
+        "grounded": 0.975,
+        "legal": 0.89375,
+        "schema_valid": 1.0
+      },
+      "overall_exact": 0.6739130434782609,
+      "schema_valid": 1.0,
+      "selection_exact": 0.6703125000000001,
+      "strict_gates": {
+        "action_legal": true,
+        "all_schema_valid": true,
+        "broadcast_grounded": false,
+        "broadcast_legal": false,
+        "passed": false
+      }
+    },
+    "256": {
+      "act": {
+        "exact": 0.6625,
+        "examples": 320,
+        "grounded": 1.0,
+        "legal": 1.0,
+        "schema_valid": 1.0
+      },
+      "broadcast": {
+        "exact": 0.70625,
+        "examples": 320,
+        "grounded": 0.978125,
+        "legal": 0.95,
+        "schema_valid": 0.996875
+      },
+      "overall_exact": 0.686141304347826,
+      "schema_valid": 0.998641304347826,
+      "selection_exact": 0.684375,
+      "strict_gates": {
+        "action_legal": true,
+        "all_schema_valid": false,
+        "broadcast_grounded": false,
+        "broadcast_legal": false,
+        "passed": false
+      }
+    },
+    "320": {
+      "act": {
+        "exact": 0.659375,
+        "examples": 320,
+        "grounded": 1.0,
+        "legal": 1.0,
+        "schema_valid": 1.0
+      },
+      "broadcast": {
+        "exact": 0.703125,
+        "examples": 320,
+        "grounded": 0.98125,
+        "legal": 0.946875,
+        "schema_valid": 0.996875
+      },
+      "overall_exact": 0.6834239130434783,
+      "schema_valid": 0.998641304347826,
+      "selection_exact": 0.68125,
+      "strict_gates": {
+        "action_legal": true,
+        "all_schema_valid": false,
+        "broadcast_grounded": false,
+        "broadcast_legal": false,
+        "passed": false
+      }
+    },
+    "64": {
+      "act": {
+        "exact": 0.6125,
+        "examples": 320,
+        "grounded": 1.0,
+        "legal": 1.0,
+        "schema_valid": 1.0
+      },
+      "broadcast": {
+        "exact": 0.621875,
+        "examples": 320,
+        "grounded": 0.98125,
+        "legal": 0.9375,
+        "schema_valid": 1.0
+      },
+      "overall_exact": 0.6127717391304348,
+      "schema_valid": 1.0,
+      "selection_exact": 0.6171875,
+      "strict_gates": {
+        "action_legal": true,
+        "all_schema_valid": true,
+        "broadcast_grounded": false,
+        "broadcast_legal": false,
+        "passed": false
+      }
+    }
+  },
+  "decision": "base_model",
+  "reason": "no frozen V8 checkpoint passed all schema/broadcast/action strict gates; paired regressions were therefore not run",
+  "selected_step": null,
+  "selection_protocol": "swarm-warm-start-v4-raw-legality"
+}

@@ -1,0 +1,40 @@
+{
+  "blue_model": "v8-step256-44deb6b2",
+  "conditions": {
+    "generated:generated": {
+      "blue_mean_return": -3.425,
+      "blue_mean_return_95": [
+        -6.499999999999999,
+        -0.7750000000000002
+      ],
+      "blue_win_rate": 0.25,
+      "draw_rate": 0,
+      "matches": 4,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.5,
+          "duplicate_target_turn_rate": 0.16666666666666666,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 28.75,
+          "duplicate_target_turn_rate": 0.1875,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    }
+  },
+  "crossplay_version": "arena-crossplay-v4-dynamic-protocol",
+  "interval_method": "seed-level nonparametric bootstrap, 20000 deterministic resamples",
+  "manifest_sha256": "c9840c5c14d4d162dd7d6b2e78a5d7583e0092d2b3de87082efd3275a85e3356",
+  "matches": 4,
+  "red_model": "v8-step256-44deb6b2"
+}

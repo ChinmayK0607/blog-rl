@@ -1,0 +1,40 @@
+{
+  "communication_effects": {
+    "generated_minus_dropped": {
+      "mean_return_difference": -0.5187500000000006,
+      "mean_return_difference_95": [
+        -3.087500000000001,
+        2.8812499999999996
+      ],
+      "paired_seeds": 4,
+      "positive_seed_rate": 0.25,
+      "randomization_p_two_sided": 0.75
+    }
+  },
+  "complete_side_swapped_pairs": 8,
+  "conditions": {
+    "dropped:generated": {
+      "focal_mean_side_averaged_return": 2.1875000000000004,
+      "focal_mean_side_averaged_return_95": [
+        -1.1749999999999998,
+        5.062500000000001
+      ],
+      "paired_seeds": 4,
+      "randomization_p_two_sided": 0.375
+    },
+    "generated:generated": {
+      "focal_mean_side_averaged_return": 1.6687499999999997,
+      "focal_mean_side_averaged_return_95": [
+        0.5249999999999997,
+        2.46875
+      ],
+      "paired_seeds": 4,
+      "randomization_p_two_sided": 0.25
+    }
+  },
+  "crossplay_version": "arena-crossplay-v4-dynamic-protocol",
+  "focal_policy": "v8-step256-44deb6b2",
+  "interval_method": "paired seed-level nonparametric bootstrap, 20000 deterministic resamples",
+  "opponent_policy": "Qwen/Qwen3-4B-Instruct-2507",
+  "test_method": "paired two-sided sign randomization; exact through 16 seeds, otherwise 100000 trials"
+}

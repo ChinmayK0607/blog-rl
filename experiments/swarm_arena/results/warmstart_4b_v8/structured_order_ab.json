@@ -1,0 +1,612 @@
+{
+  "records": [
+    {
+      "index": 0,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V65",
+            "V82"
+          ],
+          "latency": 1.4884082130156457,
+          "ranks": [
+            3,
+            5
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V65",
+            "V82"
+          ],
+          "latency": 3.2451066211797297,
+          "ranks": [
+            3,
+            5
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V65",
+            "V82"
+          ],
+          "latency": 2.1036575310863554,
+          "ranks": [
+            3,
+            5
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V65",
+            "V82"
+          ],
+          "latency": 2.109538996592164,
+          "ranks": [
+            3,
+            5
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+        }
+      },
+      "turn": 1
+    },
+    {
+      "index": 1,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V76",
+            "V90"
+          ],
+          "latency": 1.4721265761181712,
+          "ranks": [
+            4,
+            6
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V76",
+            "V82"
+          ],
+          "latency": 2.0833375230431557,
+          "ranks": [
+            4,
+            5
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V76",
+            "V90"
+          ],
+          "latency": 1.999976322054863,
+          "ranks": [
+            4,
+            6
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V76",
+            "V90"
+          ],
+          "latency": 1.967223391868174,
+          "ranks": [
+            4,
+            6
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+        }
+      },
+      "turn": 1
+    },
+    {
+      "index": 2,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V17",
+            "V90"
+          ],
+          "latency": 1.474485577084124,
+          "ranks": [
+            0,
+            6
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V17",
+            "V90"
+          ],
+          "latency": 2.0833791317418218,
+          "ranks": [
+            0,
+            6
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V17",
+            "V90"
+          ],
+          "latency": 1.9995072330348194,
+          "ranks": [
+            0,
+            6
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V17",
+            "V90"
+          ],
+          "latency": 2.024957391899079,
+          "ranks": [
+            0,
+            6
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}"
+        }
+      },
+      "turn": 1
+    },
+    {
+      "index": 3,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V65",
+            "V82"
+          ],
+          "latency": 1.491466083098203,
+          "ranks": [
+            3,
+            5
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V65",
+            "V82"
+          ],
+          "latency": 2.767291883006692,
+          "ranks": [
+            3,
+            5
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V65",
+            "V82"
+          ],
+          "latency": 2.6514215311035514,
+          "ranks": [
+            3,
+            5
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 2,
+          "facts": [
+            "V65",
+            "V82"
+          ],
+          "latency": 2.647794311866164,
+          "ranks": [
+            3,
+            5
+          ],
+          "raw": "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}"
+        }
+      },
+      "turn": 1
+    },
+    {
+      "index": 4,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24351530894637108,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.3585683167912066,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.2427687649615109,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24286882113665342,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        }
+      },
+      "turn": 2
+    },
+    {
+      "index": 5,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.240578000433743,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.2764613889157772,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24037495721131563,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24428190710023046,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        }
+      },
+      "turn": 2
+    },
+    {
+      "index": 6,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.2412601001560688,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.27484437404200435,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24169365223497152,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24108019191771746,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        }
+      },
+      "turn": 2
+    },
+    {
+      "index": 7,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24181914329528809,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.3356636962853372,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24143366795033216,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24215403804555535,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        }
+      },
+      "turn": 2
+    },
+    {
+      "index": 8,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24100625608116388,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.3342866222374141,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24140675691887736,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24127226928249002,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        }
+      },
+      "turn": 3
+    },
+    {
+      "index": 9,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.2421379121951759,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.27307422272861004,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24255108274519444,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24127951823174953,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        }
+      },
+      "turn": 3
+    },
+    {
+      "index": 10,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24344983277842402,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.26355751790106297,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24029854498803616,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.2407203852199018,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        }
+      },
+      "turn": 3
+    },
+    {
+      "index": 11,
+      "known_count": 7,
+      "modes": {
+        "anyof": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24511959636583924,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "normal": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.3346098237670958,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "random": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24202151270583272,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        },
+        "reverse": {
+          "duplicate_nodes": false,
+          "fact_count": 0,
+          "facts": [],
+          "latency": 0.24480438698083162,
+          "ranks": [],
+          "raw": "{\"facts\":[],\"intent\":null,\"request_resource\":0}"
+        }
+      },
+      "turn": 3
+    }
+  ],
+  "summary": {
+    "anyof_duplicate_prompts": 0,
+    "mean_latency": {
+      "anyof": 0.6554477166306848,
+      "normal": 1.0525150934699923,
+      "random": 0.8905926297496384,
+      "reverse": 0.8906646341783926
+    },
+    "normal_random_exact_raw": 11,
+    "normal_random_same_fact_nodes": 11,
+    "normal_reverse_exact_raw": 11,
+    "normal_reverse_same_fact_nodes": 11,
+    "prompts": 12,
+    "rank_counts": {
+      "anyof": {
+        "0": 1,
+        "3": 2,
+        "4": 1,
+        "5": 2,
+        "6": 2
+      },
+      "normal": {
+        "0": 1,
+        "3": 2,
+        "4": 1,
+        "5": 3,
+        "6": 1
+      },
+      "random": {
+        "0": 1,
+        "3": 2,
+        "4": 1,
+        "5": 2,
+        "6": 2
+      },
+      "reverse": {
+        "0": 1,
+        "3": 2,
+        "4": 1,
+        "5": 2,
+        "6": 2
+      }
+    }
+  }
+}

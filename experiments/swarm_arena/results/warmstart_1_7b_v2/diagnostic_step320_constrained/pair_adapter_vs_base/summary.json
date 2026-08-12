@@ -1,0 +1,100 @@
+{
+  "blue_model": "diagnostic-candidate-step320-2dc1694c",
+  "conditions": {
+    "dropped:generated": {
+      "blue_mean_return": 7.425000000000001,
+      "blue_mean_return_95": [
+        1.2500000000000004,
+        12.125000000000002
+      ],
+      "blue_win_rate": 0.75,
+      "draw_rate": 0,
+      "matches": 4,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31,
+          "duplicate_target_turn_rate": 0.14583333333333331,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 32,
+          "duplicate_target_turn_rate": 0.14583333333333331,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "generated:dropped": {
+      "blue_mean_return": -3.9749999999999996,
+      "blue_mean_return_95": [
+        -8.9125,
+        -0.8624999999999998
+      ],
+      "blue_win_rate": 0,
+      "draw_rate": 0,
+      "matches": 4,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 32,
+          "duplicate_target_turn_rate": 0.16666666666666666,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.5,
+          "duplicate_target_turn_rate": 0.25,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "generated:generated": {
+      "blue_mean_return": 1.1750000000000005,
+      "blue_mean_return_95": [
+        -4.1812499999999995,
+        6.731250000000001
+      ],
+      "blue_win_rate": 0.5,
+      "draw_rate": 0,
+      "matches": 8,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.25,
+          "duplicate_target_turn_rate": 0.1875,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.5,
+          "duplicate_target_turn_rate": 0.2604166666666667,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    }
+  },
+  "crossplay_version": "arena-crossplay-v4-dynamic-protocol",
+  "interval_method": "seed-level nonparametric bootstrap, 20000 deterministic resamples",
+  "manifest_sha256": "2e11bb3c7b151da613befb41eac66f04b7b02096ede6ef262e3b38798c9df6ea",
+  "matches": 16,
+  "red_model": "Qwen/Qwen3-1.7B"
+}

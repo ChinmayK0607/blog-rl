@@ -1,0 +1,447 @@
+{
+  "rows": [
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.3888214598409832,
+        1.314613382332027,
+        1.3213658011518419
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ],
+      "i": 0,
+      "normal_all_equal": true,
+      "normal_latency": [
+        2.2491526841185987,
+        1.3684228449128568,
+        1.358875900041312,
+        1.3646669839508832
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.3725631129927933,
+        1.3115108669735491,
+        1.3147823917679489
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ],
+      "i": 1,
+      "normal_all_equal": true,
+      "normal_latency": [
+        1.9993121307343245,
+        1.3468279177322984,
+        1.3462407500483096,
+        1.3834626520983875
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"target\":\"V76\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.3968012598343194,
+        1.3449033461511135,
+        1.3485301458276808
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}"
+      ],
+      "i": 2,
+      "normal_all_equal": true,
+      "normal_latency": [
+        2.0367888980545104,
+        1.3835837109945714,
+        1.3862035009078681,
+        1.3923625559546053
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V17\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"SECURE\",\"value\":2},{\"critical\":false,\"node\":\"V90\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"FORTIFIED\",\"value\":2}],\"intent\":{\"amount\":1,\"target\":\"blue-3\",\"type\":\"TRANSFER\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.3962921439670026,
+        1.323039315175265,
+        1.3272468727082014
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}"
+      ],
+      "i": 3,
+      "normal_all_equal": true,
+      "normal_latency": [
+        1.3924598139710724,
+        1.3864981518127024,
+        1.375622902996838,
+        1.3786999741569161
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V65\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"COMPROMISED\",\"value\":3}],\"intent\":{\"target\":\"V65\",\"type\":\"PROBE\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.4605469182133675,
+        1.347997663076967,
+        1.3455966939218342
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}"
+      ],
+      "i": 4,
+      "normal_all_equal": true,
+      "normal_latency": [
+        2.983863528817892,
+        1.4128884440287948,
+        1.4113010321743786,
+        1.4450718690641224
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.438055392820388,
+        1.5291338399983943,
+        1.3575886678881943
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"target\":\"V28\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"target\":\"V28\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"target\":\"V28\",\"type\":\"PROBE\"},\"request_resource\":0}"
+      ],
+      "i": 5,
+      "normal_all_equal": true,
+      "normal_latency": [
+        2.7132372478954494,
+        1.412942463066429,
+        1.4072725782170892,
+        1.4106198763474822
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"target\":\"V28\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"target\":\"V28\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"target\":\"V28\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"target\":\"V28\",\"type\":\"PROBE\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.2384487711824477,
+        1.2058710539713502,
+        1.2062325761653483
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":null,\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":null,\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":null,\"request_resource\":0}"
+      ],
+      "i": 6,
+      "normal_all_equal": false,
+      "normal_latency": [
+        1.702396695036441,
+        1.2274986580014229,
+        1.2428390909917653,
+        1.2462576581165195
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V32\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":null,\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V76\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"EXPOSED\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.4919429332949221,
+        1.3695836011320353,
+        1.3686233111657202
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V32\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V32\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V32\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}"
+      ],
+      "i": 7,
+      "normal_all_equal": true,
+      "normal_latency": [
+        3.1136174858547747,
+        1.446700839791447,
+        1.4552782131358981,
+        1.4828415513038635
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V32\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V32\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V32\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":3},{\"critical\":true,\"node\":\"V32\",\"observed_turn\":2,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V75\",\"type\":\"PROBE\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.2405540449544787,
+        1.2044799970462918,
+        1.2153216106817126
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":1}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":1}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":1}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}"
+      ],
+      "i": 8,
+      "normal_all_equal": true,
+      "normal_latency": [
+        1.6157934521324933,
+        1.225785184185952,
+        1.2264994140714407,
+        1.2243124339729548
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":1}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":1}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":1}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V82\",\"observed_turn\":1,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":1}],\"intent\":{\"type\":\"WAIT\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.4408309729769826,
+        1.3431487348861992,
+        1.345072722993791
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V83\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V83\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V83\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V83\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V83\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V83\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ],
+      "i": 9,
+      "normal_all_equal": true,
+      "normal_latency": [
+        2.960931526031345,
+        1.4264537990093231,
+        1.430460431613028,
+        1.4231037232093513
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":false,\"node\":\"V83\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V83\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V83\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V83\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V83\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V83\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":false,\"node\":\"V83\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"SECURE\",\"value\":2},{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3}],\"intent\":{\"target\":\"V83\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.3875035848468542,
+        1.3273218423128128,
+        1.3228815742768347
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V81\",\"observed_turn\":2,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":1}],\"intent\":{\"target\":\"V32\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V81\",\"observed_turn\":2,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":1}],\"intent\":{\"target\":\"V32\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V81\",\"observed_turn\":2,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":1}],\"intent\":{\"target\":\"V32\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ],
+      "i": 10,
+      "normal_all_equal": true,
+      "normal_latency": [
+        2.4288210719823837,
+        1.3563650511205196,
+        1.3626035209745169,
+        1.3958678632043302
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V81\",\"observed_turn\":2,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":1}],\"intent\":{\"target\":\"V32\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V81\",\"observed_turn\":2,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":1}],\"intent\":{\"target\":\"V32\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V81\",\"observed_turn\":2,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":1}],\"intent\":{\"target\":\"V32\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V75\",\"observed_turn\":0,\"owner\":\"BLUE\",\"status\":\"EXPOSED\",\"value\":3},{\"critical\":false,\"node\":\"V81\",\"observed_turn\":2,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":1}],\"intent\":{\"target\":\"V32\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ]
+    },
+    {
+      "force_duplicates": [
+        false,
+        false,
+        false
+      ],
+      "force_fact_counts": [
+        2,
+        2,
+        2
+      ],
+      "force_latency": [
+        1.536669875960797,
+        1.3508958239108324,
+        1.351190411951393
+      ],
+      "force_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V45\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V63\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V63\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V45\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V63\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V63\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V45\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V63\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V63\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ],
+      "i": 11,
+      "normal_all_equal": true,
+      "normal_latency": [
+        2.493972889147699,
+        1.3869008752517402,
+        1.3815582180395722,
+        1.3840723861940205
+      ],
+      "normal_raw": [
+        "{\"facts\":[{\"critical\":true,\"node\":\"V45\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V63\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V63\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V45\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V63\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V63\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V45\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V63\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V63\",\"type\":\"CAPTURE\"},\"request_resource\":0}",
+        "{\"facts\":[{\"critical\":true,\"node\":\"V45\",\"observed_turn\":1,\"owner\":\"RED\",\"status\":\"SECURE\",\"value\":3},{\"critical\":false,\"node\":\"V63\",\"observed_turn\":1,\"owner\":\"NEUTRAL\",\"status\":\"EXPOSED\",\"value\":2}],\"intent\":{\"target\":\"V63\",\"type\":\"CAPTURE\"},\"request_resource\":0}"
+      ]
+    }
+  ],
+  "summary": {
+    "forced_anyof_two_requests": 36,
+    "forced_duplicate_outputs": 0,
+    "forced_exact_two": 36,
+    "forced_mean_latency": 1.3496100755097966,
+    "normal_mean_latency": 1.6039023009264686,
+    "normal_prompt_all_equal": 11,
+    "normal_repeat_raw_disagreements": 1,
+    "normal_repeats": 48,
+    "prompts": 12
+  }
+}

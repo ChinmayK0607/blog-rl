@@ -1,0 +1,55 @@
+{
+  "analysis": {
+    "bootstrap_resamples": 20000,
+    "random_seed": 0,
+    "randomization_trials": 100000,
+    "unit": "seed after side averaging"
+  },
+  "blue_artifact_id": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+  "blue_history_window": 3,
+  "blue_model": "diagnostic-candidate-step320-2dc1694c",
+  "cases": [
+    [
+      1000003,
+      12,
+      4
+    ],
+    [
+      1000196,
+      13,
+      6
+    ],
+    [
+      1000389,
+      12,
+      4
+    ],
+    [
+      1000582,
+      13,
+      6
+    ]
+  ],
+  "conditions": [
+    [
+      "generated",
+      "generated"
+    ]
+  ],
+  "generation": {
+    "enable_thinking": false,
+    "max_tokens": 160,
+    "temperature": 0.0
+  },
+  "protocol_constraint": {
+    "enabled": true,
+    "version": "arena-structured-protocol-v1-dynamic-json-schema"
+  },
+  "red_artifact_id": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+  "red_history_window": 3,
+  "red_model": "diagnostic-candidate-step320-2dc1694c",
+  "sha256": "8652e64f9381d8746fe2ad09b4462f31959cce9682c4f2aa8bb27ef3b6c4d803",
+  "split": "development",
+  "swap_sides": false,
+  "version": "arena-crossplay-v4-dynamic-protocol"
+}
