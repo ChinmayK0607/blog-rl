@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from itertools import permutations
 from typing import Any
 
 STRUCTURED_PROTOCOL_VERSION = "arena-structured-protocol-v1-dynamic-json-schema"
@@ -46,11 +47,7 @@ def broadcast_json_schema(body: dict[str, Any]) -> dict[str, Any]:
             facts_schema = _const([])
         else:
             facts_schema = {
-                "type": "array",
-                "minItems": fact_count,
-                "maxItems": fact_count,
-                "items": {"anyOf": [_const(fact) for fact in known_facts]},
-                "uniqueItems": True,
+                "enum": [list(choice) for choice in permutations(known_facts, fact_count)]
             }
         for intent in [None, *legal_intents]:
             for request in (0, 1):

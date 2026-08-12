@@ -206,9 +206,10 @@ def test_dynamic_protocol_schema_only_allows_grounded_budgeted_broadcasts() -> N
     )
     known = body["observation"]["known_nodes"]
     for branch in branches:
-        items = branch["properties"]["facts"].get("items")
-        if items:
-            assert [choice["const"] for choice in items["anyOf"]] == known
+        enumerated = branch["properties"]["facts"].get("enum", [])
+        for facts in enumerated:
+            assert len({fact["node"] for fact in facts}) == len(facts)
+            assert all(fact in known for fact in facts)
         assert branch["properties"]["intent"]["const"] in [None, *body["legal_intents"]]
 
 
