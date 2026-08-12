@@ -35,6 +35,17 @@ def test_episode_has_terminal_only_zero_sum_reward() -> None:
     assert final.rewards["BLUE"] + final.rewards["RED"] == 0.0
 
 
+def test_red_gain_has_symmetric_positive_terminal_reward() -> None:
+    env = ArenaEpisodeEnv(config=EpisodeConfig(horizon=2))
+    env.reset(16)
+    assert env.state is not None
+    neutral = next(node for node in env.state.nodes.values() if node.owner == "NEUTRAL")
+    neutral.owner = "RED"
+    rewards = env._terminal_rewards()
+    assert rewards["RED"] > 0
+    assert rewards["BLUE"] == -rewards["RED"]
+
+
 def test_messages_are_private_budgeted_and_delivered_only_to_teammates() -> None:
     env = ArenaEpisodeEnv(config=EpisodeConfig(horizon=2, message_budget_per_agent=4))
     env.reset(12)

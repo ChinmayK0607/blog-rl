@@ -256,7 +256,14 @@ class ArenaEpisodeEnv:
 
     def _terminal_rewards(self) -> dict[Team, float]:
         state = self._require_state()
-        blue_delta = team_value(state, "BLUE") - self.initial_values["BLUE"]
+        # team_value is an antisymmetric relative-advantage coordinate:
+        # team_value(BLUE) == -team_value(RED). A RED capture therefore lowers
+        # this coordinate and gives RED the corresponding positive zero-sum reward.
+        blue_value = team_value(state, "BLUE")
+        red_value = team_value(state, "RED")
+        if abs(blue_value + red_value) > 1e-9:
+            raise RuntimeError("team-value coordinates must remain antisymmetric")
+        blue_delta = blue_value - self.initial_values["BLUE"]
         regularization = (
             -self.config.communication_cost * self.communication_spend["BLUE"]
             + self.config.communication_cost * self.communication_spend["RED"]

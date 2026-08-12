@@ -24,7 +24,7 @@ from .episode import (
 from .episode_protocol import episode_action_prompt, episode_broadcast_prompt
 from .providers import OpenAICompatibleProvider
 
-CROSSPLAY_VERSION = "arena-crossplay-v1-private-history"
+CROSSPLAY_VERSION = "arena-crossplay-v2-audit-complete"
 CONDITIONS = ("generated", "dropped", "sender_shuffled", "delayed", "zero_budget")
 Case = tuple[int, int, int]
 FROZEN_CROSSPLAY_CASES: tuple[Case, ...] = tuple(
@@ -528,7 +528,9 @@ def prepare_manifest(
     manifest_sha256 = hashlib.sha256(
         json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
-    record = {**manifest, "sha256": manifest_sha256}
+    # Canonicalize tuples to their on-disk JSON representation so equality on
+    # resume compares like with like instead of rejecting identical arguments.
+    record = json.loads(json.dumps({**manifest, "sha256": manifest_sha256}, sort_keys=True))
     manifest_path = output_dir / "manifest.json"
     rows_path = output_dir / "rows.jsonl"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -603,7 +605,7 @@ def main() -> None:
             parser.error("--cases cannot truncate the frozen cross-play split")
         cases = FROZEN_CROSSPLAY_CASES
     else:
-        cases = development_cases(args.cases or 6, args.seed_base)
+        cases = development_cases(args.cases or 8, args.seed_base)
     condition_pairs = parse_conditions(args.conditions)
     manifest = {
         "version": CROSSPLAY_VERSION,
