@@ -52,9 +52,11 @@ Use eight development seeds with sizes 12/13 and horizons 4/6.
 - For every trained-versus-base pair, repeat with the focal trained team's
   messages generated, dropped, sender-shuffled, and delayed while the opponent
   remains generated.
-- Repeat the trained-versus-base normal matchup with history window three and
-  history window zero. This isolates use of temporally accumulated local
-  evidence from one-turn reactive behavior.
+- Repeat the trained-versus-base normal matchup with asymmetric history
+  controls: focal history three versus zero while opponent history stays three,
+  then opponent history three versus zero while focal history stays three. This
+  separately estimates how the focal model adapts to its adversary and how much
+  the adversary's adaptation affects the focal model.
 
 Development results select at most two trained policies for the sealed sweep.
 Selection order is: protocol eligibility, no material regression, side-swapped
@@ -83,7 +85,8 @@ Mechanism endpoints:
 - generated-minus-dropped return;
 - generated-minus-sender-shuffled return;
 - generated-minus-delayed return;
-- history-three-minus-history-zero return;
+- focal-history-three-minus-focal-history-zero return with opponent fixed;
+- opponent-history-three-minus-opponent-history-zero return with focal fixed;
 - shared fact updates, duplicate-target turns, communication spend, and protocol
   failure rates.
 

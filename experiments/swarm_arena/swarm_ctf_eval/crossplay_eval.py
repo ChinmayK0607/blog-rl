@@ -154,18 +154,23 @@ def evaluate_crossplay(
     *,
     blue_condition: str = "generated",
     red_condition: str = "generated",
-    history_window: int = 3,
+    blue_history_window: int = 3,
+    red_history_window: int = 3,
 ) -> dict[str, Any]:
     if blue_condition not in CONDITIONS or red_condition not in CONDITIONS:
         raise ValueError("unknown communication condition")
-    if history_window < 0:
-        raise ValueError("history window cannot be negative")
+    if blue_history_window < 0 or red_history_window < 0:
+        raise ValueError("history windows cannot be negative")
 
     seed, size, horizon = case
     env = ArenaEpisodeEnv(seed, size, EpisodeConfig(horizon=horizon))
     env.reset()
     models: dict[Team, ArenaModel] = {"BLUE": blue_model, "RED": red_model}
     conditions: dict[Team, str] = {"BLUE": blue_condition, "RED": red_condition}
+    history_windows: dict[Team, int] = {
+        "BLUE": blue_history_window,
+        "RED": red_history_window,
+    }
     histories: dict[str, list[dict[str, Any]]] = {
         agent_id: [] for agent_id in env._require_state().agents
     }
@@ -188,7 +193,8 @@ def evaluate_crossplay(
                 continue
             for index, agent_id in enumerate(_members(env, team)):
                 prompt, _ = episode_broadcast_prompt(env, agent_id, seed + turn * 19 + index)
-                prompt = _with_history(prompt, histories[agent_id][-history_window:] if history_window else [])
+                window = history_windows[team]
+                prompt = _with_history(prompt, histories[agent_id][-window:] if window else [])
                 broadcast_prompts[agent_id] = prompt
                 broadcast_jobs.append((agent_id, models[team], prompt))
         raw_broadcasts = _respond_agents(broadcast_jobs) if broadcast_jobs else {}
@@ -259,7 +265,8 @@ def evaluate_crossplay(
                     agent_id,
                     permutation=seed + turn * 23 + index,
                 )
-                prompt = _with_history(prompt, histories[agent_id][-history_window:] if history_window else [])
+                window = history_windows[team]
+                prompt = _with_history(prompt, histories[agent_id][-window:] if window else [])
                 displayed_by_agent[agent_id] = displayed
                 action_prompts[agent_id] = prompt
                 action_jobs.append((agent_id, models[team], prompt))
@@ -348,7 +355,8 @@ def evaluate_crossplay(
         "red_model": red_model.name,
         "blue_condition": blue_condition,
         "red_condition": red_condition,
-        "history_window": history_window,
+        "blue_history_window": blue_history_window,
+        "red_history_window": red_history_window,
         "initial_team_value": dict(env.initial_values),
         "initial_state": initial_state,
         "metrics": metrics,
@@ -603,7 +611,8 @@ def main() -> None:
     parser.add_argument("--split", choices=("development", "frozen"), default="development")
     parser.add_argument("--cases", type=int)
     parser.add_argument("--seed-base", type=int, default=1_000_003)
-    parser.add_argument("--history-window", type=int, default=3)
+    parser.add_argument("--blue-history-window", type=int, default=3)
+    parser.add_argument("--red-history-window", type=int, default=3)
     parser.add_argument(
         "--conditions",
         default="generated:generated,dropped:generated,sender_shuffled:generated",
@@ -659,7 +668,8 @@ def main() -> None:
         "split": args.split,
         "cases": cases,
         "conditions": condition_pairs,
-        "history_window": args.history_window,
+        "blue_history_window": args.blue_history_window,
+        "red_history_window": args.red_history_window,
         "swap_sides": args.swap_sides,
     }
     manifest_sha256 = prepare_manifest(args.output_dir, manifest, resume=args.resume)
@@ -680,10 +690,35 @@ def main() -> None:
     with rows_path.open("a" if args.resume else "w", encoding="utf-8") as handle:
         for case in cases:
             for blue_condition, red_condition in condition_pairs:
-                assignments = [(blue_model, red_model, blue_condition, red_condition)]
+                assignments = [
+                    (
+                        blue_model,
+                        red_model,
+                        blue_condition,
+                        red_condition,
+                        args.blue_history_window,
+                        args.red_history_window,
+                    )
+                ]
                 if args.swap_sides and blue_model.name != red_model.name:
-                    assignments.append((red_model, blue_model, red_condition, blue_condition))
-                for assigned_blue, assigned_red, assigned_blue_condition, assigned_red_condition in assignments:
+                    assignments.append(
+                        (
+                            red_model,
+                            blue_model,
+                            red_condition,
+                            blue_condition,
+                            args.red_history_window,
+                            args.blue_history_window,
+                        )
+                    )
+                for (
+                    assigned_blue,
+                    assigned_red,
+                    assigned_blue_condition,
+                    assigned_red_condition,
+                    assigned_blue_history,
+                    assigned_red_history,
+                ) in assignments:
                     key = (
                         case[0],
                         assigned_blue.name,
@@ -699,7 +734,8 @@ def main() -> None:
                         case,
                         blue_condition=assigned_blue_condition,
                         red_condition=assigned_red_condition,
-                        history_window=args.history_window,
+                        blue_history_window=assigned_blue_history,
+                        red_history_window=assigned_red_history,
                     )
                     handle.write(json.dumps(row, sort_keys=True) + "\n")
                     handle.flush()
