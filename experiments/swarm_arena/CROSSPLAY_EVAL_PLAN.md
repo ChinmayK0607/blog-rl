@@ -47,6 +47,23 @@ model and stop to diagnose any of:
 Fix only implementation faults. Do not alter frozen seeds, parsers, rewards, or
 promotion thresholds in response to model behavior.
 
+The screen controls RL-readiness and promotion to the full development
+tournament; it does not suppress useful negative or baseline evidence. After
+checkpoint selection, always run the frozen 24-game exploratory capability
+suite, even when the screen fails:
+
+- four base self-play games;
+- four selected-adapter self-play games;
+- four adapter-versus-base seeds with both side assignments;
+- the same paired seeds with only the focal adapter's messages dropped.
+
+This suite reports current base capability, action/message fallback rates,
+captures and state changes, terminal-return spread, side sensitivity,
+duplicate targets, communication cost, and the paired generated-minus-dropped
+effect. It is explicitly diagnostic and cannot be presented as a passed
+benchmark or evidence of cooperation. A failed screen still stops the larger
+104-game development tournament and blocks RL promotion.
+
 ## Development tournament
 
 Use eight development seeds with sizes 12/13 and horizons 4/6.
