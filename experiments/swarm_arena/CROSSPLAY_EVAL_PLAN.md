@@ -48,6 +48,9 @@ promotion thresholds in response to model behavior.
 ## Development tournament
 
 Use eight development seeds with sizes 12/13 and horizons 4/6.
+For a single base/adapter pair this produces 104 complete games: 64 paired
+communication-intervention games, 32 paired asymmetric-history games, and eight
+self-play stability games.
 
 - Run every unordered cross-model pairing on the same seeds with sides swapped.
 - Run four same-model self-play seeds per policy as a stability control.
