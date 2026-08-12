@@ -4,6 +4,7 @@ import argparse
 import json
 import math
 import statistics
+import time
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -79,6 +80,7 @@ class OpenAIArenaModel:
         if len(prompts) != len(oracle_targets):
             raise ValueError("prompt and target batch sizes differ")
         del oracle_targets
+        started = time.perf_counter()
         with ThreadPoolExecutor(max_workers=min(16, len(prompts))) as executor:
             generations = list(
                 executor.map(
@@ -86,6 +88,20 @@ class OpenAIArenaModel:
                     prompts,
                 )
             )
+        elapsed = time.perf_counter() - started
+        completion_tokens = sum(
+            int(generation.usage.get("completion_tokens", 0)) for generation in generations
+        )
+        prompt_tokens = sum(
+            int(generation.usage.get("prompt_tokens", 0)) for generation in generations
+        )
+        self.last_batch_stats = {
+            "requests": len(generations),
+            "wall_seconds": elapsed,
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "completion_tokens_per_second": completion_tokens / elapsed if elapsed else None,
+        }
         return [generation.text for generation in generations]
 
 

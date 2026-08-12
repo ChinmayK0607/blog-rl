@@ -5,6 +5,7 @@ import hashlib
 import json
 import random
 import statistics
+import time
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -24,7 +25,7 @@ from .episode import (
 from .episode_protocol import episode_action_prompt, episode_broadcast_prompt
 from .providers import OpenAICompatibleProvider
 
-CROSSPLAY_VERSION = "arena-crossplay-v2-audit-complete"
+CROSSPLAY_VERSION = "arena-crossplay-v3-measured"
 CONDITIONS = ("generated", "dropped", "sender_shuffled", "delayed", "zero_budget")
 Case = tuple[int, int, int]
 FROZEN_CROSSPLAY_CASES: tuple[Case, ...] = tuple(
@@ -89,7 +90,7 @@ def _with_history(messages: list[dict[str, str]], history: list[dict[str, Any]])
 
 def _respond_agents(
     jobs: list[tuple[str, ArenaModel, list[dict[str, str]]]],
-) -> dict[str, str]:
+) -> tuple[dict[str, str], dict[str, Any]]:
     grouped: dict[int, tuple[ArenaModel, list[tuple[str, list[dict[str, str]]]]]] = {}
     for agent_id, model, prompt in jobs:
         key = id(model)
@@ -97,18 +98,57 @@ def _respond_agents(
             grouped[key] = (model, [])
         grouped[key][1].append((agent_id, prompt))
 
-    def run_group(group: tuple[ArenaModel, list[tuple[str, list[dict[str, str]]]]]) -> list[tuple[str, str]]:
+    def run_group(
+        group: tuple[ArenaModel, list[tuple[str, list[dict[str, str]]]]]
+    ) -> tuple[list[tuple[str, str]], dict[str, Any]]:
         model, entries = group
+        started = time.perf_counter()
         responses = _respond_many(model, [prompt for _, prompt in entries], ["{}"] * len(entries))
-        return [(agent_id, response) for (agent_id, _), response in zip(entries, responses, strict=True)]
+        elapsed = time.perf_counter() - started
+        stats = getattr(model, "last_batch_stats", None)
+        if not isinstance(stats, dict):
+            stats = {
+                "requests": len(entries),
+                "wall_seconds": elapsed,
+                "prompt_tokens": None,
+                "completion_tokens": None,
+                "completion_tokens_per_second": None,
+            }
+        return (
+            [(agent_id, response) for (agent_id, _), response in zip(entries, responses, strict=True)],
+            {"model": model.name, **stats},
+        )
 
     groups = list(grouped.values())
+    started = time.perf_counter()
     if len(groups) == 1:
         results = [run_group(groups[0])]
     else:
         with ThreadPoolExecutor(max_workers=len(groups)) as executor:
             results = list(executor.map(run_group, groups))
-    return {agent_id: response for group in results for agent_id, response in group}
+    elapsed = time.perf_counter() - started
+    responses = {
+        agent_id: response
+        for entries, _ in results
+        for agent_id, response in entries
+    }
+    group_stats = [stats for _, stats in results]
+    known_completion_tokens = [stats["completion_tokens"] for stats in group_stats]
+    completion_tokens = (
+        sum(known_completion_tokens)
+        if all(value is not None for value in known_completion_tokens)
+        else None
+    )
+    metrics = {
+        "requests": len(jobs),
+        "wall_seconds": elapsed,
+        "completion_tokens": completion_tokens,
+        "completion_tokens_per_second": (
+            completion_tokens / elapsed if completion_tokens is not None and elapsed else None
+        ),
+        "model_groups": group_stats,
+    }
+    return responses, metrics
 
 
 def _preview_accepted(env: ArenaEpisodeEnv, messages: dict[str, Broadcast]) -> dict[str, Broadcast]:
@@ -197,7 +237,17 @@ def evaluate_crossplay(
                 prompt = _with_history(prompt, histories[agent_id][-window:] if window else [])
                 broadcast_prompts[agent_id] = prompt
                 broadcast_jobs.append((agent_id, models[team], prompt))
-        raw_broadcasts = _respond_agents(broadcast_jobs) if broadcast_jobs else {}
+        if broadcast_jobs:
+            raw_broadcasts, broadcast_inference = _respond_agents(broadcast_jobs)
+        else:
+            raw_broadcasts = {}
+            broadcast_inference = {
+                "requests": 0,
+                "wall_seconds": 0.0,
+                "completion_tokens": 0,
+                "completion_tokens_per_second": None,
+                "model_groups": [],
+            }
 
         parsed_messages: dict[str, Broadcast] = {}
         broadcast_rows = []
@@ -270,7 +320,7 @@ def evaluate_crossplay(
                 displayed_by_agent[agent_id] = displayed
                 action_prompts[agent_id] = prompt
                 action_jobs.append((agent_id, models[team], prompt))
-        raw_actions = _respond_agents(action_jobs)
+        raw_actions, action_inference = _respond_agents(action_jobs)
 
         selected: dict[str, Action] = {}
         action_rows = []
@@ -320,6 +370,10 @@ def evaluate_crossplay(
                 "team_value": final.info["team_value"],
                 "pre_state": pre_state,
                 "post_state": _referee_state(env),
+                "inference": {
+                    "broadcast": broadcast_inference,
+                    "action": action_inference,
+                },
             }
         )
         if final.terminated or final.truncated:
@@ -345,6 +399,19 @@ def evaluate_crossplay(
                 bool(row["duplicate_targets"][team]) for row in turns
             ),
         }
+    inference_seconds = sum(
+        turn["inference"][phase]["wall_seconds"]
+        for turn in turns
+        for phase in ("broadcast", "action")
+    )
+    completion_values = [
+        turn["inference"][phase]["completion_tokens"]
+        for turn in turns
+        for phase in ("broadcast", "action")
+    ]
+    completion_tokens = (
+        sum(completion_values) if all(value is not None for value in completion_values) else None
+    )
     return {
         "crossplay_version": CROSSPLAY_VERSION,
         "episode_version": EPISODE_VERSION,
@@ -359,6 +426,20 @@ def evaluate_crossplay(
         "red_history_window": red_history_window,
         "initial_team_value": dict(env.initial_values),
         "initial_state": initial_state,
+        "inference": {
+            "requests": sum(
+                turn["inference"][phase]["requests"]
+                for turn in turns
+                for phase in ("broadcast", "action")
+            ),
+            "wall_seconds": inference_seconds,
+            "completion_tokens": completion_tokens,
+            "completion_tokens_per_second": (
+                completion_tokens / inference_seconds
+                if completion_tokens is not None and inference_seconds
+                else None
+            ),
+        },
         "metrics": metrics,
         "turns": turns,
     }
