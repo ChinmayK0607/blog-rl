@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
+import random
 import statistics
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -356,12 +356,45 @@ def evaluate_crossplay(
     }
 
 
-def _mean_ci(values: list[float]) -> list[float]:
+def _mean_ci(values: list[float], *, trials: int = 20_000, seed: int = 0) -> list[float]:
+    """Deterministic non-parametric bootstrap interval for a seed-level mean."""
     mean = statistics.mean(values)
     if len(values) < 2:
         return [mean, mean]
-    radius = 1.96 * statistics.stdev(values) / math.sqrt(len(values))
-    return [mean - radius, mean + radius]
+    generator = random.Random(seed)
+    size = len(values)
+    samples = sorted(
+        statistics.mean(values[generator.randrange(size)] for _ in range(size))
+        for _ in range(trials)
+    )
+    return [samples[int(0.025 * (trials - 1))], samples[int(0.975 * (trials - 1))]]
+
+
+def _paired_randomization_p(values: list[float], *, trials: int = 100_000, seed: int = 0) -> float:
+    """Two-sided paired sign-randomization test; exact for up to 16 seeds."""
+    observed = abs(statistics.mean(values))
+    if observed == 0:
+        return 1.0
+    if len(values) <= 16:
+        total = 1 << len(values)
+        extreme = sum(
+            abs(
+                statistics.mean(
+                    value if mask & (1 << index) else -value
+                    for index, value in enumerate(values)
+                )
+            )
+            >= observed - 1e-12
+            for mask in range(total)
+        )
+        return extreme / total
+    generator = random.Random(seed)
+    extreme = sum(
+        abs(statistics.mean(value if generator.getrandbits(1) else -value for value in values))
+        >= observed - 1e-12
+        for _ in range(trials)
+    )
+    return (extreme + 1) / (trials + 1)
 
 
 def summarize(rows: list[dict[str, Any]], manifest_sha256: str) -> dict[str, Any]:
@@ -406,6 +439,7 @@ def summarize(rows: list[dict[str, Any]], manifest_sha256: str) -> dict[str, Any
         "blue_model": rows[0]["blue_model"],
         "red_model": rows[0]["red_model"],
         "matches": len(rows),
+        "interval_method": "seed-level nonparametric bootstrap, 20000 deterministic resamples",
         "conditions": conditions,
     }
 
@@ -472,6 +506,7 @@ def summarize_side_swapped(
             "paired_seeds": len(group),
             "focal_mean_side_averaged_return": statistics.mean(values),
             "focal_mean_side_averaged_return_95": _mean_ci(values),
+            "randomization_p_two_sided": _paired_randomization_p(values),
         }
 
     effects = {}
@@ -494,6 +529,7 @@ def summarize_side_swapped(
             "paired_seeds": len(common),
             "mean_return_difference": statistics.mean(differences),
             "mean_return_difference_95": _mean_ci(differences),
+            "randomization_p_two_sided": _paired_randomization_p(differences),
             "positive_seed_rate": statistics.mean(value > 0 for value in differences),
         }
     return {
@@ -501,6 +537,8 @@ def summarize_side_swapped(
         "focal_policy": focal,
         "opponent_policy": opponent,
         "complete_side_swapped_pairs": len(paired),
+        "interval_method": "paired seed-level nonparametric bootstrap, 20000 deterministic resamples",
+        "test_method": "paired two-sided sign randomization; exact through 16 seeds, otherwise 100000 trials",
         "conditions": conditions,
         "communication_effects": effects,
     }
@@ -612,6 +650,12 @@ def main() -> None:
         "blue_model": args.blue_model,
         "red_model": args.red_model,
         "generation": {"temperature": 0.0, "max_tokens": 160, "enable_thinking": False},
+        "analysis": {
+            "unit": "seed after side averaging",
+            "bootstrap_resamples": 20_000,
+            "randomization_trials": 100_000,
+            "random_seed": 0,
+        },
         "split": args.split,
         "cases": cases,
         "conditions": condition_pairs,

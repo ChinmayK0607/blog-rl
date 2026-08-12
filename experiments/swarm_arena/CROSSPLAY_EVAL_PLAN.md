@@ -87,8 +87,11 @@ Mechanism endpoints:
 - shared fact updates, duplicate-target turns, communication spend, and protocol
   failure rates.
 
-Report paired 95% intervals and raw seed-level results. A policy may be called
-better at gameplay when its paired side-averaged interval excludes zero. It may
+Report paired seed-level nonparametric bootstrap 95% intervals (20,000
+deterministic resamples), paired two-sided sign-randomization tests, and raw
+seed-level results. Randomization is exact through 16 seeds and uses 100,000
+fixed-seed trials above that. A policy may be called better at gameplay when its
+paired side-averaged interval excludes zero. It may
 be called communication-dependent only when generated messages beat dropped and
 shuffled messages. History sensitivity is evidence of in-context adaptation,
 not online learning and not weight adaptation.
