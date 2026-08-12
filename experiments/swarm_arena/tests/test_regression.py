@@ -24,6 +24,7 @@ from swarm_ctf_eval.warmstart_v3 import (
     validate_warmstart_response,
 )
 from swarm_ctf_eval.warmstart_v5 import generate_arena_rows as generate_v5_arena_rows
+from swarm_ctf_eval.warmstart_v8 import generate_sequential_rows, validate_sequential_response
 
 
 def test_frozen_regression_manifest_is_balanced_and_unique() -> None:
@@ -218,7 +219,7 @@ def test_warm_start_v3_requires_both_regression_suites(tmp_path) -> None:
                 {
                     "schema_valid": 1.0,
                     "groups": {
-                        "BROADCAST": {"grounded": 1.0, "exact": step / 20},
+                        "BROADCAST": {"grounded": 1.0, "legal": 1.0, "exact": step / 20},
                         "ACT": {"legal": 1.0, "exact": step / 20},
                     },
                 }
@@ -240,5 +241,63 @@ def test_warm_start_v3_requires_both_regression_suites(tmp_path) -> None:
     )
     assert result["decision"] == "adapter"
     assert result["selected_step"] == 8
-    assert result["selection_protocol"] == "swarm-warm-start-v3"
+    assert result["selection_protocol"] == "swarm-warm-start-v4-raw-legality"
     assert [candidate["step"] for candidate in result["candidates"]] == [8, 16]
+
+
+def test_warmstart_v8_matches_sequential_game_contexts() -> None:
+    rows = generate_sequential_rows(7_600_000, 2, "test")
+    metadata = [json.loads(row["metadata_json"]) for row in rows]
+    assert {item["team"] for item in metadata} == {"BLUE", "RED"}
+    assert {item["turn"] for item in metadata} == set(range(6))
+    assert {item["history_length"] for item in metadata} == {0, 1, 2, 3}
+    broadcasts = [
+        (row, item) for row, item in zip(rows, metadata, strict=True) if item["phase"] == "BROADCAST"
+    ]
+    assert any(item["budget_before"] == 0 and item["target_empty"] for _, item in broadcasts)
+    for row in rows:
+        assert validate_sequential_response(row, row["messages"][-1]["content"]) == {
+            "schema_valid": True,
+            "grounded": True,
+            "legal": True,
+            "exact": True,
+        }
+
+
+def test_warm_start_selection_rejects_illegal_raw_broadcasts(tmp_path) -> None:
+    base_rows = [
+        {"id": "case", "category": "category", "exact": True, "arena_leakage": False}
+    ]
+    base_v1 = tmp_path / "base-v1.jsonl"
+    base_v2 = tmp_path / "base-v2.jsonl"
+    payload = json.dumps(base_rows[0]) + "\n"
+    base_v1.write_text(payload, encoding="utf-8")
+    base_v2.write_text(payload, encoding="utf-8")
+    validation = tmp_path / "validation" / "step_64"
+    regression_v1 = tmp_path / "regression-v1" / "step_64"
+    regression_v2 = tmp_path / "regression-v2" / "step_64"
+    for path in (validation, regression_v1, regression_v2):
+        path.mkdir(parents=True)
+    validation.joinpath("summary.json").write_text(
+        json.dumps(
+            {
+                "schema_valid": 1.0,
+                "groups": {
+                    "BROADCAST": {"grounded": 1.0, "legal": 0.98, "exact": 0.8},
+                    "ACT": {"legal": 1.0, "exact": 0.8},
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    regression_v1.joinpath("rows.jsonl").write_text(payload, encoding="utf-8")
+    regression_v2.joinpath("rows.jsonl").write_text(payload, encoding="utf-8")
+    result = select_warm_start_v3(
+        tmp_path / "validation",
+        tmp_path / "regression-v1",
+        tmp_path / "regression-v2",
+        base_v1,
+        base_v2,
+    )
+    assert result["decision"] == "base_model"
+    assert not result["candidates"][0]["protocol_gates"]["broadcast_legal"]

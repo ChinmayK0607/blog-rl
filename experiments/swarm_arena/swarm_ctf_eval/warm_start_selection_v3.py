@@ -17,7 +17,7 @@ def select_warm_start_v3(
     regression_v2_root: Path,
     base_v1_rows_path: Path,
     base_v2_rows_path: Path,
-    protocol_name: str = "swarm-warm-start-v3",
+    protocol_name: str = "swarm-warm-start-v4-raw-legality",
 ) -> dict[str, Any]:
     base_v1 = load_rows(base_v1_rows_path)
     base_v2 = load_rows(base_v2_rows_path)
@@ -38,6 +38,7 @@ def select_warm_start_v3(
         protocol_gates = {
             "all_schema_valid": validation["schema_valid"] == 1.0,
             "broadcast_grounded": groups["BROADCAST"]["grounded"] >= 0.99,
+            "broadcast_legal": groups["BROADCAST"]["legal"] >= 0.99,
             "action_legal": groups["ACT"]["legal"] >= 0.99,
         }
         v1 = compare(base_v1, load_rows(v1_path))
@@ -86,7 +87,7 @@ def main() -> None:
     parser.add_argument("--regression-v2-root", type=Path, required=True)
     parser.add_argument("--base-v1-rows", type=Path, required=True)
     parser.add_argument("--base-v2-rows", type=Path, required=True)
-    parser.add_argument("--protocol-name", default="swarm-warm-start-v3")
+    parser.add_argument("--protocol-name", default="swarm-warm-start-v4-raw-legality")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     result = select_warm_start_v3(

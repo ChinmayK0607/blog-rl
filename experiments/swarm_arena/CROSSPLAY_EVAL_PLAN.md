@@ -37,7 +37,9 @@ Before the result-producing sweep, run two complete development matches for each
 model and stop to diagnose any of:
 
 - action protocol validity below 95%;
+- raw broadcast protocol validity below 99%;
 - grounded broadcast validity below 99%;
+- accepted non-empty messages below 10% of broadcast opportunities;
 - NaN/OOM/server errors;
 - aggregate inference below 150 generated tokens/s after warm-up;
 - GPU utilization persistently below 60% while requests are pending.

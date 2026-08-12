@@ -157,6 +157,10 @@ def generate_preservation_rows(
 
 def validate_warmstart_response(row: dict[str, Any], raw: str) -> dict[str, bool]:
     metadata = json.loads(row["metadata_json"])
+    if metadata.get("dataset_version") == "arena-warmstart-v8-sequential-protocol":
+        from .warmstart_v8 import validate_sequential_response
+
+        return validate_sequential_response(row, raw)
     target = json.loads(row["messages"][-1]["content"])
     try:
         value = json.loads(raw)

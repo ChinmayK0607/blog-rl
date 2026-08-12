@@ -1,0 +1,70 @@
+output_dir = "outputs/swarm_arena/qwen3_1_7b_warmstart_v2"
+max_steps = 320
+
+[model]
+name = "Qwen/Qwen3-1.7B"
+attn = "flash_attention_2"
+impl = "auto"
+
+[model.ac]
+mode = "full"
+
+[model.lora]
+rank = 16
+alpha = 32
+dropout = 0.05
+target_modules = ["q_proj", "k_proj", "v_proj", "o_proj"]
+
+[renderer]
+name = "qwen3"
+enable_thinking = false
+
+[data]
+type = "sft"
+name = "experiments/swarm_arena/data/warmstart_v8"
+splits = ["train"]
+seq_len = 2048
+batch_size = 16
+micro_batch_size = 2
+pack_function = "cat"
+shuffle = true
+seed = 20261002
+
+[val]
+interval = 64
+eval_on_start = true
+
+[val.data]
+type = "sft"
+name = "experiments/swarm_arena/data/warmstart_v8"
+splits = ["validation"]
+seq_len = 2048
+batch_size = 16
+micro_batch_size = 2
+pack_function = "cat"
+shuffle = false
+
+[optim]
+lr = 0.00004
+weight_decay = 0.0
+max_norm = 1.0
+
+[scheduler]
+type = "cosine"
+warmup_steps = 16
+min_lr = 0.000004
+
+[ckpt]
+interval = 64
+weights_only = true
+
+[ckpt.weights]
+save_adapter_separately = true
+
+[wandb]
+project = "swarm-arena-sft"
+name = "qwen3-1.7b-warmstart-v2-sequential-protocol-r16"
+
+[deployment]
+type = "single_node"
+num_gpus = 1
