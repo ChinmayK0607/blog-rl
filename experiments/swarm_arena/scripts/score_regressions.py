@@ -48,6 +48,10 @@ def score(
         attn_implementation="flash_attention_2" if device == "cuda" else "sdpa",
     )
     if adapter_path:
+        # Text-only scoring: do not import an incompatible optional torchvision.
+        from transformers.utils import import_utils
+
+        import_utils._torchvision_available = False
         from peft import PeftModel
 
         model = PeftModel.from_pretrained(model, adapter_path).merge_and_unload()

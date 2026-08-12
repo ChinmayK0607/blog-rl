@@ -33,6 +33,10 @@ def main() -> None:
         attn_implementation="flash_attention_2",
     )
     if args.adapter:
+        # Text-only scoring: do not import an incompatible optional torchvision.
+        from transformers.utils import import_utils
+
+        import_utils._torchvision_available = False
         from peft import PeftModel
 
         model = PeftModel.from_pretrained(model, args.adapter).merge_and_unload()

@@ -28,6 +28,10 @@ class LocalHFArenaModel:
             attn_implementation="sdpa",
         ).to("cuda")
         if self.adapter_path:
+            # Text-only inference: do not import an incompatible optional torchvision.
+            from transformers.utils import import_utils
+
+            import_utils._torchvision_available = False
             from peft import PeftModel
 
             self.model = PeftModel.from_pretrained(self.model, self.adapter_path)
