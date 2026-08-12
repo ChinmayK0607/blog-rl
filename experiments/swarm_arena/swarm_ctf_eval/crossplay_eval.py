@@ -51,6 +51,34 @@ def _members(env: ArenaEpisodeEnv, team: Team) -> list[str]:
     return sorted(agent.id for agent in state.agents.values() if agent.team == team)
 
 
+def _referee_state(env: ArenaEpisodeEnv) -> dict[str, Any]:
+    """Compact global snapshot for deterministic replay and post-hoc auditing."""
+    state = env._require_state()
+    return {
+        "turn": state.turn,
+        "nodes": {
+            node_id: {
+                "neighbors": list(node.neighbors),
+                "owner": node.owner,
+                "value": node.value,
+                "critical": node.critical,
+                "fortification": node.fortification,
+                "exposed": node.exposed,
+                "compromised": node.compromised,
+            }
+            for node_id, node in sorted(state.nodes.items())
+        },
+        "agents": {
+            agent_id: {
+                "team": agent.team,
+                "position": agent.position,
+                "resource": agent.resource,
+            }
+            for agent_id, agent in sorted(state.agents.items())
+        },
+    }
+
+
 def _with_history(messages: list[dict[str, str]], history: list[dict[str, Any]]) -> list[dict[str, str]]:
     if not history:
         return messages
@@ -148,36 +176,56 @@ def evaluate_crossplay(
     }
     turns = []
     final = None
+    initial_state = _referee_state(env)
 
     for turn in range(horizon):
         state = env._require_state()
+        pre_state = _referee_state(env)
         broadcast_jobs = []
+        broadcast_prompts: dict[str, list[dict[str, str]]] = {}
         for team in TEAMS:
             if conditions[team] == "zero_budget":
                 continue
             for index, agent_id in enumerate(_members(env, team)):
                 prompt, _ = episode_broadcast_prompt(env, agent_id, seed + turn * 19 + index)
                 prompt = _with_history(prompt, histories[agent_id][-history_window:] if history_window else [])
+                broadcast_prompts[agent_id] = prompt
                 broadcast_jobs.append((agent_id, models[team], prompt))
         raw_broadcasts = _respond_agents(broadcast_jobs) if broadcast_jobs else {}
 
         parsed_messages: dict[str, Broadcast] = {}
         broadcast_rows = []
-        for agent_id, raw in sorted(raw_broadcasts.items()):
+        for agent_id in sorted(state.agents):
             team = state.agents[agent_id].team
-            parsed = parse_broadcast(raw, state, agent_id)
-            message = parsed.value if parsed.valid else EMPTY_BROADCAST
-            assert isinstance(message, Broadcast)
+            queried = agent_id in raw_broadcasts
+            raw = raw_broadcasts.get(agent_id)
+            if queried:
+                assert raw is not None
+                parsed = parse_broadcast(raw, state, agent_id)
+                message = parsed.value if parsed.valid else EMPTY_BROADCAST
+                assert isinstance(message, Broadcast)
+                protocol_valid: bool | None = parsed.valid
+                protocol_errors = list(parsed.errors)
+                attempts[team]["broadcast"] += 1
+                attempts[team]["broadcast_protocol"] += int(parsed.valid)
+            else:
+                if conditions[team] != "zero_budget":
+                    raise RuntimeError(f"missing broadcast response for {agent_id}")
+                message = EMPTY_BROADCAST
+                protocol_valid = None
+                protocol_errors = []
             parsed_messages[agent_id] = message
-            attempts[team]["broadcast"] += 1
-            attempts[team]["broadcast_protocol"] += int(parsed.valid)
             broadcast_rows.append(
                 {
                     "agent_id": agent_id,
                     "team": team,
+                    "condition": conditions[team],
+                    "queried": queried,
+                    "prompt_messages": broadcast_prompts.get(agent_id),
                     "raw_response": raw,
-                    "protocol_valid": parsed.valid,
-                    "protocol_errors": list(parsed.errors),
+                    "protocol_valid": protocol_valid,
+                    "protocol_errors": protocol_errors,
+                    "parsed_message": message.to_dict(),
                 }
             )
 
@@ -195,10 +243,15 @@ def evaluate_crossplay(
             team = row["team"]
             row["environment_errors"] = list(phase.errors[agent_id])
             row["message_units"] = phase.message_units[agent_id]
-            attempts[team]["broadcast_grounded"] += int(not phase.errors[agent_id])
+            row["accepted_message"] = phase.accepted[agent_id].to_dict()
+            row["delivered_message"] = phase.delivered[agent_id].to_dict()
+            row["remaining_budget"] = phase.remaining_budget[agent_id]
+            if row["queried"]:
+                attempts[team]["broadcast_grounded"] += int(not phase.errors[agent_id])
 
         action_jobs = []
         displayed_by_agent: dict[str, tuple[Action, ...]] = {}
+        action_prompts: dict[str, list[dict[str, str]]] = {}
         for team in TEAMS:
             for index, agent_id in enumerate(_members(env, team)):
                 prompt, displayed = episode_action_prompt(
@@ -208,6 +261,7 @@ def evaluate_crossplay(
                 )
                 prompt = _with_history(prompt, histories[agent_id][-history_window:] if history_window else [])
                 displayed_by_agent[agent_id] = displayed
+                action_prompts[agent_id] = prompt
                 action_jobs.append((agent_id, models[team], prompt))
         raw_actions = _respond_agents(action_jobs)
 
@@ -225,9 +279,14 @@ def evaluate_crossplay(
                 {
                     "agent_id": agent_id,
                     "team": team,
+                    "prompt_messages": action_prompts[agent_id],
                     "raw_response": raw,
                     "protocol_valid": parsed.valid,
                     "protocol_errors": list(parsed.errors),
+                    "displayed_legal_actions": [
+                        {"action_id": f"A{index}", **action.to_dict()}
+                        for index, action in enumerate(displayed_by_agent[agent_id])
+                    ],
                     "selected_action": action.to_dict(),
                 }
             )
@@ -252,6 +311,8 @@ def evaluate_crossplay(
                 "events": final.info["events"],
                 "duplicate_targets": final.info["duplicate_targets"],
                 "team_value": final.info["team_value"],
+                "pre_state": pre_state,
+                "post_state": _referee_state(env),
             }
         )
         if final.terminated or final.truncated:
@@ -288,6 +349,8 @@ def evaluate_crossplay(
         "blue_condition": blue_condition,
         "red_condition": red_condition,
         "history_window": history_window,
+        "initial_team_value": dict(env.initial_values),
+        "initial_state": initial_state,
         "metrics": metrics,
         "turns": turns,
     }
