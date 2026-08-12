@@ -61,8 +61,28 @@ This suite reports current base capability, action/message fallback rates,
 captures and state changes, terminal-return spread, side sensitivity,
 duplicate targets, communication cost, and the paired generated-minus-dropped
 effect. It is explicitly diagnostic and cannot be presented as a passed
-benchmark or evidence of cooperation. A failed screen still stops the larger
-104-game development tournament and blocks RL promotion.
+benchmark or evidence of cooperation. Failure of the strict protocol screen
+still blocks RL-readiness, but does not by itself block exploratory cross-play.
+
+Before inspecting the 24-game aggregates, the following separate exploratory
+promotion rule was frozen. The 104-game development tournament runs when all
+five conditions pass:
+
+1. no HTTP, OOM, NaN, or server failures;
+2. action protocol validity is at least 95%;
+3. at least 75% of games contain a successful non-WAIT state-changing event and
+   at least four distinct action kinds appear;
+4. the terminal gameplay component has at least three distinct values and
+   standard deviation at least 0.25, while protocol and communication penalties
+   explain no more than 50% of absolute terminal-return variation;
+5. generated versus dropped communication changes an action, event, or state in
+   at least two of eight paired comparisons, or produces a non-zero paired
+   return effect in at least two of eight comparisons.
+
+This is a signal-quality gate, not evidence that communication helps. A policy
+promoted this way remains explicitly non-RL-ready when strict protocol gates
+fail. The 104-game interventions estimate whether the trajectory effect is
+beneficial, robust to side assignments, and semantically/timely message-dependent.
 
 ## Development tournament
 
