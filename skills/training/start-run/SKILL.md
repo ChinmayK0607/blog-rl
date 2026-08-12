@@ -34,6 +34,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
 - Config: `RLConfig` (`packages/prime-rl-configs/src/prime_rl/configs/rl.py`)
 - Entrypoint: `src/prime_rl/entrypoints/rl.py`
 - SLURM: single- and multi-node
+- Experiment-local Python packages are not installed by the root project. For
+  launchers under `experiments/<name>/`, invoke script files by their absolute
+  repository path and prepend the experiment directory to `PYTHONPATH`, or run
+  from that experiment's own `--project`. Do not rely on `python -m scripts.*`
+  from the repository root: the root `scripts/` namespace can shadow the
+  experiment-local one.
 - Environment packages: before launching a config with a non-core verifier env id,
   verify the package imports under `uv run` (for example
   `uv run python -c "import importlib.util; print(importlib.util.find_spec('rlm_swe'))"`).

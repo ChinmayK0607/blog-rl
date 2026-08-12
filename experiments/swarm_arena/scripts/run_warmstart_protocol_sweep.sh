@@ -13,6 +13,7 @@ results_root=$4
 shift 4
 uv_bin=${SWARM_UV_BIN:-uv}
 project_root=${SWARM_PROJECT_ROOT:-/root/blog-rl}
+arena_root="$project_root/experiments/swarm_arena"
 
 for step in "$@"; do
   adapter="$weights_root/step_$step/lora_adapters"
@@ -20,7 +21,9 @@ for step in "$@"; do
     echo "missing adapter checkpoint: $adapter" >&2
     exit 1
   fi
-  "$uv_bin" run --project "$project_root" --no-sync python -m scripts.score_warmstart_v3 \
+  PYTHONPATH="$arena_root${PYTHONPATH:+:$PYTHONPATH}" \
+    "$uv_bin" run --project "$project_root" --no-sync python \
+    "$arena_root/scripts/score_warmstart_v3.py" \
     --model "$model" --adapter "$adapter" --dataset "$dataset" --batch-size 16 \
     --output-dir "$results_root/validation/step_$step"
 done
