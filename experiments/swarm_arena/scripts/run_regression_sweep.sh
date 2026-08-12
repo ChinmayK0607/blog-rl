@@ -14,6 +14,11 @@ shift 3
 swarm_repo_root=$(git rev-parse --show-toplevel)
 swarm_uv_bin=${SWARM_UV_BIN:-uv}
 swarm_arena_root="${swarm_repo_root}/experiments/swarm_arena"
+swarm_eval_runtime=${SWARM_EVAL_RUNTIME:-}
+if [[ -z "${swarm_eval_runtime}" ]]; then
+  echo "SWARM_EVAL_RUNTIME must name an isolated directory containing peft==0.19.1 and accelerate==1.13.0" >&2
+  exit 2
+fi
 if [[ ${swarm_checkpoint_root} != /* ]]; then
   swarm_checkpoint_root="${swarm_repo_root}/${swarm_checkpoint_root}"
 fi
@@ -28,8 +33,8 @@ for swarm_step in "$@"; do
     exit 1
   fi
   mkdir -p "${swarm_output}"
-  PYTHONPATH="${swarm_arena_root}${PYTHONPATH:+:$PYTHONPATH}" \
-    "${swarm_uv_bin}" run --project "${swarm_repo_root}" --no-sync --with peft python \
+  PYTHONPATH="${swarm_eval_runtime}:${swarm_arena_root}${PYTHONPATH:+:$PYTHONPATH}" \
+    "${swarm_uv_bin}" run --project "${swarm_repo_root}" --no-sync python \
     "${swarm_arena_root}/scripts/score_regressions.py" \
     --model "${swarm_model}" \
     --adapter "${swarm_adapter}" \

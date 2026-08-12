@@ -39,9 +39,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   repository path and prepend the experiment directory to `PYTHONPATH`, or run
   from that experiment's own `--project`. Do not rely on `python -m scripts.*`
   from the repository root: the root `scripts/` namespace can shadow the
-  experiment-local one. Adapter scoring must also request the optional PEFT
-  runtime explicitly with `uv run --with peft` unless PEFT is a declared project
-  dependency.
+  experiment-local one. Do not add PEFT with an unpinned `uv run --with peft`
+  overlay: it can re-resolve Torch and break binary compatibility with the
+  already-validated CUDA stack. The Swarm Arena scoring launchers require
+  `SWARM_EVAL_RUNTIME`, an isolated `pip --target` directory containing only
+  `peft==0.19.1` and `accelerate==1.13.0`, both installed with `--no-deps` and
+  prepended to `PYTHONPATH`. This leaves the Prime-RL environment unchanged.
 - Environment packages: before launching a config with a non-core verifier env id,
   verify the package imports under `uv run` (for example
   `uv run python -c "import importlib.util; print(importlib.util.find_spec('rlm_swe'))"`).
