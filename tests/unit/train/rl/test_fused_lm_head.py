@@ -311,6 +311,7 @@ def test_inject_prime_lm_head_vanilla():
     assert out.get("logits") is not None, "Vanilla path should return logits"
     assert out.get("logprobs") is None, "Vanilla path should not return logprobs"
     assert out["logits"].shape == (batch_size, seq_len, config.vocab_size), "Logits shape mismatch"
+    assert out["logits"].dtype == torch.float32, "BF16 CUDA projection should accumulate into FP32 logits"
 
 
 @pytest.mark.gpu

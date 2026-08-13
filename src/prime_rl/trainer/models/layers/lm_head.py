@@ -71,7 +71,20 @@ class VanillaOutputLinear(torch.nn.Linear):
         self, hidden_states: torch.Tensor, labels: torch.Tensor | None = None, temperature: Tensor | None = None
     ) -> PrimeLmOutput:
         # VanillaOutputLinear just returns logits - temperature scaling is done externally in train.py
-        return PrimeLmOutput(logits=super().forward(hidden_states))
+        if (
+            hidden_states.is_cuda
+            and hidden_states.dtype == torch.bfloat16
+            and self.weight.dtype == torch.bfloat16
+        ):
+            shape = (*hidden_states.shape[:-1], self.out_features)
+            logits = torch.mm(
+                hidden_states.reshape(-1, hidden_states.shape[-1]),
+                self.weight.t(),
+                out_dtype=torch.float32,
+            ).reshape(shape)
+        else:
+            logits = super().forward(hidden_states)
+        return PrimeLmOutput(logits=logits)
 
 
 class FusedCrossEntropyOutputLinear(torch.nn.Linear):
