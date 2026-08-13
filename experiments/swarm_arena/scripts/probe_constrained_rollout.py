@@ -84,7 +84,10 @@ async def main() -> None:
     choice = response["choices"][0]
     completion_ids = list(choice["token_ids"])
     completion = tokenizer.decode(completion_ids, skip_special_tokens=False)
-    choice_token_ids = [tokenizer.encode(value, add_special_tokens=False) for value in choices]
+    choice_token_ids = [
+        [*tokenizer.encode(value, add_special_tokens=False), tokenizer.eos_token_id]
+        for value in choices
+    ]
     result = {
         "adapter_sha256": actual_sha256,
         "choice_count": len(choices),
