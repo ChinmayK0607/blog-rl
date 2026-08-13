@@ -27,7 +27,12 @@ from swarm_ctf_eval.episode import EMPTY_BROADCAST, ArenaEpisodeEnv, EpisodeConf
 from swarm_ctf_eval.episode_model_eval import evaluate_episode
 from swarm_ctf_eval.episode_protocol import episode_action_prompt, episode_broadcast_prompt
 from swarm_ctf_eval.episode_splits import EPISODE_EVAL_CASES
-from swarm_ctf_eval.structured_protocol import action_json_schema, broadcast_json_schema
+from swarm_ctf_eval.structured_protocol import (
+    action_json_schema,
+    broadcast_json_schema,
+    completion_allowed_token_ids,
+    protocol_choices,
+)
 from swarm_ctf_eval.multi_policy_contract import (
     AgentPolicy,
     AgentTokenSpan,
@@ -262,6 +267,23 @@ def test_dynamic_action_schema_enumerates_only_displayed_action_ids() -> None:
     assert schema["properties"]["action_id"]["enum"] == [
         row["id"] for row in body["legal_actions"]
     ]
+
+
+def test_protocol_choice_trie_reconstructs_exact_legal_action_distribution() -> None:
+    env = ArenaEpisodeEnv(seed=22, size=12)
+    env.reset()
+    env.broadcast_phase({})
+    messages, _ = episode_action_prompt(env, "red-0")
+    choices = protocol_choices(messages)
+    assert set(choices) == {
+        json.dumps({"action_id": row["id"]}, sort_keys=True, separators=(",", ":"))
+        for row in json.loads(messages[-1]["content"])["legal_actions"]
+    }
+    encoded = [list(choice.encode()) for choice in choices]
+    selected = encoded[-1]
+    rows = completion_allowed_token_ids(selected, encoded)
+    assert len(rows) == len(selected)
+    assert all(token_id in allowed for token_id, allowed in zip(selected, rows, strict=True))
 
 
 def test_rl_prompt_states_that_communication_has_no_reward_cost() -> None:

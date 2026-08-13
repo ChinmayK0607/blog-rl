@@ -169,6 +169,14 @@ class MultiPacker(BasePacker):
                 False,
                 f"Run wrote a sample with completion temperatures length != completion ids length ({len(sample.completion_temperatures)} != {len(sample.completion_ids)})",
             )
+        if sample.completion_allowed_token_ids is not None:
+            if len(sample.completion_allowed_token_ids) != len(sample.completion_ids):
+                return False, "completion allowed-token rows do not match completion ids"
+            for token_id, allowed in zip(
+                sample.completion_ids, sample.completion_allowed_token_ids, strict=True
+            ):
+                if not allowed or token_id not in allowed or len(set(allowed)) != len(allowed):
+                    return False, "invalid constrained completion allowed-token row"
         if sample_length == 0:
             return False, "Run wrote a sample with no tokens"
         if sample_length > self.seq_len:

@@ -28,9 +28,11 @@ from prime_rl.utils.cp import (
 from prime_rl.utils.logger import format_time, setup_logger
 from prime_rl.trainer.rl.loss import (
     compute_entropy,
+    compute_constrained_entropy,
     compute_loss,
     compute_importance_ratio_and_mismatch_kl,
     selective_log_softmax,
+    selective_constrained_log_softmax,
     setup_loss_fns,
     shift_tensor_left,
     shift_tensor_right,
@@ -430,6 +432,13 @@ def train(config: TrainerConfig):
                 set_lora_num_tokens(lora_num_tokens)
 
             temperatures = micro_batch["temperatures"].to("cuda")
+            allowed_token_ids = (
+                micro_batch["allowed_token_ids"].to("cuda")
+                if micro_batch["allowed_token_ids"] is not None
+                else None
+            )
+            if allowed_token_ids is not None and cp_enabled:
+                raise NotImplementedError("constrained token replay does not support context parallelism")
 
             # Shard temperatures for context parallelism if enabled
             if cp_enabled:
@@ -454,8 +463,25 @@ def train(config: TrainerConfig):
                 logits = out["logits"]
                 # Per-token temperature scaling: temperatures is [batch, seq], logits is [batch, seq, vocab]
                 scaled_logits = logits / temperatures.unsqueeze(-1)
-                out["logprobs"] = selective_log_softmax(scaled_logits, labels)
-                out["entropy"] = compute_entropy(scaled_logits)
+                if allowed_token_ids is None:
+                    out["logprobs"] = selective_log_softmax(scaled_logits, labels)
+                    out["entropy"] = compute_entropy(scaled_logits)
+                else:
+                    label_allowed = torch.cat(
+                        [
+                            allowed_token_ids[:, 1:, :],
+                            torch.full_like(allowed_token_ids[:, :1, :], -1),
+                        ],
+                        dim=1,
+                    )
+                    out["logprobs"] = selective_constrained_log_softmax(
+                        scaled_logits, labels, label_allowed
+                    )
+                    out["entropy"] = compute_constrained_entropy(scaled_logits, label_allowed)
+            elif allowed_token_ids is not None:
+                raise ValueError(
+                    "constrained token replay requires model.fused_lm_head_token_chunk_size='disabled'"
+                )
             # else: FusedOutputLinear was used - logprobs already computed with per-token temperatures
 
             if cp_enabled:

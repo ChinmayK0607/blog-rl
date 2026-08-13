@@ -49,6 +49,44 @@ def selective_log_softmax(
     return torch.gather(logprobs, dim=-1, index=index.unsqueeze(-1)).squeeze(-1)
 
 
+def selective_constrained_log_softmax(
+    logits: Tensor,
+    index: Tensor,
+    allowed_token_ids: Tensor,
+) -> Tensor:
+    """Selected-token log-probability after renormalizing over a legal token set."""
+    normal = selective_log_softmax(logits, index)
+    if allowed_token_ids.shape[-1] == 0:
+        return normal
+    valid = allowed_token_ids >= 0
+    constrained = valid.any(dim=-1)
+    safe_ids = allowed_token_ids.clamp_min(0)
+    legal_logits = torch.gather(logits, dim=-1, index=safe_ids)
+    legal_logits = legal_logits.masked_fill(~valid, float("-inf"))
+    selected = torch.gather(logits, dim=-1, index=index.unsqueeze(-1)).squeeze(-1)
+    restricted = selected - torch.logsumexp(legal_logits, dim=-1)
+    target_is_legal = ((safe_ids == index.unsqueeze(-1)) & valid).any(dim=-1)
+    if not torch.all(target_is_legal | ~constrained):
+        raise ValueError("selected token is absent from its constrained legal-token set")
+    return torch.where(constrained, restricted, normal)
+
+
+def compute_constrained_entropy(logits: Tensor, allowed_token_ids: Tensor) -> Tensor:
+    normal = compute_entropy(logits)
+    if allowed_token_ids.shape[-1] == 0:
+        return normal
+    valid = allowed_token_ids >= 0
+    constrained = valid.any(dim=-1)
+    safe_ids = allowed_token_ids.clamp_min(0)
+    legal_logits = torch.gather(logits, dim=-1, index=safe_ids)
+    legal_logits = legal_logits.masked_fill(~valid, float("-inf"))
+    log_normalizer = torch.logsumexp(legal_logits, dim=-1, keepdim=True)
+    log_probs = legal_logits - log_normalizer
+    probabilities = torch.where(valid, torch.exp(log_probs), 0.0)
+    restricted = -torch.where(valid, probabilities * log_probs, 0.0).sum(dim=-1)
+    return torch.where(constrained, restricted, normal)
+
+
 @jaxtyped(typechecker=typechecker)
 @torch.compile(dynamic=True)
 def compute_entropy(shifted_logits: Float[Tensor, "batch seq vocab"]) -> Float[Tensor, "batch seq"]:

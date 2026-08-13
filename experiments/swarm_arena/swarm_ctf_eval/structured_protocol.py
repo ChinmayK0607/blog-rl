@@ -87,3 +87,66 @@ def protocol_response_format(messages: list[dict[str, str]]) -> dict[str, Any]:
         "type": "json_schema",
         "json_schema": {"name": name, "strict": True, "schema": schema},
     }
+
+
+def protocol_choices(messages: list[dict[str, str]]) -> tuple[str, ...]:
+    """Enumerate canonical legal outputs for exact choice-trie decoding."""
+    body = json.loads(messages[-1]["content"])
+    if body.get("phase") == "ACT":
+        values = ({"action_id": item["id"]} for item in body["legal_actions"])
+    elif body.get("phase") == "BROADCAST":
+        observation = body["observation"]
+        facts = list(observation["known_nodes"])
+        budget = int(observation["message_budget_remaining"])
+        max_facts = min(int(body["max_facts"]), len(facts))
+        values = (
+            {"facts": list(selected), "intent": intent, "request_resource": request}
+            for count in range(max_facts + 1)
+            for selected in permutations(facts, count)
+            for intent in [None, *body["legal_intents"]]
+            for request in (0, 1)
+            if (
+                0
+                if count == 0 and intent is None and request == 0
+                else 1 + count + int(intent is not None) + request
+            )
+            <= budget
+        )
+    else:
+        raise ValueError("protocol choices received an unknown phase")
+    choices = tuple(
+        sorted(
+            {
+                json.dumps(value, sort_keys=True, separators=(",", ":"))
+                for value in values
+            }
+        )
+    )
+    if not choices:
+        raise ValueError("protocol choice set cannot be empty")
+    return choices
+
+
+def completion_allowed_token_ids(
+    completion_ids: list[int],
+    choice_token_ids: list[list[int]],
+) -> list[list[int]]:
+    """Return the legal next-token set along one selected path through a choice trie."""
+    prefix: list[int] = []
+    rows = []
+    for token_id in completion_ids:
+        candidates = [choice for choice in choice_token_ids if choice[: len(prefix)] == prefix]
+        allowed = sorted(
+            {
+                choice[len(prefix)]
+                for choice in candidates
+                if len(choice) > len(prefix)
+            }
+        )
+        if token_id not in allowed:
+            raise ValueError("completion is not a member of the canonical protocol choice trie")
+        rows.append(allowed)
+        prefix.append(token_id)
+    if prefix not in choice_token_ids:
+        raise ValueError("completion ended before reaching a canonical protocol choice")
+    return rows

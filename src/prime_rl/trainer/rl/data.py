@@ -45,6 +45,7 @@ class TensorMicroBatch(TypedDict):
     # Selects loss dispatch (rl/opd → default loss with mode-specific taus,
     # sft → sft loss). All samples in a micro batch share the same mode.
     training_mode: str
+    allowed_token_ids: Int[Tensor, "batch seq allowed"] | None
 
 
 class FakeDataLoader:
@@ -120,6 +121,7 @@ class FakeDataLoader:
             "mm_kwargs": None,
             "mm_token_type_ids": None,
             "training_mode": "rl",
+            "allowed_token_ids": None,
         }
 
     def _get_micro_batch(self, generator: torch.Generator) -> TensorMicroBatch:
@@ -148,6 +150,7 @@ class FakeDataLoader:
             "mm_kwargs": None,
             "mm_token_type_ids": None,
             "training_mode": "rl",
+            "allowed_token_ids": None,
         }
 
 
@@ -222,6 +225,15 @@ class DataLoader:
                 .to(torch.int32)
                 .unsqueeze(0)
             )
+        allowed_token_ids = None
+        if micro_batch.allowed_token_ids is not None:
+            width = max((len(row) for row in micro_batch.allowed_token_ids), default=0)
+            allowed_token_ids = torch.full(
+                (1, len(micro_batch.allowed_token_ids), width), -1, dtype=torch.long
+            )
+            for index, row in enumerate(micro_batch.allowed_token_ids):
+                if row:
+                    allowed_token_ids[0, index, : len(row)] = torch.tensor(row, dtype=torch.long)
         return TensorMicroBatch(
             input_ids=torch.tensor(micro_batch.input_ids, dtype=torch.long).unsqueeze(0),
             position_ids=torch.tensor(micro_batch.position_ids, dtype=torch.long).unsqueeze(0),
@@ -243,6 +255,7 @@ class DataLoader:
             else None,
             routed_experts=routed_experts,
             training_mode=micro_batch.training_mode,
+            allowed_token_ids=allowed_token_ids,
         )
 
 

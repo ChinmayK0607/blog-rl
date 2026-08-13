@@ -2,7 +2,15 @@ import pytest
 import torch
 
 from prime_rl.configs.trainer import CustomLossConfig, DefaultLossConfig
-from prime_rl.trainer.rl.loss import LossInputs, LossOutputs, compute_entropy, compute_loss, setup_loss_fns
+from prime_rl.trainer.rl.loss import (
+    LossInputs,
+    LossOutputs,
+    compute_constrained_entropy,
+    compute_entropy,
+    compute_loss,
+    selective_constrained_log_softmax,
+    setup_loss_fns,
+)
 
 pytestmark = [pytest.mark.gpu]
 
@@ -51,6 +59,21 @@ def test_entropy_loss():
     shifted_logits = torch.randn(10, 10, 10, dtype=torch.float32).cuda()
     entropy = compute_entropy(shifted_logits)
     assert entropy.shape == (10, 10)
+
+
+def test_constrained_logprobs_and_entropy_renormalize_over_legal_tokens():
+    logits = torch.tensor([[[0.0, 1.0, 2.0, 7.0]]], device="cuda")
+    selected = torch.tensor([[2]], device="cuda")
+    allowed = torch.tensor([[[1, 2, -1]]], device="cuda")
+    logprob = selective_constrained_log_softmax(logits, selected, allowed)
+    expected = torch.tensor(2.0, device="cuda") - torch.logsumexp(
+        torch.tensor([1.0, 2.0], device="cuda"), dim=0
+    )
+    assert torch.allclose(logprob, expected.reshape(1, 1))
+    probabilities = torch.softmax(torch.tensor([1.0, 2.0], device="cuda"), dim=0)
+    expected_entropy = -(probabilities * probabilities.log()).sum()
+    entropy = compute_constrained_entropy(logits, allowed)
+    assert torch.allclose(entropy, expected_entropy.reshape(1, 1))
 
 
 def test_setup_loss_fns_with_custom_config():
