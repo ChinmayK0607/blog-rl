@@ -80,6 +80,22 @@ def constrained_logprobs(
     return torch.stack(selected_rows)
 
 
+def prepare_sample(
+    sample: dict,
+    *,
+    device: torch.device,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, list[list[int]], int]:
+    prompt_ids = list(sample["prompt_ids"])
+    completion_ids = list(sample["completion_ids"])
+    allowed_rows = [list(row) for row in sample["allowed_token_ids"]]
+    inference_logprobs = torch.tensor(sample["completion_logprobs"], dtype=torch.float32)
+    if not (len(completion_ids) == len(allowed_rows) == len(inference_logprobs)):
+        raise ValueError("probe completion fields have inconsistent lengths")
+    token_ids = torch.tensor([prompt_ids + completion_ids], dtype=torch.long, device=device)
+    position_ids = torch.arange(token_ids.shape[1], device=device).unsqueeze(0)
+    return token_ids, position_ids, inference_logprobs, allowed_rows, len(prompt_ids)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Certify vLLM-to-Prime constrained logprob parity.")
     parser.add_argument("--model", required=True)
@@ -88,21 +104,21 @@ def main() -> None:
     parser.add_argument("--probe", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
-    parser.add_argument("--atol", type=float, default=0.01)
+    parser.add_argument("--max-logprob-error", type=float, default=0.1)
+    parser.add_argument("--max-mean-logprob-error", type=float, default=0.005)
+    parser.add_argument("--max-probability-error", type=float, default=0.04)
+    parser.add_argument("--max-importance-ratio-error", type=float, default=0.1)
+    parser.add_argument("--max-mismatch-kl", type=float, default=0.005)
     args = parser.parse_args()
 
     if args.output_dir.exists():
         raise FileExistsError(f"refusing to reuse parity output directory: {args.output_dir}")
     for index in range(4):
         write_run_config(args.output_dir, f"run_blue_{index}", args.model)
-
     probe = json.loads(args.probe.read_text(encoding="utf-8"))
-    prompt_ids = list(probe["prompt_ids"])
-    completion_ids = list(probe["completion_ids"])
-    allowed_rows = [list(row) for row in probe["allowed_token_ids"]]
-    inference_logprobs = torch.tensor(probe["completion_logprobs"], dtype=torch.float32)
-    if not (len(completion_ids) == len(allowed_rows) == len(inference_logprobs)):
-        raise ValueError("probe completion fields have inconsistent lengths")
+    samples = list(probe["samples"])
+    if not samples:
+        raise ValueError("probe contains no samples")
 
     setup_torch_distributed()
     config = TrainerConfig.model_validate(
@@ -142,32 +158,66 @@ def main() -> None:
     if len(set(slot_digests_before.values())) != 1:
         raise RuntimeError("four policy slots did not start from identical pinned adapters")
 
-    run_id = "run_blue_0"
-    slot = manager.id_2_idx[run_id]
-    token_ids = torch.tensor([prompt_ids + completion_ids], dtype=torch.long, device=device)
-    position_ids = torch.arange(token_ids.shape[1], device=device).unsqueeze(0)
-    labels = shift_tensor_left(token_ids)
-    lora_num_tokens = torch.zeros(4, dtype=torch.int32, device=device)
-    lora_num_tokens[slot] = token_ids.shape[1]
-    set_lora_num_tokens(lora_num_tokens)
+    all_inference = []
+    all_trainer = []
+    sample_summaries = []
     model.eval()
-    with torch.no_grad():
-        output = forward(
-            model,
-            token_ids,
-            position_ids,
-            labels=labels,
-            temperature=torch.ones_like(token_ids, dtype=torch.float32),
+    for sample_index, sample in enumerate(samples):
+        run_id = f"run_blue_{sample_index % 4}"
+        slot = manager.id_2_idx[run_id]
+        token_ids, position_ids, inference_logprobs, allowed_rows, prompt_length = prepare_sample(
+            sample, device=device
         )
-        logits = output.get("logits")
-        if logits is None:
-            raise RuntimeError("parity requires the unfused trainer LM head logits")
-        trainer_logprobs = constrained_logprobs(logits, token_ids, len(prompt_ids), allowed_rows).cpu()
+        labels = shift_tensor_left(token_ids)
+        lora_num_tokens = torch.zeros(4, dtype=torch.int32, device=device)
+        lora_num_tokens[slot] = token_ids.shape[1]
+        set_lora_num_tokens(lora_num_tokens)
+        with torch.no_grad():
+            output = forward(
+                model,
+                token_ids,
+                position_ids,
+                labels=labels,
+                temperature=torch.ones_like(token_ids, dtype=torch.float32),
+            )
+            logits = output.get("logits")
+            if logits is None:
+                raise RuntimeError("parity requires the unfused trainer LM head logits")
+            trainer_logprobs = constrained_logprobs(
+                logits, token_ids, prompt_length, allowed_rows
+            ).cpu()
+        all_inference.append(inference_logprobs)
+        all_trainer.append(trainer_logprobs)
+        sample_summaries.append(
+            {
+                "agent_id": sample["agent_id"],
+                "max_absolute_logprob_error": float(
+                    (trainer_logprobs - inference_logprobs).abs().max()
+                ),
+                "phase": sample["phase"],
+                "seed": sample["seed"],
+                "tokens": len(inference_logprobs),
+            }
+        )
 
+    inference_logprobs = torch.cat(all_inference)
+    trainer_logprobs = torch.cat(all_trainer)
     absolute_error = (trainer_logprobs - inference_logprobs).abs()
+    log_importance_ratio = trainer_logprobs - inference_logprobs
     max_absolute_error = float(absolute_error.max())
     mean_absolute_error = float(absolute_error.mean())
-    parity_passed = max_absolute_error <= args.atol
+    max_probability_error = float((trainer_logprobs.exp() - inference_logprobs.exp()).abs().max())
+    max_importance_ratio_error = float((log_importance_ratio.exp() - 1.0).abs().max())
+    max_mismatch_kl = float((log_importance_ratio.exp() - log_importance_ratio - 1.0).max())
+    parity_passed = all(
+        (
+            max_absolute_error <= args.max_logprob_error,
+            mean_absolute_error <= args.max_mean_logprob_error,
+            max_probability_error <= args.max_probability_error,
+            max_importance_ratio_error <= args.max_importance_ratio_error,
+            max_mismatch_kl <= args.max_mismatch_kl,
+        )
+    )
 
     optimizer_param_ids = []
     for index in sorted(manager.used_idxs):
@@ -185,6 +235,13 @@ def main() -> None:
     if not optimizer_sets_disjoint:
         raise RuntimeError("policy optimizers share parameter objects")
 
+    run_id = "run_blue_0"
+    slot = manager.id_2_idx[run_id]
+    token_ids, position_ids, _, allowed_rows, prompt_length = prepare_sample(samples[0], device=device)
+    labels = shift_tensor_left(token_ids)
+    lora_num_tokens = torch.zeros(4, dtype=torch.int32, device=device)
+    lora_num_tokens[slot] = token_ids.shape[1]
+    set_lora_num_tokens(lora_num_tokens)
     for index in range(4):
         manager.ready_to_update[index] = index == slot
     optimizer.zero_grad()
@@ -199,7 +256,7 @@ def main() -> None:
     logits = output.get("logits")
     if logits is None:
         raise RuntimeError("isolation step requires unfused trainer LM head logits")
-    loss = -constrained_logprobs(logits, token_ids, len(prompt_ids), allowed_rows).mean()
+    loss = -constrained_logprobs(logits, token_ids, prompt_length, allowed_rows).mean()
     loss.backward()
     optimizer.step()
     slot_digests_after = {
@@ -216,16 +273,24 @@ def main() -> None:
     report = {
         "adapter_sha256": args.adapter_sha256,
         "changed_runs_after_single_policy_step": changed_runs,
-        "completion_tokens": len(completion_ids),
-        "inference_logprobs": inference_logprobs.tolist(),
+        "completion_tokens": len(inference_logprobs),
         "isolation_passed": isolation_passed,
         "max_absolute_logprob_error": max_absolute_error,
+        "max_importance_ratio_error": max_importance_ratio_error,
+        "max_mismatch_kl": max_mismatch_kl,
+        "max_probability_error": max_probability_error,
         "mean_absolute_logprob_error": mean_absolute_error,
         "optimizer_parameter_sets_disjoint": optimizer_sets_disjoint,
-        "parity_atol": args.atol,
         "parity_passed": parity_passed,
+        "parity_thresholds": {
+            "max_absolute_logprob_error": args.max_logprob_error,
+            "max_importance_ratio_error": args.max_importance_ratio_error,
+            "max_mean_logprob_error": args.max_mean_logprob_error,
+            "max_mismatch_kl": args.max_mismatch_kl,
+            "max_probability_error": args.max_probability_error,
+        },
         "policy_slot_digests_before": slot_digests_before,
-        "trainer_logprobs": trainer_logprobs.tolist(),
+        "sample_summaries": sample_summaries,
     }
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
