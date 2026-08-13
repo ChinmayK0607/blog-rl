@@ -74,14 +74,15 @@ class VanillaOutputLinear(torch.nn.Linear):
         if (
             hidden_states.is_cuda
             and hidden_states.dtype == torch.bfloat16
-            and self.weight.dtype == torch.bfloat16
         ):
             shape = (*hidden_states.shape[:-1], self.out_features)
-            logits = torch.mm(
-                hidden_states.reshape(-1, hidden_states.shape[-1]),
-                self.weight.t(),
-                out_dtype=torch.float32,
-            ).reshape(shape)
+            weight = self.weight.to(dtype=hidden_states.dtype)
+            with torch.autocast("cuda", enabled=False):
+                logits = torch.mm(
+                    hidden_states.reshape(-1, hidden_states.shape[-1]),
+                    weight.t(),
+                    out_dtype=torch.float32,
+                ).reshape(shape)
         else:
             logits = super().forward(hidden_states)
         return PrimeLmOutput(logits=logits)
