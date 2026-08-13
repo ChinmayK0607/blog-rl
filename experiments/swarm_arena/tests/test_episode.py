@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import math
 import tempfile
@@ -29,6 +30,12 @@ from swarm_ctf_eval.episode_protocol import episode_action_prompt, episode_broad
 from swarm_ctf_eval.episode_splits import EPISODE_EVAL_CASES
 from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
 from swarm_ctf_eval.final_eval_v3 import summarize_final_eval
+from swarm_ctf_eval.live_rl_rollout import (
+    ChoiceCompletion,
+    PolicyEndpoint,
+    build_live_credit_group,
+    protocol_constraint_sha256,
+)
 from swarm_ctf_eval.multi_policy_contract import (
     AgentPolicy,
     AgentTokenSpan,
@@ -36,6 +43,11 @@ from swarm_ctf_eval.multi_policy_contract import (
     replacement_credits,
     validate_policy_roster,
     validate_token_spans,
+)
+from swarm_ctf_eval.prime_multi_run_router import (
+    PolicyRunRoute,
+    merge_routed_batch_groups,
+    route_approved_samples,
 )
 from swarm_ctf_eval.prime_rl_bridge import (
     RolloutDecision,
@@ -954,3 +966,107 @@ def test_fail_closed_supervisor_replays_all_branches_and_hash_chains_approvals()
             assert "hash mismatch" in str(error)
         else:
             raise AssertionError("tampered audit trace must fail verification")
+
+
+def test_live_credit_group_routes_only_after_bound_trainer_parity_gate() -> None:
+    class FirstChoiceGenerator:
+        async def generate(
+            self,
+            endpoint: PolicyEndpoint,
+            messages: list[dict[str, str]],
+            *,
+            sampling_key: str,
+        ) -> ChoiceCompletion:
+            del endpoint, sampling_key
+            text = protocol_choices(messages)[0]
+            return ChoiceCompletion((10,), (11,), (0.0,), ((11,),), text)
+
+    bindings = tuple(
+        AgentPolicy(
+            f"{team.lower()}-{index}",
+            team,
+            f"blue-policy-{index}" if team == "BLUE" else "red-opponent",
+            team == "BLUE",
+        )
+        for team in ("BLUE", "RED")
+        for index in range(4)
+    )
+    endpoints = tuple(
+        PolicyEndpoint(f"blue-policy-{index}", "trainable-r0", f"blue-{index}", ("http://unused",))
+        for index in range(4)
+    ) + (
+        PolicyEndpoint("red-opponent", "opponent-r0", "red", ("http://unused",)),
+        PolicyEndpoint("sft-replacement", "sft-r0", "sft", ("http://unused",)),
+    )
+    gate_sha256 = "c" * 64
+    lock = RunLock(
+        "live-smoke",
+        "commit-1234567",
+        "arena-rl-v3-terminal-control",
+        "1" * 64,
+        "2" * 64,
+        "3" * 64,
+        "base-r0",
+        tuple((f"blue-policy-{index}", "trainable-r0") for index in range(4)),
+        (("red-opponent", "opponent-r0"), ("sft-replacement", "sft-r0")),
+        "sft-replacement",
+        "opponent",
+        "opponent-r0",
+        (
+            protocol_constraint_sha256("BROADCAST"),
+            protocol_constraint_sha256("ACT"),
+        ),
+        gate_sha256,
+    )
+    group = asyncio.run(
+        build_live_credit_group(
+            FirstChoiceGenerator(),  # type: ignore[arg-type]
+            game_id="live-game-1",
+            seed=101,
+            size=12,
+            config=EpisodeConfig(
+                horizon=2,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            ),
+            bindings=bindings,
+            policies=endpoints,
+            replacement_policy_id="sft-replacement",
+            run_lock_sha256=lock.sha256,
+        )
+    )
+    signing_key = b"live-supervisor-key-at-least-32-bytes"
+    approval = approve_credit_group(lock, group.evidence, bindings, "BLUE", signing_key)
+    assert approval.parity_mode == "trainer_pre_step"
+    assert approval.logprob_max_abs_error is None
+    assert approval.mismatch_kl_max is None
+    routes = tuple(
+        PolicyRunRoute(f"blue-policy-{index}", f"run_blue_{index}")
+        for index in range(4)
+    )
+    try:
+        route_approved_samples(
+            approval,
+            group.owned_samples,
+            routes,
+            step=0,
+            signing_key=signing_key,
+        )
+    except ValueError as error:
+        assert "active trainer pre-step gate" in str(error)
+    else:
+        raise AssertionError("deferred parity must be bound to the trainer gate")
+    batches = route_approved_samples(
+        approval,
+        group.owned_samples,
+        routes,
+        step=0,
+        signing_key=signing_key,
+        trainer_parity_gate_sha256=gate_sha256,
+    )
+    assert set(batches) == {f"run_blue_{index}" for index in range(4)}
+    assert all(len(batch.examples) == 4 for batch in batches.values())
+    merged = merge_routed_batch_groups((batches, batches), step=0)
+    assert set(merged) == set(batches)
+    assert all(len(batch.examples) == 8 for batch in merged.values())

@@ -80,6 +80,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   errors on negligible-probability tokens can coexist with distributional
   agreement. Re-run the certificate after any model, adapter, tokenizer,
   precision, constraint or serving-kernel change.
+- A Swarm Arena live rollout can use deferred trainer parity only when its
+  signed supervisor approval and immutable run lock contain the SHA-256 of the
+  active `rollout_parity_gate`. The router must compare that digest before queue
+  admission, and the trainer must gather errors over the exact completion-token
+  set and validate every bound threshold before `optimizer.step()`. A missing,
+  changed or failed gate is a hard stop, never a diagnostic-only warning.
 - Launch long-lived inference inside `tmux` with the command as the pane's
   `exec` target and attach logging with `tmux pipe-pane`. Avoid making a shell
   pipeline ending in `tee` the pane's main process; a logging-process exit can

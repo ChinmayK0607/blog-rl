@@ -39,11 +39,20 @@ def route_approved_samples(
     *,
     step: int,
     signing_key: bytes,
+    trainer_parity_gate_sha256: str | None = None,
 ) -> dict[str, Any]:
     """Convert one signed approval into four isolated Prime-RL run batches."""
     from prime_rl.transport import TrainingBatch
 
     verify_approval_signature(approval, signing_key)
+    if approval.parity_mode == "trainer_pre_step":
+        if (
+            trainer_parity_gate_sha256 is None
+            or trainer_parity_gate_sha256 != approval.trainer_parity_gate_sha256
+        ):
+            raise ValueError(
+                "deferred parity approval does not match the active trainer pre-step gate"
+            )
     if step < 0:
         raise ValueError("trainer step cannot be negative")
     for route in routes:
@@ -95,6 +104,31 @@ def route_approved_samples(
         run_id = route_by_policy[envelope.policy_id]
         result[run_id] = TrainingBatch(examples=examples, step=step)
     return result
+
+
+def merge_routed_batch_groups(
+    groups: tuple[dict[str, Any], ...],
+    *,
+    step: int,
+) -> dict[str, Any]:
+    """Merge independently approved games into one atomic batch per policy run."""
+    from prime_rl.transport import TrainingBatch
+
+    if not groups:
+        raise ValueError("at least one approved group is required")
+    expected = set(groups[0])
+    if len(expected) != 4 or any(set(group) != expected for group in groups):
+        raise ValueError("every approved group must cover the same four policy runs")
+    merged = {}
+    for run_id in sorted(expected):
+        examples = []
+        for group in groups:
+            batch = group[run_id]
+            if batch.step != step:
+                raise ValueError("cannot merge approved groups from different steps")
+            examples.extend(batch.examples)
+        merged[run_id] = TrainingBatch(examples=examples, step=step)
+    return merged
 
 
 async def send_approved_batches(

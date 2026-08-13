@@ -511,6 +511,19 @@ class TrainerExperimentalConfig(BaseConfig):
     """Opt-in per-token JSONL export for rollout debugging. When enabled, writes token ids and aligned trainer metrics after each forward pass."""
 
 
+class RolloutParityGateConfig(BaseConfig):
+    """Fail before an optimizer step when rollout/trainer distributions diverge."""
+
+    max_mean_logprob_error: float = Field(0.005, ge=0)
+    max_p99_logprob_error: float = Field(0.12, ge=0)
+    max_probability_error: float = Field(0.1, ge=0)
+    max_p99_probability_error: float = Field(0.05, ge=0)
+    probability_tail_threshold: float = Field(0.05, ge=0)
+    max_probability_tail_fraction: float = Field(0.005, ge=0, le=1)
+    max_mean_mismatch_kl: float = Field(0.0005, ge=0)
+    max_mismatch_kl: float = Field(0.08, ge=0)
+
+
 class TrainerConfig(BaseConfig):
     model: ModelConfig = ModelConfig()
 
@@ -533,6 +546,9 @@ class TrainerConfig(BaseConfig):
 
     rollout_transport: TransportConfig = FileSystemTransportConfig()
     """Transport used to ship rollouts from orchestrator to trainer."""
+
+    rollout_parity_gate: RolloutParityGateConfig | None = None
+    """Optional fail-closed numerical gate evaluated before gradients are applied."""
 
     log: TrainerLogConfig = TrainerLogConfig()
 

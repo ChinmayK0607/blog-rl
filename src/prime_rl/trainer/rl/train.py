@@ -31,11 +31,13 @@ from prime_rl.trainer.rl.loss import (
     compute_constrained_entropy,
     compute_loss,
     compute_importance_ratio_and_mismatch_kl,
+    rollout_parity_metrics,
     selective_log_softmax,
     selective_constrained_log_softmax,
     setup_loss_fns,
     shift_tensor_left,
     shift_tensor_right,
+    validate_rollout_parity_metrics,
 )
 from prime_rl.trainer.rl.token_export import setup_token_exporter
 from prime_rl.trainer.model import (
@@ -58,6 +60,7 @@ from prime_rl.trainer.utils import (
     setup_torch_distributed,
     print_benchmark,
     get_response_lengths,
+    flexible_all_gather,
 )
 from prime_rl.trainer.world import get_world
 from prime_rl.trainer.runs import setup_multi_run_manager, Progress, get_multi_run_manager
@@ -535,8 +538,16 @@ def train(config: TrainerConfig):
             if micro_batch["training_mode"] != "sft":
                 with torch.no_grad():
                     _, _, mismatch_kl = compute_importance_ratio_and_mismatch_kl(out["logprobs"], inference_logprobs)
+                    absolute_logprob_error = (out["logprobs"] - inference_logprobs).abs()
+                    probability_error = (
+                        out["logprobs"].exp() - inference_logprobs.exp()
+                    ).abs()
                 mismatch_kl = mismatch_kl[loss_mask].detach().to("cpu")
+                absolute_logprob_error = absolute_logprob_error[loss_mask].detach().to("cpu")
+                probability_error = probability_error[loss_mask].detach().to("cpu")
                 tensors["mismatch_kl/all"].append(mismatch_kl)
+                tensors["parity_abs_logprob_error/all"].append(absolute_logprob_error)
+                tensors["parity_probability_error/all"].append(probability_error)
                 for env_name, indices in env_to_indices.items():
                     tensors[f"mismatch_kl/{env_name}"].append(mismatch_kl[indices])
 
@@ -561,6 +572,27 @@ def train(config: TrainerConfig):
             if "routing_confidence" in tensors:
                 micro_step_message += f" | Routing Conf. {tensors['routing_confidence'][-1].mean().item():.4f}"
             logger.debug(micro_step_message)
+
+        if config.rollout_parity_gate is not None:
+            def gathered(key: str) -> torch.Tensor:
+                local = torch.cat(tensors[key], dim=0).to("cuda")
+                return flexible_all_gather(local)
+
+            parity_metrics = rollout_parity_metrics(
+                gathered("parity_abs_logprob_error/all"),
+                gathered("parity_probability_error/all"),
+                gathered("mismatch_kl/all"),
+                probability_tail_threshold=(
+                    config.rollout_parity_gate.probability_tail_threshold
+                ),
+            )
+            validate_rollout_parity_metrics(parity_metrics, config.rollout_parity_gate)
+            logger.info(
+                "Rollout parity gate passed before optimizer step: "
+                + ", ".join(
+                    f"{name}={value:.6g}" for name, value in parity_metrics.items()
+                )
+            )
 
         # compute_loss already divided by the global token count. Undo FSDP's per-rank averaging
         # across dp_cp so the final gradient is the true per-token mean over the global batch.

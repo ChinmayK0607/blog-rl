@@ -1,0 +1,294 @@
+from __future__ import annotations
+
+import argparse
+import asyncio
+import hashlib
+import json
+import os
+import time
+from dataclasses import asdict
+from pathlib import Path
+
+import httpx
+import tomli
+from swarm_ctf_eval.episode import EpisodeConfig
+from swarm_ctf_eval.live_rl_rollout import (
+    PolicyEndpoint,
+    VLLMChoiceGenerator,
+    build_live_credit_group,
+    parity_gate_sha256,
+    protocol_constraint_sha256,
+)
+from swarm_ctf_eval.multi_policy_contract import AgentPolicy
+from swarm_ctf_eval.prime_multi_run_router import (
+    PolicyRunRoute,
+    merge_routed_batch_groups,
+    route_approved_samples,
+    send_approved_batches,
+)
+from swarm_ctf_eval.rl_v3 import RL_TASK_VERSION
+from swarm_ctf_eval.safety_supervisor import (
+    RunLock,
+    append_hash_chained_record,
+    approve_credit_group,
+    canonical_sha256,
+)
+
+from prime_rl.configs.trainer import TrainerConfig
+from prime_rl.utils.pathing import get_broadcast_dir, get_step_path
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def signing_key(path: Path) -> bytes:
+    if path.exists():
+        key = path.read_bytes()
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        key = os.urandom(32)
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        try:
+            os.write(descriptor, key)
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    if len(key) < 32:
+        raise ValueError("supervisor signing key is too short")
+    return key
+
+
+async def load_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> None:
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        responses = await asyncio.gather(
+            *(
+                client.post(
+                    f"{base_url.rstrip('/')}/load_lora_adapter",
+                    json={"lora_name": name, "lora_path": str(path)},
+                )
+                for base_url in base_urls
+            )
+        )
+    for response in responses:
+        response.raise_for_status()
+
+
+async def wait_for_policy_updates(
+    output_dir: Path,
+    base_urls: tuple[str, ...],
+    *,
+    expected_step: int,
+    timeout: float,
+) -> dict[str, str]:
+    paths = {
+        f"blue-{index}": get_step_path(
+            get_broadcast_dir(output_dir / f"run_blue_{index}"), expected_step
+        )
+        for index in range(4)
+    }
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if all((path / "STABLE").exists() for path in paths.values()):
+            break
+        await asyncio.sleep(1.0)
+    else:
+        missing = [name for name, path in paths.items() if not (path / "STABLE").exists()]
+        raise TimeoutError(f"trainer did not publish all policy updates: {missing}")
+    for name, path in paths.items():
+        await load_adapter(base_urls, name, path)
+    return {name: sha256_file(path / "adapter_model.safetensors") for name, path in paths.items()}
+
+
+def run_lock(
+    args: argparse.Namespace,
+    config: TrainerConfig,
+    *,
+    policy_revisions: dict[str, str],
+) -> RunLock:
+    index = json.loads((args.data_dir / "index.json").read_text(encoding="utf-8"))
+    if config.rollout_parity_gate is None:
+        raise ValueError("trainer config is missing the pre-step parity gate")
+    return RunLock(
+        args.run_id,
+        args.source_commit,
+        RL_TASK_VERSION,
+        index["splits"]["train"]["sha256"],
+        index["splits"]["development"]["sha256"],
+        sha256_file(args.data_dir / "final_eval_design.json"),
+        args.base_revision,
+        tuple(
+            (f"blue-policy-{index}", policy_revisions[f"blue-{index}"])
+            for index in range(4)
+        ),
+        (
+            ("red-opponent", args.opponent_revision),
+            ("sft-replacement", args.replacement_revision),
+        ),
+        "sft-replacement",
+        "sft-opponent",
+        args.opponent_revision,
+        (
+            protocol_constraint_sha256("BROADCAST"),
+            protocol_constraint_sha256("ACT"),
+        ),
+        parity_gate_sha256(config.rollout_parity_gate),
+    )
+
+
+async def main() -> None:
+    parser = argparse.ArgumentParser(description="Run bounded fail-closed four-policy Swarm Arena RL.")
+    parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--trainer-config", type=Path, required=True)
+    parser.add_argument("--data-dir", type=Path, required=True)
+    parser.add_argument("--tokenizer", required=True)
+    parser.add_argument("--initial-adapter", type=Path, required=True)
+    parser.add_argument("--base-url", action="append", required=True)
+    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--source-commit", required=True)
+    parser.add_argument("--base-revision", required=True)
+    parser.add_argument("--replacement-revision", required=True)
+    parser.add_argument("--opponent-revision", required=True)
+    parser.add_argument("--steps", type=int, default=1)
+    parser.add_argument("--groups-per-step", type=int, default=1)
+    parser.add_argument("--seed-base", type=int, default=7_000_003)
+    parser.add_argument("--size", type=int, default=12)
+    parser.add_argument("--horizon", type=int, default=2)
+    parser.add_argument("--update-timeout", type=float, default=600.0)
+    args = parser.parse_args()
+    if args.steps < 1 or args.groups_per_step < 1:
+        parser.error("steps and groups-per-step must be positive")
+
+    with args.trainer_config.open("rb") as handle:
+        config = TrainerConfig.model_validate(tomli.load(handle))
+    base_urls = tuple(args.base_url)
+    key = signing_key(args.output_dir / "control" / "supervisor.key")
+    initial_revision = args.replacement_revision
+    for index in range(4):
+        await load_adapter(base_urls, f"blue-{index}", args.initial_adapter)
+    await load_adapter(base_urls, "sft-replacement", args.initial_adapter)
+
+    bindings = tuple(
+        AgentPolicy(
+            f"{team.lower()}-{index}",
+            team,
+            f"blue-policy-{index}" if team == "BLUE" else "red-opponent",
+            team == "BLUE",
+        )
+        for team in ("BLUE", "RED")
+        for index in range(4)
+    )
+    routes = tuple(
+        PolicyRunRoute(f"blue-policy-{index}", f"run_blue_{index}")
+        for index in range(4)
+    )
+    trace = args.output_dir / "audit" / "admission.jsonl"
+    result_rows = []
+    async with VLLMChoiceGenerator(args.tokenizer) as generator:
+        policy_revisions = {f"blue-{index}": initial_revision for index in range(4)}
+        for step in range(args.steps):
+            lock = run_lock(args, config, policy_revisions=policy_revisions)
+            policies = tuple(
+                PolicyEndpoint(
+                    f"blue-policy-{index}",
+                    policy_revisions[f"blue-{index}"],
+                    f"blue-{index}",
+                    base_urls,
+                )
+                for index in range(4)
+            ) + (
+                PolicyEndpoint(
+                    "red-opponent",
+                    args.opponent_revision,
+                    "sft-replacement",
+                    base_urls,
+                ),
+                PolicyEndpoint(
+                    "sft-replacement",
+                    args.replacement_revision,
+                    "sft-replacement",
+                    base_urls,
+                ),
+            )
+            routed_groups = []
+            step_groups = []
+            for group_index in range(args.groups_per_step):
+                game_id = f"{args.run_id}:step-{step}:group-{group_index}"
+                group = await build_live_credit_group(
+                    generator,
+                    game_id=game_id,
+                    seed=args.seed_base + step * 10_000 + group_index,
+                    size=args.size,
+                    config=EpisodeConfig(
+                        horizon=args.horizon,
+                        communication_cost=0.0,
+                        invalid_broadcast_cost=0.0,
+                        invalid_action_cost=0.0,
+                    ),
+                    bindings=bindings,
+                    policies=policies,
+                    replacement_policy_id="sft-replacement",
+                    run_lock_sha256=lock.sha256,
+                )
+                approval = approve_credit_group(lock, group.evidence, bindings, "BLUE", key)
+                append_hash_chained_record(
+                    trace,
+                    {
+                        "approval": asdict(approval),
+                        "actual_return": group.evidence.actual.terminal_return,
+                        "replacement_returns": {
+                            row.replaced_agent: row.terminal_return
+                            for row in group.evidence.replacements
+                        },
+                    },
+                )
+                routed_groups.append(
+                    route_approved_samples(
+                        approval,
+                        group.owned_samples,
+                        routes,
+                        step=step,
+                        signing_key=key,
+                        trainer_parity_gate_sha256=lock.trainer_parity_gate_sha256,
+                    )
+                )
+                step_groups.append(
+                    {
+                        "game_id": game_id,
+                        "actual_return": group.evidence.actual.terminal_return,
+                        "advantages": {
+                            row.agent_id: row.advantage for row in approval.envelopes
+                        },
+                    }
+                )
+            batches = merge_routed_batch_groups(tuple(routed_groups), step=step)
+            await send_approved_batches(args.output_dir, batches)
+            digests = await wait_for_policy_updates(
+                args.output_dir,
+                base_urls,
+                expected_step=step + 1,
+                timeout=args.update_timeout,
+            )
+            policy_revisions = digests
+            policy_revision = canonical_sha256(policy_revisions)
+            result_rows.append(
+                {
+                    "step": step,
+                    "groups": step_groups,
+                    "policy_adapter_sha256": digests,
+                    "policy_revision": policy_revision,
+                }
+            )
+            (args.output_dir / "live_rl_progress.json").write_text(
+                json.dumps(result_rows, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            print(json.dumps(result_rows[-1], sort_keys=True))
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -154,6 +154,71 @@ def compute_importance_ratio_and_mismatch_kl(
     return log_importance_ratio, importance_ratio, mismatch_kl
 
 
+def rollout_parity_metrics(
+    absolute_logprob_errors: Tensor,
+    probability_errors: Tensor,
+    mismatch_kls: Tensor,
+    *,
+    probability_tail_threshold: float,
+) -> dict[str, float]:
+    """Summarize serving/trainer drift over the exact trainable token set."""
+    if not (
+        absolute_logprob_errors.ndim
+        == probability_errors.ndim
+        == mismatch_kls.ndim
+        == 1
+    ):
+        raise ValueError("rollout parity inputs must be one-dimensional")
+    if not (
+        absolute_logprob_errors.numel()
+        == probability_errors.numel()
+        == mismatch_kls.numel()
+    ):
+        raise ValueError("rollout parity inputs must cover identical tokens")
+    if absolute_logprob_errors.numel() == 0:
+        raise ValueError("rollout parity requires trainable completion tokens")
+    if not all(
+        torch.isfinite(values).all()
+        for values in (absolute_logprob_errors, probability_errors, mismatch_kls)
+    ):
+        raise ValueError("rollout parity inputs contain non-finite values")
+    return {
+        "mean_logprob_error": absolute_logprob_errors.mean().item(),
+        "p99_logprob_error": torch.quantile(absolute_logprob_errors.float(), 0.99).item(),
+        "max_probability_error": probability_errors.max().item(),
+        "p99_probability_error": torch.quantile(probability_errors.float(), 0.99).item(),
+        "probability_tail_fraction": (
+            probability_errors > probability_tail_threshold
+        ).float().mean().item(),
+        "mean_mismatch_kl": mismatch_kls.mean().item(),
+        "max_mismatch_kl": mismatch_kls.max().item(),
+    }
+
+
+def validate_rollout_parity_metrics(metrics: dict[str, float], config: Any) -> None:
+    """Reject a batch before its optimizer step when any certified gate fails."""
+    thresholds = {
+        "mean_logprob_error": config.max_mean_logprob_error,
+        "p99_logprob_error": config.max_p99_logprob_error,
+        "max_probability_error": config.max_probability_error,
+        "p99_probability_error": config.max_p99_probability_error,
+        "probability_tail_fraction": config.max_probability_tail_fraction,
+        "mean_mismatch_kl": config.max_mean_mismatch_kl,
+        "max_mismatch_kl": config.max_mismatch_kl,
+    }
+    exceeded = {
+        name: (metrics[name], threshold)
+        for name, threshold in thresholds.items()
+        if metrics[name] > threshold
+    }
+    if exceeded:
+        detail = ", ".join(
+            f"{name}={value:.8g}>{threshold:.8g}"
+            for name, (value, threshold) in exceeded.items()
+        )
+        raise RuntimeError(f"rollout/trainer numerical-parity gate failed: {detail}")
+
+
 def default_loss_fn(inputs: LossInputs, loss_config: DefaultLossConfig) -> LossOutputs:
     """
     DPPO+KL loss for RL training, combining:

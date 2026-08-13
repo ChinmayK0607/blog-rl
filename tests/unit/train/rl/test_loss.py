@@ -1,15 +1,21 @@
 import pytest
 import torch
 
-from prime_rl.configs.trainer import CustomLossConfig, DefaultLossConfig
+from prime_rl.configs.trainer import (
+    CustomLossConfig,
+    DefaultLossConfig,
+    RolloutParityGateConfig,
+)
 from prime_rl.trainer.rl.loss import (
     LossInputs,
     LossOutputs,
     compute_constrained_entropy,
     compute_entropy,
     compute_loss,
+    rollout_parity_metrics,
     selective_constrained_log_softmax,
     setup_loss_fns,
+    validate_rollout_parity_metrics,
 )
 
 pytestmark = [pytest.mark.gpu]
@@ -74,6 +80,23 @@ def test_constrained_logprobs_and_entropy_renormalize_over_legal_tokens():
     expected_entropy = -(probabilities * probabilities.log()).sum()
     entropy = compute_constrained_entropy(logits, allowed)
     assert torch.allclose(entropy, expected_entropy.reshape(1, 1))
+
+
+def test_rollout_parity_gate_fails_before_an_out_of_envelope_update():
+    metrics = rollout_parity_metrics(
+        torch.tensor([0.001, 0.002, 0.003], device="cuda"),
+        torch.tensor([0.001, 0.002, 0.08], device="cuda"),
+        torch.tensor([0.0, 0.0, 0.01], device="cuda"),
+        probability_tail_threshold=0.05,
+    )
+    permissive = RolloutParityGateConfig(
+        max_p99_probability_error=0.1,
+        max_probability_tail_fraction=0.5,
+        max_mean_mismatch_kl=0.01,
+    )
+    validate_rollout_parity_metrics(metrics, permissive)
+    with pytest.raises(RuntimeError, match="numerical-parity gate failed"):
+        validate_rollout_parity_metrics(metrics, RolloutParityGateConfig())
 
 
 def test_setup_loss_fns_with_custom_config():

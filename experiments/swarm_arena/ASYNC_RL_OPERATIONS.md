@@ -18,6 +18,14 @@ Agents receive no shell, network, filesystem, code execution, arbitrary tool,
 or external-system interface. Invalid or unsupported output fails the group; it
 does not become a negative reward that the policy can learn to trade off.
 
+The live controller is `scripts/run_live_rl.py`. It requests each of the eight
+agents independently for broadcast and action phases, records exact prompt and
+completion token spans, constructs one actual branch plus one complete
+replacement branch per trainable BLUE agent, then hands the evidence to the
+supervisor. It cannot enqueue samples unless replay, ownership, reward and
+constraint checks all pass. Multiple independently approved games may be
+merged only at the fixed four-run routing boundary.
+
 ## Pre-RL parity contract
 
 Parity is evaluated over the model's constrained choice distribution, not the
@@ -37,6 +45,15 @@ material policy-distribution delta. The certified 1.7B values and thresholds
 are stored under `results/pre_rl_1_7b/`. Any change to the model, adapter,
 tokenizer, structured constraints, precision path or inference/trainer kernels
 invalidates the certificate and requires a rerun.
+
+For live asynchronous rollouts, the supervisor may defer the numerical portion
+of parity to the trainer only when the signed approval and immutable run lock
+bind the exact trainer parity-gate digest. The trainer gathers the exact
+trainable token set across ranks, recomputes all probability-drift and
+mismatch-KL metrics, and raises before `optimizer.step()` if any threshold is
+exceeded. Admission rejects a missing or mismatched gate digest. This keeps
+rollout workers outside the trusted boundary without allowing a failed serving
+versus trainer comparison to update weights.
 
 Every supervisor decision is appended to a hash-chained JSONL audit log and
 periodically uploaded with immutable checkpoints. The frozen manifests, source

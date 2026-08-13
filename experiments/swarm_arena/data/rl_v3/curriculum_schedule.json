@@ -9,7 +9,7 @@
         "min_opponents_passed": 3,
         "protocol_validity_min": 0.995
       },
-      "horizon": 1,
+      "horizon": 2,
       "mixture": {
         "certified_critical": 0.5,
         "matched_decoy": 0.5

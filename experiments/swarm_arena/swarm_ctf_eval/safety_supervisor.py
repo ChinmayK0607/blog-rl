@@ -7,7 +7,7 @@ import math
 import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from .arena import Action, GameState, Team, state_to_dict
 from .arena_protocol import Broadcast
@@ -46,6 +46,7 @@ class RunLock:
     opponent_id: str
     opponent_revision: str
     allowed_constraint_hashes: tuple[str, ...]
+    trainer_parity_gate_sha256: str | None = None
 
     def validate(self) -> None:
         nonempty = (
@@ -73,6 +74,10 @@ class RunLock:
             raise ValueError("run lock policy IDs must be distinct")
         if any(not revision for _, revision in self.trainable_policy_revisions):
             raise ValueError("run lock policy revisions must be immutable")
+        if self.trainer_parity_gate_sha256 is not None and not _is_sha256(
+            self.trainer_parity_gate_sha256
+        ):
+            raise ValueError("run lock trainer parity gate has an invalid SHA-256 digest")
         frozen = dict(self.frozen_policy_revisions)
         if len(frozen) != len(self.frozen_policy_revisions):
             raise ValueError("run lock frozen policy IDs must be distinct")
@@ -116,7 +121,7 @@ class CreditGroupEvidence:
     actual: BranchReplay
     replacements: tuple[BranchReplay, ...]
     decisions: tuple[RolloutDecision, ...]
-    trainer_logprobs: dict[str, tuple[float, ...]]
+    trainer_logprobs: dict[str, tuple[float, ...]] | None
 
 
 @dataclass(frozen=True)
@@ -126,15 +131,17 @@ class Approval:
     game_id: str
     evidence_sha256: str
     replay_return: float
-    logprob_max_abs_error: float
-    logprob_mean_abs_error: float
-    logprob_p99_abs_error: float
-    probability_max_abs_error: float
-    probability_p99_abs_error: float
-    probability_tail_fraction: float
-    mismatch_kl_mean: float
-    mismatch_kl_max: float
+    logprob_max_abs_error: float | None
+    logprob_mean_abs_error: float | None
+    logprob_p99_abs_error: float | None
+    probability_max_abs_error: float | None
+    probability_p99_abs_error: float | None
+    probability_tail_fraction: float | None
+    mismatch_kl_mean: float | None
+    mismatch_kl_max: float | None
     envelopes: tuple[PolicyTrainingEnvelope, ...]
+    parity_mode: Literal["pre_admission", "trainer_pre_step"]
+    trainer_parity_gate_sha256: str | None
     signature: str
 
 
@@ -365,26 +372,49 @@ def approve_credit_group(
         credits,
         trainable_team,
     )
-    parity = verify_trainer_logprob_parity(
-        evidence.decisions,
-        evidence.trainer_logprobs,
-        frozenset(dict(lock.trainable_policy_revisions)),
-    )
+    if evidence.trainer_logprobs is None:
+        if lock.trainer_parity_gate_sha256 is None:
+            raise ValueError(
+                "deferred parity requires an immutable trainer pre-step gate"
+            )
+        parity_mode = "trainer_pre_step"
+        parity: dict[str, float | int | str | None] = {
+            "max_abs_error": None,
+            "mean_abs_error": None,
+            "p99_abs_error": None,
+            "max_probability_error": None,
+            "p99_probability_error": None,
+            "probability_tail_fraction": None,
+            "mean_mismatch_kl": None,
+            "max_mismatch_kl": None,
+        }
+    else:
+        parity_mode = "pre_admission"
+        parity = verify_trainer_logprob_parity(
+            evidence.decisions,
+            evidence.trainer_logprobs,
+            frozenset(dict(lock.trainable_policy_revisions)),
+        )
+    def optional_float(value: float | int | str | None) -> float | None:
+        return None if value is None else float(value)
+
     unsigned = {
         "supervisor_version": SUPERVISOR_VERSION,
         "run_lock_sha256": lock.sha256,
         "game_id": evidence.game_id,
         "evidence_sha256": canonical_sha256(_evidence_payload(evidence)),
         "replay_return": replay_return,
-        "logprob_max_abs_error": float(parity["max_abs_error"]),
-        "logprob_mean_abs_error": float(parity["mean_abs_error"]),
-        "logprob_p99_abs_error": float(parity["p99_abs_error"]),
-        "probability_max_abs_error": float(parity["max_probability_error"]),
-        "probability_p99_abs_error": float(parity["p99_probability_error"]),
-        "probability_tail_fraction": float(parity["probability_tail_fraction"]),
-        "mismatch_kl_mean": float(parity["mean_mismatch_kl"]),
-        "mismatch_kl_max": float(parity["max_mismatch_kl"]),
+        "logprob_max_abs_error": optional_float(parity["max_abs_error"]),
+        "logprob_mean_abs_error": optional_float(parity["mean_abs_error"]),
+        "logprob_p99_abs_error": optional_float(parity["p99_abs_error"]),
+        "probability_max_abs_error": optional_float(parity["max_probability_error"]),
+        "probability_p99_abs_error": optional_float(parity["p99_probability_error"]),
+        "probability_tail_fraction": optional_float(parity["probability_tail_fraction"]),
+        "mismatch_kl_mean": optional_float(parity["mean_mismatch_kl"]),
+        "mismatch_kl_max": optional_float(parity["max_mismatch_kl"]),
         "envelopes": [asdict(row) for row in envelopes],
+        "parity_mode": parity_mode,
+        "trainer_parity_gate_sha256": lock.trainer_parity_gate_sha256,
     }
     signature = hmac.new(
         signing_key,
@@ -397,15 +427,17 @@ def approve_credit_group(
         evidence.game_id,
         unsigned["evidence_sha256"],
         replay_return,
-        float(parity["max_abs_error"]),
-        float(parity["mean_abs_error"]),
-        float(parity["p99_abs_error"]),
-        float(parity["max_probability_error"]),
-        float(parity["p99_probability_error"]),
-        float(parity["probability_tail_fraction"]),
-        float(parity["mean_mismatch_kl"]),
-        float(parity["max_mismatch_kl"]),
+        optional_float(parity["max_abs_error"]),
+        optional_float(parity["mean_abs_error"]),
+        optional_float(parity["p99_abs_error"]),
+        optional_float(parity["max_probability_error"]),
+        optional_float(parity["p99_probability_error"]),
+        optional_float(parity["probability_tail_fraction"]),
+        optional_float(parity["mean_mismatch_kl"]),
+        optional_float(parity["max_mismatch_kl"]),
         envelopes,
+        parity_mode,
+        lock.trainer_parity_gate_sha256,
         signature,
     )
 
@@ -426,6 +458,8 @@ def verify_approval_signature(approval: Approval, signing_key: bytes) -> None:
         "mismatch_kl_mean": approval.mismatch_kl_mean,
         "mismatch_kl_max": approval.mismatch_kl_max,
         "envelopes": [asdict(row) for row in approval.envelopes],
+        "parity_mode": approval.parity_mode,
+        "trainer_parity_gate_sha256": approval.trainer_parity_gate_sha256,
     }
     expected = hmac.new(
         signing_key,
