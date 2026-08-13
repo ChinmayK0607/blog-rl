@@ -33,8 +33,11 @@ only `G_actual - G_replace_i`; the learner averages that policy's loss over
 games, not over all eight agents.
 
 The first systems gate requires exact agreement between rollout and trainer
-token IDs, masks, policy routing, and constrained-policy log probabilities.
-No optimizer step is allowed when any of these checks fails.
+token IDs, masks and policy routing. Constrained-policy distributions must pass
+the certified probability, tail and mismatch-KL envelope on the actual serving
+and FSDP trainer stacks. No optimizer step is allowed when any gate fails. The
+certificate also performs a real update and proves that only the selected
+policy slot changes.
 
 During training, `collapse_audit.py` reports—but never rewards—per-policy
 speaking extremes, repeated message targets, action concentration, KL mean/p99,

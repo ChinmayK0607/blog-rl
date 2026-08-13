@@ -18,6 +18,26 @@ Agents receive no shell, network, filesystem, code execution, arbitrary tool,
 or external-system interface. Invalid or unsupported output fails the group; it
 does not become a negative reward that the policy can learn to trade off.
 
+## Pre-RL parity contract
+
+Parity is evaluated over the model's constrained choice distribution, not the
+unrestricted vocabulary. The rollout certificate uses the exact vLLM server,
+pinned base revision and pinned adapter, then rescores those same tokenized
+prompts with the actual Prime FSDP trainer. It checks token IDs, dynamic legal
+sets, completion masks, policy ownership and four-run adapter initialization.
+A real single-policy optimizer step must change only its assigned `run_*` slot.
+
+Different CUDA kernels do not produce bitwise-identical logits. Admission is
+therefore fail-closed on a checked-in numerical envelope: mean and p99 absolute
+log-probability drift, max and p99 probability drift, probability-tail
+frequency, and mean/max mismatch KL. The raw maximum log-probability error and
+importance-ratio error remain diagnostic fields, not sole gates, because an
+almost-zero-probability alternative can have a large log-space delta without a
+material policy-distribution delta. The certified 1.7B values and thresholds
+are stored under `results/pre_rl_1_7b/`. Any change to the model, adapter,
+tokenizer, structured constraints, precision path or inference/trainer kernels
+invalidates the certificate and requires a rerun.
+
 Every supervisor decision is appended to a hash-chained JSONL audit log and
 periodically uploaded with immutable checkpoints. The frozen manifests, source
 commit, base revision, four adapter revisions, opponent revision, and allowed
@@ -58,3 +78,8 @@ The full asynchronous run should use four RTX 4090 GPUs:
 Actual and four replacement branches share deterministic random-key schedules
 and can be distributed across rollout workers. A branch from a stale policy or
 opponent epoch is discarded rather than mixed into training.
+
+For remote runs, make the inference command the `tmux` pane's `exec` process
+and use `tmux pipe-pane` for persistent logs. Do not use a shell pipeline ending
+in `tee` as the pane's lifecycle owner: a logger exit can close the pane even
+when the server itself was healthy.

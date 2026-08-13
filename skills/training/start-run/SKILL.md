@@ -72,6 +72,18 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   and log-prob parity. Append approvals/rejections to the hash-chained trace.
   Any mismatch fails closed and blocks optimizer input rather than becoming a
   reward penalty.
+- Certify constrained-policy parity on the exact serving and trainer stacks
+  before admitting a run. Require identical token IDs, allowed-token masks and
+  policy routing, then gate the unavoidable vLLM/FSDP kernel drift with the
+  checked-in probability, tail and mismatch-KL thresholds. Record raw maximum
+  log-probability error for diagnosis, but do not use it alone: large log-space
+  errors on negligible-probability tokens can coexist with distributional
+  agreement. Re-run the certificate after any model, adapter, tokenizer,
+  precision, constraint or serving-kernel change.
+- Launch long-lived inference inside `tmux` with the command as the pane's
+  `exec` target and attach logging with `tmux pipe-pane`. Avoid making a shell
+  pipeline ending in `tee` the pane's main process; a logging-process exit can
+  otherwise tear down a healthy server and look like a model failure.
 
 ## `sft` — SFT training
 
