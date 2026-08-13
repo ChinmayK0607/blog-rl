@@ -6,6 +6,12 @@ supervisor independently replays the game, recomputes terminal reward, validates
 the immutable run lock, verifies all five branches and sampling keys, checks
 agent/policy/token ownership, and compares constrained rollout/trainer
 log-probabilities. Only signed approval envelopes enter the trainer queue.
+Approvals use HMAC-SHA256 with a key mounted only into the supervisor and
+trainer-admission process. `prime_multi_run_router.py` verifies the signature,
+token ownership and fixed policy-to-`run_*` mapping before writing four separate
+Prime-RL `TrainingBatch` objects. In production, rollout and supervisor/trainer
+processes must use different Unix users or containers; rollout workers receive
+write access only to staging, never the signing key or trainer run directories.
 
 The environment exposes only structured broadcast and enumerated-action JSON.
 Agents receive no shell, network, filesystem, code execution, arbitrary tool,
@@ -40,7 +46,8 @@ rollout batches. This validates correctness, not throughput.
 
 The full asynchronous run should use four RTX 4090 GPUs:
 
-- GPU 0: four LoRA optimizer routes over one frozen backbone;
+- GPU 0: Prime-RL multi-run trainer with four LoRA adapter slices and four
+  independent optimizers over one frozen backbone;
 - GPUs 1–3: rollout workers serving base, SFT, trainable and historical
   adapters with continuous batching;
 - CPU supervisor: replay, credit-group validation, hash-chain audit and queue

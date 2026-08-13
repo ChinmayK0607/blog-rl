@@ -52,6 +52,7 @@ from swarm_ctf_eval.safety_supervisor import (
     append_hash_chained_record,
     approve_credit_group,
     canonical_sha256,
+    verify_approval_signature,
     verify_hash_chain,
 )
 
@@ -855,13 +856,30 @@ def test_fail_closed_supervisor_replays_all_branches_and_hash_chains_approvals()
             if row.team == "BLUE"
         },
     )
-    approval = approve_credit_group(lock, evidence, bindings, "BLUE")
+    signing_key = b"supervisor-test-key-32-bytes-long!!"
+    approval = approve_credit_group(lock, evidence, bindings, "BLUE", signing_key)
     assert len(approval.envelopes) == 4
     assert approval.logprob_max_abs_error == 0.0
+    verify_approval_signature(approval, signing_key)
+    try:
+        verify_approval_signature(
+            replace(approval, replay_return=approval.replay_return + 0.1),
+            signing_key,
+        )
+    except ValueError as error:
+        assert "signature" in str(error)
+    else:
+        raise AssertionError("tampered approval must fail signature verification")
 
     bad_actual = replace(evidence.actual, terminal_return=evidence.actual.terminal_return + 0.1)
     try:
-        approve_credit_group(lock, replace(evidence, actual=bad_actual), bindings, "BLUE")
+        approve_credit_group(
+            lock,
+            replace(evidence, actual=bad_actual),
+            bindings,
+            "BLUE",
+            signing_key,
+        )
     except ValueError as error:
         assert "return disagrees" in str(error)
     else:
@@ -874,6 +892,7 @@ def test_fail_closed_supervisor_replays_all_branches_and_hash_chains_approvals()
             replace(evidence, decisions=(bad_decision, *evidence.decisions[1:])),
             bindings,
             "BLUE",
+            signing_key,
         )
     except ValueError as error:
         assert "does not match replayed action" in str(error)
@@ -887,6 +906,7 @@ def test_fail_closed_supervisor_replays_all_branches_and_hash_chains_approvals()
             replace(evidence, decisions=(bad_revision, *evidence.decisions[1:])),
             bindings,
             "BLUE",
+            signing_key,
         )
     except ValueError as error:
         assert "stale or unexpected" in str(error)

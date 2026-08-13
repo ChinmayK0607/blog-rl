@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import math
 import os
@@ -127,6 +128,7 @@ class Approval:
     replay_return: float
     logprob_max_abs_error: float
     envelopes: tuple[PolicyTrainingEnvelope, ...]
+    signature: str
 
 
 @dataclass(frozen=True)
@@ -261,7 +263,10 @@ def approve_credit_group(
     evidence: CreditGroupEvidence,
     bindings: tuple[AgentPolicy, ...],
     trainable_team: Team,
+    signing_key: bytes,
 ) -> Approval:
+    if len(signing_key) < 32:
+        raise ValueError("supervisor signing key must contain at least 32 bytes")
     lock.validate()
     if evidence.run_lock_sha256 != lock.sha256:
         raise ValueError("credit group was produced under a different run lock")
@@ -358,15 +363,49 @@ def approve_credit_group(
         evidence.trainer_logprobs,
         frozenset(dict(lock.trainable_policy_revisions)),
     )
+    unsigned = {
+        "supervisor_version": SUPERVISOR_VERSION,
+        "run_lock_sha256": lock.sha256,
+        "game_id": evidence.game_id,
+        "evidence_sha256": canonical_sha256(_evidence_payload(evidence)),
+        "replay_return": replay_return,
+        "logprob_max_abs_error": float(parity["max_abs_error"]),
+        "envelopes": [asdict(row) for row in envelopes],
+    }
+    signature = hmac.new(
+        signing_key,
+        json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode(),
+        hashlib.sha256,
+    ).hexdigest()
     return Approval(
         SUPERVISOR_VERSION,
         lock.sha256,
         evidence.game_id,
-        canonical_sha256(_evidence_payload(evidence)),
+        unsigned["evidence_sha256"],
         replay_return,
         float(parity["max_abs_error"]),
         envelopes,
+        signature,
     )
+
+
+def verify_approval_signature(approval: Approval, signing_key: bytes) -> None:
+    unsigned = {
+        "supervisor_version": approval.supervisor_version,
+        "run_lock_sha256": approval.run_lock_sha256,
+        "game_id": approval.game_id,
+        "evidence_sha256": approval.evidence_sha256,
+        "replay_return": approval.replay_return,
+        "logprob_max_abs_error": approval.logprob_max_abs_error,
+        "envelopes": [asdict(row) for row in approval.envelopes],
+    }
+    expected = hmac.new(
+        signing_key,
+        json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    if not hmac.compare_digest(approval.signature, expected):
+        raise ValueError("invalid supervisor approval signature")
 
 
 def append_hash_chained_record(path: Path, payload: dict[str, Any]) -> str:

@@ -19,11 +19,12 @@ replacement-policy spans are masked from loss.
 `prime_rl_bridge.py` now freezes and validates the rollout-side envelope: the
 atomic branch set, agent/policy ownership, token spans, immutable revisions,
 sampling keys, dynamic-constraint hashes, per-policy advantages, and
-rollout/trainer log-prob comparison. Prime-RL's current interleaver can separate
-multiple agent contexts, but its trainer still has one optimizer route. The GPU
-systems step must connect these four envelopes to four LoRA optimizer routes;
-the bridge deliberately fails closed instead of silently training a shared
-policy.
+rollout/trainer log-prob comparison. Prime-RL already provides multi-run LoRA:
+its trainer keeps a distinct adapter slice, optimizer, scheduler, checkpoint and
+`run_idx` for every `run_*` directory. The Swarm supervisor must route each
+approved agent envelope into its policy's fixed run directory. This avoids a
+new optimizer implementation while still producing four independently updated
+policies. It must never send all four samples through one run.
 
 One actual game and its four replacement branches form an atomic credit group.
 All five branches share the map, opponent snapshot, and per-decision random-key

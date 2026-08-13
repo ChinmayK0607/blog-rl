@@ -51,13 +51,14 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   If a local env exists under `deps/research-environments/environments/` but does not
   import, add it to the root `pyproject.toml` env extra, workspace members, and
   `[tool.uv.sources]`, then run `uv sync --all-extras`.
-- Swarm Arena four-policy RL is not compatible with the stock single-policy
-  trainer route yet. Before any optimizer step, run the committed RL-v3 global
-  audit, build one actual plus four complete replacement branches, route only
-  actual trainable-agent spans through `prime_rl_bridge.py`, and require the
-  rollout/trainer constrained log-prob parity check to pass. Do not fall back to
-  assigning one rollout-level advantage to all four agents or silently merge
-  their LoRA policy IDs.
+- Swarm Arena uses Prime-RL multi-run LoRA: create four fixed `run_*`
+  directories so `MultiRunManager`, `MultiLoRAOptimizer`, and the packer assign
+  one adapter slice and optimizer route to each agent policy. Before any
+  optimizer step, run the RL-v3 global audit, build one actual plus four complete
+  replacement branches, route each approved actual-agent sample only to its
+  fixed run, and require constrained rollout/trainer log-prob parity. Never send
+  all four agents through one run or assign one rollout-level advantage to all
+  four.
 - Swarm Arena rollout workers never write to the trainer queue. Route complete
   actual-plus-four-replacement evidence through `safety_supervisor.py`; require
   independent state replay, terminal-reward recomputation, exact private-context
