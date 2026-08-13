@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import math
+import tempfile
+from dataclasses import replace
 from pathlib import Path
 
 from swarm_ctf_eval.arena import WAIT, Action, legal_actions, state_to_dict
@@ -42,6 +44,16 @@ from swarm_ctf_eval.prime_rl_bridge import (
     verify_trainer_logprob_parity,
 )
 from swarm_ctf_eval.rl_v3 import ArenaRLEnv, terminal_control_delta
+from swarm_ctf_eval.safety_supervisor import (
+    BranchReplay,
+    CreditGroupEvidence,
+    ReplayTurn,
+    RunLock,
+    append_hash_chained_record,
+    approve_credit_group,
+    canonical_sha256,
+    verify_hash_chain,
+)
 
 
 def waits(env: ArenaEpisodeEnv) -> dict[str, Action]:
@@ -251,6 +263,24 @@ def test_dynamic_action_schema_enumerates_only_displayed_action_ids() -> None:
     ]
 
 
+def test_rl_prompt_states_that_communication_has_no_reward_cost() -> None:
+    env = ArenaRLEnv(config=EpisodeConfig(
+        horizon=2,
+        communication_cost=0.0,
+        invalid_broadcast_cost=0.0,
+        invalid_action_cost=0.0,
+    ))
+    env.reset(29)
+    messages, _ = episode_broadcast_prompt(env, "blue-0")
+    body = json.loads(messages[-1]["content"])
+    assert body["reward_contract"] == {
+        "terminal_only": True,
+        "objective": "maximize normalized terminal controlled-node margin change",
+        "communication_has_reward_cost": False,
+        "invalid_outputs_are_rewarded": False,
+    }
+
+
 def test_rl_v3_reward_is_only_normalized_terminal_control_delta() -> None:
     env = ArenaRLEnv(config=EpisodeConfig(
         horizon=2,
@@ -458,6 +488,8 @@ def test_prime_bridge_routes_actual_tokens_and_checks_logprob_parity() -> None:
             (-0.25,),
             "a" * 64,
             "sample-7",
+            "c" * 64,
+            "d" * 64,
         )
 
     actual = tuple(
@@ -628,3 +660,249 @@ def test_collapse_audit_separates_return_gain_from_message_gain() -> None:
         baseline_checkpoint="sft",
     )
     assert report["flags"]["return_gain_without_message_gain"]
+
+
+def test_fail_closed_supervisor_replays_all_branches_and_hash_chains_approvals() -> None:
+    config = EpisodeConfig(
+        horizon=2,
+        communication_cost=0.0,
+        invalid_broadcast_cost=0.0,
+        invalid_action_cost=0.0,
+    )
+    source = ArenaRLEnv(seed=41, size=12, config=config)
+    source.reset()
+    initial = source._require_state().clone()
+
+    def replay(
+        replaced_agent: str | None,
+    ) -> tuple[
+        BranchReplay,
+        dict[tuple[str, int, str], str],
+        dict[tuple[str, int, str], str],
+    ]:
+        env = ArenaRLEnv(size=12, config=config)
+        env.reset_from_state(initial)
+        turns = []
+        contexts = {}
+        outputs = {}
+        final = None
+        for turn in range(2):
+            pre = canonical_sha256(state_to_dict(env._require_state()))
+            contexts.update(
+                {
+                    (agent_id, turn, "BROADCAST"): canonical_sha256(observation)
+                    for agent_id, observation in env.observations().items()
+                }
+            )
+            env.broadcast_phase({})
+            outputs.update(
+                {
+                    (agent_id, turn, "BROADCAST"): canonical_sha256(
+                        broadcast.to_dict()
+                    )
+                    for agent_id, broadcast in env._phase.accepted.items()
+                }
+            )
+            contexts.update(
+                {
+                    (agent_id, turn, "ACT"): canonical_sha256(observation)
+                    for agent_id, observation in env.action_observations().items()
+                }
+            )
+            actions = waits(env)
+            outputs.update(
+                {
+                    (agent_id, turn, "ACT"): canonical_sha256(action.to_dict())
+                    for agent_id, action in actions.items()
+                }
+            )
+            final = env.advance(actions)
+            turns.append(
+                ReplayTurn(
+                    turn,
+                    (),
+                    (),
+                    tuple(sorted(actions.items())),
+                    pre,
+                    canonical_sha256(state_to_dict(env._require_state())),
+                )
+            )
+        assert final is not None
+        return (
+            BranchReplay(replaced_agent, tuple(turns), final.rewards["BLUE"]),
+            contexts,
+            outputs,
+        )
+
+    bindings = tuple(
+        AgentPolicy(
+            f"{team.lower()}-{index}",
+            team,
+            f"{team.lower()}-policy-{index}",
+            team == "BLUE",
+        )
+        for team in ("BLUE", "RED")
+        for index in range(4)
+    )
+    constraint = "b" * 64
+    lock = RunLock(
+        "run-1",
+        "commit-1234567",
+        "arena-rl-v3-terminal-control",
+        "1" * 64,
+        "2" * 64,
+        "3" * 64,
+        "base-revision",
+        tuple((f"blue-policy-{index}", "trainable-revision") for index in range(4)),
+        (
+            *((f"red-policy-{index}", "opponent-revision") for index in range(4)),
+            ("sft-replacement", "sft-revision"),
+        ),
+        "sft-replacement",
+        "opponent",
+        "opponent-revision",
+        (constraint,),
+    )
+
+    def decision(
+        agent_id: str,
+        turn: int,
+        phase: str,
+        trajectory_index: int,
+        replaced_agent: str | None,
+        context_sha256: str,
+        output_sha256: str,
+    ) -> RolloutDecision:
+        branch = "actual" if replaced_agent is None else "replacement"
+        prefix, index = agent_id.split("-")
+        policy_id = f"{prefix}-policy-{index}"
+        revision = "trainable-revision" if prefix == "blue" else "opponent-revision"
+        if agent_id == replaced_agent:
+            policy_id = "sft-replacement"
+            revision = "sft-revision"
+        return RolloutDecision(
+            "game-1",
+            branch,
+            replaced_agent,
+            agent_id,
+            policy_id,
+            revision,
+            "BLUE" if prefix == "blue" else "RED",
+            turn,
+            phase,
+            trajectory_index,
+            (1, 2),
+            (3,),
+            (-0.25,),
+            constraint,
+            f"game-1:{agent_id}:{turn}:{phase}",
+            context_sha256,
+            output_sha256,
+        )
+
+    actual_replay_data = replay(None)
+    actual_replay, actual_contexts, _ = actual_replay_data
+    replacement_data = {
+        f"blue-{index}": replay(f"blue-{index}") for index in range(4)
+    }
+    actual_decisions = tuple(
+        decision(
+            f"{team}-{index}",
+            turn,
+            phase,
+            turn * 16 + phase_index * 8 + team_index * 4 + index,
+            None,
+            actual_contexts[(f"{team}-{index}", turn, phase)],
+            actual_replay_data[2][(f"{team}-{index}", turn, phase)],
+        )
+        for turn in range(2)
+        for phase_index, phase in enumerate(("BROADCAST", "ACT"))
+        for team_index, team in enumerate(("blue", "red"))
+        for index in range(4)
+    )
+    replacement_decisions = tuple(
+        decision(
+            f"{team}-{index}",
+            turn,
+            phase,
+            32 + replaced_index * 32 + turn * 16 + phase_index * 8 + team_index * 4 + index,
+            f"blue-{replaced_index}",
+            replacement_data[f"blue-{replaced_index}"][1][
+                (f"{team}-{index}", turn, phase)
+            ],
+            replacement_data[f"blue-{replaced_index}"][2][
+                (f"{team}-{index}", turn, phase)
+            ],
+        )
+        for replaced_index in range(4)
+        for turn in range(2)
+        for phase_index, phase in enumerate(("BROADCAST", "ACT"))
+        for team_index, team in enumerate(("blue", "red"))
+        for index in range(4)
+    )
+    evidence = CreditGroupEvidence(
+        lock.sha256,
+        "game-1",
+        initial,
+        canonical_sha256(state_to_dict(initial)),
+        config,
+        actual_replay,
+        tuple(replacement_data[f"blue-{index}"][0] for index in range(4)),
+        actual_decisions + replacement_decisions,
+        {
+            row.decision_id: row.rollout_logprobs
+            for row in actual_decisions
+            if row.team == "BLUE"
+        },
+    )
+    approval = approve_credit_group(lock, evidence, bindings, "BLUE")
+    assert len(approval.envelopes) == 4
+    assert approval.logprob_max_abs_error == 0.0
+
+    bad_actual = replace(evidence.actual, terminal_return=evidence.actual.terminal_return + 0.1)
+    try:
+        approve_credit_group(lock, replace(evidence, actual=bad_actual), bindings, "BLUE")
+    except ValueError as error:
+        assert "return disagrees" in str(error)
+    else:
+        raise AssertionError("tampered reward must fail closed")
+
+    bad_decision = replace(evidence.decisions[0], output_sha256="f" * 64)
+    try:
+        approve_credit_group(
+            lock,
+            replace(evidence, decisions=(bad_decision, *evidence.decisions[1:])),
+            bindings,
+            "BLUE",
+        )
+    except ValueError as error:
+        assert "does not match replayed action" in str(error)
+    else:
+        raise AssertionError("model-output/replay mismatch must fail closed")
+
+    bad_revision = replace(evidence.decisions[0], policy_revision="stale-revision")
+    try:
+        approve_credit_group(
+            lock,
+            replace(evidence, decisions=(bad_revision, *evidence.decisions[1:])),
+            bindings,
+            "BLUE",
+        )
+    except ValueError as error:
+        assert "stale or unexpected" in str(error)
+    else:
+        raise AssertionError("stale policy evidence must fail closed")
+
+    with tempfile.TemporaryDirectory() as directory:
+        trace = Path(directory) / "approvals.jsonl"
+        append_hash_chained_record(trace, {"game": "game-1", "status": "approved"})
+        append_hash_chained_record(trace, {"game": "game-2", "status": "rejected"})
+        assert len(verify_hash_chain(trace)) == 2
+        records = trace.read_text(encoding="utf-8").replace("approved", "tampered")
+        trace.write_text(records, encoding="utf-8")
+        try:
+            verify_hash_chain(trace)
+        except ValueError as error:
+            assert "hash mismatch" in str(error)
+        else:
+            raise AssertionError("tampered audit trace must fail verification")

@@ -40,3 +40,10 @@ speaking extremes, repeated message targets, action concentration, KL mean/p99,
 opponent-specific return, and return gains that disappear under message
 interventions. A raised flag pauses promotion for inspection; it does not add a
 shaping penalty to the objective.
+
+`safety_supervisor.py` is the only admission path into training. It binds the
+source, manifests, base, adapters, opponent and allowed dynamic constraints in
+an immutable run lock; independently reconstructs every agent's private
+observation and inbox; replays and recomputes reward for the actual and all four
+replacement branches; and writes tamper-evident approval/rejection records.
+Rollout workers are untrusted producers and cannot enqueue gradients directly.

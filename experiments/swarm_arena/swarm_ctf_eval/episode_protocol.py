@@ -20,7 +20,7 @@ BROADCAST_SYSTEM_PROMPT = (
     + """
 
 PHASE: BROADCAST
-Communication is optional, consumes your private episodic budget, and is penalized at terminal reward. A non-empty message costs 1 unit plus 1 per fact, 1 for an intent, and 1 for a resource request. Send only information present in your observation, at most two facts, and only when its expected team value exceeds its cost. An empty message costs zero.
+Communication is optional and consumes your private episodic budget. A non-empty message uses 1 unit plus 1 per fact, 1 for an intent, and 1 for a resource request. The `reward_contract` field states whether this budget use also affects terminal reward. Send only information present in your observation and at most two facts. An empty message uses zero units.
 
 Return exactly:
 {"facts":[{"node":"ID","owner":"BLUE|RED|NEUTRAL","status":"SECURE|FORTIFIED|EXPOSED|COMPROMISED","value":1,"critical":false,"observed_turn":0}],"intent":{"type":"ACTION","target":"ID"}|null,"request_resource":0}
@@ -47,6 +47,27 @@ def _legal_action_rows(actions: tuple[Action, ...]) -> list[dict[str, Any]]:
     return [dict(action.to_dict(), id=f"A{index}") for index, action in enumerate(actions)]
 
 
+def _reward_contract(env: ArenaEpisodeEnv) -> dict[str, Any]:
+    shaped = any(
+        value != 0.0
+        for value in (
+            env.config.communication_cost,
+            env.config.invalid_broadcast_cost,
+            env.config.invalid_action_cost,
+        )
+    )
+    return {
+        "terminal_only": True,
+        "objective": (
+            "maximize terminal controlled-node value net of configured costs"
+            if shaped
+            else "maximize normalized terminal controlled-node margin change"
+        ),
+        "communication_has_reward_cost": env.config.communication_cost != 0.0,
+        "invalid_outputs_are_rewarded": False,
+    }
+
+
 def episode_broadcast_prompt(
     env: ArenaEpisodeEnv,
     agent_id: str,
@@ -58,7 +79,8 @@ def episode_broadcast_prompt(
     actions = displayed_actions(state, agent_id, permutation)
     body = {
         "phase": "BROADCAST",
-        "team_objective": "Maximize terminal controlled-node value net of communication and protocol costs.",
+        "team_objective": _reward_contract(env)["objective"],
+        "reward_contract": _reward_contract(env),
         "observation": env.observations()[agent_id],
         "message_cost": {
             "base_nonempty": 1,
@@ -91,7 +113,8 @@ def episode_action_prompt(
         observation = {**observation, "inbox": inbox}
     body = {
         "phase": "ACT",
-        "team_objective": "Maximize terminal controlled-node value net of communication and protocol costs.",
+        "team_objective": _reward_contract(env)["objective"],
+        "reward_contract": _reward_contract(env),
         "observation": observation,
         "legal_actions": _legal_action_rows(actions),
     }

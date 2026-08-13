@@ -33,6 +33,8 @@ class RolloutDecision:
     rollout_logprobs: tuple[float, ...]
     constraint_sha256: str
     sampling_key: str
+    context_sha256: str
+    output_sha256: str
 
     @property
     def decision_id(self) -> str:
@@ -66,6 +68,14 @@ def _validate_decision(decision: RolloutDecision) -> None:
         raise ValueError(f"invalid dynamic-constraint hash: {decision.decision_id}")
     if not decision.sampling_key or not decision.policy_revision:
         raise ValueError(f"decision is missing immutable sampling/policy metadata: {decision.decision_id}")
+    if len(decision.context_sha256) != 64 or any(
+        character not in "0123456789abcdef" for character in decision.context_sha256
+    ):
+        raise ValueError(f"invalid private-context hash: {decision.decision_id}")
+    if len(decision.output_sha256) != 64 or any(
+        character not in "0123456789abcdef" for character in decision.output_sha256
+    ):
+        raise ValueError(f"invalid decoded-output hash: {decision.decision_id}")
     if decision.branch == "actual" and decision.replaced_agent is not None:
         raise ValueError("actual branches cannot name a replaced agent")
     if decision.branch == "replacement" and decision.replaced_agent is None:

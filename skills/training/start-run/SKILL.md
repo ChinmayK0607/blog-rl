@@ -58,6 +58,13 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   rollout/trainer constrained log-prob parity check to pass. Do not fall back to
   assigning one rollout-level advantage to all four agents or silently merge
   their LoRA policy IDs.
+- Swarm Arena rollout workers never write to the trainer queue. Route complete
+  actual-plus-four-replacement evidence through `safety_supervisor.py`; require
+  independent state replay, terminal-reward recomputation, exact private-context
+  hashes, immutable run-lock revisions, constraint allowlisting, policy routing,
+  and log-prob parity. Append approvals/rejections to the hash-chained trace.
+  Any mismatch fails closed and blocks optimizer input rather than becoming a
+  reward penalty.
 
 ## `sft` — SFT training
 
