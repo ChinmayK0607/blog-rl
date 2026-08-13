@@ -73,13 +73,17 @@ class VanillaOutputLinear(torch.nn.Linear):
         # VanillaOutputLinear just returns logits - temperature scaling is done externally in train.py
         if (
             hidden_states.is_cuda
-            and hidden_states.dtype == torch.bfloat16
+            and (
+                hidden_states.dtype == torch.bfloat16
+                or torch.is_autocast_enabled("cuda")
+            )
         ):
             shape = (*hidden_states.shape[:-1], self.out_features)
-            weight = self.weight.to(dtype=hidden_states.dtype)
+            projected_hidden = hidden_states.to(dtype=torch.bfloat16)
+            weight = self.weight.to(dtype=torch.bfloat16)
             with torch.autocast("cuda", enabled=False):
                 logits = torch.mm(
-                    hidden_states.reshape(-1, hidden_states.shape[-1]),
+                    projected_hidden.reshape(-1, projected_hidden.shape[-1]),
                     weight.t(),
                     out_dtype=torch.float32,
                 ).reshape(shape)
