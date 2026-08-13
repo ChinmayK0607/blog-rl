@@ -8,6 +8,7 @@ import tomli
 import torch
 import torch.distributed as dist
 import torch.distributed.distributed_c10d as c10d
+from torch.distributed.tensor import DTensor, distribute_tensor
 
 from prime_rl.configs.trainer import LoRAConfig
 from prime_rl.trainer.world import get_world
@@ -297,7 +298,14 @@ class MultiRunManager:
                     f"initial LoRA tensor shape mismatch for {key}: "
                     f"expected {tuple(parameter.shape)}, got {tuple(value.shape)}"
                 )
-            parameter.copy_(value.to(device=parameter.device, dtype=parameter.dtype))
+            value = value.to(device=parameter.device, dtype=parameter.dtype)
+            if isinstance(parameter, DTensor):
+                value = distribute_tensor(
+                    value,
+                    device_mesh=parameter.device_mesh,
+                    placements=parameter.placements,
+                )
+            parameter.copy_(value)
 
     # =========================================================================
     # Config Loading
