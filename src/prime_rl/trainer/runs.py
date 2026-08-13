@@ -1,3 +1,4 @@
+import hashlib
 import pickle
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,6 +26,54 @@ class Progress:
     total_samples: int = 0
 
 
+def _adapter_weights_path(path: Path) -> Path:
+    weights_path = path / "adapter_model.safetensors" if path.is_dir() else path
+    if not weights_path.is_file():
+        raise FileNotFoundError(f"initial LoRA adapter weights not found: {weights_path}")
+    return weights_path
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _normalize_peft_adapter_key(key: str) -> str:
+    prefix = "base_model.model."
+    if key.startswith(prefix):
+        key = key[len(prefix) :]
+    return key.replace(".lora_A.default.weight", ".lora_A.weight").replace(
+        ".lora_B.default.weight", ".lora_B.weight"
+    )
+
+
+def load_initial_adapter_state(path: Path, expected_sha256: str) -> dict[str, torch.Tensor]:
+    """Load a checksum-pinned PEFT adapter into Prime-RL parameter names."""
+    from safetensors import safe_open
+
+    weights_path = _adapter_weights_path(path)
+    actual_sha256 = _sha256_file(weights_path)
+    if actual_sha256 != expected_sha256:
+        raise ValueError(
+            f"initial LoRA adapter checksum mismatch: expected {expected_sha256}, got {actual_sha256}"
+        )
+    state = {}
+    with safe_open(weights_path, framework="pt", device="cpu") as handle:
+        for source_key in handle.keys():
+            key = _normalize_peft_adapter_key(source_key)
+            if key in state:
+                raise ValueError(f"duplicate normalized initial LoRA key: {key}")
+            state[key] = handle.get_tensor(source_key)
+    if not state:
+        raise ValueError("initial LoRA adapter contains no tensors")
+    if _sha256_file(weights_path) != expected_sha256:
+        raise ValueError("initial LoRA adapter changed while it was being loaded")
+    return state
+
+
 class MultiRunManager:
     """This class stores information about the runs in the system."""
 
@@ -32,7 +81,13 @@ class MultiRunManager:
     # Initialization
     # =========================================================================
 
-    def __init__(self, output_dir: Path, max_runs: int, device: torch.device = torch.device("cpu")):
+    def __init__(
+        self,
+        output_dir: Path,
+        max_runs: int,
+        device: torch.device = torch.device("cpu"),
+        lora_config: LoRAConfig | None = None,
+    ):
         self.output_dir = output_dir
         self.max_runs = max_runs
         self.logger = get_logger()
@@ -62,6 +117,9 @@ class MultiRunManager:
 
         # Optional conversion applied to adapter state dicts (e.g. PrimeRL -> HF key rename)
         self._adapter_state_dict_converter: Callable[[dict[str, torch.Tensor]], dict[str, torch.Tensor]] | None = None
+        self._initial_adapter_path = lora_config.initial_adapter_path if lora_config is not None else None
+        self._initial_adapter_sha256 = lora_config.initial_adapter_sha256 if lora_config is not None else None
+        self._initial_adapter_state: dict[str, torch.Tensor] | None = None
 
         # Initialize lora globals on device so runs.* ARE the global tensors
         from prime_rl.trainer.models.layers.lora import (
@@ -213,6 +271,34 @@ class MultiRunManager:
         for _, module in self._modules:
             module.reset_parameters(idx)
 
+    @torch.no_grad()
+    def load_initial_adapter(self, idx: int) -> None:
+        """Initialize one run from the trainer-owned, checksum-pinned PEFT adapter."""
+        if self._initial_adapter_path is None or self._initial_adapter_sha256 is None:
+            return
+        if self._initial_adapter_state is None:
+            self._initial_adapter_state = load_initial_adapter_state(
+                self._initial_adapter_path, self._initial_adapter_sha256
+            )
+
+        target = dict(self.get_named_parameters_for_run(idx))
+        source = self._initial_adapter_state
+        missing = sorted(set(target) - set(source))
+        unexpected = sorted(set(source) - set(target))
+        if missing or unexpected:
+            raise ValueError(
+                "initial LoRA adapter keys do not match configured target modules: "
+                f"missing={missing[:8]}, unexpected={unexpected[:8]}"
+            )
+        for key, parameter in target.items():
+            value = source[key]
+            if tuple(value.shape) != tuple(parameter.shape):
+                raise ValueError(
+                    f"initial LoRA tensor shape mismatch for {key}: "
+                    f"expected {tuple(parameter.shape)}, got {tuple(value.shape)}"
+                )
+            parameter.copy_(value.to(device=parameter.device, dtype=parameter.dtype))
+
     # =========================================================================
     # Config Loading
     # =========================================================================
@@ -309,6 +395,7 @@ class MultiRunManager:
     def _create_run_hooks(self, new_id: int, new_run: str) -> None:
         """Reset parameters and call creation hooks for a run."""
         self.reset_run_parameters(new_id)
+        self.load_initial_adapter(new_id)
         for hook in self._creation_hooks:
             hook(new_id, new_run)
 
@@ -508,7 +595,7 @@ def setup_multi_run_manager(
         The initialized MultiRunManager instance.
     """
     global _MULTI_RUN_MANAGER
-    _MULTI_RUN_MANAGER = MultiRunManager(output_dir, max_runs, device)
+    _MULTI_RUN_MANAGER = MultiRunManager(output_dir, max_runs, device, lora_config)
 
     # Register validation and scaling hooks for LoRA
     if lora_config is not None and _MULTI_RUN_MANAGER.world.is_master:

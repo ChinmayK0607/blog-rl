@@ -1,11 +1,16 @@
+import hashlib
 from pathlib import Path
 from typing import Generator
 
 import pytest
 import tomli_w
+import torch
 import torch.distributed as dist
+from safetensors.torch import save_file
 
-from prime_rl.trainer.runs import MultiRunManager
+from prime_rl.configs.trainer import LoRAConfig
+from prime_rl.trainer.models.layers.lora import MultiLoRALinear
+from prime_rl.trainer.runs import MultiRunManager, load_initial_adapter_state
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -62,6 +67,45 @@ def test_initial_state(tmp_path: Path) -> None:
     assert len(multi_run_manager.id_2_idx) == 0
     assert len(multi_run_manager.unused_idxs) == 5
     assert multi_run_manager.run_dirs() == []
+
+
+def test_checksum_pinned_initial_adapter_populates_every_run(tmp_path: Path) -> None:
+    adapter_dir = tmp_path / "adapter"
+    adapter_dir.mkdir()
+    source = {
+        "base_model.model.proj.lora_A.weight": torch.arange(6, dtype=torch.float32).reshape(2, 3),
+        "base_model.model.proj.lora_B.weight": torch.arange(8, dtype=torch.float32).reshape(4, 2),
+    }
+    weights_path = adapter_dir / "adapter_model.safetensors"
+    save_file(source, weights_path)
+    digest = hashlib.sha256(weights_path.read_bytes()).hexdigest()
+    manager = MultiRunManager(
+        output_dir=tmp_path / "runs",
+        max_runs=2,
+        lora_config=LoRAConfig(
+            rank=2,
+            target_modules=["proj"],
+            initial_adapter_path=adapter_dir,
+            initial_adapter_sha256=digest,
+        ),
+    )
+    layer = MultiLoRALinear(torch.nn.Linear(3, 4, bias=False), rank=2, n_adapters=2, alpha=4)
+    manager.register_module("proj", layer)
+
+    manager.load_initial_adapter(0)
+    manager.load_initial_adapter(1)
+
+    for idx in (0, 1):
+        loaded = dict(manager.get_named_parameters_for_run(idx))
+        assert torch.equal(loaded["proj.lora_A.weight"], source["base_model.model.proj.lora_A.weight"])
+        assert torch.equal(loaded["proj.lora_B.weight"], source["base_model.model.proj.lora_B.weight"])
+
+
+def test_initial_adapter_rejects_checksum_mismatch(tmp_path: Path) -> None:
+    weights_path = tmp_path / "adapter_model.safetensors"
+    save_file({"proj.lora_A.weight": torch.zeros(2, 3)}, weights_path)
+    with pytest.raises(ValueError, match="checksum mismatch"):
+        load_initial_adapter_state(weights_path, "0" * 64)
 
 
 def test_detect_new_runs(tmp_path: Path) -> None:

@@ -59,6 +59,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   fixed run, and require constrained rollout/trainer log-prob parity. Never send
   all four agents through one run or assign one rollout-level advantage to all
   four.
+- Seed all four Swarm Arena policy slots from one immutable warm start with
+  trainer-side `model.lora.initial_adapter_path` and
+  `model.lora.initial_adapter_sha256`. The trainer reads PEFT safetensors only,
+  checks the digest before and after loading, requires an exact tensor-key and
+  shape match, and initializes every new run before its optimizer is created.
+  A resumed native run checkpoint takes precedence over this common seed.
 - Swarm Arena rollout workers never write to the trainer queue. Route complete
   actual-plus-four-replacement evidence through `safety_supervisor.py`; require
   independent state replay, terminal-reward recomputation, exact private-context

@@ -103,6 +103,18 @@ class LoRAConfig(BaseConfig):
     modules_to_save: list[str] = []
     """Module names or regex patterns to keep fully trainable (not freeze). Same matching rules as ``target_modules``."""
 
+    initial_adapter_path: Path | None = None
+    """Local PEFT safetensors file or adapter directory used to initialize every run."""
+
+    initial_adapter_sha256: str | None = Field(None, pattern=r"^[0-9a-f]{64}$")
+    """Required SHA-256 digest of the initial adapter safetensors file."""
+
+    @model_validator(mode="after")
+    def validate_initial_adapter(self):
+        if (self.initial_adapter_path is None) != (self.initial_adapter_sha256 is None):
+            raise ValueError("initial_adapter_path and initial_adapter_sha256 must be set together")
+        return self
+
 
 class DebugModelConfig(BaseConfig):
     num_layers: int | None = None
