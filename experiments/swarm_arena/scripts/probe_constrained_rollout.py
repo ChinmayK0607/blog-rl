@@ -9,11 +9,10 @@ from typing import Any
 
 import httpx
 from renderers import Qwen3Renderer, Qwen3RendererConfig
-from transformers import AutoTokenizer
-
 from swarm_ctf_eval.episode_protocol import episode_broadcast_prompt
 from swarm_ctf_eval.rl_v3 import ArenaRLEnv
 from swarm_ctf_eval.structured_protocol import completion_allowed_token_ids, protocol_choices
+from transformers import AutoTokenizer
 
 
 def sha256_file(path: Path) -> str:
