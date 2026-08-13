@@ -127,6 +127,13 @@ class Approval:
     evidence_sha256: str
     replay_return: float
     logprob_max_abs_error: float
+    logprob_mean_abs_error: float
+    logprob_p99_abs_error: float
+    probability_max_abs_error: float
+    probability_p99_abs_error: float
+    probability_tail_fraction: float
+    mismatch_kl_mean: float
+    mismatch_kl_max: float
     envelopes: tuple[PolicyTrainingEnvelope, ...]
     signature: str
 
@@ -370,6 +377,13 @@ def approve_credit_group(
         "evidence_sha256": canonical_sha256(_evidence_payload(evidence)),
         "replay_return": replay_return,
         "logprob_max_abs_error": float(parity["max_abs_error"]),
+        "logprob_mean_abs_error": float(parity["mean_abs_error"]),
+        "logprob_p99_abs_error": float(parity["p99_abs_error"]),
+        "probability_max_abs_error": float(parity["max_probability_error"]),
+        "probability_p99_abs_error": float(parity["p99_probability_error"]),
+        "probability_tail_fraction": float(parity["probability_tail_fraction"]),
+        "mismatch_kl_mean": float(parity["mean_mismatch_kl"]),
+        "mismatch_kl_max": float(parity["max_mismatch_kl"]),
         "envelopes": [asdict(row) for row in envelopes],
     }
     signature = hmac.new(
@@ -384,6 +398,13 @@ def approve_credit_group(
         unsigned["evidence_sha256"],
         replay_return,
         float(parity["max_abs_error"]),
+        float(parity["mean_abs_error"]),
+        float(parity["p99_abs_error"]),
+        float(parity["max_probability_error"]),
+        float(parity["p99_probability_error"]),
+        float(parity["probability_tail_fraction"]),
+        float(parity["mean_mismatch_kl"]),
+        float(parity["max_mismatch_kl"]),
         envelopes,
         signature,
     )
@@ -397,6 +418,13 @@ def verify_approval_signature(approval: Approval, signing_key: bytes) -> None:
         "evidence_sha256": approval.evidence_sha256,
         "replay_return": approval.replay_return,
         "logprob_max_abs_error": approval.logprob_max_abs_error,
+        "logprob_mean_abs_error": approval.logprob_mean_abs_error,
+        "logprob_p99_abs_error": approval.logprob_p99_abs_error,
+        "probability_max_abs_error": approval.probability_max_abs_error,
+        "probability_p99_abs_error": approval.probability_p99_abs_error,
+        "probability_tail_fraction": approval.probability_tail_fraction,
+        "mismatch_kl_mean": approval.mismatch_kl_mean,
+        "mismatch_kl_max": approval.mismatch_kl_max,
         "envelopes": [asdict(row) for row in approval.envelopes],
     }
     expected = hmac.new(

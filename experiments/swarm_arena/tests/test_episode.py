@@ -546,7 +546,13 @@ def test_prime_bridge_routes_actual_tokens_and_checks_logprob_parity() -> None:
         "decisions": 4,
         "tokens": 4,
         "max_abs_error": 0.0,
-        "absolute_tolerance": 0.0002,
+        "mean_abs_error": 0.0,
+        "p99_abs_error": 0.0,
+        "max_probability_error": 0.0,
+        "p99_probability_error": 0.0,
+        "probability_tail_fraction": 0.0,
+        "mean_mismatch_kl": 0.0,
+        "max_mismatch_kl": 0.0,
     }
 
 

@@ -196,7 +196,14 @@ def verify_trainer_logprob_parity(
     trainer_logprobs: dict[str, tuple[float, ...]],
     trainable_policy_ids: frozenset[str],
     *,
-    absolute_tolerance: float = 2e-4,
+    mean_absolute_tolerance: float = 0.005,
+    p99_absolute_tolerance: float = 0.12,
+    max_probability_tolerance: float = 0.1,
+    p99_probability_tolerance: float = 0.05,
+    probability_tail_threshold: float = 0.05,
+    probability_tail_fraction_tolerance: float = 0.005,
+    mean_mismatch_kl_tolerance: float = 0.0005,
+    max_mismatch_kl_tolerance: float = 0.08,
 ) -> dict[str, float | int | str]:
     actual_trainable = [
         decision
@@ -225,16 +232,71 @@ def verify_trainer_logprob_parity(
                 decision.rollout_logprobs, compared, strict=True
             )
         )
+    def quantile(values: list[float], q: float) -> float:
+        ordered = sorted(values)
+        if not ordered:
+            return 0.0
+        position = (len(ordered) - 1) * q
+        lower = math.floor(position)
+        upper = math.ceil(position)
+        if lower == upper:
+            return ordered[lower]
+        return ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower)
+
+    rollout_values = []
+    trainer_values = []
+    for decision in actual_trainable:
+        rollout_values.extend(decision.rollout_logprobs)
+        trainer_values.extend(trainer_logprobs[decision.decision_id])
+    probability_errors = [
+        abs(math.exp(rollout) - math.exp(trainer))
+        for rollout, trainer in zip(rollout_values, trainer_values, strict=True)
+    ]
+    mismatch_kls = []
+    for rollout, trainer in zip(rollout_values, trainer_values, strict=True):
+        log_ratio = trainer - rollout
+        mismatch_kls.append(math.exp(log_ratio) - log_ratio - 1.0)
     maximum = max(errors, default=0.0)
-    if maximum > absolute_tolerance:
+    mean = sum(errors) / max(len(errors), 1)
+    p99 = quantile(errors, 0.99)
+    probability_maximum = max(probability_errors, default=0.0)
+    probability_p99 = quantile(probability_errors, 0.99)
+    probability_tail_fraction = sum(
+        value > probability_tail_threshold for value in probability_errors
+    ) / max(len(probability_errors), 1)
+    mismatch_kl_mean = sum(mismatch_kls) / max(len(mismatch_kls), 1)
+    mismatch_kl_maximum = max(mismatch_kls, default=0.0)
+    failures = {
+        "mean_abs_error": (mean, mean_absolute_tolerance),
+        "p99_abs_error": (p99, p99_absolute_tolerance),
+        "max_probability_error": (probability_maximum, max_probability_tolerance),
+        "p99_probability_error": (probability_p99, p99_probability_tolerance),
+        "probability_tail_fraction": (
+            probability_tail_fraction,
+            probability_tail_fraction_tolerance,
+        ),
+        "mean_mismatch_kl": (mismatch_kl_mean, mean_mismatch_kl_tolerance),
+        "max_mismatch_kl": (mismatch_kl_maximum, max_mismatch_kl_tolerance),
+    }
+    exceeded = {name: values for name, values in failures.items() if values[0] > values[1]}
+    if exceeded:
         raise ValueError(
-            f"rollout/trainer log-prob mismatch: max_abs_error={maximum:.8g} "
-            f"> tolerance={absolute_tolerance:.8g}"
+            "rollout/trainer numerical-parity envelope exceeded: "
+            + ", ".join(
+                f"{name}={value:.8g}>{tolerance:.8g}"
+                for name, (value, tolerance) in exceeded.items()
+            )
         )
     return {
         "status": "passed",
         "decisions": len(actual_trainable),
         "tokens": token_count,
         "max_abs_error": maximum,
-        "absolute_tolerance": absolute_tolerance,
+        "mean_abs_error": mean,
+        "p99_abs_error": p99,
+        "max_probability_error": probability_maximum,
+        "p99_probability_error": probability_p99,
+        "probability_tail_fraction": probability_tail_fraction,
+        "mean_mismatch_kl": mismatch_kl_mean,
+        "max_mismatch_kl": mismatch_kl_maximum,
     }

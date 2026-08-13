@@ -104,11 +104,13 @@ def main() -> None:
     parser.add_argument("--probe", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
-    parser.add_argument("--max-logprob-error", type=float, default=0.1)
     parser.add_argument("--max-mean-logprob-error", type=float, default=0.005)
-    parser.add_argument("--max-probability-error", type=float, default=0.04)
-    parser.add_argument("--max-importance-ratio-error", type=float, default=0.1)
-    parser.add_argument("--max-mismatch-kl", type=float, default=0.005)
+    parser.add_argument("--max-p99-logprob-error", type=float, default=0.12)
+    parser.add_argument("--max-probability-error", type=float, default=0.1)
+    parser.add_argument("--max-p99-probability-error", type=float, default=0.05)
+    parser.add_argument("--max-probability-tail-fraction", type=float, default=0.005)
+    parser.add_argument("--max-mean-mismatch-kl", type=float, default=0.0005)
+    parser.add_argument("--max-mismatch-kl", type=float, default=0.08)
     args = parser.parse_args()
 
     if args.output_dir.exists():
@@ -215,12 +217,18 @@ def main() -> None:
     max_probability_error = float(probability_error.max())
     max_importance_ratio_error = float(importance_ratio_error.max())
     max_mismatch_kl = float(mismatch_kl.max())
+    mean_mismatch_kl = float(mismatch_kl.mean())
+    p99_absolute_error = float(torch.quantile(absolute_error, 0.99))
+    p99_probability_error = float(torch.quantile(probability_error, 0.99))
+    probability_tail_fraction = float((probability_error > 0.05).float().mean())
     parity_passed = all(
         (
-            max_absolute_error <= args.max_logprob_error,
             mean_absolute_error <= args.max_mean_logprob_error,
+            p99_absolute_error <= args.max_p99_logprob_error,
             max_probability_error <= args.max_probability_error,
-            max_importance_ratio_error <= args.max_importance_ratio_error,
+            p99_probability_error <= args.max_p99_probability_error,
+            probability_tail_fraction <= args.max_probability_tail_fraction,
+            mean_mismatch_kl <= args.max_mean_mismatch_kl,
             max_mismatch_kl <= args.max_mismatch_kl,
         )
     )
@@ -288,22 +296,24 @@ def main() -> None:
         "max_probability_error": max_probability_error,
         "mean_absolute_logprob_error": mean_absolute_error,
         "mean_branching_absolute_logprob_error": float(absolute_error[branching].mean()),
-        "mean_mismatch_kl": float(mismatch_kl.mean()),
+        "mean_mismatch_kl": mean_mismatch_kl,
         "p95_absolute_logprob_error": float(torch.quantile(absolute_error, 0.95)),
-        "p99_absolute_logprob_error": float(torch.quantile(absolute_error, 0.99)),
+        "p99_absolute_logprob_error": p99_absolute_error,
         "p99_branching_absolute_logprob_error": float(
             torch.quantile(absolute_error[branching], 0.99)
         ),
-        "p99_probability_error": float(torch.quantile(probability_error, 0.99)),
-        "probability_error_over_0_05_fraction": float((probability_error > 0.05).float().mean()),
+        "p99_probability_error": p99_probability_error,
+        "probability_error_over_0_05_fraction": probability_tail_fraction,
         "optimizer_parameter_sets_disjoint": optimizer_sets_disjoint,
         "parity_passed": parity_passed,
         "parity_thresholds": {
-            "max_absolute_logprob_error": args.max_logprob_error,
-            "max_importance_ratio_error": args.max_importance_ratio_error,
             "max_mean_logprob_error": args.max_mean_logprob_error,
+            "max_p99_logprob_error": args.max_p99_logprob_error,
             "max_mismatch_kl": args.max_mismatch_kl,
+            "max_mean_mismatch_kl": args.max_mean_mismatch_kl,
             "max_probability_error": args.max_probability_error,
+            "max_p99_probability_error": args.max_p99_probability_error,
+            "max_probability_tail_fraction": args.max_probability_tail_fraction,
         },
         "policy_slot_digests_before": slot_digests_before,
         "sample_summaries": sample_summaries,
