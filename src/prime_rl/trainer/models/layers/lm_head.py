@@ -63,6 +63,25 @@ class FusedOutputLinear(torch.nn.Linear):
         return PrimeLmOutput(logprobs=logprobs, entropy=entropy)
 
 
+class _BF16FP32LinearFn(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, hidden_states: Tensor, weight: Tensor) -> Tensor:
+        ctx.save_for_backward(hidden_states, weight)
+        return torch.mm(hidden_states, weight.t(), out_dtype=torch.float32)
+
+    @staticmethod
+    def backward(ctx, grad_output: Tensor) -> tuple[Tensor | None, Tensor | None]:
+        hidden_states, weight = ctx.saved_tensors
+        grad = grad_output.to(dtype=torch.bfloat16)
+        grad_hidden = torch.mm(grad, weight) if ctx.needs_input_grad[0] else None
+        grad_weight = (
+            torch.mm(grad.t(), hidden_states).to(dtype=weight.dtype)
+            if ctx.needs_input_grad[1]
+            else None
+        )
+        return grad_hidden, grad_weight
+
+
 class VanillaOutputLinear(torch.nn.Linear):
     def __init__(self, in_features: int, out_features: int):
         super().__init__(in_features, out_features, bias=False)
@@ -82,10 +101,9 @@ class VanillaOutputLinear(torch.nn.Linear):
             projected_hidden = hidden_states.to(dtype=torch.bfloat16)
             weight = self.weight.to(dtype=torch.bfloat16)
             with torch.autocast("cuda", enabled=False):
-                logits = torch.mm(
+                logits = _BF16FP32LinearFn.apply(
                     projected_hidden.reshape(-1, projected_hidden.shape[-1]),
-                    weight.t(),
-                    out_dtype=torch.float32,
+                    weight,
                 ).reshape(shape)
         else:
             logits = super().forward(hidden_states)
