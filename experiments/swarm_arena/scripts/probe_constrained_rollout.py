@@ -85,18 +85,34 @@ async def main() -> None:
     completion_ids = list(choice["token_ids"])
     completion = tokenizer.decode(completion_ids, skip_special_tokens=False)
     choice_token_ids = [tokenizer.encode(value, add_special_tokens=False) for value in choices]
-    allowed = completion_allowed_token_ids(completion_ids, choice_token_ids)
     result = {
         "adapter_sha256": actual_sha256,
         "choice_count": len(choices),
         "completion": completion,
         "completion_ids": completion_ids,
         "completion_logprobs": [item["logprob"] for item in choice["logprobs"]["content"]],
-        "allowed_token_ids": allowed,
         "prompt_ids": prompt_ids,
         "raw_response": response,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    try:
+        result["allowed_token_ids"] = completion_allowed_token_ids(completion_ids, choice_token_ids)
+    except ValueError:
+        matching_text = [value for value in choices if value == completion]
+        print(
+            json.dumps(
+                {
+                    "completion": completion,
+                    "completion_ids": completion_ids,
+                    "matching_choice": matching_text,
+                    "isolated_ids": tokenizer.encode(completion, add_special_tokens=False),
+                    "raw_output": str(args.output),
+                },
+                sort_keys=True,
+            )
+        )
+        raise
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(
         json.dumps(
