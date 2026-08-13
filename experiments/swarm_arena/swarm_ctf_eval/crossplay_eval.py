@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from .arena import TEAMS, WAIT, Action, Team
+from .arena import TEAMS, WAIT, Action, GameState, Team
 from .arena_eval import ArenaModel, OpenAIArenaModel, _respond_many
 from .arena_protocol import Broadcast, parse_action, parse_broadcast
 from .episode import (
@@ -29,6 +29,7 @@ from .structured_protocol import STRUCTURED_PROTOCOL_VERSION, protocol_response_
 CROSSPLAY_VERSION = "arena-crossplay-v4-dynamic-protocol"
 CONDITIONS = ("generated", "dropped", "sender_shuffled", "delayed", "zero_budget")
 Case = tuple[int, int, int]
+ModelRoster = ArenaModel | dict[str, ArenaModel]
 FROZEN_CROSSPLAY_CASES: tuple[Case, ...] = tuple(
     (
         3_000_003 + 193 * index,
@@ -51,6 +52,26 @@ def development_cases(count: int, seed_base: int = 1_000_003) -> tuple[Case, ...
 def _members(env: ArenaEpisodeEnv, team: Team) -> list[str]:
     state = env._require_state()
     return sorted(agent.id for agent in state.agents.values() if agent.team == team)
+
+
+def _resolve_roster(
+    env: ArenaEpisodeEnv,
+    team: Team,
+    roster: ModelRoster,
+) -> dict[str, ArenaModel]:
+    members = _members(env, team)
+    if not isinstance(roster, dict):
+        return {agent_id: roster for agent_id in members}
+    if set(roster) != set(members):
+        raise ValueError(
+            f"{team} model roster must cover exactly {members}; got {sorted(roster)}"
+        )
+    return dict(roster)
+
+
+def _roster_name(roster: dict[str, ArenaModel]) -> str:
+    names = [model.name for _, model in sorted(roster.items())]
+    return names[0] if len(set(names)) == 1 else "roster[" + ",".join(names) + "]"
 
 
 def _referee_state(env: ArenaEpisodeEnv) -> dict[str, Any]:
@@ -189,14 +210,17 @@ def _delivered_for_team(
 
 
 def evaluate_crossplay(
-    blue_model: ArenaModel,
-    red_model: ArenaModel,
+    blue_model: ModelRoster,
+    red_model: ModelRoster,
     case: Case,
     *,
     blue_condition: str = "generated",
     red_condition: str = "generated",
     blue_history_window: int = 3,
     red_history_window: int = 3,
+    initial_state: GameState | None = None,
+    env: ArenaEpisodeEnv | None = None,
+    action_permutation_offset: int = 0,
 ) -> dict[str, Any]:
     if blue_condition not in CONDITIONS or red_condition not in CONDITIONS:
         raise ValueError("unknown communication condition")
@@ -204,9 +228,19 @@ def evaluate_crossplay(
         raise ValueError("history windows cannot be negative")
 
     seed, size, horizon = case
-    env = ArenaEpisodeEnv(seed, size, EpisodeConfig(horizon=horizon))
-    env.reset()
-    models: dict[Team, ArenaModel] = {"BLUE": blue_model, "RED": red_model}
+    if env is None:
+        env = ArenaEpisodeEnv(seed, size, EpisodeConfig(horizon=horizon))
+    elif env.config.horizon != horizon:
+        raise ValueError("provided environment horizon does not match the case")
+    if initial_state is None:
+        env.reset(seed)
+    else:
+        if len(initial_state.nodes) != size:
+            raise ValueError("provided initial state size does not match the case")
+        env.reset_from_state(initial_state)
+    blue_roster = _resolve_roster(env, "BLUE", blue_model)
+    red_roster = _resolve_roster(env, "RED", red_model)
+    models_by_agent = {**blue_roster, **red_roster}
     conditions: dict[Team, str] = {"BLUE": blue_condition, "RED": red_condition}
     history_windows: dict[Team, int] = {
         "BLUE": blue_history_window,
@@ -237,7 +271,7 @@ def evaluate_crossplay(
                 window = history_windows[team]
                 prompt = _with_history(prompt, histories[agent_id][-window:] if window else [])
                 broadcast_prompts[agent_id] = prompt
-                broadcast_jobs.append((agent_id, models[team], prompt))
+                broadcast_jobs.append((agent_id, models_by_agent[agent_id], prompt))
         if broadcast_jobs:
             raw_broadcasts, broadcast_inference = _respond_agents(broadcast_jobs)
         else:
@@ -314,13 +348,13 @@ def evaluate_crossplay(
                 prompt, displayed = episode_action_prompt(
                     env,
                     agent_id,
-                    permutation=seed + turn * 23 + index,
+                    permutation=seed + turn * 23 + index + action_permutation_offset,
                 )
                 window = history_windows[team]
                 prompt = _with_history(prompt, histories[agent_id][-window:] if window else [])
                 displayed_by_agent[agent_id] = displayed
                 action_prompts[agent_id] = prompt
-                action_jobs.append((agent_id, models[team], prompt))
+                action_jobs.append((agent_id, models_by_agent[agent_id], prompt))
         raw_actions, action_inference = _respond_agents(action_jobs)
 
         selected: dict[str, Action] = {}
@@ -419,8 +453,14 @@ def evaluate_crossplay(
         "seed": seed,
         "size": size,
         "horizon": horizon,
-        "blue_model": blue_model.name,
-        "red_model": red_model.name,
+        "blue_model": _roster_name(blue_roster),
+        "red_model": _roster_name(red_roster),
+        "blue_agent_models": {
+            agent_id: model.name for agent_id, model in sorted(blue_roster.items())
+        },
+        "red_agent_models": {
+            agent_id: model.name for agent_id, model in sorted(red_roster.items())
+        },
         "blue_condition": blue_condition,
         "red_condition": red_condition,
         "blue_history_window": blue_history_window,

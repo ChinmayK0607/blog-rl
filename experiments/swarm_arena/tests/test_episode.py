@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
-from swarm_ctf_eval.arena import WAIT, Action
+from swarm_ctf_eval.arena import WAIT, Action, legal_actions, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
 from swarm_ctf_eval.crossplay_eval import (
     FROZEN_CROSSPLAY_CASES,
@@ -13,11 +14,34 @@ from swarm_ctf_eval.crossplay_eval import (
     prepare_manifest,
     summarize_side_swapped,
 )
+from swarm_ctf_eval.communication_curriculum import (
+    generate_manifest,
+    generate_pair,
+    informed_state,
+    swap_team_labels,
+)
+from swarm_ctf_eval.collapse_audit import audit_training_collapse
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, ArenaEpisodeEnv, EpisodeConfig, message_units
 from swarm_ctf_eval.episode_model_eval import evaluate_episode
 from swarm_ctf_eval.episode_protocol import episode_action_prompt, episode_broadcast_prompt
 from swarm_ctf_eval.episode_splits import EPISODE_EVAL_CASES
 from swarm_ctf_eval.structured_protocol import action_json_schema, broadcast_json_schema
+from swarm_ctf_eval.multi_policy_contract import (
+    AgentPolicy,
+    AgentTokenSpan,
+    attach_credits_to_spans,
+    replacement_credits,
+    validate_policy_roster,
+    validate_token_spans,
+)
+from swarm_ctf_eval.final_eval_v3 import summarize_final_eval
+from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
+from swarm_ctf_eval.prime_rl_bridge import (
+    RolloutDecision,
+    build_training_envelopes,
+    verify_trainer_logprob_parity,
+)
+from swarm_ctf_eval.rl_v3 import ArenaRLEnv, terminal_control_delta
 
 
 def waits(env: ArenaEpisodeEnv) -> dict[str, Action]:
@@ -131,13 +155,15 @@ def test_crossplay_controls_all_eight_agents_and_preserves_private_history() -> 
             return '{"action_id":"A0"}'
 
     row = evaluate_crossplay(
-        FirstOptionModel("blue"),
-        FirstOptionModel("red"),
+        {f"blue-{index}": FirstOptionModel(f"blue-policy-{index}") for index in range(4)},
+        {f"red-{index}": FirstOptionModel(f"red-policy-{index}") for index in range(4)},
         development_cases(1)[0],
     )
     assert row["metrics"]["BLUE"]["action_protocol_rate"] == 1.0
     assert row["metrics"]["RED"]["action_protocol_rate"] == 1.0
     assert all(len(turn["actions"]) == 8 for turn in row["turns"])
+    assert set(row["blue_agent_models"]) == {f"blue-{index}" for index in range(4)}
+    assert len(set(row["blue_agent_models"].values())) == 4
     assert parse_conditions("generated:generated,dropped:generated") == (
         ("generated", "generated"),
         ("dropped", "generated"),
@@ -223,3 +249,382 @@ def test_dynamic_action_schema_enumerates_only_displayed_action_ids() -> None:
     assert schema["properties"]["action_id"]["enum"] == [
         row["id"] for row in body["legal_actions"]
     ]
+
+
+def test_rl_v3_reward_is_only_normalized_terminal_control_delta() -> None:
+    env = ArenaRLEnv(config=EpisodeConfig(
+        horizon=2,
+        communication_cost=0.0,
+        invalid_broadcast_cost=0.0,
+        invalid_action_cost=0.0,
+    ))
+    env.reset(31)
+    assert env._initial_state is not None
+    env.broadcast_phase({})
+    first = env.advance(waits(env))
+    assert first.rewards == {"BLUE": 0.0, "RED": 0.0}
+    env.broadcast_phase({})
+    final = env.advance(waits(env))
+    expected = terminal_control_delta(env._initial_state, env._require_state(), "BLUE")
+    assert final.rewards == {"BLUE": expected, "RED": -expected}
+    assert final.info["reward_definition"] == "normalized terminal control delta"
+
+
+def test_certified_curriculum_pairs_critical_information_with_zero_value_decoy() -> None:
+    pair = generate_pair(3_000_000, 12, role_pair=("blue-2", "blue-3"))
+    assert pair is not None
+    critical, decoy = pair
+    assert (critical.sender, critical.receiver) == ("blue-2", "blue-3")
+    assert critical.minimum_advantage > 0.1
+    assert decoy.minimum_advantage == 0.0
+    informed = informed_state(critical.state, critical.sender, critical.team, critical.target)
+    assert Action("CAPTURE", critical.target) not in legal_actions(
+        critical.state, critical.receiver
+    )
+    assert Action("CAPTURE", critical.target) in legal_actions(informed, critical.receiver)
+
+
+def test_curriculum_manifest_balances_every_ordered_role_pair() -> None:
+    manifest = generate_manifest(count=12, seed_start=3_100_000)
+    roles = {
+        (pair["critical"]["sender"], pair["critical"]["receiver"])
+        for pair in manifest["pairs"]
+    }
+    assert len(roles) == 12
+    assert all(pair["critical"]["minimum_advantage"] > 0 for pair in manifest["pairs"])
+    assert all(pair["decoy"]["minimum_advantage"] == 0 for pair in manifest["pairs"])
+
+
+def test_final_eval_runner_supports_four_policy_rosters_and_true_side_swap() -> None:
+    class FirstOptionModel:
+        def __init__(self, name: str) -> None:
+            self.name = name
+
+        def respond(self, messages: list[dict[str, str]], oracle_target: str) -> str:
+            del oracle_target
+            phase = json.loads(messages[-1]["content"])["phase"]
+            if phase == "BROADCAST":
+                return '{"facts":[],"intent":null,"request_resource":0}'
+            return '{"action_id":"A0"}'
+
+    pair = generate_pair(3_200_003, 12, role_pair=("blue-0", "blue-1"))
+    assert pair is not None
+    critical, _ = pair
+    assert state_to_dict(swap_team_labels(swap_team_labels(critical.state))) == state_to_dict(
+        critical.state
+    )
+    identity = FinalEvalIdentity(
+        "critical-1",
+        "critical",
+        "candidate_rl",
+        "candidate-revision",
+        "identity",
+        "identity",
+        "canonical",
+        "opponent",
+        "opponent-revision",
+        "sample-1",
+    )
+    focal = tuple(FirstOptionModel(f"focal-{index}") for index in range(4))
+    opponent = tuple(FirstOptionModel(f"opponent-{index}") for index in range(4))
+    for side in ("BLUE", "RED"):
+        row, raw = evaluate_final_case(
+            focal,
+            opponent,
+            (critical.seed, critical.size, 2),
+            identity,
+            focal_side=side,
+            condition="normal",
+            initial_state=critical.state,
+            critical_target=critical.target,
+        )
+        assert row["side"] == side
+        assert row["horizon"] == 2
+        assert len(raw["turns"]) == 1
+        assert len(set(raw[f"{side.lower()}_agent_models"].values())) == 4
+    permuted_identity = FinalEvalIdentity(
+        "critical-1",
+        "critical",
+        "candidate_rl",
+        "candidate-revision",
+        "perm-2301",
+        "perm-1032",
+        "permuted-2",
+        "opponent",
+        "opponent-revision",
+        "sample-1",
+    )
+    _, raw = evaluate_final_case(
+        focal,
+        opponent,
+        (critical.seed, critical.size, 2),
+        permuted_identity,
+        focal_side="BLUE",
+        condition="normal",
+        initial_state=critical.state,
+        critical_target=critical.target,
+    )
+    assert raw["blue_agent_models"]["blue-1"] == "focal-2"
+
+
+def test_four_policy_contract_assigns_distinct_replacement_credit_to_owned_spans() -> None:
+    bindings = tuple(
+        AgentPolicy(
+            f"{team.lower()}-{index}",
+            team,
+            f"{team.lower()}-policy-{index}",
+            team == "BLUE",
+        )
+        for team in ("BLUE", "RED")
+        for index in range(4)
+    )
+    validate_policy_roster(bindings, "BLUE")
+    spans = tuple(
+        AgentTokenSpan(
+            "game-1",
+            f"blue-{index}",
+            f"blue-policy-{index}",
+            "BLUE",
+            0,
+            "BROADCAST",
+            index,
+            100,
+            8,
+        )
+        for index in range(4)
+    )
+    validate_token_spans(spans, bindings)
+    credits = replacement_credits(
+        0.5,
+        {"blue-0": 0.1, "blue-1": 0.3, "blue-2": 0.6, "blue-3": 0.5},
+        bindings,
+        "BLUE",
+    )
+    assert all(
+        math.isclose(actual, expected, abs_tol=1e-12)
+        for actual, expected in zip(
+            (credit.advantage for credit in credits),
+            (0.4, 0.2, -0.1, 0.0),
+            strict=True,
+        )
+    )
+    attached = attach_credits_to_spans(spans, credits)
+    assert [attached[key]["policy_id"] for key in sorted(attached)] == [
+        "blue-policy-0",
+        "blue-policy-1",
+        "blue-policy-2",
+        "blue-policy-3",
+    ]
+
+
+def test_prime_bridge_routes_actual_tokens_and_checks_logprob_parity() -> None:
+    bindings = tuple(
+        AgentPolicy(
+            f"{team.lower()}-{index}",
+            team,
+            f"{team.lower()}-policy-{index}",
+            team == "BLUE",
+        )
+        for team in ("BLUE", "RED")
+        for index in range(4)
+    )
+    credits = replacement_credits(
+        0.4,
+        {"blue-0": 0.1, "blue-1": 0.2, "blue-2": 0.3, "blue-3": 0.4},
+        bindings,
+        "BLUE",
+    )
+
+    def decision(
+        agent_id: str,
+        index: int,
+        branch: str = "actual",
+        replaced_agent: str | None = None,
+    ) -> RolloutDecision:
+        team = "BLUE" if agent_id.startswith("blue") else "RED"
+        return RolloutDecision(
+            "game-7",
+            branch,
+            replaced_agent,
+            agent_id,
+            f"{agent_id.split('-')[0]}-policy-{agent_id[-1]}",
+            "revision-1",
+            team,
+            0,
+            "ACT",
+            index,
+            (1, 2),
+            (3,),
+            (-0.25,),
+            "a" * 64,
+            "sample-7",
+        )
+
+    actual = tuple(
+        decision(f"{team}-{index}", offset * 4 + index)
+        for offset, team in enumerate(("blue", "red"))
+        for index in range(4)
+    )
+    replacements = tuple(
+        decision(
+            f"{team}-{agent_index}",
+            8 + replaced_index * 8 + team_index * 4 + agent_index,
+            "replacement",
+            f"blue-{replaced_index}",
+        )
+        for replaced_index in range(4)
+        for team_index, team in enumerate(("blue", "red"))
+        for agent_index in range(4)
+    )
+    decisions = actual + replacements
+    envelopes = build_training_envelopes(decisions, bindings, credits, "BLUE")
+    assert [row.policy_id for row in envelopes] == [f"blue-policy-{index}" for index in range(4)]
+    blue_actual = tuple(row for row in actual if row.team == "BLUE")
+    trainer = {row.decision_id: row.rollout_logprobs for row in blue_actual}
+    report = verify_trainer_logprob_parity(
+        actual,
+        trainer,
+        frozenset(f"blue-policy-{index}" for index in range(4)),
+    )
+    assert report == {
+        "status": "passed",
+        "decisions": 4,
+        "tokens": 4,
+        "max_abs_error": 0.0,
+        "absolute_tolerance": 0.0002,
+    }
+
+
+def test_final_eval_pairs_by_seed_and_separates_capability_from_communication() -> None:
+    rows = []
+
+    def add(
+        case_id: str,
+        suite: str,
+        opponent: str,
+        side: str,
+        variant: str,
+        assignment: str,
+        condition: str,
+        value: float,
+        role_assignment: str = "identity",
+        option_order: str = "canonical",
+    ) -> None:
+        rows.append(
+            {
+                "case_id": case_id,
+                "suite": suite,
+                "opponent_id": opponent,
+                "opponent_revision": "commit-1234567",
+                "side": side,
+                "policy_variant": variant,
+                "policy_revision": f"revision-{variant}",
+                "policy_assignment": assignment,
+                "role_assignment": role_assignment,
+                "option_order": option_order,
+                "condition": condition,
+                "sampling_key": f"sampling-{case_id}",
+                "terminal_return": value,
+                "messages_nonempty": int(condition == "normal"),
+                "critical_capture": condition == "normal",
+            }
+        )
+
+    for case_id in ("seed-1", "seed-2"):
+        for opponent in ("base@1", "sft@1", "league@1"):
+            for side in ("BLUE", "RED"):
+                add(case_id, "ordinary_ood", opponent, side, "candidate_rl", "identity", "normal", 0.4)
+                add(case_id, "ordinary_ood", opponent, side, "sft_init", "identity", "normal", 0.1)
+                add(case_id, "ordinary_ood", opponent, side, "action_only_rl", "identity", "normal", 0.3)
+                add(case_id, "ordinary_ood", opponent, side, "candidate_rl", "shuffle-1", "normal", 0.2)
+                add(case_id, "ordinary_ood", opponent, side, "candidate_rl", "identity", "normal", 0.4, "perm-1032")
+                add(
+                    case_id,
+                    "ordinary_ood",
+                    opponent,
+                    side,
+                    "candidate_rl",
+                    "identity",
+                    "normal",
+                    0.4,
+                    "identity",
+                    "permuted-1",
+                )
+                for condition in ("normal", "dropped", "sender_shuffled", "delayed", "zero_budget"):
+                    add(
+                        case_id,
+                        "critical",
+                        opponent,
+                        side,
+                        "candidate_rl",
+                        "identity",
+                        condition,
+                        0.5 if condition == "normal" else 0.0,
+                    )
+                add(case_id, "critical", opponent, side, "candidate_rl", "shuffle-1", "normal", 0.1)
+                add(case_id, "critical", opponent, side, "candidate_rl", "identity", "normal", 0.5, "perm-1032")
+                add(
+                    case_id,
+                    "critical",
+                    opponent,
+                    side,
+                    "candidate_rl",
+                    "identity",
+                    "normal",
+                    0.5,
+                    "identity",
+                    "permuted-1",
+                )
+                add(case_id, "decoy", opponent, side, "candidate_rl", "identity", "normal", 0.0)
+                add(case_id, "decoy", opponent, side, "candidate_rl", "identity", "dropped", 0.0)
+
+    summary = summarize_final_eval(rows)
+    assert summary["capability_rl_minus_sft"]["independent_seed_units"] == 2
+    assert math.isclose(summary["capability_rl_minus_sft"]["mean_difference"], 0.3)
+    assert summary["communication_effects"]["normal_minus_dropped"]["independent_seed_units"] == 2
+    assert summary["claim_checks"]["communication_claim_passed"]
+    assert summary["claim_checks"]["specialization_interval_positive"]
+    assert summary["claim_checks"]["role_label_equivalence_within_0_02"]
+    assert summary["claim_checks"]["option_order_equivalence_within_0_02"]
+
+
+def test_collapse_audit_separates_return_gain_from_message_gain() -> None:
+    rows = []
+    for game_index in range(20):
+        opponent = ("base@1", "sft@1", "league@1")[game_index % 3]
+        for agent_index in range(4):
+            common = {
+                "game_id": f"game-{game_index}",
+                "agent_id": f"blue-{agent_index}",
+                "policy_id": f"blue-policy-{agent_index}",
+                "opponent_id": opponent,
+                "side": "BLUE" if game_index % 2 == 0 else "RED",
+                "message_nonempty": game_index % 2 == 0,
+                "message_target": f"node-{game_index % 5}",
+                "action_signature": f"action-{game_index % 4}",
+                "kl": 0.01,
+            }
+            rows.append(
+                dict(common, checkpoint_id="sft", condition="normal", terminal_return=0.1)
+            )
+            rows.append(
+                dict(common, checkpoint_id="rl", condition="normal", terminal_return=0.2)
+            )
+            rows.append(
+                dict(common, checkpoint_id="rl", condition="dropped", terminal_return=0.19)
+            )
+    report = audit_training_collapse(
+        rows,
+        candidate_checkpoint="rl",
+        baseline_checkpoint="sft",
+    )
+    assert report["passed"]
+    for row in rows:
+        if row["checkpoint_id"] == "rl" and row["condition"] == "dropped":
+            row["terminal_return"] = 0.2
+    report = audit_training_collapse(
+        rows,
+        candidate_checkpoint="rl",
+        baseline_checkpoint="sft",
+    )
+    assert report["flags"]["return_gain_without_message_gain"]

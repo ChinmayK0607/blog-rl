@@ -120,7 +120,14 @@ class ArenaEpisodeEnv:
     def reset(self, seed: int | None = None) -> dict[str, dict[str, Any]]:
         if seed is not None:
             self.seed = seed
-        self.state = generate_state(self.seed, self.size)
+        return self.reset_from_state(generate_state(self.seed, self.size))
+
+    def reset_from_state(self, state: GameState) -> dict[str, dict[str, Any]]:
+        state.validate()
+        if state.turn >= self.config.horizon:
+            raise ValueError("initial state must precede the episode horizon")
+        self.state = state.clone()
+        self.size = len(self.state.nodes)
         self.initial_values = {team: team_value(self.state, team) for team in TEAMS}
         self.remaining_budget = {agent_id: self.config.message_budget_per_agent for agent_id in self.state.agents}
         self.communication_spend = {team: 0 for team in TEAMS}

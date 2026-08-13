@@ -1,0 +1,101 @@
+{
+  "final_design_checks": {
+    "certified_v3_hash_matches": true,
+    "ordinary_v2_hash_matches": true,
+    "status_frozen_before_rl": true
+  },
+  "passed": true,
+  "seed_overlaps": {
+    "development_frozen_ood": [],
+    "rl_v3_frozen_episode_v2": [],
+    "train_development": [],
+    "train_frozen_ood": []
+  },
+  "splits": {
+    "development": {
+      "all_critical_advantages_positive": true,
+      "all_decoy_advantages_zero": true,
+      "all_sender_observations_matched": true,
+      "all_structural_states_matched": true,
+      "body_hash_valid": true,
+      "only_receiver_target_knowledge_changes": true,
+      "ordered_role_pair_counts": {
+        "blue-0->blue-1": 4,
+        "blue-0->blue-2": 4,
+        "blue-0->blue-3": 4,
+        "blue-1->blue-0": 4,
+        "blue-1->blue-2": 4,
+        "blue-1->blue-3": 4,
+        "blue-2->blue-0": 4,
+        "blue-2->blue-1": 4,
+        "blue-2->blue-3": 4,
+        "blue-3->blue-0": 4,
+        "blue-3->blue-1": 4,
+        "blue-3->blue-2": 4
+      },
+      "pair_count": 48,
+      "role_balance_range": [
+        4,
+        4
+      ],
+      "unique_seed_count": 48
+    },
+    "frozen_ood": {
+      "all_critical_advantages_positive": true,
+      "all_decoy_advantages_zero": true,
+      "all_sender_observations_matched": true,
+      "all_structural_states_matched": true,
+      "body_hash_valid": true,
+      "only_receiver_target_knowledge_changes": true,
+      "ordered_role_pair_counts": {
+        "blue-0->blue-1": 6,
+        "blue-0->blue-2": 6,
+        "blue-0->blue-3": 6,
+        "blue-1->blue-0": 6,
+        "blue-1->blue-2": 6,
+        "blue-1->blue-3": 6,
+        "blue-2->blue-0": 6,
+        "blue-2->blue-1": 6,
+        "blue-2->blue-3": 6,
+        "blue-3->blue-0": 6,
+        "blue-3->blue-1": 6,
+        "blue-3->blue-2": 6
+      },
+      "pair_count": 72,
+      "role_balance_range": [
+        6,
+        6
+      ],
+      "unique_seed_count": 72
+    },
+    "train": {
+      "all_critical_advantages_positive": true,
+      "all_decoy_advantages_zero": true,
+      "all_sender_observations_matched": true,
+      "all_structural_states_matched": true,
+      "body_hash_valid": true,
+      "only_receiver_target_knowledge_changes": true,
+      "ordered_role_pair_counts": {
+        "blue-0->blue-1": 20,
+        "blue-0->blue-2": 20,
+        "blue-0->blue-3": 20,
+        "blue-1->blue-0": 20,
+        "blue-1->blue-2": 20,
+        "blue-1->blue-3": 20,
+        "blue-2->blue-0": 20,
+        "blue-2->blue-1": 20,
+        "blue-2->blue-3": 20,
+        "blue-3->blue-0": 20,
+        "blue-3->blue-1": 20,
+        "blue-3->blue-2": 20
+      },
+      "pair_count": 240,
+      "role_balance_range": [
+        20,
+        20
+      ],
+      "unique_seed_count": 240
+    }
+  },
+  "version": "arena-rl-v3-global-audit-v1"
+}

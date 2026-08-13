@@ -51,6 +51,13 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   If a local env exists under `deps/research-environments/environments/` but does not
   import, add it to the root `pyproject.toml` env extra, workspace members, and
   `[tool.uv.sources]`, then run `uv sync --all-extras`.
+- Swarm Arena four-policy RL is not compatible with the stock single-policy
+  trainer route yet. Before any optimizer step, run the committed RL-v3 global
+  audit, build one actual plus four complete replacement branches, route only
+  actual trainable-agent spans through `prime_rl_bridge.py`, and require the
+  rollout/trainer constrained log-prob parity check to pass. Do not fall back to
+  assigning one rollout-level advantage to all four agents or silently merge
+  their LoRA policy IDs.
 
 ## `sft` — SFT training
 
