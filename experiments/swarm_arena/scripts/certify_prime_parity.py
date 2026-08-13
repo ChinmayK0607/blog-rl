@@ -151,7 +151,7 @@ def main() -> None:
     lora_num_tokens[slot] = token_ids.shape[1]
     set_lora_num_tokens(lora_num_tokens)
     model.eval()
-    with torch.inference_mode():
+    with torch.no_grad():
         output = forward(
             model,
             token_ids,
