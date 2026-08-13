@@ -83,7 +83,8 @@ def compute_constrained_entropy(logits: Tensor, allowed_token_ids: Tensor) -> Te
     log_normalizer = torch.logsumexp(legal_logits, dim=-1, keepdim=True)
     log_probs = legal_logits - log_normalizer
     probabilities = torch.where(valid, torch.exp(log_probs), 0.0)
-    restricted = -torch.where(valid, probabilities * log_probs, 0.0).sum(dim=-1)
+    safe_log_probs = torch.where(valid, log_probs, 0.0)
+    restricted = -(probabilities * safe_log_probs).sum(dim=-1)
     return torch.where(constrained, restricted, normal)
 
 
@@ -352,7 +353,6 @@ def surprisal_entropy_decay_loss_fn(
     is_masked = dppo_invalid_mask
     is_masked_high = positive_advantages & dppo_invalid_mask_high
     is_masked_low = negative_advantages & dppo_invalid_mask_low
-    drop_mask = loss_mask & is_masked
     keep_mask = loss_mask & ~is_masked
 
     surprisal = torch.clamp_min((-inference_logprobs).detach(), 0.0)

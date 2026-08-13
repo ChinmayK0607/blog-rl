@@ -8,6 +8,13 @@ from pathlib import Path
 
 from swarm_ctf_eval.arena import WAIT, Action, legal_actions, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
+from swarm_ctf_eval.collapse_audit import audit_training_collapse
+from swarm_ctf_eval.communication_curriculum import (
+    generate_manifest,
+    generate_pair,
+    informed_state,
+    swap_team_labels,
+)
 from swarm_ctf_eval.crossplay_eval import (
     FROZEN_CROSSPLAY_CASES,
     development_cases,
@@ -16,23 +23,12 @@ from swarm_ctf_eval.crossplay_eval import (
     prepare_manifest,
     summarize_side_swapped,
 )
-from swarm_ctf_eval.communication_curriculum import (
-    generate_manifest,
-    generate_pair,
-    informed_state,
-    swap_team_labels,
-)
-from swarm_ctf_eval.collapse_audit import audit_training_collapse
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, ArenaEpisodeEnv, EpisodeConfig, message_units
 from swarm_ctf_eval.episode_model_eval import evaluate_episode
 from swarm_ctf_eval.episode_protocol import episode_action_prompt, episode_broadcast_prompt
 from swarm_ctf_eval.episode_splits import EPISODE_EVAL_CASES
-from swarm_ctf_eval.structured_protocol import (
-    action_json_schema,
-    broadcast_json_schema,
-    completion_allowed_token_ids,
-    protocol_choices,
-)
+from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
+from swarm_ctf_eval.final_eval_v3 import summarize_final_eval
 from swarm_ctf_eval.multi_policy_contract import (
     AgentPolicy,
     AgentTokenSpan,
@@ -41,8 +37,6 @@ from swarm_ctf_eval.multi_policy_contract import (
     validate_policy_roster,
     validate_token_spans,
 )
-from swarm_ctf_eval.final_eval_v3 import summarize_final_eval
-from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
 from swarm_ctf_eval.prime_rl_bridge import (
     RolloutDecision,
     build_training_envelopes,
@@ -59,6 +53,12 @@ from swarm_ctf_eval.safety_supervisor import (
     canonical_sha256,
     verify_approval_signature,
     verify_hash_chain,
+)
+from swarm_ctf_eval.structured_protocol import (
+    action_json_schema,
+    broadcast_json_schema,
+    completion_allowed_token_ids,
+    protocol_choices,
 )
 
 
