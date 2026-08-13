@@ -160,6 +160,7 @@ def main() -> None:
 
     all_inference = []
     all_trainer = []
+    all_branching = []
     sample_summaries = []
     model.eval()
     for sample_index, sample in enumerate(samples):
@@ -188,6 +189,7 @@ def main() -> None:
             ).cpu()
         all_inference.append(inference_logprobs)
         all_trainer.append(trainer_logprobs)
+        all_branching.append(torch.tensor([len(row) > 1 for row in allowed_rows]))
         sample_summaries.append(
             {
                 "agent_id": sample["agent_id"],
@@ -202,13 +204,17 @@ def main() -> None:
 
     inference_logprobs = torch.cat(all_inference)
     trainer_logprobs = torch.cat(all_trainer)
+    branching = torch.cat(all_branching)
     absolute_error = (trainer_logprobs - inference_logprobs).abs()
     log_importance_ratio = trainer_logprobs - inference_logprobs
+    probability_error = (trainer_logprobs.exp() - inference_logprobs.exp()).abs()
+    importance_ratio_error = (log_importance_ratio.exp() - 1.0).abs()
+    mismatch_kl = log_importance_ratio.exp() - log_importance_ratio - 1.0
     max_absolute_error = float(absolute_error.max())
     mean_absolute_error = float(absolute_error.mean())
-    max_probability_error = float((trainer_logprobs.exp() - inference_logprobs.exp()).abs().max())
-    max_importance_ratio_error = float((log_importance_ratio.exp() - 1.0).abs().max())
-    max_mismatch_kl = float((log_importance_ratio.exp() - log_importance_ratio - 1.0).max())
+    max_probability_error = float(probability_error.max())
+    max_importance_ratio_error = float(importance_ratio_error.max())
+    max_mismatch_kl = float(mismatch_kl.max())
     parity_passed = all(
         (
             max_absolute_error <= args.max_logprob_error,
@@ -273,6 +279,7 @@ def main() -> None:
     report = {
         "adapter_sha256": args.adapter_sha256,
         "changed_runs_after_single_policy_step": changed_runs,
+        "branching_tokens": int(branching.sum()),
         "completion_tokens": len(inference_logprobs),
         "isolation_passed": isolation_passed,
         "max_absolute_logprob_error": max_absolute_error,
@@ -280,6 +287,15 @@ def main() -> None:
         "max_mismatch_kl": max_mismatch_kl,
         "max_probability_error": max_probability_error,
         "mean_absolute_logprob_error": mean_absolute_error,
+        "mean_branching_absolute_logprob_error": float(absolute_error[branching].mean()),
+        "mean_mismatch_kl": float(mismatch_kl.mean()),
+        "p95_absolute_logprob_error": float(torch.quantile(absolute_error, 0.95)),
+        "p99_absolute_logprob_error": float(torch.quantile(absolute_error, 0.99)),
+        "p99_branching_absolute_logprob_error": float(
+            torch.quantile(absolute_error[branching], 0.99)
+        ),
+        "p99_probability_error": float(torch.quantile(probability_error, 0.99)),
+        "probability_error_over_0_05_fraction": float((probability_error > 0.05).float().mean()),
         "optimizer_parameter_sets_disjoint": optimizer_sets_disjoint,
         "parity_passed": parity_passed,
         "parity_thresholds": {
