@@ -40,6 +40,41 @@ from .structured_protocol import (
 )
 
 Phase = Literal["BROADCAST", "ACT"]
+STRUCTURED_LOGPROB_TOP_K = 20
+
+
+def _verify_serving_constraint_rows(
+    completion_ids: list[int],
+    allowed_rows: list[list[int]],
+    logprob_rows: list[dict[str, Any]],
+) -> None:
+    """Prove the server and trainer normalize over the same small masks."""
+    if not (len(completion_ids) == len(allowed_rows) == len(logprob_rows)):
+        raise ValueError("serving completion/constraint/logprob lengths differ")
+    for offset, (expected, row) in enumerate(
+        zip(allowed_rows, logprob_rows, strict=True)
+    ):
+        if len(expected) > STRUCTURED_LOGPROB_TOP_K:
+            continue
+        observed = set()
+        for candidate in row.get("top_logprobs") or []:
+            token = candidate.get("token")
+            if not isinstance(token, str) or not token.startswith("token_id:"):
+                raise ValueError("serving top-logprob row lacks token IDs")
+            observed.add(int(token.removeprefix("token_id:")))
+        if observed != set(expected):
+            raise ValueError(
+                "serving/client structured mask mismatch: "
+                + json.dumps(
+                    {
+                        "token_offset": offset,
+                        "sampled_token_id": completion_ids[offset],
+                        "client_allowed_token_ids": expected,
+                        "serving_top_token_ids": sorted(observed),
+                    },
+                    sort_keys=True,
+                )
+            )
 
 
 class XGrammarChoiceMask:
@@ -213,6 +248,7 @@ class VLLMChoiceGenerator:
         response.raise_for_status()
         choice = response.json()["choices"][0]
         completion_ids = list(choice["token_ids"])
+        logprob_rows = list(choice["logprobs"]["content"])
         eos_token_id = self.tokenizer.eos_token_id
         if eos_token_id is None:
             raise ValueError("tokenizer has no EOS token")
@@ -245,10 +281,11 @@ class VLLMChoiceGenerator:
                     sort_keys=True,
                 )
             ) from error
+        _verify_serving_constraint_rows(completion_ids, allowed, logprob_rows)
         return ChoiceCompletion(
             prompt_ids,
             tuple(completion_ids),
-            tuple(item["logprob"] for item in choice["logprobs"]["content"]),
+            tuple(item["logprob"] for item in logprob_rows),
             tuple(tuple(row) for row in allowed),
             decoded,
             request_sha256,
@@ -276,7 +313,7 @@ class VLLMChoiceGenerator:
                 "top_k": 0,
                 "min_p": 0.0,
                 "max_tokens": 128,
-                "logprobs": 1,
+                "logprobs": STRUCTURED_LOGPROB_TOP_K,
                 "seed": seed,
                 "structured_outputs": {"choice": list(choices)},
             },

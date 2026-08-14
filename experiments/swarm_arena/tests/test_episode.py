@@ -7,6 +7,8 @@ import tempfile
 from dataclasses import replace
 from pathlib import Path
 
+import pytest
+
 from swarm_ctf_eval.arena import WAIT, Action, legal_actions, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
 from swarm_ctf_eval.collapse_audit import audit_training_collapse
@@ -39,6 +41,7 @@ from swarm_ctf_eval.live_rl_rollout import (
     ChoiceCompletion,
     PolicyEndpoint,
     VLLMChoiceGenerator,
+    _verify_serving_constraint_rows,
     build_live_credit_group,
     protocol_constraint_sha256,
 )
@@ -1131,6 +1134,22 @@ def test_live_credit_group_routes_only_after_bound_trainer_parity_gate() -> None
     assert all(len(batch.examples) == 8 for batch in merged.values())
 
 
+def test_serving_constraint_rows_reject_a_different_normalization_mask() -> None:
+    with pytest.raises(ValueError, match="structured mask mismatch"):
+        _verify_serving_constraint_rows(
+            [11],
+            [[11, 12]],
+            [
+                {
+                    "top_logprobs": [
+                        {"token": "token_id:11", "logprob": -0.1},
+                        {"token": "token_id:13", "logprob": -2.0},
+                    ]
+                }
+            ],
+        )
+
+
 def test_vllm_generator_coalesces_exact_requests_within_one_group() -> None:
     config = EpisodeConfig(
         horizon=2,
@@ -1175,7 +1194,16 @@ def test_vllm_generator_coalesces_exact_requests_within_one_group() -> None:
                     {
                         "token_ids": [11],
                         "finish_reason": "stop",
-                        "logprobs": {"content": [{"logprob": -0.1}]},
+                        "logprobs": {
+                            "content": [
+                                {
+                                    "logprob": -0.1,
+                                    "top_logprobs": [
+                                        {"token": "token_id:11", "logprob": -0.1}
+                                    ],
+                                }
+                            ]
+                        },
                     }
                 ]
             }
@@ -1191,6 +1219,7 @@ def test_vllm_generator_coalesces_exact_requests_within_one_group() -> None:
             assert sampling["top_p"] == 1.0
             assert sampling["top_k"] == 0
             assert sampling["min_p"] == 0.0
+            assert sampling["logprobs"] == 20
             assert sampling["structured_outputs"]["choice"][0] == expected
             self.posts += 1
             await asyncio.sleep(0)
