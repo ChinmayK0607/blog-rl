@@ -4,7 +4,7 @@ import copy
 import hashlib
 import json
 from dataclasses import asdict, dataclass
-from typing import Literal
+from typing import Literal, cast
 
 from .arena import (
     Action,
@@ -68,6 +68,26 @@ class CommunicationScenario:
             "certificates": [asdict(certificate) for certificate in self.certificates],
             "state_sha256": _digest(serialized_state),
         }
+
+
+def reconstruct_manifest_scenario(row: dict) -> CommunicationScenario:
+    """Rebuild a committed scenario and reject any manifest/generator drift."""
+    role_pair = (str(row["sender"]), str(row["receiver"]))
+    pair = generate_pair(
+        int(row["seed"]),
+        int(row["size"]),
+        cast(Team, str(row["team"])),
+        role_pair,
+    )
+    if pair is None:
+        raise ValueError("committed curriculum scenario no longer reconstructs")
+    kind = str(row["kind"])
+    if kind not in {"critical", "decoy"}:
+        raise ValueError(f"unknown curriculum scenario kind: {kind}")
+    scenario = pair[0 if kind == "critical" else 1]
+    if scenario.manifest_row() != row:
+        raise ValueError("reconstructed scenario does not match its committed manifest row")
+    return scenario
 
 
 def _digest(value: object) -> str:

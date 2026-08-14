@@ -26,6 +26,17 @@ supervisor. It cannot enqueue samples unless replay, ownership, reward and
 constraint checks all pass. Multiple independently approved games may be
 merged only at the fixed four-run routing boundary.
 
+## Public-artifact launch gate
+
+Paid GPU work must not start from private or authentication-only inputs.
+`scripts/prepare_live_rl_run.py` requires exact public base-model and adapter
+repository revisions plus a commit-pinned public source URL. It checks them
+without a Hugging Face token, anonymously downloads the adapter, and requires
+its bytes to match the local pinned SHA-256 before creating a run directory.
+The publish scripts explicitly create public repositories and repeat their
+verification without credentials. A missing, private, mutable, or mismatched
+artifact fails before launch; logging in is not an acceptable substitute.
+
 ## Pre-RL parity contract
 
 Parity is evaluated over the model's constrained choice distribution, not the

@@ -130,7 +130,7 @@ def publish(
         raise RuntimeError("Hugging Face authentication is required; run `hf auth login`")
 
     api = HfApi(token=token)
-    api.create_repo(repo_id, repo_type="model", exist_ok=True)
+    api.create_repo(repo_id, repo_type="model", private=False, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="swarm-warmstart-model-") as temporary:
         root = Path(temporary)
         for filename in expected_adapter_files:
@@ -158,7 +158,9 @@ def publish(
             commit_message=f"Publish regression-safe Swarm Arena warm start from {source_commit}",
         )
 
-    info = api.model_info(repo_id=repo_id)
+    info = HfApi(token=False).model_info(repo_id=repo_id)
+    if info.private:
+        raise RuntimeError("published warm-start repository is not anonymously public")
     expected_remote = {
         "README.md",
         "adapter_config.json",
@@ -176,7 +178,7 @@ def publish(
             hf_hub_download(
                 repo_id=repo_id,
                 filename="adapter_model.safetensors",
-                token=token,
+                token=False,
                 cache_dir=cache,
             )
         )

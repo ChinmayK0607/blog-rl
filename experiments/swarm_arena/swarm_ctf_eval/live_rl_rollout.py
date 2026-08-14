@@ -359,10 +359,16 @@ async def build_live_credit_group(
     policies: tuple[PolicyEndpoint, ...],
     replacement_policy_id: str,
     run_lock_sha256: str,
+    initial_state: GameState | None = None,
 ) -> LiveCreditGroup:
-    bootstrap = ArenaRLEnv(seed=seed, size=size, config=config)
-    bootstrap.reset(seed)
-    initial_state = bootstrap._require_state().clone()
+    if initial_state is None:
+        bootstrap = ArenaRLEnv(seed=seed, size=size, config=config)
+        bootstrap.reset(seed)
+        initial_state = bootstrap._require_state().clone()
+    else:
+        initial_state = initial_state.clone()
+        if len(initial_state.nodes) != size:
+            raise ValueError("live credit-group size does not match its supplied initial state")
     policy_by_id = {row.policy_id: row for row in policies}
     if len(policy_by_id) != len(policies):
         raise ValueError("policy endpoint IDs must be unique")

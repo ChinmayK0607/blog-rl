@@ -14,6 +14,7 @@ from swarm_ctf_eval.communication_curriculum import (
     generate_manifest,
     generate_pair,
     informed_state,
+    reconstruct_manifest_scenario,
     swap_team_labels,
 )
 from swarm_ctf_eval.crossplay_eval import (
@@ -347,6 +348,8 @@ def test_certified_curriculum_pairs_critical_information_with_zero_value_decoy()
         critical.state, critical.receiver
     )
     assert Action("CAPTURE", critical.target) in legal_actions(informed, critical.receiver)
+    assert reconstruct_manifest_scenario(critical.manifest_row()) == critical
+    assert reconstruct_manifest_scenario(decoy.manifest_row()) == decoy
 
 
 def test_curriculum_manifest_balances_every_ordered_role_pair() -> None:
@@ -1018,22 +1021,27 @@ def test_live_credit_group_routes_only_after_bound_trainer_parity_gate() -> None
         ),
         gate_sha256,
     )
+    rl_config = EpisodeConfig(
+        horizon=2,
+        communication_cost=0.0,
+        invalid_broadcast_cost=0.0,
+        invalid_action_cost=0.0,
+    )
+    initial_env = ArenaRLEnv(seed=101, size=12, config=rl_config)
+    initial_env.reset(101)
+    supplied_initial_state = initial_env._require_state().clone()
     group = asyncio.run(
         build_live_credit_group(
             FirstChoiceGenerator(),  # type: ignore[arg-type]
             game_id="live-game-1",
             seed=101,
             size=12,
-            config=EpisodeConfig(
-                horizon=2,
-                communication_cost=0.0,
-                invalid_broadcast_cost=0.0,
-                invalid_action_cost=0.0,
-            ),
+            config=rl_config,
             bindings=bindings,
             policies=endpoints,
             replacement_policy_id="sft-replacement",
             run_lock_sha256=lock.sha256,
+            initial_state=supplied_initial_state,
         )
     )
     signing_key = b"live-supervisor-key-at-least-32-bytes"

@@ -10,7 +10,6 @@ from typing import Any
 
 from huggingface_hub import HfApi, get_token, hf_hub_download
 
-
 BASE_MODEL = "Qwen/Qwen3-4B-Instruct-2507"
 DATASET = "CK0607/swarm-arena-sft-v2"
 
@@ -141,7 +140,7 @@ def publish(
         raise ValueError("arena and comparison manifests differ")
 
     api = HfApi(token=token)
-    api.create_repo(repo_id, repo_type="model", exist_ok=True)
+    api.create_repo(repo_id, repo_type="model", private=False, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="swarm-arena-model-") as temporary:
         root = Path(temporary)
         for filename in expected_adapter_files:
@@ -175,7 +174,9 @@ def publish(
         )
         local_adapter_hash = sha256(root / "adapter_model.safetensors")
 
-    info = api.model_info(repo_id=repo_id)
+    info = HfApi(token=False).model_info(repo_id=repo_id)
+    if info.private:
+        raise RuntimeError("published model repository is not anonymously public")
     remote_files = {sibling.rfilename for sibling in info.siblings}
     expected_remote = {
         "README.md",
@@ -195,7 +196,7 @@ def publish(
                 repo_id=repo_id,
                 filename="adapter_model.safetensors",
                 repo_type="model",
-                token=token,
+                token=False,
                 cache_dir=verification_cache,
             )
         )

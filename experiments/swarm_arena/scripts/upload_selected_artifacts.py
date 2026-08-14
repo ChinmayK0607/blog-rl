@@ -10,7 +10,6 @@ from pathlib import Path
 
 from huggingface_hub import HfApi, snapshot_download
 
-
 EXPECTED_OWNER = "CK0607"
 CANONICAL_GIT_COMMIT = "bc41a3b6"
 ROOT = Path("/root/blog-rl")
@@ -189,6 +188,7 @@ def verify_snapshot(
             repo_type=target.repo_type,
             revision=revision,
             local_dir=verification_root / target.repo_id.split("/", 1)[1],
+            token=False,
         )
     )
     manifest = (downloaded / "SHA256SUMS").read_text(encoding="utf-8")
@@ -221,7 +221,7 @@ def main() -> None:
             api.create_repo(
                 repo_id=target.repo_id,
                 repo_type=target.repo_type,
-                private=True,
+                private=False,
                 exist_ok=True,
             )
             commit = api.upload_folder(
@@ -231,6 +231,13 @@ def main() -> None:
                 commit_message=f"Upload verified Swarm Arena artifacts from {CANONICAL_GIT_COMMIT}",
             )
             revision = str(commit.oid or api.repo_info(target.repo_id, repo_type=target.repo_type).sha)
+            public_info = HfApi(token=False).repo_info(
+                target.repo_id,
+                repo_type=target.repo_type,
+                revision=revision,
+            )
+            if public_info.private:
+                raise RuntimeError(f"uploaded repository is not anonymously public: {target.repo_id}")
             verify_snapshot(target, revision, expected, verification_root)
             total_bytes = sum((staged / name).stat().st_size for name in expected)
             print(
@@ -240,7 +247,7 @@ def main() -> None:
                         "revision": revision,
                         "verified_files": len(expected),
                         "verified_bytes": total_bytes,
-                        "private": True,
+                        "private": False,
                     },
                     sort_keys=True,
                 ),

@@ -11,6 +11,7 @@ from pathlib import Path
 
 import httpx
 import tomli
+from swarm_ctf_eval.communication_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.episode import EpisodeConfig
 from swarm_ctf_eval.live_rl_rollout import (
     PolicyEndpoint,
@@ -157,11 +158,28 @@ async def main() -> None:
     parser.add_argument("--groups-per-step", type=int, default=1)
     parser.add_argument("--seed-base", type=int, default=7_000_003)
     parser.add_argument("--size", type=int, default=12)
+    parser.add_argument(
+        "--scenario-source",
+        choices=("curriculum", "ordinary"),
+        default="curriculum",
+    )
+    parser.add_argument("--curriculum-split", default="train")
+    parser.add_argument(
+        "--curriculum-kind",
+        choices=("alternating", "critical", "decoy"),
+        default="alternating",
+    )
+    parser.add_argument("--curriculum-offset", type=int, default=0)
+    parser.add_argument("--rollout-only", action="store_true")
     parser.add_argument("--horizon", type=int, default=2)
     parser.add_argument("--update-timeout", type=float, default=600.0)
     args = parser.parse_args()
     if args.steps < 1 or args.groups_per_step < 1:
         parser.error("steps and groups-per-step must be positive")
+    if args.curriculum_offset < 0:
+        parser.error("curriculum offset cannot be negative")
+    if args.rollout_only and args.steps != 1:
+        parser.error("rollout-only diagnostics require exactly one controller step")
 
     with args.trainer_config.open("rb") as handle:
         config = TrainerConfig.model_validate(tomli.load(handle))
@@ -188,6 +206,12 @@ async def main() -> None:
     )
     trace = args.output_dir / "audit" / "admission.jsonl"
     result_rows = []
+    curriculum = None
+    if args.scenario_source == "curriculum":
+        manifest_path = args.data_dir / f"{args.curriculum_split}.json"
+        curriculum = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if not curriculum.get("pairs"):
+            raise ValueError(f"empty curriculum manifest: {manifest_path}")
     async with VLLMChoiceGenerator(args.tokenizer) as generator:
         policy_revisions = {f"blue-{index}": initial_revision for index in range(4)}
         for step in range(args.steps):
@@ -217,12 +241,44 @@ async def main() -> None:
             routed_groups = []
             step_groups = []
             for group_index in range(args.groups_per_step):
-                game_id = f"{args.run_id}:step-{step}:group-{group_index}"
+                ordinal = step * args.groups_per_step + group_index
+                initial_state = None
+                scenario_metadata = {"source": "ordinary"}
+                seed = args.seed_base + step * 10_000 + group_index
+                size = args.size
+                if curriculum is not None:
+                    if args.curriculum_kind == "alternating":
+                        kind = "critical" if ordinal % 2 == 0 else "decoy"
+                        pair_index = (args.curriculum_offset + ordinal) // 2
+                    else:
+                        kind = args.curriculum_kind
+                        pair_index = args.curriculum_offset + ordinal
+                    pair = curriculum["pairs"][pair_index % len(curriculum["pairs"])]
+                    scenario = reconstruct_manifest_scenario(pair[kind])
+                    initial_state = scenario.state
+                    seed = scenario.seed
+                    size = scenario.size
+                    scenario_metadata = {
+                        "source": "curriculum",
+                        "split": args.curriculum_split,
+                        "pair_index": pair_index % len(curriculum["pairs"]),
+                        "kind": scenario.kind,
+                        "seed": scenario.seed,
+                        "sender": scenario.sender,
+                        "receiver": scenario.receiver,
+                        "target": scenario.target,
+                        "minimum_certified_advantage": scenario.minimum_advantage,
+                        "state_sha256": pair[kind]["state_sha256"],
+                    }
+                game_id = (
+                    f"{args.run_id}:step-{step}:group-{group_index}:"
+                    f"{scenario_metadata['source']}:{seed}"
+                )
                 group = await build_live_credit_group(
                     generator,
                     game_id=game_id,
-                    seed=args.seed_base + step * 10_000 + group_index,
-                    size=args.size,
+                    seed=seed,
+                    size=size,
                     config=EpisodeConfig(
                         horizon=args.horizon,
                         communication_cost=0.0,
@@ -233,6 +289,7 @@ async def main() -> None:
                     policies=policies,
                     replacement_policy_id="sft-replacement",
                     run_lock_sha256=lock.sha256,
+                    initial_state=initial_state,
                 )
                 approval = approve_credit_group(lock, group.evidence, bindings, "BLUE", key)
                 append_hash_chained_record(
@@ -263,8 +320,18 @@ async def main() -> None:
                         "advantages": {
                             row.agent_id: row.advantage for row in approval.envelopes
                         },
+                        "scenario": scenario_metadata,
                     }
                 )
+            if args.rollout_only:
+                result_rows.append({"step": step, "groups": step_groups})
+                diagnostic_path = args.output_dir / "live_rl_diagnostic.json"
+                diagnostic_path.write_text(
+                    json.dumps(result_rows, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                print(json.dumps(result_rows[-1], sort_keys=True))
+                continue
             batches = merge_routed_batch_groups(tuple(routed_groups), step=step)
             await send_approved_batches(args.output_dir, batches)
             digests = await wait_for_policy_updates(

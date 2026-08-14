@@ -133,7 +133,7 @@ def main() -> None:
     args = parser.parse_args()
 
     api = HfApi()
-    api.create_repo(args.repo_id, repo_type="dataset", exist_ok=True)
+    api.create_repo(args.repo_id, repo_type="dataset", private=False, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="swarm-arena-hf-") as temporary:
         staging = Path(temporary)
         split_train(
@@ -160,6 +160,9 @@ def main() -> None:
             folder_path=staging,
             commit_message="Publish audited Swarm Arena SFT v2",
         )
+    info = HfApi(token=False).dataset_info(args.repo_id)
+    if info.private:
+        raise RuntimeError("published dataset repository is not anonymously public")
 
 
 if __name__ == "__main__":
