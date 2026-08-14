@@ -1060,6 +1060,58 @@ no more critical-specific than decoy-specific. Therefore:
   Use the identical prompt, policy, development pairs 12--23, sampling keys,
   and original gates. Do not add request-level retries. A second transport or
   mechanical failure stops this audit rather than selecting a convenient run.
+- Diagnosis passed the retry prerequisites: vLLM stayed alive; disk had 189 GB
+  free; no OOM, Xid, NCCL, engine, model, or grammar failure appeared; all
+  visible server requests returned 200; and a fresh 83-token constrained smoke
+  was legal. The failure was isolated to the client connection while receiving
+  headers. The original run ID was retained so sampling namespaces stayed
+  unchanged; only the output directory and documentation-only source commit
+  changed.
+- The single authorized retry completed all 24 records in 104.26 seconds from
+  launcher to log close (80.88 seconds from run-directory creation to evidence
+  close). All hash chains, supervisor approvals, replay fields, and request
+  identities verify; no optimizer ran.
+- Final gates: identical sender messages 12/12 pass; target fact 11/12 pass;
+  intended mean D +0.0705009 pass; receiver target effects critical 12 versus
+  decoy 3 pass; signs 7 positive / 1 negative / 4 zero fail; localization
+  1.0767x fail; off-role nonzero 8/12 fail. Verdict: rejected; Stage C and RL
+  remain prohibited.
+- Interpretation: the prompt repair succeeded and the receiver's immediate
+  action is message-sensitive, but a two-turn team return is too coarse for
+  reliable per-sender localization. The result argues against more prompt/SFT
+  work as the immediate fix; the next issue is the credit estimand itself.
+- Compact public results:
+  `results/pre_rl_1_7b/actionable_message_credit_stage_a_f54e72b4/`,
+  `results/pre_rl_1_7b/actionable_message_credit_stage_b_partial_f54e72b4/`,
+  and
+  `results/pre_rl_1_7b/actionable_message_credit_stage_b_retry_92cce5f2/`.
+
+### 2026-08-14 — actionable-prompt communication cross-play
+
+- Status: planned; frozen before results
+- Verdict scope: collective communication efficacy only, never credit-estimator
+  or RL admission
+- Focal policy: pinned 1.7B SFT adapter; opponent: its pinned 1.7B base parent.
+  Both are model-controlled, sides are swapped, and no deterministic opponent
+  is used.
+- Inputs: 12 new development cases beginning at seed 5,000,003; horizons 4/6;
+  history window 3 for both teams. No training-manifest, prior audit, or frozen
+  final/OOD case is used.
+- Conditions on the focal team: generated, all messages dropped,
+  sender-shuffled, and one-turn delayed; opponent messages remain generated.
+  Dynamic protocol constraints remain enabled. With both side assignments this
+  is 96 complete games and 12 independent seed-level comparisons per
+  intervention.
+- Primary diagnostic: side-averaged generated-minus-dropped mean return must be
+  positive with at least 8/12 positive seeds to call collective communication
+  promising. Generated-minus-shuffled and generated-minus-delayed means, exact
+  paired intervals/randomization tests, protocol/grounding validity,
+  communication spend, duplicate targets, and throughput are mandatory
+  supporting reports. No threshold will be revised after inspection.
+- A pass shows this policy's messages help team play against a model opponent;
+  it does not repair the rejected per-sender estimator or authorize RL. A
+  manifest-matched resume is allowed only for a transport interruption because
+  games are independent; no failed row may be retained.
 
 ## Artifact index
 

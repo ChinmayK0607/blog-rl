@@ -1,0 +1,566 @@
+{
+  "aggregate": {
+    "critical_actual_target_capture_rate": 0.5833333333333334,
+    "critical_mean_actual_return": 0.06380805018736053,
+    "critical_receiver_target_effects": 12,
+    "critical_sender_drop_target_capture_rate": 0.0,
+    "decoy_actual_target_capture_rate": 0.25,
+    "decoy_mean_actual_return": 0.009554334554334553,
+    "decoy_receiver_target_effects": 3,
+    "decoy_sender_drop_target_capture_rate": 0.16666666666666666,
+    "intended_sender_mean_absolute_effect": 0.09614193494060012,
+    "intended_sender_mean_effect": 0.07050090929957448,
+    "intended_sender_negative": 1,
+    "intended_sender_positive": 7,
+    "intended_sender_zero": 4,
+    "localization_ratio": 1.0767316267115679,
+    "off_role_mean_absolute_effect": 0.08929052751448006,
+    "pair_count": 12,
+    "pairs_with_nonzero_off_role_effect": 8,
+    "sender_messages_identical": 12,
+    "target_fact_present": 11
+  },
+  "estimand": "critical message-drop credit minus matched-decoy message-drop credit",
+  "gates": {
+    "identical_sender_message_12_of_12": true,
+    "localization_at_least_2x": false,
+    "off_role_nonzero_at_most_4_of_12": false,
+    "positive_mean_intended_effect": true,
+    "receiver_target_effect_more_common_in_critical": true,
+    "sign_count": false,
+    "target_fact_at_least_8_of_12": true
+  },
+  "independent_unit": "certified critical/decoy pair",
+  "pairs": [
+    {
+      "critical_actual_return": 0.0,
+      "critical_actual_target_capture": false,
+      "critical_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": -0.13793103448275862,
+        "blue-3": -0.13793103448275862
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.0,
+      "decoy_actual_target_capture": false,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": false,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": 0.0,
+      "off_role": [
+        "blue-2",
+        "blue-3"
+      ],
+      "off_role_effects": {
+        "blue-2": -0.13793103448275862,
+        "blue-3": -0.13793103448275862
+      },
+      "pair_index": 12,
+      "paired_effects": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": -0.13793103448275862,
+        "blue-3": -0.13793103448275862
+      },
+      "receiver": "blue-1",
+      "receiver_effect": 0.0,
+      "sender": "blue-0",
+      "sender_message_identical": true,
+      "sender_message_sha256": "696237e23990b14fe7908312c3277aa43034a8b4f746982851d9ef64c5f5a11e",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.0,
+      "critical_actual_target_capture": false,
+      "critical_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.0,
+      "decoy_actual_target_capture": false,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": false,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": 0.0,
+      "off_role": [
+        "blue-1",
+        "blue-3"
+      ],
+      "off_role_effects": {
+        "blue-1": 0.0,
+        "blue-3": 0.0
+      },
+      "pair_index": 13,
+      "paired_effects": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "receiver": "blue-2",
+      "receiver_effect": 0.0,
+      "sender": "blue-0",
+      "sender_message_identical": true,
+      "sender_message_sha256": "ad96b0e460295def094384a24dd9d603894a87913ee60f8e1dbe649c0f83452f",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.13793103448275862,
+      "critical_actual_target_capture": true,
+      "critical_credits": {
+        "blue-0": 0.13793103448275862,
+        "blue-1": 0.13793103448275862,
+        "blue-2": 0.13793103448275862,
+        "blue-3": 0.0
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.0,
+      "decoy_actual_target_capture": false,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": -0.13793103448275862,
+        "blue-2": -0.13793103448275862,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": true,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": 0.13793103448275862,
+      "off_role": [
+        "blue-1",
+        "blue-2"
+      ],
+      "off_role_effects": {
+        "blue-1": 0.27586206896551724,
+        "blue-2": 0.27586206896551724
+      },
+      "pair_index": 14,
+      "paired_effects": {
+        "blue-0": 0.13793103448275862,
+        "blue-1": 0.27586206896551724,
+        "blue-2": 0.27586206896551724,
+        "blue-3": 0.0
+      },
+      "receiver": "blue-3",
+      "receiver_effect": 0.0,
+      "sender": "blue-0",
+      "sender_message_identical": true,
+      "sender_message_sha256": "be3b14e061e6952d0e5a1cb482971fc135d904c28e18a8f03456d872ec055458",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.06666666666666667,
+      "critical_actual_target_capture": true,
+      "critical_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.13333333333333333,
+        "blue-2": 0.13333333333333333,
+        "blue-3": 0.0
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": -0.06666666666666667,
+      "decoy_actual_target_capture": false,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": false,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": 0.13333333333333333,
+      "off_role": [
+        "blue-2",
+        "blue-3"
+      ],
+      "off_role_effects": {
+        "blue-2": 0.13333333333333333,
+        "blue-3": 0.0
+      },
+      "pair_index": 15,
+      "paired_effects": {
+        "blue-0": 0.0,
+        "blue-1": 0.13333333333333333,
+        "blue-2": 0.13333333333333333,
+        "blue-3": 0.0
+      },
+      "receiver": "blue-0",
+      "receiver_effect": 0.0,
+      "sender": "blue-1",
+      "sender_message_identical": true,
+      "sender_message_sha256": "b0b3aedf829f149b4039b7017baffcf3c1dbaaf3b15eee4b456f7cc334e20f6f",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.0,
+      "critical_actual_target_capture": false,
+      "critical_credits": {
+        "blue-0": -0.14814814814814814,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": -0.14814814814814814
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.0,
+      "decoy_actual_target_capture": false,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": false,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": 0.0,
+      "off_role": [
+        "blue-0",
+        "blue-3"
+      ],
+      "off_role_effects": {
+        "blue-0": -0.14814814814814814,
+        "blue-3": -0.14814814814814814
+      },
+      "pair_index": 16,
+      "paired_effects": {
+        "blue-0": -0.14814814814814814,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": -0.14814814814814814
+      },
+      "receiver": "blue-2",
+      "receiver_effect": 0.0,
+      "sender": "blue-1",
+      "sender_message_identical": true,
+      "sender_message_sha256": "51082046d9b2b9b5ff3c149d4e2af1139f5d9b2606c5229dc4bec9f665c1e911",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.0,
+      "critical_actual_target_capture": false,
+      "critical_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.07692307692307693,
+      "decoy_actual_target_capture": true,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.15384615384615385,
+        "blue-2": 0.15384615384615385,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": true,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": -0.15384615384615385,
+      "off_role": [
+        "blue-0",
+        "blue-2"
+      ],
+      "off_role_effects": {
+        "blue-0": 0.0,
+        "blue-2": -0.15384615384615385
+      },
+      "pair_index": 17,
+      "paired_effects": {
+        "blue-0": 0.0,
+        "blue-1": -0.15384615384615385,
+        "blue-2": -0.15384615384615385,
+        "blue-3": 0.0
+      },
+      "receiver": "blue-3",
+      "receiver_effect": 0.0,
+      "sender": "blue-1",
+      "sender_message_identical": true,
+      "sender_message_sha256": "b1e0d3342288490215211bdba32e478788104faa8f00426b359e6224d285b7be",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.16,
+      "critical_actual_target_capture": true,
+      "critical_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.16,
+        "blue-2": 0.16,
+        "blue-3": 0.0
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.0,
+      "decoy_actual_target_capture": false,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": -0.16
+      },
+      "decoy_receiver_target_effect": true,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": 0.16,
+      "off_role": [
+        "blue-1",
+        "blue-3"
+      ],
+      "off_role_effects": {
+        "blue-1": 0.16,
+        "blue-3": 0.16
+      },
+      "pair_index": 18,
+      "paired_effects": {
+        "blue-0": 0.0,
+        "blue-1": 0.16,
+        "blue-2": 0.16,
+        "blue-3": 0.16
+      },
+      "receiver": "blue-0",
+      "receiver_effect": 0.0,
+      "sender": "blue-2",
+      "sender_message_identical": true,
+      "sender_message_sha256": "3dffd59779f94c0d25f2529ec8d32b125e93411506bec5109bcc75e0d12b89b1",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.14285714285714285,
+      "critical_actual_target_capture": true,
+      "critical_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.14285714285714285,
+        "blue-3": 0.14285714285714285
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.14285714285714285,
+      "decoy_actual_target_capture": true,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.14285714285714285
+      },
+      "decoy_receiver_target_effect": false,
+      "decoy_sender_drop_target_capture": true,
+      "intended_sender_effect": 0.14285714285714285,
+      "off_role": [
+        "blue-0",
+        "blue-3"
+      ],
+      "off_role_effects": {
+        "blue-0": 0.0,
+        "blue-3": 0.0
+      },
+      "pair_index": 19,
+      "paired_effects": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.14285714285714285,
+        "blue-3": 0.0
+      },
+      "receiver": "blue-1",
+      "receiver_effect": 0.0,
+      "sender": "blue-2",
+      "sender_message_identical": true,
+      "sender_message_sha256": "be0954f21b707a17b0026591e65cde52fae0c078518195378dcbed04b1071c8d",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.14285714285714285,
+      "critical_actual_target_capture": true,
+      "critical_credits": {
+        "blue-0": 0.14285714285714285,
+        "blue-1": 0.14285714285714285,
+        "blue-2": 0.14285714285714285,
+        "blue-3": 0.0
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.0,
+      "decoy_actual_target_capture": true,
+      "decoy_credits": {
+        "blue-0": 0.14285714285714285,
+        "blue-1": 0.14285714285714285,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": false,
+      "decoy_sender_drop_target_capture": true,
+      "intended_sender_effect": 0.14285714285714285,
+      "off_role": [
+        "blue-0",
+        "blue-1"
+      ],
+      "off_role_effects": {
+        "blue-0": 0.0,
+        "blue-1": 0.0
+      },
+      "pair_index": 20,
+      "paired_effects": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.14285714285714285,
+        "blue-3": 0.0
+      },
+      "receiver": "blue-3",
+      "receiver_effect": 0.0,
+      "sender": "blue-2",
+      "sender_message_identical": true,
+      "sender_message_sha256": "10444ff6e24b9b15a1881f92ad907ed6d08e1fc552ca5fff959976fe1b43ce4c",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.11538461538461536,
+      "critical_actual_target_capture": true,
+      "critical_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.15384615384615383
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": -0.038461538461538464,
+      "decoy_actual_target_capture": false,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": -0.15384615384615383,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": false,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": 0.15384615384615383,
+      "off_role": [
+        "blue-1",
+        "blue-2"
+      ],
+      "off_role_effects": {
+        "blue-1": 0.15384615384615383,
+        "blue-2": 0.0
+      },
+      "pair_index": 21,
+      "paired_effects": {
+        "blue-0": 0.0,
+        "blue-1": 0.15384615384615383,
+        "blue-2": 0.0,
+        "blue-3": 0.15384615384615383
+      },
+      "receiver": "blue-0",
+      "receiver_effect": 0.0,
+      "sender": "blue-3",
+      "sender_message_identical": true,
+      "sender_message_sha256": "e02af9d21e160f38fa00390086929646437ddf2d51a138accb192eeb75f35668",
+      "target_fact_present": true
+    },
+    {
+      "critical_actual_return": 0.0,
+      "critical_actual_target_capture": false,
+      "critical_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.0,
+      "decoy_actual_target_capture": false,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": false,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": 0.0,
+      "off_role": [
+        "blue-0",
+        "blue-2"
+      ],
+      "off_role_effects": {
+        "blue-0": 0.0,
+        "blue-2": 0.0
+      },
+      "pair_index": 22,
+      "paired_effects": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "receiver": "blue-1",
+      "receiver_effect": 0.0,
+      "sender": "blue-3",
+      "sender_message_identical": true,
+      "sender_message_sha256": "e1170d15e3476885ffeea8027b254758ac094a4d601b3a31650c439738896b13",
+      "target_fact_present": false
+    },
+    {
+      "critical_actual_return": 0.0,
+      "critical_actual_target_capture": true,
+      "critical_credits": {
+        "blue-0": 0.12903225806451613,
+        "blue-1": 0.12903225806451613,
+        "blue-2": 0.0,
+        "blue-3": 0.12903225806451613
+      },
+      "critical_receiver_target_effect": true,
+      "critical_sender_drop_target_capture": false,
+      "decoy_actual_return": 0.0,
+      "decoy_actual_target_capture": false,
+      "decoy_credits": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "decoy_receiver_target_effect": false,
+      "decoy_sender_drop_target_capture": false,
+      "intended_sender_effect": 0.12903225806451613,
+      "off_role": [
+        "blue-0",
+        "blue-1"
+      ],
+      "off_role_effects": {
+        "blue-0": 0.12903225806451613,
+        "blue-1": 0.12903225806451613
+      },
+      "pair_index": 23,
+      "paired_effects": {
+        "blue-0": 0.12903225806451613,
+        "blue-1": 0.12903225806451613,
+        "blue-2": 0.0,
+        "blue-3": 0.12903225806451613
+      },
+      "receiver": "blue-2",
+      "receiver_effect": 0.0,
+      "sender": "blue-3",
+      "sender_message_identical": true,
+      "sender_message_sha256": "5cdff92c986a9b0c555e3072bb051b50e1ed7a65e147c6807c7fe7f74495f670",
+      "target_fact_present": true
+    }
+  ],
+  "schema_version": "message-credit-stage-b-summary-v1",
+  "verdict": "rejected"
+}
