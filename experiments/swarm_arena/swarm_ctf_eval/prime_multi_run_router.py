@@ -153,3 +153,25 @@ async def send_approved_batches(
             for run_id, batch in sorted(batches.items())
         )
     )
+
+
+def validate_single_trajectory_packing(
+    batches: dict[str, Any],
+    *,
+    seq_len: int,
+) -> None:
+    """Prove every live trainer slice contains exactly one complete trajectory."""
+    if seq_len < 1:
+        raise ValueError("trainer sequence length must be positive")
+    for run_id, batch in sorted(batches.items()):
+        lengths = sorted(
+            len(sample.prompt_ids) + len(sample.completion_ids)
+            for sample in batch.examples
+        )
+        if not lengths or lengths[-1] > seq_len:
+            raise ValueError(f"{run_id} contains an empty or over-length training batch")
+        if len(lengths) > 1 and lengths[0] + lengths[1] <= seq_len:
+            raise ValueError(
+                f"{run_id} could co-pack multiple trajectories; the live path "
+                "would differ from per-sample parity certification"
+            )

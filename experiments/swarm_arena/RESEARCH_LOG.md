@@ -1478,6 +1478,38 @@ no more critical-specific than decoy-specific. Therefore:
   internal token-packing cadence and makes the failure mode impossible to
   repeat silently.
 
+### 2026-08-15 — Infinite-packing pilot rejected a rare PEFT/Prime outlier
+
+- Status: failed closed; no optimizer update and no learned checkpoint
+- Preserved run: `/workspace/runs/rl-hf-actor-stability-7a22e4a6`
+- Source `7a22e4a6ed259b0f748b66bf6e492526fdd27e8b` separated the
+  controller's policy horizon from Prime's internal packing horizon. The full
+  Linux suite passed 72/72. A fresh four-group certificate bound to trainer
+  config SHA-256
+  `3c02c244965dd1c1ab840606dc4f86c414e6f85778d2aeaa098a582569c29cb9`
+  passed on 64 samples and 3,902 completion tokens: mean absolute log-prob
+  error `0.0016575`, p99 `0.050959`, maximum probability error `0.077751`,
+  maximum mismatch-KL `0.049735`, probability-tail fraction `0.002563`, and
+  four-policy isolation passed.
+- The real pilot generated four new signed groups. Their four policy batches
+  contained 16 samples each and 13,228–14,025 tokens. The infinite trainer
+  correctly continued past eight packing slices, proving the horizon fix.
+- Packing slices 0–10 passed every pre-step parity check. Slice 11 then failed
+  before `optimizer.step()` because a previously unseen constrained row had
+  maximum mismatch-KL `0.095285 > 0.08`. No policy batch had completed, every
+  logged learning rate remained zero, no `STABLE` broadcast existed, and the
+  waiting controller was stopped. Gates were not loosened and the run was not
+  resumed.
+- Diagnosis: certificate samples were forwarded individually, but the live
+  4,096-token trainer slice co-packed several 799–975-token trajectories. The
+  certificate therefore had not bound the actual packed-forward numerical path.
+- Correction under test: use 1,024-token trainer slices and reject a policy
+  batch before queue admission unless every sample fits and the two shortest
+  samples cannot fit together. This guarantees exactly one trajectory per
+  trainer forward, matching the certified path while retaining the truthful HF
+  actor. It also reduces memory. No reward, dtype, optimizer, or parity threshold
+  changes.
+
 ## Artifact index
 
 - Public source branch:

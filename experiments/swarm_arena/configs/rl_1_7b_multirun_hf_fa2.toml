@@ -7,11 +7,11 @@ max_concurrent_runs = 4
 
 [model]
 name = "/workspace/models/qwen3-1.7b-70d244c"
-# Every Swarm Arena orchestrator is capped at 4,096 tokens. Keeping the trainer
-# at 16,384 made the unfused parity/log-prob head materialize four times more
-# vocabulary logits than any admitted sample can use and OOMed a 48 GB L40S
-# before the first optimizer step.
-seq_len = 4096
+# Horizon-two Swarm trajectories are 799-975 tokens in the bound pilot. A
+# 1,024-token slice therefore admits every trajectory but cannot co-pack two.
+# This makes live trainer forwards match the per-sample parity certificate and
+# also avoids the unfused vocabulary-head OOM seen at 16,384 tokens.
+seq_len = 1024
 attn = "flash_attention_2"
 impl = "hf"
 fused_lm_head_token_chunk_size = "disabled"

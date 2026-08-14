@@ -31,6 +31,7 @@ from swarm_ctf_eval.prime_multi_run_router import (
     merge_routed_batch_groups,
     route_approved_samples,
     send_approved_batches,
+    validate_single_trajectory_packing,
 )
 from swarm_ctf_eval.rl_v3 import RL_TASK_VERSION
 from swarm_ctf_eval.safety_supervisor import (
@@ -585,6 +586,10 @@ async def main() -> None:
                 print(json.dumps(result_rows[-1], sort_keys=True))
                 continue
             batches = merge_routed_batch_groups(tuple(routed_groups), step=step)
+            validate_single_trajectory_packing(
+                batches,
+                seq_len=config.model.seq_len,
+            )
             await send_approved_batches(args.output_dir, batches)
             digests = await wait_for_policy_updates(
                 args.output_dir,

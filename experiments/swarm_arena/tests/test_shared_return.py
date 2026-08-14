@@ -5,6 +5,9 @@ import math
 from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
 
 from swarm_ctf_eval.episode import EpisodeConfig
 from swarm_ctf_eval.live_rl_rollout import (
@@ -18,6 +21,7 @@ from swarm_ctf_eval.prime_multi_run_router import (
     PolicyRunRoute,
     merge_routed_batch_groups,
     route_approved_samples,
+    validate_single_trajectory_packing,
 )
 from swarm_ctf_eval.safety_supervisor import (
     RunLock,
@@ -272,3 +276,23 @@ def test_published_v4_evidence_builds_policy_bound_parity_probe() -> None:
         == len(row["allowed_token_ids"])
         for row in probe["samples"]
     )
+
+
+def test_live_batches_must_prove_single_trajectory_packing() -> None:
+    def sample(length: int) -> SimpleNamespace:
+        return SimpleNamespace(prompt_ids=[1] * (length - 1), completion_ids=[2])
+
+    validate_single_trajectory_packing(
+        {"run_blue_0": SimpleNamespace(examples=[sample(799), sample(975)])},
+        seq_len=1024,
+    )
+    with pytest.raises(ValueError, match="could co-pack multiple trajectories"):
+        validate_single_trajectory_packing(
+            {"run_blue_0": SimpleNamespace(examples=[sample(500), sample(524)])},
+            seq_len=1024,
+        )
+    with pytest.raises(ValueError, match="empty or over-length"):
+        validate_single_trajectory_packing(
+            {"run_blue_0": SimpleNamespace(examples=[sample(1025)])},
+            seq_len=1024,
+        )
