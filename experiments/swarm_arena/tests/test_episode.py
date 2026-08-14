@@ -27,7 +27,11 @@ from swarm_ctf_eval.crossplay_eval import (
 )
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, ArenaEpisodeEnv, EpisodeConfig, message_units
 from swarm_ctf_eval.episode_model_eval import evaluate_episode
-from swarm_ctf_eval.episode_protocol import episode_action_prompt, episode_broadcast_prompt
+from swarm_ctf_eval.episode_protocol import (
+    EPISODE_PROMPT_VERSION,
+    episode_action_prompt,
+    episode_broadcast_prompt,
+)
 from swarm_ctf_eval.episode_splits import EPISODE_EVAL_CASES
 from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
 from swarm_ctf_eval.final_eval_v3 import summarize_final_eval
@@ -193,6 +197,7 @@ def test_crossplay_controls_all_eight_agents_and_preserves_private_history() -> 
     )
     assert row["metrics"]["BLUE"]["action_protocol_rate"] == 1.0
     assert row["metrics"]["RED"]["action_protocol_rate"] == 1.0
+    assert row["prompt_version"] == EPISODE_PROMPT_VERSION
     assert all(len(turn["actions"]) == 8 for turn in row["turns"])
     assert set(row["blue_agent_models"]) == {f"blue-{index}" for index in range(4)}
     assert len(set(row["blue_agent_models"].values())) == 4

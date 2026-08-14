@@ -5,6 +5,7 @@ import hashlib
 import json
 import random
 import statistics
+import subprocess
 import time
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -22,11 +23,15 @@ from .episode import (
     message_units,
     validate_message,
 )
-from .episode_protocol import episode_action_prompt, episode_broadcast_prompt
+from .episode_protocol import (
+    EPISODE_PROMPT_VERSION,
+    episode_action_prompt,
+    episode_broadcast_prompt,
+)
 from .providers import OpenAICompatibleProvider
 from .structured_protocol import STRUCTURED_PROTOCOL_VERSION, protocol_response_format
 
-CROSSPLAY_VERSION = "arena-crossplay-v4-dynamic-protocol"
+CROSSPLAY_VERSION = "arena-crossplay-v5-source-prompt-bound"
 CONDITIONS = ("generated", "dropped", "sender_shuffled", "delayed", "zero_budget")
 Case = tuple[int, int, int]
 ModelRoster = ArenaModel | dict[str, ArenaModel]
@@ -450,6 +455,7 @@ def evaluate_crossplay(
     return {
         "crossplay_version": CROSSPLAY_VERSION,
         "episode_version": EPISODE_VERSION,
+        "prompt_version": EPISODE_PROMPT_VERSION,
         "seed": seed,
         "size": size,
         "horizon": horizon,
@@ -793,8 +799,15 @@ def main() -> None:
     else:
         cases = development_cases(args.cases or 8, args.seed_base)
     condition_pairs = parse_conditions(args.conditions)
+    repository_root = Path(__file__).resolve().parents[3]
+    source_commit = subprocess.check_output(
+        ["git", "-C", str(repository_root), "rev-parse", "HEAD"],
+        text=True,
+    ).strip()
     manifest = {
         "version": CROSSPLAY_VERSION,
+        "source_commit": source_commit,
+        "prompt_version": EPISODE_PROMPT_VERSION,
         "blue_model": args.blue_model,
         "blue_artifact_id": args.blue_artifact_id,
         "red_model": args.red_model,
