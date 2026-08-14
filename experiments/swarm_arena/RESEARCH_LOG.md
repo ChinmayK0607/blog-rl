@@ -885,6 +885,38 @@ added and must pass focused validation before analysis.
 - Next action: fixed 12-pair / 24-scenario rollout-only Stage B diagnostic;
   no optimizer unless all frozen localization gates pass.
 
+### 2026-08-14 — Stage B message-credit diagnostic
+
+- Status: completed
+- Verdict: rejected for RL; no Stage C or optimizer
+- Rollout source commit:
+  `ffad14954f4f7b8e695bc394a79ae3f4f5b39ffb`
+- Analyzer source commit:
+  `19fd2c68a946c440b2b168ac44ecea5150ca1e92`
+- Fixed audit: 12 role-balanced pairs / 24 critical-decoy scenarios,
+  message-drop, horizon two, rollout-only.
+- Timing and GPU: 14:36:47--14:38:57 UTC (about 130 s); A6000 reservation
+  41.0/49.1 GiB, observed full-load temperature 51 C. vLLM was stopped after
+  the run (1 MiB, 0%, 32 C).
+- Mechanical result: 24 hash-chained records, all five branches per scenario,
+  with raw messages, delivery, legal/chosen actions, events, target
+  transitions, credits, and request/output hashes. No OOM, HTTP retry, or
+  supervisor/invariant failure.
+- Frozen gates: sender messages identical 12/12 (pass); target fact present
+  5/12 (fail); intended mean D +0.0342928735 but 4 positive / 1 negative /
+  7 zero (fail); intended/off-role absolute-effect ratio 1.41817 (fail,
+  threshold 2); 5/12 pairs with nonzero off-role effects (fail, maximum 4);
+  receiver target effects critical 7/12 and decoy 7/12 (fail).
+- Interpretation: positive mean alone does not localize credit. The
+  message-drop estimator is rejected for RL under the frozen gates.
+- Invocation-only detours: the analyzer evidence argument is positional, not
+  `--input`; the first analyzer revision lacked a `canonical_sha256`
+  import. The fixed analyzer passed its focused test and produced the final
+  16,692-byte summary.
+- Compact public artifacts:
+  `results/pre_rl_1_7b/message_credit_stage_b_ffad1495/`; no keys, tokens,
+  model files, caches, or verbose server logs were included.
+
 ## Current decision gates
 
 Before the first real RL step, all of the following remain required:
