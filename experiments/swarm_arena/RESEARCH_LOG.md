@@ -846,6 +846,39 @@ returns/credits, receiver effects, and per-decision request/output/context
 hashes. It must pass Linux, replay, and two-scenario live validation before
 Stage B starts.
 
+### 2026-08-14 — compact evidence-writer preflight
+
+- Status: completed
+- Verdict: mechanical pass; Stage B evidence capture admitted
+- Source commit: `05290c7feca5679a2baf735b61b29329020ab06a`
+- Base / adapter / opponent revisions: Qwen3-1.7B
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; frozen adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`
+  for all initial BLUE policies and the frozen opponent.
+- CPU checks: focused evidence-writer/message-credit test passed (1/1);
+  Ruff and compileall passed; full suite passed (62 tests, 42.81 s). The two
+  warnings are pre-existing third-party SWIG deprecations.
+- Live preflight: A6000 local vLLM was restarted and healthy (about
+  41.0/49.1 GiB VRAM, 37 C). A fresh rollout-only critical/decoy smoke ran
+  14:28:16--14:29:15 UTC (about 59 s), with no optimizer step, OOM, HTTP
+  retry, structured-generation error, or supervisor failure.
+- Evidence result: `message_credit_evidence.jsonl` is 199,886 bytes and its
+  hash chain verifies exactly two records. Each record has five branches
+  (actual plus four message drops), 80/80 nonempty request hashes, raw emitted
+  and delivered broadcasts, replay-derived legal action sets, chosen actions,
+  events, target before/after state and capture events, role labels, target
+  fact presence, returns, credits, and signed approval/evidence hashes.
+- Invocation-only detours: an initial nonexistent focused-test selector, two
+  invalid test-fixture settings (nonzero additive costs and horizon one), one
+  malformed adapter-load JSON payload (HTTP 400), and an early verifier that
+  looked for old field names were corrected. None was a model, inference, or
+  evidence-writer failure; the final corrected checks above passed.
+- Artifacts (server only; no local download):
+  `/workspace/runs/swarm-message-credit-stage-a-evidence-05290c7f/audit/message_credit_evidence.jsonl`,
+  `admission.jsonl`, and `live_rl_diagnostic.json`.
+- Next action: fixed 12-pair / 24-scenario rollout-only Stage B diagnostic;
+  no optimizer unless all frozen localization gates pass.
+
 ## Current decision gates
 
 Before the first real RL step, all of the following remain required:
