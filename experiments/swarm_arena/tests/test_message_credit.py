@@ -3,6 +3,11 @@ from dataclasses import replace
 
 from swarm_ctf_eval.arena import Action, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
+from swarm_ctf_eval.broadcast_priority import (
+    PROMPT_VARIANTS,
+    apply_prompt_variant,
+    summarize_priority_rows,
+)
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, EpisodeConfig
 from swarm_ctf_eval.message_credit_audit import (
     message_credit_audit_record,
@@ -259,6 +264,33 @@ def test_message_drop_credit_is_sender_local_and_broadcast_only() -> None:
     assert summary["verdict"] == "promising"
     assert summary["aggregate"]["intended_sender_positive"] == 12
     assert summary["aggregate"]["localization_ratio"] is None
+
+
+def test_broadcast_priority_variants_are_generic_and_summarized() -> None:
+    messages = [
+        {"role": "system", "content": "base"},
+        {"role": "user", "content": "private observation"},
+    ]
+    for variant, suffix in PROMPT_VARIANTS.items():
+        updated = apply_prompt_variant(messages, variant)
+        assert updated[0]["content"] == "base" + suffix
+        assert messages[0]["content"] == "base"
+        assert "target" not in suffix.lower()
+    rows = [
+        {
+            "variant": "current",
+            "pair_index": pair,
+            "repetition": repetition,
+            "protocol_valid": True,
+            "target_fact_present": pair % 2 == 0,
+            "fact_count": 2,
+        }
+        for pair in range(12)
+        for repetition in range(2)
+    ]
+    summary = summarize_priority_rows(rows)
+    assert summary["current"]["target_fact_rate"] == 0.5
+    assert summary["current"]["pairs_target_fact_majority"] == 6
 
     first_drop_index = len(actual_decisions)
     mismatched_request = replace(

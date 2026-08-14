@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 20:17 IST
+Last updated: 2026-08-14 20:23 IST
 Branch: `exp/swarm-arena-4b`  
 Message-estimator implementation checkpoint:
 `567bc1393d101ca9f4a9613cabececece09a2399`  
@@ -944,6 +944,30 @@ no more critical-specific than decoy-specific. Therefore:
 - any revised task, warm start, or estimator must receive a new frozen audit
   plan and fresh development seeds while leaving the existing frozen OOD
   evaluation unchanged.
+
+### 2026-08-14 — broadcast-priority capability probe
+
+- Status: planned; frozen before results
+- Verdict scope: prompt/capability diagnosis only, never RL admission
+- Motivation: in the rejected Stage B evidence, every certified target was an
+  older turn-zero observation. The model frequently selected unrelated
+  turn-one facts instead. The current prompt's broad “prefer newer” sentence
+  may be incorrectly making recency compete across different nodes, rather
+  than resolving conflicting reports about the same node.
+- Inputs: the same 12 already-inspected training-manifest pairs, sender
+  broadcast only, five common-random repetitions per pair. No final/OOD cases.
+- Variants: current prompt; recency scoped to conflicts about the same node;
+  and a generic actionable-priority rule that prefers EXPOSED/COMPROMISED,
+  critical, and high-value facts. No variant receives the certified target ID,
+  receiver answer, oracle action, or reward.
+- Fixed diagnostic gates for a promising variant: 100% protocol validity;
+  target fact in at least 45/60 samples; majority emission on at least 9/12
+  pairs; and at least +0.20 absolute target-fact rate over the current prompt.
+- If a variant passes, confirm it on a fresh seed/pair subset before changing
+  the versioned production prompt or rerunning any causal audit. If none passes,
+  diagnose or improve the warm start rather than training on the rejected
+  credit signal.
+- No optimizer is authorized by this probe.
 
 ## Artifact index
 
