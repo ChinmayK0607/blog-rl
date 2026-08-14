@@ -1186,7 +1186,12 @@ def test_vllm_generator_coalesces_exact_requests_within_one_group() -> None:
 
         async def post(self, path, *, json):
             assert path == "/inference/v1/generate"
-            assert json["sampling_params"]["structured_outputs"]["choice"][0] == expected
+            sampling = json["sampling_params"]
+            assert sampling["temperature"] == 1.0
+            assert sampling["top_p"] == 1.0
+            assert sampling["top_k"] == 0
+            assert sampling["min_p"] == 0.0
+            assert sampling["structured_outputs"]["choice"][0] == expected
             self.posts += 1
             await asyncio.sleep(0)
             return FakeResponse()

@@ -273,6 +273,8 @@ class VLLMChoiceGenerator:
             "sampling_params": {
                 "temperature": 1.0,
                 "top_p": 1.0,
+                "top_k": 0,
+                "min_p": 0.0,
                 "max_tokens": 128,
                 "logprobs": 1,
                 "seed": seed,
