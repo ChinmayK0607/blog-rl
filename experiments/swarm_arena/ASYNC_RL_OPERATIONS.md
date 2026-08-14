@@ -100,3 +100,12 @@ For remote runs, make the inference command the `tmux` pane's `exec` process
 and use `tmux pipe-pane` for persistent logs. Do not use a shell pipeline ending
 in `tee` as the pane's lifecycle owner: a logger exit can close the pane even
 when the server itself was healthy.
+
+When launching multiple independent vLLM processes on one host, give every
+process unique `VLLM_CACHE_ROOT`, `TRITON_CACHE_DIR`,
+`TORCHINDUCTOR_CACHE_DIR`, `data_parallel_rpc_port`, and API port values.
+Concurrent first-start compilation against one shared cache can race and leave
+another process trying to load a not-yet-created Triton shared object. Before
+starting the trainer, run `scripts/probe_live_rollout.py` against every rollout
+URL; it loads the pinned adapter and must pass both an exact broadcast choice
+and an exact legal-action choice through the production structured client.
