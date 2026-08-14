@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
 from dataclasses import dataclass
 from typing import Literal
 
@@ -143,13 +144,35 @@ class VLLMChoiceGenerator:
             [*self.tokenizer.encode(value, add_special_tokens=False), eos_token_id]
             for value in choices
         ]
-        allowed = completion_allowed_token_ids(completion_ids, choice_token_ids)
+        decoded = self.tokenizer.decode(completion_ids, skip_special_tokens=True)
+        try:
+            allowed = completion_allowed_token_ids(completion_ids, choice_token_ids)
+        except ValueError as error:
+            matching_choices = [
+                index for index, value in enumerate(choices) if value == decoded
+            ]
+            raise ValueError(
+                "structured completion/trie mismatch: "
+                + json.dumps(
+                    {
+                        "completion_ids": completion_ids,
+                        "decoded": decoded,
+                        "eos_token_id": eos_token_id,
+                        "finish_reason": choice.get("finish_reason"),
+                        "matching_choice_indices": matching_choices,
+                        "matching_choice_token_ids": [
+                            choice_token_ids[index] for index in matching_choices
+                        ],
+                    },
+                    sort_keys=True,
+                )
+            ) from error
         return ChoiceCompletion(
             tuple(prompt_ids),
             tuple(completion_ids),
             tuple(item["logprob"] for item in choice["logprobs"]["content"]),
             tuple(tuple(row) for row in allowed),
-            self.tokenizer.decode(completion_ids, skip_special_tokens=True),
+            decoded,
         )
 
 
