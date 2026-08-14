@@ -1180,6 +1180,31 @@ no more critical-specific than decoy-specific. Therefore:
   then one `--rollout-only` live group to certify serving/replay/routing and the
   deferred trainer parity handoff. Only a clean result permits the separate
   real trainer-parity certificate.
+- Linux validation completed on the warm A6000 without restarting vLLM. The
+  focused shared-return plus message-credit tests passed 4/4 in 19.98 seconds;
+  the complete Swarm Arena suite passed 65/65 in 44.27 seconds. The first test
+  command exposed a stale cached wheel and imported older source; the exact
+  commit passed after switching the local package to editable mode.
+- One bounded rollout-only critical curriculum group then completed with four
+  independent replicas, 16 decisions and one terminal replay transition each,
+  four signed approvals, exact replay/context/output/routing checks, and both
+  hash chains verified. Returns were `[+0.166667, -0.083333, 0, 0]`; LOO
+  advantages were `[+0.194444, -0.138889, -0.027778, -0.027778]` and summed to
+  zero. The controller constructed all four isolated policy batches and merged
+  replicas, but `--rollout-only` prevented queue admission. The first launcher
+  omitted the editable-package flag and failed at import before contacting
+  vLLM; the corrected frozen command completed cleanly.
+- Compact public evidence is in
+  `results/pre_rl_1_7b/shared_return_smoke_c267f479/` (453,301 bytes total).
+  Complete-evidence SHA-256:
+  `84cf512166c23262645c555e73f473df5e0eec69b73b358a7e4d23dbf061b304`;
+  admission SHA-256:
+  `8c85cf8533de0236934199b11021bf62cb869228956bd4cc5c14ad414497a70b`.
+  The supervisor signing key is excluded. GPU remained healthy at 41,032 MiB,
+  0% idle utilization, 33 C after the run.
+- Mechanical verdict: pass. Scientific/training verdict: still not admitted;
+  trainer-side constrained log-prob parity and the predeclared opponent-pool,
+  intervention, KL, and collapse gates remain before any optimizer step.
 
 ## Artifact index
 

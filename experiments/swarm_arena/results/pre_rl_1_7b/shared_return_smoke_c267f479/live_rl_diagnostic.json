@@ -1,0 +1,45 @@
+[
+  {
+    "groups": [
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "shared-return-smoke-c267f479:step-0:group-0:curriculum:4000008",
+        "replicas": [
+          {
+            "advantage": 0.19444444444444445,
+            "game_id": "shared-return-smoke-c267f479:step-0:group-0:curriculum:4000008:replica-0",
+            "return": 0.16666666666666666
+          },
+          {
+            "advantage": -0.1388888888888889,
+            "game_id": "shared-return-smoke-c267f479:step-0:group-0:curriculum:4000008:replica-1",
+            "return": -0.08333333333333334
+          },
+          {
+            "advantage": -0.027777777777777773,
+            "game_id": "shared-return-smoke-c267f479:step-0:group-0:curriculum:4000008:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.027777777777777773,
+            "game_id": "shared-return-smoke-c267f479:step-0:group-0:curriculum:4000008:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.16666666666666666,
+          "pair_index": 0,
+          "receiver": "blue-1",
+          "seed": 4000008,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "a2f694eec9b7e69ac14d8b6242ba58950aa8647a8cf60f2c57d886f9ca743124",
+          "target": "V66"
+        }
+      }
+    ],
+    "step": 0
+  }
+]
