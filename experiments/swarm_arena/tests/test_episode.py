@@ -1149,6 +1149,22 @@ def test_serving_constraint_rows_reject_a_different_normalization_mask() -> None
         )
 
 
+def test_serving_constraint_rows_ignore_vllm_masked_sentinels() -> None:
+    _verify_serving_constraint_rows(
+        [11],
+        [[11, 12]],
+        [
+            {
+                "top_logprobs": [
+                    {"token": "token_id:11", "logprob": -0.1},
+                    {"token": "token_id:12", "logprob": -2.0},
+                    {"token": "token_id:13", "logprob": -9999.0},
+                ]
+            }
+        ],
+    )
+
+
 def test_vllm_generator_coalesces_exact_requests_within_one_group() -> None:
     config = EpisodeConfig(
         horizon=2,

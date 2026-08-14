@@ -61,6 +61,13 @@ def _verify_serving_constraint_rows(
             token = candidate.get("token")
             if not isinstance(token, str) or not token.startswith("token_id:"):
                 raise ValueError("serving top-logprob row lacks token IDs")
+            logprob = candidate.get("logprob")
+            if not isinstance(logprob, (int, float)):
+                raise ValueError("serving top-logprob row lacks numeric logprobs")
+            # vLLM serializes masked -inf entries with its -9999 sentinel when
+            # the requested top-k exceeds the finite structured mask.
+            if float(logprob) <= -9999.0:
+                continue
             observed.add(int(token.removeprefix("token_id:")))
         if observed != set(expected):
             raise ValueError(
