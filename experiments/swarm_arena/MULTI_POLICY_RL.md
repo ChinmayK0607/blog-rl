@@ -75,7 +75,8 @@ from communication rather than action-only improvement.
 
 The bootstrap implementation freezes `K=4`, the leave-one-out mean with no
 additional centering or normalization, and first-turn `BROADCAST` spans only.
-These fields are hashed into the immutable run lock. Each replica has a unique
+These fields, the full trainer config, and the admitted serving config are
+hashed into the immutable run lock. Each replica has a unique
 game ID and sampling namespace. The supervisor independently replays every
 terminal return, proves the namespaces are disjoint, reconstructs every private
 context and output, checks immutable policy/constraint routing, and commits the

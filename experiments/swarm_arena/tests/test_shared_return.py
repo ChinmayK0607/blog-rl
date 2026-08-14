@@ -107,6 +107,8 @@ def _lock(spec: SharedReturnSpec) -> RunLock:
         trainer_parity_gate_sha256="c" * 64,
         credit_estimator="shared_return",
         credit_estimator_config_sha256=spec.sha256,
+        trainer_config_sha256="d" * 64,
+        serving_config_sha256="e" * 64,
     )
 
 
@@ -244,6 +246,13 @@ def test_shared_return_group_is_replayed_signed_and_routed_fail_closed() -> None
         assert "spec does not match" in str(error)
     else:
         raise AssertionError("stale shared-return spec must fail closed")
+
+    try:
+        replace(lock, serving_config_sha256=None).validate()
+    except ValueError as error:
+        assert "immutable serving config" in str(error)
+    else:
+        raise AssertionError("unbound shared-return serving config must fail closed")
 
 
 def test_published_v4_evidence_builds_policy_bound_parity_probe() -> None:

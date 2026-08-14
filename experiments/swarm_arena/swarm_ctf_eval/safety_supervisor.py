@@ -23,7 +23,7 @@ from .prime_rl_bridge import (
 )
 from .rl_v3 import ArenaRLEnv
 
-SUPERVISOR_VERSION = "arena-fail-closed-supervisor-v4-sample-bound-shared-return"
+SUPERVISOR_VERSION = "arena-fail-closed-supervisor-v5-config-sample-bound"
 ZERO_HASH = "0" * 64
 
 
@@ -51,6 +51,8 @@ class RunLock:
     trainer_parity_gate_sha256: str | None = None
     credit_estimator: Literal["policy_replacement", "message_drop", "shared_return"] = "policy_replacement"
     credit_estimator_config_sha256: str | None = None
+    trainer_config_sha256: str | None = None
+    serving_config_sha256: str | None = None
 
     def validate(self) -> None:
         nonempty = (
@@ -101,6 +103,14 @@ class RunLock:
                 self.credit_estimator_config_sha256
             ):
                 raise ValueError("shared-return credit requires an immutable estimator config")
+            if self.trainer_config_sha256 is None or not _is_sha256(
+                self.trainer_config_sha256
+            ):
+                raise ValueError("shared-return credit requires an immutable trainer config")
+            if self.serving_config_sha256 is None or not _is_sha256(
+                self.serving_config_sha256
+            ):
+                raise ValueError("shared-return credit requires an immutable serving config")
         else:
             raise ValueError(f"unknown credit estimator: {self.credit_estimator}")
         if set(frozen) & {policy for policy, _ in self.trainable_policy_revisions}:

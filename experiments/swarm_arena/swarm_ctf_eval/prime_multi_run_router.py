@@ -9,7 +9,7 @@ from typing import Any
 from .prime_rl_bridge import runtime_training_sample_sha256
 from .safety_supervisor import Approval, verify_approval_signature
 
-ROUTER_VERSION = "arena-prime-multi-run-router-v4-sample-bound"
+ROUTER_VERSION = "arena-prime-multi-run-router-v5-config-sample-bound"
 
 
 @dataclass(frozen=True)

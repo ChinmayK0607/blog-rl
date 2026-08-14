@@ -175,6 +175,8 @@ def run_lock(
         parity_gate_sha256(config.rollout_parity_gate),
         args.credit_estimator,
         shared_return_spec.sha256 if shared_return_spec is not None else None,
+        sha256_file(args.trainer_config) if shared_return_spec is not None else None,
+        sha256_file(args.inference_config) if shared_return_spec is not None else None,
     )
 
 
@@ -182,6 +184,7 @@ async def main() -> None:
     parser = argparse.ArgumentParser(description="Run bounded fail-closed four-policy Swarm Arena RL.")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--trainer-config", type=Path, required=True)
+    parser.add_argument("--inference-config", type=Path)
     parser.add_argument("--data-dir", type=Path, required=True)
     parser.add_argument("--tokenizer", required=True)
     parser.add_argument("--initial-adapter", type=Path, required=True)
@@ -224,6 +227,8 @@ async def main() -> None:
         parser.error("steps and groups-per-step must be positive")
     if not 2 <= args.shared_return_replicas <= 32:
         parser.error("shared-return replicas must be between 2 and 32")
+    if args.credit_estimator == "shared_return" and args.inference_config is None:
+        parser.error("shared-return credit requires --inference-config")
     if args.curriculum_offset < 0:
         parser.error("curriculum offset cannot be negative")
     if args.rollout_only and args.steps != 1:
