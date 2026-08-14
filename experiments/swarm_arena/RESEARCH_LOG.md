@@ -1233,6 +1233,35 @@ no more critical-specific than decoy-specific. Therefore:
   `1c2115b593556ef75cf08b7785d50b00cd123671d7b3da7634c2e49ac93dfd58`.
   The v3 directory is marked superseded for queue admission.
 
+### 2026-08-14 — approved-rollout trainer parity diagnosis
+
+- Status: failed gate; diagnosis in progress; no RL optimizer
+- Source: `fb272aed`; probe SHA-256
+  `df9a1213e6cd94e5e25a8e7801a6afdb8e15edd37dee6cc46e08d35a745138d1`
+- The verified v4 evidence deterministically produced 16 policy-bound
+  first-turn broadcast samples (1,002 completion tokens; 857 branching
+  tokens). The probe builder verifies the evidence hash chain, selected phase
+  and turn, policy slot, sampled-token legality, and exact allowed rows.
+- A co-resident certificate attempt failed while materializing the trainer:
+  warm vLLM held 40.06 GiB, the trainer held 7.31 GiB, and a final 48 MiB
+  allocation exceeded the A6000. This is a capacity failure, not a parity
+  result. The failed directory remains immutable.
+- With stateless vLLM stopped, the single clean retry completed. Four optimizer
+  parameter sets were disjoint and the disposable isolation step changed only
+  `run_blue_0`, so policy isolation passed. Aggregate mean absolute log-prob
+  error 0.002184, p99 0.051755, p99 probability error 0.028206, tail fraction
+  0.003992, mean mismatch-KL 0.0001447, and max mismatch-KL 0.033244 all passed
+  frozen limits. Maximum probability error was 0.140238 versus the frozen 0.10
+  ceiling, so the certificate correctly failed and no training admission is
+  allowed. The threshold will not be relaxed.
+- Current hypothesis: a small number of branching tokens, concentrated in
+  `blue-0` broadcasts, amplify serving/trainer numerical differences. The next
+  diagnostic adds token-level outlier identity and tests the predeclared
+  serving-side eager execution variant. Any variant requires fresh rollout
+  evidence and the same unchanged parity limits.
+- The original compiled vLLM server and all six pinned LoRA registrations were
+  restored after the retry.
+
 ## Artifact index
 
 - Public source branch:

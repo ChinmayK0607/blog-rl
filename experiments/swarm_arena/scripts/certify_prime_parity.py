@@ -164,6 +164,7 @@ def main() -> None:
     all_trainer = []
     all_branching = []
     sample_summaries = []
+    token_summaries = []
     model.eval()
     for sample_index, sample in enumerate(samples):
         policy_slot = int(sample.get("policy_slot", sample_index % 4))
@@ -195,6 +196,47 @@ def main() -> None:
         all_inference.append(inference_logprobs)
         all_trainer.append(trainer_logprobs)
         all_branching.append(torch.tensor([len(row) > 1 for row in allowed_rows]))
+        sample_absolute_error = (trainer_logprobs - inference_logprobs).abs()
+        sample_probability_error = (
+            trainer_logprobs.exp() - inference_logprobs.exp()
+        ).abs()
+        sample_log_ratio = trainer_logprobs - inference_logprobs
+        sample_mismatch_kl = sample_log_ratio.exp() - sample_log_ratio - 1.0
+        for token_offset, (
+            token_id,
+            allowed,
+            rollout_value,
+            trainer_value,
+            absolute_value,
+            probability_value,
+            mismatch_value,
+        ) in enumerate(
+            zip(
+                sample["completion_ids"],
+                allowed_rows,
+                inference_logprobs.tolist(),
+                trainer_logprobs.tolist(),
+                sample_absolute_error.tolist(),
+                sample_probability_error.tolist(),
+                sample_mismatch_kl.tolist(),
+                strict=True,
+            )
+        ):
+            token_summaries.append(
+                {
+                    "decision_id": sample.get("decision_id"),
+                    "agent_id": sample["agent_id"],
+                    "policy_slot": policy_slot,
+                    "token_offset": token_offset,
+                    "token_id": token_id,
+                    "allowed_token_count": len(allowed),
+                    "rollout_logprob": rollout_value,
+                    "trainer_logprob": trainer_value,
+                    "absolute_logprob_error": absolute_value,
+                    "probability_error": probability_value,
+                    "mismatch_kl": mismatch_value,
+                }
+            )
         sample_summaries.append(
             {
                 "agent_id": sample["agent_id"],
@@ -311,6 +353,21 @@ def main() -> None:
         "probability_error_over_0_05_fraction": probability_tail_fraction,
         "optimizer_parameter_sets_disjoint": optimizer_sets_disjoint,
         "parity_passed": parity_passed,
+        "parity_components": {
+            "mean_absolute_logprob_error": mean_absolute_error
+            <= args.max_mean_logprob_error,
+            "p99_absolute_logprob_error": p99_absolute_error
+            <= args.max_p99_logprob_error,
+            "max_probability_error": max_probability_error
+            <= args.max_probability_error,
+            "p99_probability_error": p99_probability_error
+            <= args.max_p99_probability_error,
+            "probability_tail_fraction": probability_tail_fraction
+            <= args.max_probability_tail_fraction,
+            "mean_mismatch_kl": mean_mismatch_kl
+            <= args.max_mean_mismatch_kl,
+            "max_mismatch_kl": max_mismatch_kl <= args.max_mismatch_kl,
+        },
         "parity_thresholds": {
             "max_mean_logprob_error": args.max_mean_logprob_error,
             "max_p99_logprob_error": args.max_p99_logprob_error,
@@ -322,6 +379,11 @@ def main() -> None:
         },
         "policy_slot_digests_before": slot_digests_before,
         "sample_summaries": sample_summaries,
+        "top_probability_error_tokens": sorted(
+            token_summaries,
+            key=lambda row: float(row["probability_error"]),
+            reverse=True,
+        )[:20],
     }
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
