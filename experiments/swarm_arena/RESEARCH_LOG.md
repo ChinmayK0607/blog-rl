@@ -1112,6 +1112,34 @@ no more critical-specific than decoy-specific. Therefore:
   it does not repair the rejected per-sender estimator or authorize RL. A
   manifest-matched resume is allowed only for a transport interruption because
   games are independent; no failed row may be retained.
+- Completed cleanly: all 96/96 rows and 48/48 side-swapped pairs verified.
+  Run source `679e60a57a35abecc989a5a654236f19bbb9182b`; analyzer source
+  `274bbe87643ff36f2eb3c239b7d8bfd9dfb7fe0b`. Runtime was
+  15:44:39--15:57:32 UTC (about 773 seconds); 7,680 requests and 182,608
+  completion tokens ran at 242.02 completion tokens/s. No error, resume, OOM,
+  invalid output, optimizer, or RL step occurred.
+- Generated-minus-dropped: +0.3167 mean, 95% interval
+  [-0.8792,+1.3542], p=.6162, 8/12 positive. This meets the frozen exploratory
+  screen exactly but is statistically weak and is not confirmatory.
+- Generated-minus-sender-shuffled: -0.0250, interval
+  [-1.3625,+1.3000], p=.9712, 6/12 positive. No detectable sender-routing
+  benefit.
+- Generated-minus-delayed: +1.2042, interval [+0.2208,+2.2833], p=.0474,
+  7/12 positive. Timely messages carry measurable value even though the effect
+  is heterogeneous across seeds.
+- All focal protocol, grounding, and action rates were 1.0 with zero invalid
+  outputs. Generated duplicate-target turns were 0.4375 versus 0.2361 dropped,
+  0.3507 shuffled, and 0.3611 delayed; communication is not yet reliably
+  reducing redundant actions.
+- Verdict: marginal collective communication signal, strongest for timeliness;
+  no strong sender-specific coordination and no repair of the rejected credit
+  estimator. Do not run Stage C or the optimizer. The next implementation
+  target is the source- and opponent-matched shared-terminal-return candidate
+  in `MULTI_POLICY_RL.md`, followed by parity and collapse gates.
+- Public compact artifacts:
+  `results/pre_rl_1_7b/actionable_crossplay_96_679e60a5/`. The 54.5 MB raw
+  matrix is stored as a deterministic 2.32 MB gzip; both compressed and raw
+  hashes are recorded in its `RUN.md`.
 
 ## Artifact index
 

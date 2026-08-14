@@ -1,0 +1,109 @@
+{
+  "analysis": {
+    "bootstrap_resamples": 20000,
+    "random_seed": 0,
+    "randomization_trials": 100000,
+    "unit": "seed after side averaging"
+  },
+  "blue_artifact_id": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+  "blue_history_window": 3,
+  "blue_model": "capability-sft-1.7b",
+  "cases": [
+    [
+      5000003,
+      12,
+      4
+    ],
+    [
+      5000196,
+      13,
+      6
+    ],
+    [
+      5000389,
+      12,
+      4
+    ],
+    [
+      5000582,
+      13,
+      6
+    ],
+    [
+      5000775,
+      12,
+      4
+    ],
+    [
+      5000968,
+      13,
+      6
+    ],
+    [
+      5001161,
+      12,
+      4
+    ],
+    [
+      5001354,
+      13,
+      6
+    ],
+    [
+      5001547,
+      12,
+      4
+    ],
+    [
+      5001740,
+      13,
+      6
+    ],
+    [
+      5001933,
+      12,
+      4
+    ],
+    [
+      5002126,
+      13,
+      6
+    ]
+  ],
+  "conditions": [
+    [
+      "generated",
+      "generated"
+    ],
+    [
+      "dropped",
+      "generated"
+    ],
+    [
+      "sender_shuffled",
+      "generated"
+    ],
+    [
+      "delayed",
+      "generated"
+    ]
+  ],
+  "generation": {
+    "enable_thinking": false,
+    "max_tokens": 160,
+    "temperature": 0.0
+  },
+  "prompt_version": "arena-episode-v5-actionable-broadcast-priority",
+  "protocol_constraint": {
+    "enabled": true,
+    "version": "arena-structured-protocol-v2-xgrammar-choice-mask"
+  },
+  "red_artifact_id": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "red_history_window": 3,
+  "red_model": "/workspace/models/qwen3-1.7b-70d244c",
+  "sha256": "04a9b305806a4e0f4e1e792e9a381c0dc1a9a7a31d845da9baf3b20981ea2df7",
+  "source_commit": "679e60a57a35abecc989a5a654236f19bbb9182b",
+  "split": "development",
+  "swap_sides": true,
+  "version": "arena-crossplay-v5-source-prompt-bound"
+}
