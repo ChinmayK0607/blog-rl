@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 18:38 IST
+Last updated: 2026-08-14 18:40 IST
 Branch: `exp/swarm-arena-4b`  
 Message-estimator implementation checkpoint:
 `567bc1393d101ca9f4a9613cabececece09a2399`  
@@ -793,6 +793,12 @@ default nonzero protocol costs, which RL v3 correctly rejects because it uses
 hard constraints rather than additive communication/protocol penalties. The
 test fixture was corrected to set all three costs to zero. This was a test-only
 failure; no inference process or scientific run had started.
+
+The next focused rerun exposed a second fixture-only setup error before the
+cache was exercised: `horizon=1`, while RL v3 requires a horizon of at least
+two. The fixture was corrected to `horizon=2`; the request-hash tamper test
+continued to pass, and no static, full-suite, live-inference, or scientific run
+had started at this point.
 
 ## Current decision gates
 
