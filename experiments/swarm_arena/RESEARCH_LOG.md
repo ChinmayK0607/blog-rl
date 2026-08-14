@@ -919,6 +919,10 @@ added and must pass focused validation before analysis.
 - Final host state: vLLM and audit sessions stopped; A6000 at 1 MiB, 0%, 29 C;
   189 GB free of 251 GB. The instance is decommission-ready but termination is
   a user-controlled external action.
+- Estimated total host cost for this resumed validation window: approximately
+  USD 1.70--1.90 at the user-reported USD 0.75/hour. This is a range because the
+  provider's exact boot/billing timestamp was not available in the run
+  artifacts; measured experiment timings remain exact above.
 
 ## Current decision gates
 
