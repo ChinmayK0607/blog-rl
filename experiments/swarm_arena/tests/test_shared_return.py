@@ -4,6 +4,7 @@ import asyncio
 import math
 from copy import deepcopy
 from dataclasses import replace
+from pathlib import Path
 
 from swarm_ctf_eval.episode import EpisodeConfig
 from swarm_ctf_eval.live_rl_rollout import (
@@ -25,6 +26,7 @@ from swarm_ctf_eval.safety_supervisor import (
     canonical_sha256,
     leave_one_out_advantages,
 )
+from swarm_ctf_eval.shared_return_parity import build_shared_return_parity_probe
 from swarm_ctf_eval.structured_protocol import protocol_choices
 
 
@@ -242,3 +244,21 @@ def test_shared_return_group_is_replayed_signed_and_routed_fail_closed() -> None
         assert "spec does not match" in str(error)
     else:
         raise AssertionError("stale shared-return spec must fail closed")
+
+
+def test_published_v4_evidence_builds_policy_bound_parity_probe() -> None:
+    evidence = (
+        Path(__file__).resolve().parents[1]
+        / "results/pre_rl_1_7b/shared_return_smoke_ab981247/shared_return_evidence.jsonl"
+    )
+    probe = build_shared_return_parity_probe(evidence)
+    assert probe["version"] == "arena-shared-return-parity-probe-v1"
+    assert len(probe["samples"]) == 16
+    assert {row["policy_slot"] for row in probe["samples"]} == set(range(4))
+    assert all(
+        row["completion_ids"]
+        and len(row["completion_ids"])
+        == len(row["completion_logprobs"])
+        == len(row["allowed_token_ids"])
+        for row in probe["samples"]
+    )

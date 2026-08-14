@@ -166,7 +166,10 @@ def main() -> None:
     sample_summaries = []
     model.eval()
     for sample_index, sample in enumerate(samples):
-        run_id = f"run_blue_{sample_index % 4}"
+        policy_slot = int(sample.get("policy_slot", sample_index % 4))
+        if policy_slot not in range(4):
+            raise ValueError(f"parity sample has an invalid policy slot: {policy_slot}")
+        run_id = f"run_blue_{policy_slot}"
         slot = manager.id_2_idx[run_id]
         token_ids, position_ids, inference_logprobs, allowed_rows, prompt_length = prepare_sample(
             sample, device=device
@@ -199,7 +202,9 @@ def main() -> None:
                     (trainer_logprobs - inference_logprobs).abs().max()
                 ),
                 "phase": sample["phase"],
-                "seed": sample["seed"],
+                "decision_id": sample.get("decision_id"),
+                "game_id": sample.get("game_id"),
+                "policy_slot": policy_slot,
                 "tokens": len(inference_logprobs),
             }
         )
