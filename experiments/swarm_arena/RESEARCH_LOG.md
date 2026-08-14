@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 18:06 IST
+Last updated: 2026-08-14 18:17 IST
 Branch: `exp/swarm-arena-4b`  
 Message-estimator implementation checkpoint:
 `567bc1393d101ca9f4a9613cabececece09a2399`  
@@ -710,6 +710,42 @@ Pinned public inference assets were then staged without using private tokens:
 No model process or optimizer had started at this checkpoint. The next paid-GPU
 operation was the live vLLM startup/smoke, followed by Stage A only if serving
 and structured generation were clean.
+
+Live serving then passed its admission smoke:
+
+- vLLM weight load: 9.45 seconds;
+- `torch.compile`: 62.52 seconds;
+- CUDA graph capture: 31 seconds;
+- steady reserved memory: 40,602 / 49,140 MiB under the configured 0.82 memory
+  fraction;
+- adapter registry binding passed;
+- constrained generation passed 8/8 samples: four `BROADCAST`, four `ACT`, 335
+  completion tokens total;
+- the live parser separately accepted one legal 53-token broadcast and one
+  legal eight-token action;
+- no HTTP, grammar/trie, structured-generation, OOM, or retry error occurred.
+
+### Stage A message-edge smoke — stopped fail-closed
+
+At 2026-08-14 18:16 IST the frozen two-pair audit stopped during group zero,
+before producing a scientific result or starting Stage B. The supervisor found
+that two decisions with identical policy, private context, dynamic constraint,
+and sampling key produced different broadcasts:
+
+`message-credit-stage-a-567bc139:step-0:group-0:curriculum:3000003:drop-message-blue-2:blue-1:1:BROADCAST`
+
+This violates the common-randomness invariant. Any terminal-return difference
+from those branches would mix the delivery-edge intervention with sampling
+noise and therefore cannot be used as message credit. The controller correctly
+exited; only the 32-byte supervisor key existed and no Stage A result artifact,
+Stage B run, or optimizer was started. The API remained healthy at 40,602 MiB,
+33 C, with no serving or parsing error.
+
+Status: **mechanically rejected pending diagnosis**. The required diagnosis is
+to preserve and compare exact duplicate request payloads, response hashes,
+request order/concurrency, seeds, grammar state, and vLLM logs; reproduce the
+smallest failing duplicate request; and establish the cause before editing the
+implementation. Thresholds will not be changed around this failure.
 
 ## Current decision gates
 
