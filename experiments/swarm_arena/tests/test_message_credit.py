@@ -134,6 +134,14 @@ def test_message_drop_credit_is_sender_local_and_broadcast_only() -> None:
                             constraint,
                             f"shared:{agent_id}:{turn}:{phase}",
                             contexts[(agent_id, turn, phase)],
+                            canonical_sha256(
+                                {
+                                    "sampling_key": f"shared:{agent_id}:{turn}:{phase}",
+                                    "context_sha256": contexts[(agent_id, turn, phase)],
+                                    "policy_id": policy_id,
+                                    "revision": revision,
+                                }
+                            ),
                             outputs[(agent_id, turn, phase)],
                         )
                     )
@@ -204,6 +212,32 @@ def test_message_drop_credit_is_sender_local_and_broadcast_only() -> None:
         for decision_id in envelope.decision_ids
     } == broadcast_ids
     assert all(":ACT" not in decision_id for decision_id in broadcast_ids)
+
+    first_drop_index = len(actual_decisions)
+    mismatched_request = replace(
+        evidence.decisions[first_drop_index],
+        request_sha256="f" * 64,
+    )
+    request_tamper = replace(
+        evidence,
+        decisions=(
+            *evidence.decisions[:first_drop_index],
+            mismatched_request,
+            *evidence.decisions[first_drop_index + 1 :],
+        ),
+    )
+    try:
+        approve_message_credit_group(
+            lock,
+            request_tamper,
+            bindings,
+            "BLUE",
+            b"message-credit-test-signing-key-32b",
+        )
+    except ValueError as error:
+        assert "different inference requests" in str(error)
+    else:
+        raise AssertionError("a mismatched common-random request must fail closed")
 
     wrong_drop = replace(
         evidence.drops[0],

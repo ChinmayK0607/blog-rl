@@ -36,6 +36,7 @@ class RolloutDecision:
     constraint_sha256: str
     sampling_key: str
     context_sha256: str
+    request_sha256: str
     output_sha256: str
 
     @property
@@ -79,6 +80,10 @@ def _validate_decision(decision: RolloutDecision) -> None:
         character not in "0123456789abcdef" for character in decision.context_sha256
     ):
         raise ValueError(f"invalid private-context hash: {decision.decision_id}")
+    if len(decision.request_sha256) != 64 or any(
+        character not in "0123456789abcdef" for character in decision.request_sha256
+    ):
+        raise ValueError(f"invalid inference-request hash: {decision.decision_id}")
     if len(decision.output_sha256) != 64 or any(
         character not in "0123456789abcdef" for character in decision.output_sha256
     ):

@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 18:17 IST
+Last updated: 2026-08-14 18:35 IST
 Branch: `exp/swarm-arena-4b`  
 Message-estimator implementation checkpoint:
 `567bc1393d101ca9f4a9613cabececece09a2399`  
@@ -741,11 +741,49 @@ exited; only the 32-byte supervisor key existed and no Stage A result artifact,
 Stage B run, or optimizer was started. The API remained healthy at 40,602 MiB,
 33 C, with no serving or parsing error.
 
-Status: **mechanically rejected pending diagnosis**. The required diagnosis is
+Initial status: **mechanically rejected pending diagnosis**. The required
+diagnosis was
 to preserve and compare exact duplicate request payloads, response hashes,
 request order/concurrency, seeds, grammar state, and vLLM logs; reproduce the
 smallest failing duplicate request; and establish the cause before editing the
 implementation. Thresholds will not be changed around this failure.
+
+The minimized reproduction then rejected the initial concurrency-only
+hypothesis. Among 16 duplicate decisions, concurrent replay happened to have
+zero mismatches but serial replay had two. The mismatching pairs were identical
+in policy/revision/model, sampling key and derived seed, prompt hash and length,
+private-context hash, phase-level constraint hash, and sampling parameters:
+
+- `blue-3`: prompt hash prefix/suffix `c7d1...a9dd`, seed `3388348335`, output
+  hashes `dceb5a...f7f1` and `788dbb...4920`;
+- `red-0`: prompt hash prefix/suffix `97ffff...5f61c`, seed `3858053319`, output
+  hashes `a3f344...4598` and `1c3abb...4920`; the decoded choices changed
+  `request_resource` from 1 to 0.
+
+Therefore the live vLLM serving path's request seed is not a sufficient
+bit-reproducibility guarantee, even serially. One attempted shell command for
+summarizing the reproduction had a quoting error; it produced no result and was
+replaced by direct extraction of the recorded pairs.
+
+Code review also found that the existing `constraint_sha256` represented only
+the protocol phase/version, while the ordered legal choices were dynamic. The
+candidate correction does not weaken the supervisor. It:
+
+1. hashes the complete inference identity: selected URL, immutable policy and
+   revision, sampling key, exact rendered token IDs, ordered legal choices, and
+   normalized sampling parameters;
+2. coalesces concurrent identical requests and memoizes completed results only
+   within one atomic credit group;
+3. records the request hash on every decision;
+4. rejects either one common-random semantic key mapping to different request
+   hashes or one exact request hash mapping to different outputs;
+5. clears the cache at the group boundary so distinct games cannot reuse a
+   completion.
+
+This candidate passed Python bytecode compilation locally. Local pytest could
+not start because the macOS subproject environment had no pytest executable;
+the Linux worker owns the focused, complete, and live validation before any
+new scientific run.
 
 ## Current decision gates
 

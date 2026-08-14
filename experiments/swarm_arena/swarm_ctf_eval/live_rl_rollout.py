@@ -3,8 +3,9 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, AsyncIterator, Literal
 
 import httpx
 import torch
@@ -105,6 +106,7 @@ class ChoiceCompletion:
     logprobs: tuple[float, ...]
     allowed_token_ids: tuple[tuple[int, ...], ...]
     text: str
+    request_sha256: str
 
 
 @dataclass(frozen=True)
@@ -138,6 +140,16 @@ def parity_gate_sha256(config: object) -> str:
     return canonical_sha256(config.model_dump(mode="json"))
 
 
+@asynccontextmanager
+async def _coalesced_request_group(generator: object) -> AsyncIterator[None]:
+    scope = getattr(generator, "coalesced_request_group", None)
+    if scope is None:
+        yield
+        return
+    async with scope():
+        yield
+
+
 class VLLMChoiceGenerator:
     def __init__(self, tokenizer_path: str, *, timeout: float = 180.0) -> None:
         self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
@@ -149,6 +161,7 @@ class VLLMChoiceGenerator:
         self.choice_mask = XGrammarChoiceMask(self.tokenizer, int(config.vocab_size))
         self.timeout = timeout
         self._clients: dict[str, httpx.AsyncClient] = {}
+        self._group_requests: dict[str, asyncio.Task[ChoiceCompletion]] | None = None
 
     async def __aenter__(self) -> VLLMChoiceGenerator:
         return self
@@ -164,33 +177,28 @@ class VLLMChoiceGenerator:
             )
         return self._clients[base_url]
 
-    async def generate(
+    @asynccontextmanager
+    async def coalesced_request_group(self) -> AsyncIterator[None]:
+        if self._group_requests is not None:
+            raise RuntimeError("inference request groups cannot be nested")
+        self._group_requests = {}
+        try:
+            yield
+        finally:
+            self._group_requests = None
+
+    async def _complete_request(
         self,
-        endpoint: PolicyEndpoint,
-        messages: list[dict[str, str]],
         *,
-        sampling_key: str,
+        base_url: str,
+        request_body: dict[str, Any],
+        choices: tuple[str, ...],
+        prompt_ids: tuple[int, ...],
+        request_sha256: str,
     ) -> ChoiceCompletion:
-        endpoint.validate()
-        choices = protocol_choices(messages)
-        prompt_ids = self.renderer.render_ids(messages, add_generation_prompt=True)
-        digest = hashlib.sha256(sampling_key.encode()).digest()
-        base_url = endpoint.base_urls[int.from_bytes(digest[:4], "big") % len(endpoint.base_urls)]
-        seed = int.from_bytes(digest[4:8], "big")
         response = await self._client(base_url).post(
             "/inference/v1/generate",
-            json={
-                "model": endpoint.model_name,
-                "token_ids": prompt_ids,
-                "sampling_params": {
-                    "temperature": 1.0,
-                    "top_p": 1.0,
-                    "max_tokens": 128,
-                    "logprobs": 1,
-                    "seed": seed,
-                    "structured_outputs": {"choice": list(choices)},
-                },
-            },
+            json=request_body,
         )
         response.raise_for_status()
         choice = response.json()["choices"][0]
@@ -228,12 +236,71 @@ class VLLMChoiceGenerator:
                 )
             ) from error
         return ChoiceCompletion(
-            tuple(prompt_ids),
+            prompt_ids,
             tuple(completion_ids),
             tuple(item["logprob"] for item in choice["logprobs"]["content"]),
             tuple(tuple(row) for row in allowed),
             decoded,
+            request_sha256,
         )
+
+    async def generate(
+        self,
+        endpoint: PolicyEndpoint,
+        messages: list[dict[str, str]],
+        *,
+        sampling_key: str,
+    ) -> ChoiceCompletion:
+        endpoint.validate()
+        choices = protocol_choices(messages)
+        prompt_ids = tuple(self.renderer.render_ids(messages, add_generation_prompt=True))
+        digest = hashlib.sha256(sampling_key.encode()).digest()
+        base_url = endpoint.base_urls[int.from_bytes(digest[:4], "big") % len(endpoint.base_urls)]
+        seed = int.from_bytes(digest[4:8], "big")
+        request_body = {
+            "model": endpoint.model_name,
+            "token_ids": prompt_ids,
+            "sampling_params": {
+                "temperature": 1.0,
+                "top_p": 1.0,
+                "max_tokens": 128,
+                "logprobs": 1,
+                "seed": seed,
+                "structured_outputs": {"choice": list(choices)},
+            },
+        }
+        request_sha256 = canonical_sha256(
+            {
+                "base_url": base_url,
+                "policy_id": endpoint.policy_id,
+                "policy_revision": endpoint.revision,
+                "sampling_key": sampling_key,
+                "request_body": request_body,
+            }
+        )
+        request = self._complete_request(
+            base_url=base_url,
+            request_body=request_body,
+            choices=choices,
+            prompt_ids=prompt_ids,
+            request_sha256=request_sha256,
+        )
+        if self._group_requests is None:
+            return await request
+        task = self._group_requests.get(request_sha256)
+        if task is None:
+            task = asyncio.create_task(request)
+            self._group_requests[request_sha256] = task
+        else:
+            request.close()
+        try:
+            return await asyncio.shield(task)
+        except asyncio.CancelledError:
+            raise
+        except BaseException:
+            if self._group_requests.get(request_sha256) is task:
+                del self._group_requests[request_sha256]
+            raise
 
 
 def _state_sha256(state: GameState) -> str:
@@ -366,6 +433,7 @@ async def rollout_branch(
                     protocol_constraint_sha256("BROADCAST"),
                     key,
                     canonical_sha256(broadcast_contexts[agent_id]),
+                    completion.request_sha256,
                     canonical_sha256(broadcast.to_dict()),
                 )
             )
@@ -439,6 +507,7 @@ async def rollout_branch(
                     protocol_constraint_sha256("ACT"),
                     key,
                     canonical_sha256(action_contexts[agent_id]),
+                    completion.request_sha256,
                     canonical_sha256(action.to_dict()),
                 )
             )
@@ -505,19 +574,8 @@ async def build_live_credit_group(
     if len(trainable_agents) != 4:
         raise ValueError("live credit group requires four trainable BLUE agents")
     resolved_sampling_namespace = sampling_namespace or game_id
-    branches = await asyncio.gather(
-        rollout_branch(
-            generator,
-            game_id=game_id,
-            initial_state=initial_state,
-            config=config,
-            bindings=bindings,
-            policies=policy_by_id,
-            replacement_policy_id=replacement_policy_id,
-            replaced_agent=None,
-            sampling_namespace=resolved_sampling_namespace,
-        ),
-        *(
+    async with _coalesced_request_group(generator):
+        branches = await asyncio.gather(
             rollout_branch(
                 generator,
                 game_id=game_id,
@@ -526,12 +584,24 @@ async def build_live_credit_group(
                 bindings=bindings,
                 policies=policy_by_id,
                 replacement_policy_id=replacement_policy_id,
-                replaced_agent=agent_id,
+                replaced_agent=None,
                 sampling_namespace=resolved_sampling_namespace,
-            )
-            for agent_id in trainable_agents
-        ),
-    )
+            ),
+            *(
+                rollout_branch(
+                    generator,
+                    game_id=game_id,
+                    initial_state=initial_state,
+                    config=config,
+                    bindings=bindings,
+                    policies=policy_by_id,
+                    replacement_policy_id=replacement_policy_id,
+                    replaced_agent=agent_id,
+                    sampling_namespace=resolved_sampling_namespace,
+                )
+                for agent_id in trainable_agents
+            ),
+        )
     actual, *replacements = branches
     by_agent: dict[str, list[TrainingSample]] = {agent_id: [] for agent_id in trainable_agents}
     for agent_id, sample in actual.samples:
@@ -608,21 +678,8 @@ async def build_live_message_credit_group(
     )
     if resolved_intervention_turn != initial_state.turn:
         raise ValueError("bootstrap message credit currently supports the first turn only")
-    branches = await asyncio.gather(
-        rollout_branch(
-            generator,
-            game_id=game_id,
-            initial_state=initial_state,
-            config=config,
-            bindings=bindings,
-            policies=policy_by_id,
-            replacement_policy_id=None,
-            replaced_agent=None,
-            sampling_namespace=resolved_sampling_namespace,
-            sample_phases=frozenset({"BROADCAST"}),
-            sample_turns=frozenset({resolved_intervention_turn}),
-        ),
-        *(
+    async with _coalesced_request_group(generator):
+        branches = await asyncio.gather(
             rollout_branch(
                 generator,
                 game_id=game_id,
@@ -633,13 +690,27 @@ async def build_live_message_credit_group(
                 replacement_policy_id=None,
                 replaced_agent=None,
                 sampling_namespace=resolved_sampling_namespace,
-                message_drop_agent=agent_id,
-                message_drop_turn=resolved_intervention_turn,
-                sample_phases=frozenset(),
-            )
-            for agent_id in trainable_agents
-        ),
-    )
+                sample_phases=frozenset({"BROADCAST"}),
+                sample_turns=frozenset({resolved_intervention_turn}),
+            ),
+            *(
+                rollout_branch(
+                    generator,
+                    game_id=game_id,
+                    initial_state=initial_state,
+                    config=config,
+                    bindings=bindings,
+                    policies=policy_by_id,
+                    replacement_policy_id=None,
+                    replaced_agent=None,
+                    sampling_namespace=resolved_sampling_namespace,
+                    message_drop_agent=agent_id,
+                    message_drop_turn=resolved_intervention_turn,
+                    sample_phases=frozenset(),
+                )
+                for agent_id in trainable_agents
+            ),
+        )
     actual, *drops = branches
     by_agent: dict[str, list[TrainingSample]] = {agent_id: [] for agent_id in trainable_agents}
     for agent_id, sample in actual.samples:

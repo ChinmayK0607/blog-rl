@@ -34,6 +34,7 @@ from swarm_ctf_eval.final_eval_v3 import summarize_final_eval
 from swarm_ctf_eval.live_rl_rollout import (
     ChoiceCompletion,
     PolicyEndpoint,
+    VLLMChoiceGenerator,
     build_live_credit_group,
     protocol_constraint_sha256,
 )
@@ -529,6 +530,7 @@ def test_prime_bridge_routes_actual_tokens_and_checks_logprob_parity() -> None:
             "a" * 64,
             "sample-7",
             "c" * 64,
+            "e" * 64,
             "d" * 64,
         )
 
@@ -843,6 +845,14 @@ def test_fail_closed_supervisor_replays_all_branches_and_hash_chains_approvals()
             constraint,
             f"game-1:{agent_id}:{turn}:{phase}",
             context_sha256,
+            canonical_sha256(
+                {
+                    "sampling_key": f"game-1:{agent_id}:{turn}:{phase}",
+                    "context_sha256": context_sha256,
+                    "policy_id": policy_id,
+                    "revision": revision,
+                }
+            ),
             output_sha256,
         )
 
@@ -984,10 +994,24 @@ def test_live_credit_group_routes_only_after_bound_trainer_parity_gate() -> None
             *,
             sampling_key: str,
         ) -> ChoiceCompletion:
-            del endpoint
             seen_sampling_keys.append(sampling_key)
             text = protocol_choices(messages)[0]
-            return ChoiceCompletion((10,), (11,), (0.0,), ((11,),), text)
+            request_sha256 = canonical_sha256(
+                {
+                    "policy_id": endpoint.policy_id,
+                    "revision": endpoint.revision,
+                    "messages": messages,
+                    "sampling_key": sampling_key,
+                }
+            )
+            return ChoiceCompletion(
+                (10,),
+                (11,),
+                (0.0,),
+                ((11,),),
+                text,
+                request_sha256,
+            )
 
     bindings = tuple(
         AgentPolicy(
@@ -1086,3 +1110,84 @@ def test_live_credit_group_routes_only_after_bound_trainer_parity_gate() -> None
     merged = merge_routed_batch_groups((batches, batches), step=0)
     assert set(merged) == set(batches)
     assert all(len(batch.examples) == 8 for batch in merged.values())
+
+
+def test_vllm_generator_coalesces_exact_requests_within_one_group() -> None:
+    config = EpisodeConfig(horizon=1)
+    env = ArenaRLEnv(seed=13, size=12, config=config)
+    env.reset(13)
+    messages, _ = episode_broadcast_prompt(env, "blue-0", permutation=0)
+    expected = protocol_choices(messages)[0]
+
+    class FakeTokenizer:
+        eos_token_id = 0
+
+        def decode(self, token_ids, *, skip_special_tokens):
+            del token_ids, skip_special_tokens
+            return expected
+
+        def encode(self, text, *, add_special_tokens):
+            del text, add_special_tokens
+            return [11]
+
+    class FakeRenderer:
+        def render_ids(self, rendered_messages, *, add_generation_prompt):
+            del rendered_messages, add_generation_prompt
+            return [1, 2, 3]
+
+    class FakeChoiceMask:
+        def allowed_token_ids(self, choices, completion_ids):
+            assert choices[0] == expected
+            assert completion_ids == [11]
+            return [[11]]
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "choices": [
+                    {
+                        "token_ids": [11],
+                        "finish_reason": "stop",
+                        "logprobs": {"content": [{"logprob": -0.1}]},
+                    }
+                ]
+            }
+
+    class FakeClient:
+        def __init__(self):
+            self.posts = 0
+
+        async def post(self, path, *, json):
+            assert path == "/inference/v1/generate"
+            assert json["sampling_params"]["structured_outputs"]["choice"][0] == expected
+            self.posts += 1
+            await asyncio.sleep(0)
+            return FakeResponse()
+
+    generator = object.__new__(VLLMChoiceGenerator)
+    generator.tokenizer = FakeTokenizer()
+    generator.renderer = FakeRenderer()
+    generator.choice_mask = FakeChoiceMask()
+    generator.timeout = 1.0
+    client = FakeClient()
+    generator._clients = {"http://fake": client}
+    generator._group_requests = None
+    endpoint = PolicyEndpoint("blue-policy-0", "revision-1", "model", ("http://fake",))
+
+    async def exercise() -> None:
+        async with generator.coalesced_request_group():
+            first, second = await asyncio.gather(
+                generator.generate(endpoint, messages, sampling_key="shared-key"),
+                generator.generate(endpoint, messages, sampling_key="shared-key"),
+            )
+            assert first == second
+            assert client.posts == 1
+        assert generator._group_requests is None
+        async with generator.coalesced_request_group():
+            await generator.generate(endpoint, messages, sampling_key="shared-key")
+        assert client.posts == 2
+
+    asyncio.run(exercise())
