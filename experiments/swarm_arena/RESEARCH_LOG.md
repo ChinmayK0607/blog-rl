@@ -1141,6 +1141,46 @@ no more critical-specific than decoy-specific. Therefore:
   matrix is stored as a deterministic 2.32 MB gzip; both compressed and raw
   hashes are recorded in its `RUN.md`.
 
+### 2026-08-14 — shared-terminal-return CPU admission path
+
+- Status: implementation complete; live parity validation pending
+- Verdict scope: systems admission only, no optimizer and no scientific RL
+  admission
+- Hypothesis: a scenario- and opponent-matched leave-one-out baseline can
+  preserve the verified terminal team objective while avoiding the rejected
+  per-sender localization estimator and any additive shaped reward.
+- Frozen bootstrap contract: `K=4` independent joint trajectories from one
+  initial state; advantage
+  `A_k = G_k - mean(G_j for j != k)`; no additional normalization; train only
+  first-turn `BROADCAST` completion spans; share `A_k` across the four agents in
+  trajectory `k` while keeping four policy IDs, contexts, token spans,
+  gradients, optimizer states, and checkpoints separate.
+- Implemented CPU path: immutable estimator-spec hash in `RunLock`; independent
+  game/sampling namespaces per replica; concurrent full-game rollout builder;
+  independent replay of every state transition and terminal return; complete
+  private-context/output, dynamic-constraint, policy-revision, delivery, and
+  namespace validation; exact zero-sum leave-one-out invariant; four signed
+  approvals per replica group sharing one complete-evidence hash; four-policy
+  Prime-RL batch routing and atomic replica merging; full hash-chained evidence
+  persistence. The rejected message-drop and replacement estimators remain
+  available only as explicitly selected legacy diagnostics; shared return is
+  now the controller default.
+- Safety tests added for exact LOO values, replay-return tampering, reused
+  namespaces, stale estimator config, signed four-policy routing, selected-span
+  ownership, and merged replica batches. Ruff lint passed on all changed files;
+  the existing message-credit regression passed 2/2 locally. The local Mac's
+  `uv 0.9.2` cannot parse the repository's `uv>=0.11.1` friendly-duration and
+  universal-lock syntax, and the deliberately minimal local environment lacks
+  the live rollout stack. No large dependencies or checkpoints were downloaded
+  to work around that; the focused full integration suite will run on the
+  already-warm Linux A6000 environment.
+- GPU use so far for this entry: none; the existing vLLM process was left warm
+  and untouched.
+- No optimizer step is authorized. Next action: run the focused Linux tests,
+  then one `--rollout-only` live group to certify serving/replay/routing and the
+  deferred trainer parity handoff. Only a clean result permits the separate
+  real trainer-parity certificate.
+
 ## Artifact index
 
 - Public source branch:

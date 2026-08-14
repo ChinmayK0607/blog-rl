@@ -3,7 +3,9 @@
 Status: the four-policy routing and safety contract is mechanically validated.
 The original per-sender message-drop credit estimator is scientifically
 rejected and must not reach an optimizer. The shared-terminal-return candidate
-below is planned but not yet admitted.
+below is implemented as a rollout-only, fail-closed admission path. It remains
+scientifically unadmitted until a live serving/trainer parity certificate and
+the predeclared communication/collapse gates pass.
 
 One game binds eight agent identities to eight policy IDs. Exactly four policies
 on one team are trainable during an update epoch; all opponent policies are
@@ -71,11 +73,17 @@ necessary without directly paying agents to speak. Generated-message versus
 dropped, shuffled, and delayed evaluations determine whether return gains came
 from communication rather than action-only improvement.
 
-Before implementing the pilot, freeze `K`, trainable phases, centering and
-normalization, opponent sampling, KL ceiling, and stop conditions. A
-broadcast-only pilot is easier to interpret; a later all-phase pilot is more
-capable but requires stronger intervention evidence. No choice may be made
-after looking at final/OOD outcomes.
+The bootstrap implementation freezes `K=4`, the leave-one-out mean with no
+additional centering or normalization, and first-turn `BROADCAST` spans only.
+These fields are hashed into the immutable run lock. Each replica has a unique
+game ID and sampling namespace. The supervisor independently replays every
+terminal return, proves the namespaces are disjoint, reconstructs every private
+context and output, checks immutable policy/constraint routing, and commits the
+complete evidence group to a hash-chained audit file. Four signed approvals per
+group all commit to that same evidence hash; each approval routes one
+trajectory's scalar to four separate policy runs. A later all-phase pilot is
+more capable but requires a new run-lock hash and stronger intervention
+evidence. No choice may be made after looking at final/OOD outcomes.
 
 Exact four-message Shapley attribution is a possible research audit (16
 delivery coalitions per state), not the current training plan. It partitions
@@ -100,8 +108,7 @@ shaping penalty to the objective.
 `safety_supervisor.py` is the only admission path into training. It binds the
 source, manifests, base, adapters, opponent and allowed dynamic constraints in
 an immutable run lock; independently reconstructs every agent's private
-observation and inbox; proves that policies are unchanged across the actual and
-four delivery-intervention branches; verifies that only the named sender is
-dropped; replays and recomputes reward; and writes tamper-evident
-approval/rejection records.
+observation and inbox; validates estimator-specific branch or replica
+contracts; replays and recomputes reward; and writes tamper-evident complete
+evidence plus approval/rejection records.
 Rollout workers are untrusted producers and cannot enqueue gradients directly.

@@ -29,6 +29,9 @@ from .safety_supervisor import (
     CreditGroupEvidence,
     MessageCreditGroupEvidence,
     ReplayTurn,
+    SharedReturnGroupEvidence,
+    SharedReturnReplicaEvidence,
+    SharedReturnSpec,
     canonical_sha256,
 )
 from .structured_protocol import (
@@ -128,6 +131,13 @@ class LiveMessageCreditGroup:
     evidence: MessageCreditGroupEvidence
     bindings: tuple[AgentPolicy, ...]
     owned_samples: tuple[OwnedAgentSamples, ...]
+
+
+@dataclass(frozen=True)
+class LiveSharedReturnGroup:
+    evidence: SharedReturnGroupEvidence
+    bindings: tuple[AgentPolicy, ...]
+    owned_samples_by_replica: tuple[tuple[OwnedAgentSamples, ...], ...]
 
 
 def protocol_constraint_sha256(phase: Phase) -> str:
@@ -751,3 +761,119 @@ async def build_live_message_credit_group(
         None,
     )
     return LiveMessageCreditGroup(evidence, bindings, owned)
+
+
+async def build_live_shared_return_group(
+    generator: VLLMChoiceGenerator,
+    *,
+    group_id: str,
+    seed: int,
+    size: int,
+    config: EpisodeConfig,
+    spec: SharedReturnSpec,
+    bindings: tuple[AgentPolicy, ...],
+    policies: tuple[PolicyEndpoint, ...],
+    run_lock_sha256: str,
+    initial_state: GameState | None = None,
+    sampling_namespace: str | None = None,
+) -> LiveSharedReturnGroup:
+    """Sample independent joint trajectories from one state for LOO team-return credit."""
+    spec.validate()
+    if initial_state is None:
+        bootstrap = ArenaRLEnv(seed=seed, size=size, config=config)
+        bootstrap.reset(seed)
+        initial_state = bootstrap._require_state().clone()
+    else:
+        initial_state = initial_state.clone()
+        if len(initial_state.nodes) != size:
+            raise ValueError("live shared-return size does not match its supplied initial state")
+    policy_by_id = {row.policy_id: row for row in policies}
+    if len(policy_by_id) != len(policies):
+        raise ValueError("policy endpoint IDs must be unique")
+    trainable_agents = sorted(
+        row.agent_id for row in bindings if row.trainable and row.team == "BLUE"
+    )
+    if len(trainable_agents) != 4:
+        raise ValueError("live shared-return group requires four trainable BLUE agents")
+    base_namespace = sampling_namespace or group_id
+    absolute_turns = frozenset(
+        initial_state.turn + offset for offset in spec.trainable_turn_offsets
+    )
+    phases = frozenset(spec.trainable_phases)
+    replica_game_ids = tuple(
+        f"{group_id}:replica-{index}" for index in range(spec.replicas)
+    )
+    replica_namespaces = tuple(
+        f"{base_namespace}:replica-{index}" for index in range(spec.replicas)
+    )
+    async with _coalesced_request_group(generator):
+        branches = await asyncio.gather(
+            *(
+                rollout_branch(
+                    generator,
+                    game_id=replica_game_ids[index],
+                    initial_state=initial_state,
+                    config=config,
+                    bindings=bindings,
+                    policies=policy_by_id,
+                    replacement_policy_id=None,
+                    replaced_agent=None,
+                    sampling_namespace=replica_namespaces[index],
+                    sample_phases=phases,
+                    sample_turns=absolute_turns,
+                )
+                for index in range(spec.replicas)
+            )
+        )
+
+    binding_by_agent = {row.agent_id: row for row in bindings}
+    owned_by_replica = []
+    replicas = []
+    for index, branch in enumerate(branches):
+        by_agent: dict[str, list[TrainingSample]] = {
+            agent_id: [] for agent_id in trainable_agents
+        }
+        for agent_id, sample in branch.samples:
+            by_agent[agent_id].append(sample)
+        decision_ids_by_agent = {
+            agent_id: tuple(
+                row.decision_id
+                for row in branch.decisions
+                if row.agent_id == agent_id
+                and row.phase in phases
+                and row.turn in absolute_turns
+            )
+            for agent_id in trainable_agents
+        }
+        owned_by_replica.append(
+            tuple(
+                OwnedAgentSamples(
+                    replica_game_ids[index],
+                    agent_id,
+                    binding_by_agent[agent_id].policy_id,
+                    decision_ids_by_agent[agent_id],
+                    tuple(by_agent[agent_id]),
+                )
+                for agent_id in trainable_agents
+            )
+        )
+        replicas.append(
+            SharedReturnReplicaEvidence(
+                index,
+                replica_game_ids[index],
+                replica_namespaces[index],
+                branch.replay,
+                branch.decisions,
+            )
+        )
+    evidence = SharedReturnGroupEvidence(
+        run_lock_sha256,
+        group_id,
+        initial_state,
+        _state_sha256(initial_state),
+        config,
+        spec,
+        tuple(replicas),
+        None,
+    )
+    return LiveSharedReturnGroup(evidence, bindings, tuple(owned_by_replica))

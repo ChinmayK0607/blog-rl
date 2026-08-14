@@ -19,6 +19,7 @@ from swarm_ctf_eval.live_rl_rollout import (
     VLLMChoiceGenerator,
     build_live_credit_group,
     build_live_message_credit_group,
+    build_live_shared_return_group,
     parity_gate_sha256,
     protocol_constraint_sha256,
 )
@@ -33,10 +34,13 @@ from swarm_ctf_eval.prime_multi_run_router import (
 from swarm_ctf_eval.rl_v3 import RL_TASK_VERSION
 from swarm_ctf_eval.safety_supervisor import (
     RunLock,
+    SharedReturnSpec,
     append_hash_chained_record,
     approve_credit_group,
     approve_message_credit_group,
+    approve_shared_return_group,
     canonical_sha256,
+    shared_return_evidence_payload,
 )
 
 from prime_rl.configs.trainer import TrainerConfig
@@ -136,6 +140,7 @@ def run_lock(
     config: TrainerConfig,
     *,
     policy_revisions: dict[str, str],
+    shared_return_spec: SharedReturnSpec | None,
 ) -> RunLock:
     index = json.loads((args.data_dir / "index.json").read_text(encoding="utf-8"))
     if config.rollout_parity_gate is None:
@@ -169,6 +174,7 @@ def run_lock(
         ),
         parity_gate_sha256(config.rollout_parity_gate),
         args.credit_estimator,
+        shared_return_spec.sha256 if shared_return_spec is not None else None,
     )
 
 
@@ -186,9 +192,10 @@ async def main() -> None:
     parser.add_argument("--initial-policy-revision", required=True)
     parser.add_argument(
         "--credit-estimator",
-        choices=("message_drop", "policy_replacement"),
-        default="message_drop",
+        choices=("shared_return", "message_drop", "policy_replacement"),
+        default="shared_return",
     )
+    parser.add_argument("--shared-return-replicas", type=int, default=4)
     parser.add_argument("--replacement-policy-id", default="sft-replacement")
     parser.add_argument("--replacement-model-name", default="sft-replacement")
     parser.add_argument("--replacement-revision")
@@ -215,6 +222,8 @@ async def main() -> None:
     args = parser.parse_args()
     if args.steps < 1 or args.groups_per_step < 1:
         parser.error("steps and groups-per-step must be positive")
+    if not 2 <= args.shared_return_replicas <= 32:
+        parser.error("shared-return replicas must be between 2 and 32")
     if args.curriculum_offset < 0:
         parser.error("curriculum offset cannot be negative")
     if args.rollout_only and args.steps != 1:
@@ -231,6 +240,11 @@ async def main() -> None:
 
     with args.trainer_config.open("rb") as handle:
         config = TrainerConfig.model_validate(tomli.load(handle))
+    shared_return_spec = (
+        SharedReturnSpec(args.shared_return_replicas)
+        if args.credit_estimator == "shared_return"
+        else None
+    )
     base_urls = tuple(args.base_url)
     key = signing_key(args.output_dir / "control" / "supervisor.key")
     initial_revision = args.initial_policy_revision
@@ -261,6 +275,9 @@ async def main() -> None:
     message_evidence_trace = (
         args.output_dir / "audit" / "message_credit_evidence.jsonl"
     )
+    shared_return_evidence_trace = (
+        args.output_dir / "audit" / "shared_return_evidence.jsonl"
+    )
     result_rows = []
     curriculum = None
     if args.scenario_source == "curriculum":
@@ -271,7 +288,12 @@ async def main() -> None:
     async with VLLMChoiceGenerator(args.tokenizer) as generator:
         policy_revisions = {f"blue-{index}": initial_revision for index in range(4)}
         for step in range(args.steps):
-            lock = run_lock(args, config, policy_revisions=policy_revisions)
+            lock = run_lock(
+                args,
+                config,
+                policy_revisions=policy_revisions,
+                shared_return_spec=shared_return_spec,
+            )
             policies = tuple(
                 PolicyEndpoint(
                     f"blue-policy-{index}",
@@ -346,6 +368,78 @@ async def main() -> None:
                     invalid_broadcast_cost=0.0,
                     invalid_action_cost=0.0,
                 )
+                if args.credit_estimator == "shared_return":
+                    assert shared_return_spec is not None
+                    group = await build_live_shared_return_group(
+                        generator,
+                        group_id=game_id,
+                        seed=seed,
+                        size=size,
+                        config=episode_config,
+                        spec=shared_return_spec,
+                        bindings=bindings,
+                        policies=policies,
+                        run_lock_sha256=lock.sha256,
+                        initial_state=initial_state,
+                        sampling_namespace=sampling_namespace,
+                    )
+                    approvals = approve_shared_return_group(
+                        lock, group.evidence, bindings, "BLUE", key
+                    )
+                    replica_routes = tuple(
+                        route_approved_samples(
+                            approval,
+                            owned,
+                            routes,
+                            step=step,
+                            signing_key=key,
+                            trainer_parity_gate_sha256=lock.trainer_parity_gate_sha256,
+                        )
+                        for approval, owned in zip(
+                            approvals,
+                            group.owned_samples_by_replica,
+                            strict=True,
+                        )
+                    )
+                    routed_groups.append(
+                        merge_routed_batch_groups(replica_routes, step=step)
+                    )
+                    append_hash_chained_record(
+                        shared_return_evidence_trace,
+                        shared_return_evidence_payload(group.evidence),
+                    )
+                    append_hash_chained_record(
+                        trace,
+                        {
+                            "approvals": [asdict(row) for row in approvals],
+                            "credit_estimator": args.credit_estimator,
+                            "group_id": group.evidence.group_id,
+                            "initial_state_sha256": group.evidence.initial_state_sha256,
+                            "spec": asdict(group.evidence.spec),
+                            "replica_returns": [
+                                row.replay.terminal_return
+                                for row in group.evidence.replicas
+                            ],
+                        },
+                    )
+                    step_groups.append(
+                        {
+                            "game_id": game_id,
+                            "credit_estimator": args.credit_estimator,
+                            "replicas": [
+                                {
+                                    "game_id": replica.game_id,
+                                    "return": replica.replay.terminal_return,
+                                    "advantage": approval.envelopes[0].advantage,
+                                }
+                                for replica, approval in zip(
+                                    group.evidence.replicas, approvals, strict=True
+                                )
+                            ],
+                            "scenario": scenario_metadata,
+                        }
+                    )
+                    continue
                 if args.credit_estimator == "message_drop":
                     group = await build_live_message_credit_group(
                         generator,

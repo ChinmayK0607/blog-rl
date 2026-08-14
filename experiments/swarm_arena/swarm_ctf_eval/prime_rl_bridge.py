@@ -213,6 +213,91 @@ def build_message_training_envelopes(
     return tuple(envelopes)
 
 
+def build_shared_return_training_envelopes(
+    decisions: tuple[RolloutDecision, ...],
+    bindings: tuple[AgentPolicy, ...],
+    trainable_team: Team,
+    advantage: float,
+    *,
+    trainable_phases: frozenset[Phase],
+    trainable_turns: frozenset[int],
+) -> tuple[PolicyTrainingEnvelope, ...]:
+    """Route selected actual spans to four policies with one joint-trajectory advantage."""
+    validate_policy_roster(bindings, trainable_team)
+    if not math.isfinite(advantage):
+        raise ValueError("shared-return advantage must be finite")
+    if not trainable_phases or not trainable_turns:
+        raise ValueError("shared-return routing requires explicit phases and turns")
+    if not decisions:
+        raise ValueError("a shared-return replica requires rollout decisions")
+    for decision in decisions:
+        _validate_decision(decision)
+        if decision.branch != "actual" or decision.replaced_agent is not None:
+            raise ValueError("shared-return evidence can contain only actual decisions")
+    game_ids = {decision.game_id for decision in decisions}
+    if len(game_ids) != 1:
+        raise ValueError("a shared-return envelope cannot mix games")
+    _decision_schedule(decisions, branch="shared-return actual")
+
+    binding_by_agent = {binding.agent_id: binding for binding in bindings}
+    expected_agents = {
+        binding.agent_id
+        for binding in bindings
+        if binding.trainable and binding.team == trainable_team
+    }
+    selected = tuple(
+        decision
+        for decision in decisions
+        if decision.team == trainable_team
+        and decision.phase in trainable_phases
+        and decision.turn in trainable_turns
+    )
+    spans = tuple(
+        AgentTokenSpan(
+            decision.game_id,
+            decision.agent_id,
+            decision.policy_id,
+            decision.team,
+            decision.turn,
+            decision.phase,
+            decision.trajectory_index,
+            len(decision.prompt_ids),
+            len(decision.completion_ids),
+        )
+        for decision in selected
+    )
+    validate_token_spans(spans, bindings)
+    owned: dict[str, list[RolloutDecision]] = {agent_id: [] for agent_id in expected_agents}
+    for decision in selected:
+        binding = binding_by_agent.get(decision.agent_id)
+        if binding is None or not binding.trainable:
+            raise ValueError(f"selected decision is not owned by a trainable policy: {decision.decision_id}")
+        if decision.policy_id != binding.policy_id:
+            raise ValueError(f"shared-return decision is routed to the wrong policy: {decision.decision_id}")
+        owned[decision.agent_id].append(decision)
+    if missing := [agent_id for agent_id, rows in owned.items() if not rows]:
+        raise ValueError(f"shared-return replica has no selected decisions for: {missing}")
+
+    envelopes = []
+    for agent_id in sorted(owned):
+        rows = sorted(owned[agent_id], key=lambda row: row.trajectory_index)
+        revisions = {row.policy_revision for row in rows}
+        if len(revisions) != 1:
+            raise ValueError(f"policy revision changed inside one replica: {agent_id}")
+        envelopes.append(
+            PolicyTrainingEnvelope(
+                next(iter(game_ids)),
+                agent_id,
+                binding_by_agent[agent_id].policy_id,
+                next(iter(revisions)),
+                advantage,
+                tuple(row.decision_id for row in rows),
+                sum(len(row.completion_ids) for row in rows),
+            )
+        )
+    return tuple(envelopes)
+
+
 def build_training_envelopes(
     decisions: tuple[RolloutDecision, ...],
     bindings: tuple[AgentPolicy, ...],

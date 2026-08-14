@@ -5,7 +5,7 @@ from typing import Literal
 
 from .arena import Team
 
-MULTI_POLICY_CONTRACT_VERSION = "arena-four-policy-v2-message-credit"
+MULTI_POLICY_CONTRACT_VERSION = "arena-four-policy-v3-shared-return"
 Phase = Literal["BROADCAST", "ACT"]
 
 

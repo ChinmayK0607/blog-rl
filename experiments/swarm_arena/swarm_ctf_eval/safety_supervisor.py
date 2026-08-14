@@ -17,12 +17,13 @@ from .prime_rl_bridge import (
     PolicyTrainingEnvelope,
     RolloutDecision,
     build_message_training_envelopes,
+    build_shared_return_training_envelopes,
     build_training_envelopes,
     verify_trainer_logprob_parity,
 )
 from .rl_v3 import ArenaRLEnv
 
-SUPERVISOR_VERSION = "arena-fail-closed-supervisor-v2-message-credit"
+SUPERVISOR_VERSION = "arena-fail-closed-supervisor-v3-shared-return"
 ZERO_HASH = "0" * 64
 
 
@@ -48,7 +49,8 @@ class RunLock:
     opponent_revision: str
     allowed_constraint_hashes: tuple[str, ...]
     trainer_parity_gate_sha256: str | None = None
-    credit_estimator: Literal["policy_replacement", "message_drop"] = "policy_replacement"
+    credit_estimator: Literal["policy_replacement", "message_drop", "shared_return"] = "policy_replacement"
+    credit_estimator_config_sha256: str | None = None
 
     def validate(self) -> None:
         nonempty = (
@@ -85,9 +87,20 @@ class RunLock:
         if self.credit_estimator == "policy_replacement":
             if not self.replacement_policy_id or self.replacement_policy_id not in frozen:
                 raise ValueError("replacement policy must have a frozen revision")
+            if self.credit_estimator_config_sha256 is not None:
+                raise ValueError("policy-replacement credit cannot bind a shared-return config")
         elif self.credit_estimator == "message_drop":
             if self.replacement_policy_id is not None:
                 raise ValueError("message-drop credit cannot bind a replacement policy")
+            if self.credit_estimator_config_sha256 is not None:
+                raise ValueError("message-drop credit cannot bind a shared-return config")
+        elif self.credit_estimator == "shared_return":
+            if self.replacement_policy_id is not None:
+                raise ValueError("shared-return credit cannot bind a replacement policy")
+            if self.credit_estimator_config_sha256 is None or not _is_sha256(
+                self.credit_estimator_config_sha256
+            ):
+                raise ValueError("shared-return credit requires an immutable estimator config")
         else:
             raise ValueError(f"unknown credit estimator: {self.credit_estimator}")
         if set(frozen) & {policy for policy, _ in self.trainable_policy_revisions}:
@@ -142,6 +155,61 @@ class MessageCreditGroupEvidence:
     actual: BranchReplay
     drops: tuple[BranchReplay, ...]
     decisions: tuple[RolloutDecision, ...]
+    trainer_logprobs: dict[str, tuple[float, ...]] | None
+
+
+@dataclass(frozen=True)
+class SharedReturnSpec:
+    replicas: int
+    trainable_phases: tuple[Literal["BROADCAST", "ACT"], ...] = ("BROADCAST",)
+    trainable_turn_offsets: tuple[int, ...] = (0,)
+    baseline: Literal["leave_one_out_mean"] = "leave_one_out_mean"
+    reward: Literal["verified_terminal_team_return"] = "verified_terminal_team_return"
+
+    def validate(self) -> None:
+        if self.replicas < 2 or self.replicas > 32:
+            raise ValueError("shared-return replicas must be between 2 and 32")
+        if not self.trainable_phases or len(set(self.trainable_phases)) != len(
+            self.trainable_phases
+        ):
+            raise ValueError("shared-return phases must be non-empty and unique")
+        if any(phase not in {"BROADCAST", "ACT"} for phase in self.trainable_phases):
+            raise ValueError("shared-return spec contains an unknown phase")
+        if not self.trainable_turn_offsets or len(set(self.trainable_turn_offsets)) != len(
+            self.trainable_turn_offsets
+        ):
+            raise ValueError("shared-return turn offsets must be non-empty and unique")
+        if any(offset < 0 for offset in self.trainable_turn_offsets):
+            raise ValueError("shared-return turn offsets cannot be negative")
+        if self.baseline != "leave_one_out_mean":
+            raise ValueError("shared-return spec contains an unsupported baseline")
+        if self.reward != "verified_terminal_team_return":
+            raise ValueError("shared-return spec contains an unsupported reward")
+
+    @property
+    def sha256(self) -> str:
+        self.validate()
+        return canonical_sha256(asdict(self))
+
+
+@dataclass(frozen=True)
+class SharedReturnReplicaEvidence:
+    replica_index: int
+    game_id: str
+    sampling_namespace: str
+    replay: BranchReplay
+    decisions: tuple[RolloutDecision, ...]
+
+
+@dataclass(frozen=True)
+class SharedReturnGroupEvidence:
+    run_lock_sha256: str
+    group_id: str
+    initial_state: GameState
+    initial_state_sha256: str
+    episode_config: EpisodeConfig
+    spec: SharedReturnSpec
+    replicas: tuple[SharedReturnReplicaEvidence, ...]
     trainer_logprobs: dict[str, tuple[float, ...]] | None
 
 
@@ -204,6 +272,28 @@ def _message_evidence_payload(evidence: MessageCreditGroupEvidence) -> dict[str,
         "actual": _branch_payload(evidence.actual),
         "drops": [_branch_payload(row) for row in evidence.drops],
         "decisions": [asdict(row) for row in evidence.decisions],
+        "trainer_logprobs": evidence.trainer_logprobs,
+    }
+
+
+def shared_return_evidence_payload(evidence: SharedReturnGroupEvidence) -> dict[str, Any]:
+    return {
+        "run_lock_sha256": evidence.run_lock_sha256,
+        "group_id": evidence.group_id,
+        "initial_state_sha256": evidence.initial_state_sha256,
+        "initial_state": state_to_dict(evidence.initial_state),
+        "episode_config": asdict(evidence.episode_config),
+        "spec": asdict(evidence.spec),
+        "replicas": [
+            {
+                "replica_index": row.replica_index,
+                "game_id": row.game_id,
+                "sampling_namespace": row.sampling_namespace,
+                "replay": _branch_payload(row.replay),
+                "decisions": [asdict(decision) for decision in row.decisions],
+            }
+            for row in evidence.replicas
+        ],
         "trainer_logprobs": evidence.trainer_logprobs,
     }
 
@@ -745,6 +835,248 @@ def approve_message_credit_group(
         lock.trainer_parity_gate_sha256,
         signature,
     )
+
+
+def leave_one_out_advantages(returns: tuple[float, ...]) -> tuple[float, ...]:
+    """Compute a zero-sum leave-one-out baseline without reward shaping."""
+    if len(returns) < 2:
+        raise ValueError("leave-one-out credit requires at least two returns")
+    if not all(math.isfinite(value) for value in returns):
+        raise ValueError("leave-one-out returns must be finite")
+    total = sum(returns)
+    denominator = len(returns) - 1
+    advantages = tuple(
+        value - (total - value) / denominator
+        for value in returns
+    )
+    if not math.isclose(sum(advantages), 0.0, abs_tol=1e-10):
+        raise ValueError("leave-one-out advantages failed their zero-sum invariant")
+    return advantages
+
+
+def approve_shared_return_group(
+    lock: RunLock,
+    evidence: SharedReturnGroupEvidence,
+    bindings: tuple[AgentPolicy, ...],
+    trainable_team: Team,
+    signing_key: bytes,
+) -> tuple[Approval, ...]:
+    """Replay and atomically approve a group of joint trajectories for four policies."""
+    if len(signing_key) < 32:
+        raise ValueError("supervisor signing key must contain at least 32 bytes")
+    lock.validate()
+    evidence.spec.validate()
+    if lock.credit_estimator != "shared_return":
+        raise ValueError("shared-return evidence requires a shared-return run lock")
+    if lock.credit_estimator_config_sha256 != evidence.spec.sha256:
+        raise ValueError("shared-return spec does not match the immutable run lock")
+    if evidence.run_lock_sha256 != lock.sha256:
+        raise ValueError("shared-return group was produced under a different run lock")
+    if not evidence.group_id:
+        raise ValueError("shared-return group ID cannot be empty")
+    if _state_sha256(evidence.initial_state) != evidence.initial_state_sha256:
+        raise ValueError("initial state does not match its committed hash")
+    if max(evidence.spec.trainable_turn_offsets) >= evidence.episode_config.horizon:
+        raise ValueError("shared-return trainable turn falls outside the episode horizon")
+    if len(evidence.replicas) != evidence.spec.replicas:
+        raise ValueError("shared-return evidence has the wrong replica count")
+    if {row.replica_index for row in evidence.replicas} != set(
+        range(evidence.spec.replicas)
+    ):
+        raise ValueError("shared-return replica indices must be contiguous and unique")
+    game_ids = [row.game_id for row in evidence.replicas]
+    namespaces = [row.sampling_namespace for row in evidence.replicas]
+    if any(not value for value in game_ids + namespaces):
+        raise ValueError("shared-return replica identifiers cannot be empty")
+    if len(set(game_ids)) != len(game_ids) or len(set(namespaces)) != len(namespaces):
+        raise ValueError("shared-return replicas require unique games and sampling namespaces")
+
+    policy_revisions = {
+        **dict(lock.trainable_policy_revisions),
+        **dict(lock.frozen_policy_revisions),
+    }
+    binding_by_agent = {binding.agent_id: binding for binding in bindings}
+    allowed_constraints = set(lock.allowed_constraint_hashes)
+    seen_sampling_keys: set[str] = set()
+    verifications: list[ReplayVerification] = []
+    absolute_turns = frozenset(
+        evidence.initial_state.turn + offset
+        for offset in evidence.spec.trainable_turn_offsets
+    )
+    phases = frozenset(evidence.spec.trainable_phases)
+
+    for replica in sorted(evidence.replicas, key=lambda row: row.replica_index):
+        if replica.replay.replaced_agent is not None:
+            raise ValueError("shared-return replay cannot name an intervention")
+        if not replica.decisions or {row.game_id for row in replica.decisions} != {
+            replica.game_id
+        }:
+            raise ValueError("shared-return replica mixes or omits game IDs")
+        replica_keys = {row.sampling_key for row in replica.decisions}
+        if len(replica_keys) != len(replica.decisions):
+            raise ValueError("shared-return replica contains duplicate sampling keys")
+        if any(not key.startswith(f"{replica.sampling_namespace}:") for key in replica_keys):
+            raise ValueError("shared-return decision escaped its sampling namespace")
+        if seen_sampling_keys & replica_keys:
+            raise ValueError("shared-return replicas do not have independent sampling keys")
+        seen_sampling_keys.update(replica_keys)
+
+        for decision in replica.decisions:
+            if decision.branch != "actual" or decision.replaced_agent is not None:
+                raise ValueError("shared-return evidence can contain only actual decisions")
+            if decision.constraint_sha256 not in allowed_constraints:
+                raise ValueError(f"unapproved dynamic constraint: {decision.decision_id}")
+            binding = binding_by_agent.get(decision.agent_id)
+            if binding is None or decision.policy_id != binding.policy_id:
+                raise ValueError(f"wrong shared-return policy routing: {decision.decision_id}")
+            expected_revision = policy_revisions.get(binding.policy_id)
+            if expected_revision is None or decision.policy_revision != expected_revision:
+                raise ValueError(f"stale or unexpected policy revision: {decision.decision_id}")
+
+        verification = verify_replay(
+            evidence.initial_state,
+            evidence.episode_config,
+            replica.replay,
+            trainable_team,
+        )
+        _verify_delivery_contract(
+            evidence.initial_state,
+            evidence.episode_config,
+            replica.replay,
+            dropped_sender=None,
+            dropped_turn=None,
+        )
+        _verify_private_contexts(
+            replica.decisions,
+            verification,
+            branch=f"replica-{replica.replica_index}",
+        )
+        verifications.append(verification)
+    _verify_common_random_outputs(
+        tuple(decision for row in evidence.replicas for decision in row.decisions)
+    )
+
+    advantages = leave_one_out_advantages(
+        tuple(row.terminal_return for row in verifications)
+    )
+    envelopes = tuple(
+        build_shared_return_training_envelopes(
+            replica.decisions,
+            bindings,
+            trainable_team,
+            advantage,
+            trainable_phases=phases,
+            trainable_turns=absolute_turns,
+        )
+        for replica, advantage in zip(
+            sorted(evidence.replicas, key=lambda row: row.replica_index),
+            advantages,
+            strict=True,
+        )
+    )
+
+    if evidence.trainer_logprobs is None:
+        if lock.trainer_parity_gate_sha256 is None:
+            raise ValueError("deferred parity requires an immutable trainer pre-step gate")
+        parity_mode: Literal["pre_admission", "trainer_pre_step"] = "trainer_pre_step"
+        parities: tuple[dict[str, float | int | str | None], ...] = tuple(
+            {
+                "max_abs_error": None,
+                "mean_abs_error": None,
+                "p99_abs_error": None,
+                "max_probability_error": None,
+                "p99_probability_error": None,
+                "probability_tail_fraction": None,
+                "mean_mismatch_kl": None,
+                "max_mismatch_kl": None,
+            }
+            for _ in evidence.replicas
+        )
+    else:
+        parity_mode = "pre_admission"
+        expected_ids = {
+            decision.decision_id
+            for replica in evidence.replicas
+            for decision in replica.decisions
+            if decision.policy_id in dict(lock.trainable_policy_revisions)
+            and decision.phase in phases
+            and decision.turn in absolute_turns
+        }
+        if set(evidence.trainer_logprobs) != expected_ids:
+            raise ValueError("trainer log-prob rows do not exactly match shared-return spans")
+        parities = tuple(
+            verify_trainer_logprob_parity(
+                replica.decisions,
+                {
+                    decision_id: values
+                    for decision_id, values in evidence.trainer_logprobs.items()
+                    if decision_id.startswith(f"{replica.game_id}:")
+                },
+                frozenset(dict(lock.trainable_policy_revisions)),
+                trainable_phases=phases,
+                trainable_turns=absolute_turns,
+            )
+            for replica in sorted(evidence.replicas, key=lambda row: row.replica_index)
+        )
+
+    evidence_sha256 = canonical_sha256(shared_return_evidence_payload(evidence))
+
+    def optional_float(value: float | int | str | None) -> float | None:
+        return None if value is None else float(value)
+
+    approvals = []
+    for replica, verification, replica_envelopes, parity in zip(
+        sorted(evidence.replicas, key=lambda row: row.replica_index),
+        verifications,
+        envelopes,
+        parities,
+        strict=True,
+    ):
+        unsigned = {
+            "supervisor_version": SUPERVISOR_VERSION,
+            "run_lock_sha256": lock.sha256,
+            "game_id": replica.game_id,
+            "evidence_sha256": evidence_sha256,
+            "replay_return": verification.terminal_return,
+            "logprob_max_abs_error": optional_float(parity["max_abs_error"]),
+            "logprob_mean_abs_error": optional_float(parity["mean_abs_error"]),
+            "logprob_p99_abs_error": optional_float(parity["p99_abs_error"]),
+            "probability_max_abs_error": optional_float(parity["max_probability_error"]),
+            "probability_p99_abs_error": optional_float(parity["p99_probability_error"]),
+            "probability_tail_fraction": optional_float(parity["probability_tail_fraction"]),
+            "mismatch_kl_mean": optional_float(parity["mean_mismatch_kl"]),
+            "mismatch_kl_max": optional_float(parity["max_mismatch_kl"]),
+            "envelopes": [asdict(row) for row in replica_envelopes],
+            "parity_mode": parity_mode,
+            "trainer_parity_gate_sha256": lock.trainer_parity_gate_sha256,
+        }
+        signature = hmac.new(
+            signing_key,
+            json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode(),
+            hashlib.sha256,
+        ).hexdigest()
+        approvals.append(
+            Approval(
+                SUPERVISOR_VERSION,
+                lock.sha256,
+                replica.game_id,
+                evidence_sha256,
+                verification.terminal_return,
+                optional_float(parity["max_abs_error"]),
+                optional_float(parity["mean_abs_error"]),
+                optional_float(parity["p99_abs_error"]),
+                optional_float(parity["max_probability_error"]),
+                optional_float(parity["p99_probability_error"]),
+                optional_float(parity["probability_tail_fraction"]),
+                optional_float(parity["mean_mismatch_kl"]),
+                optional_float(parity["max_mismatch_kl"]),
+                replica_envelopes,
+                parity_mode,
+                lock.trainer_parity_gate_sha256,
+                signature,
+            )
+        )
+    return tuple(approvals)
 
 
 def verify_approval_signature(approval: Approval, signing_key: bytes) -> None:
