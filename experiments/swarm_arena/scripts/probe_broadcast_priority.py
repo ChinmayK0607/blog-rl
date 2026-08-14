@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 from swarm_ctf_eval.arena_protocol import Broadcast, parse_broadcast
@@ -30,6 +31,7 @@ async def main() -> None:
     parser.add_argument("--model-name", required=True)
     parser.add_argument("--policy-revision", required=True)
     parser.add_argument("--pairs", type=int, default=12)
+    parser.add_argument("--pair-offset", type=int, default=0)
     parser.add_argument("--repetitions", type=int, default=5)
     parser.add_argument(
         "--variant",
@@ -39,8 +41,10 @@ async def main() -> None:
     args = parser.parse_args()
     variants = tuple(args.variant or PROMPT_VARIANTS)
     manifest = json.loads((args.data_dir / "train.json").read_text(encoding="utf-8"))
-    if args.pairs < 1 or args.pairs > len(manifest["pairs"]):
-        parser.error("--pairs must select a nonempty prefix of the train manifest")
+    if args.pair_offset < 0:
+        parser.error("--pair-offset must be nonnegative")
+    if args.pairs < 1 or args.pair_offset + args.pairs > len(manifest["pairs"]):
+        parser.error("--pair-offset and --pairs must select a nonempty manifest slice")
     if args.repetitions < 1:
         parser.error("--repetitions must be positive")
     endpoint = PolicyEndpoint(
@@ -57,7 +61,10 @@ async def main() -> None:
     )
     rows = []
     async with VLLMChoiceGenerator(args.tokenizer) as generator:
-        for pair_index, pair in enumerate(manifest["pairs"][: args.pairs]):
+        selected_pairs = manifest["pairs"][
+            args.pair_offset : args.pair_offset + args.pairs
+        ]
+        for pair_index, pair in enumerate(selected_pairs, start=args.pair_offset):
             scenario = reconstruct_manifest_scenario(pair["critical"])
             env = ArenaRLEnv(size=scenario.size, config=config)
             env.reset_from_state(scenario.state)
@@ -127,9 +134,22 @@ async def main() -> None:
                             "request_sha256": completion.request_sha256,
                         }
                     )
+            print(
+                json.dumps(
+                    {
+                        "completed_pair": pair_index,
+                        "completed_pairs": pair_index - args.pair_offset + 1,
+                        "total_pairs": args.pairs,
+                    },
+                    sort_keys=True,
+                ),
+                file=sys.stderr,
+                flush=True,
+            )
     result = {
         "schema_version": "broadcast-priority-probe-v1",
         "policy_revision": args.policy_revision,
+        "pair_offset": args.pair_offset,
         "variants": {variant: PROMPT_VARIANTS[variant] for variant in variants},
         "summary": summarize_priority_rows(rows),
         "rows": rows,

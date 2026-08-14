@@ -968,6 +968,44 @@ no more critical-specific than decoy-specific. Therefore:
   diagnose or improve the warm start rather than training on the rejected
   credit signal.
 - No optimizer is authorized by this probe.
+- Preflight failures before sampling: public commit `77f8df1f` accidentally
+  placed the focused priority test inside the preceding fail-closed test, so it
+  raised `NameError: actual_decisions is not defined`. Commit `e68c826a` moves
+  the test to module scope. A subsequent remote checkout failed because the
+  orchestrator relayed an incorrect expanded SHA; anonymous `ls-remote` and
+  local `rev-parse` agree on the corrected exact commit
+  `e68c826aab419d3e93fe5f492faccb356e420211`. Neither detour issued inference
+  requests or optimizer steps, and the healthy vLLM process was left intact.
+- A third invocation-only detour passed obsolete variant names to the probe's
+  CLI; `argparse` rejected the command before sampling. The canonical launch
+  omitted `--variant` flags and therefore used the three versioned defaults.
+- Completed result: 180 broadcasts in about 139 seconds on one A6000, with no
+  inference or protocol errors and zero optimizer steps. `current` achieved
+  60/60 valid, 44/60 target facts (73.33%), and majority on 10/12 pairs;
+  `recency_scoped` achieved 60/60, 44/60, and 10/12; `actionable_priority`
+  achieved 60/60, 57/60 (95%), and 12/12. The actionable variant therefore
+  passes all four frozen capability gates, including a +21.67 percentage-point
+  improvement over current. This is capability evidence, not RL admission.
+- Compact artifact:
+  `results/pre_rl_1_7b/broadcast_priority_probe_e68c826a/probe.json`, 222,527
+  bytes, SHA-256
+  `1f127c43d10358ffcc11bfe78ade5e2999ab5f4d4783b398d67f3e8e82d6e952`.
+
+### 2026-08-14 — fresh broadcast-priority confirmation
+
+- Status: planned; frozen before results
+- Verdict scope: capability replication only, never RL admission
+- Inputs: untouched training-manifest pairs 12--23, sender broadcast only,
+  five repetitions per pair. These pairs were not used to create or choose the
+  prompt variants and no final/OOD examples are exposed.
+- Variants: `current` and the already-selected `actionable_priority` only.
+- Fixed confirmation gates: 100% protocol validity; target fact in at least
+  45/60 actionable samples; majority emission on at least 9/12 pairs; and at
+  least +0.20 absolute target-fact rate over `current` on this same fresh
+  slice. Failure on any gate rejects production-prompt promotion.
+- No optimizer is authorized. Passing permits a versioned prompt update and a
+  newly frozen causal re-audit on unused development scenarios; it does not by
+  itself authorize RL.
 
 ## Artifact index
 
