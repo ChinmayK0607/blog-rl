@@ -7,7 +7,12 @@ from typing import Any
 from .arena import Action, legal_actions, state_to_dict
 from .arena_protocol import Broadcast
 from .rl_v3 import ArenaRLEnv
-from .safety_supervisor import Approval, BranchReplay, MessageCreditGroupEvidence
+from .safety_supervisor import (
+    Approval,
+    BranchReplay,
+    MessageCreditGroupEvidence,
+    canonical_sha256,
+)
 
 
 def _actions(actions: tuple[Action, ...]) -> list[dict[str, Any]]:

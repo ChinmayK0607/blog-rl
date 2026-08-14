@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 19:52 IST
+Last updated: 2026-08-14 20:11 IST
 Branch: `exp/swarm-arena-4b`  
 Message-estimator implementation checkpoint:
 `567bc1393d101ca9f4a9613cabececece09a2399`  
@@ -845,6 +845,12 @@ sets, chosen actions, events, target before/after state and capture events,
 returns/credits, receiver effects, and per-decision request/output/context
 hashes. It must pass Linux, replay, and two-scenario live validation before
 Stage B starts.
+
+The first public paired-summary commit `ba518f39` failed its focused test before
+reading Stage B evidence because `message_credit_audit.py` called
+`canonical_sha256` without importing it. No summary or scientific verdict was
+produced; the immutable Stage B evidence was unaffected. The missing import was
+added and must pass focused validation before analysis.
 
 ### 2026-08-14 — compact evidence-writer preflight
 
