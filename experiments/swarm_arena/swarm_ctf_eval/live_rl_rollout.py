@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import logging
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Any, AsyncIterator, Literal
@@ -41,6 +42,10 @@ from .structured_protocol import (
 
 Phase = Literal["BROADCAST", "ACT"]
 STRUCTURED_LOGPROB_TOP_K = 20
+TRANSPORT_MAX_ATTEMPTS = 3
+TRANSPORT_RETRY_BASE_SECONDS = 0.25
+
+LOGGER = logging.getLogger(__name__)
 
 
 def _verify_serving_constraint_rows(
@@ -152,6 +157,7 @@ class ChoiceCompletion:
     allowed_token_ids: tuple[tuple[int, ...], ...]
     text: str
     request_sha256: str
+    transport_attempts: int = 1
 
 
 @dataclass(frozen=True)
@@ -226,6 +232,10 @@ class VLLMChoiceGenerator:
             self._clients[base_url] = httpx.AsyncClient(
                 base_url=base_url,
                 timeout=self.timeout,
+                # The inference service is local to each rollout worker. Avoid
+                # reusing a connection that the server may close while a large
+                # coalesced group is draining; TCP setup is negligible here.
+                limits=httpx.Limits(max_keepalive_connections=0),
             )
         return self._clients[base_url]
 
@@ -248,10 +258,31 @@ class VLLMChoiceGenerator:
         prompt_ids: tuple[int, ...],
         request_sha256: str,
     ) -> ChoiceCompletion:
-        response = await self._client(base_url).post(
-            "/inference/v1/generate",
-            json=request_body,
-        )
+        response = None
+        transport_attempts = 0
+        for transport_attempts in range(1, TRANSPORT_MAX_ATTEMPTS + 1):
+            try:
+                response = await self._client(base_url).post(
+                    "/inference/v1/generate",
+                    json=request_body,
+                )
+                break
+            except (httpx.NetworkError, httpx.RemoteProtocolError) as error:
+                if transport_attempts == TRANSPORT_MAX_ATTEMPTS:
+                    raise
+                LOGGER.warning(
+                    "retrying identical inference request %s after transport error "
+                    "(%d/%d): %s",
+                    request_sha256,
+                    transport_attempts,
+                    TRANSPORT_MAX_ATTEMPTS,
+                    type(error).__name__,
+                )
+                await asyncio.sleep(
+                    TRANSPORT_RETRY_BASE_SECONDS * (2 ** (transport_attempts - 1))
+                )
+        if response is None:
+            raise RuntimeError("inference transport loop returned no response")
         response.raise_for_status()
         choice = response.json()["choices"][0]
         completion_ids = list(choice["token_ids"])
@@ -296,6 +327,7 @@ class VLLMChoiceGenerator:
             tuple(tuple(row) for row in allowed),
             decoded,
             request_sha256,
+            transport_attempts,
         )
 
     async def generate(
@@ -492,6 +524,7 @@ async def rollout_branch(
                     completion.request_sha256,
                     canonical_sha256(broadcast.to_dict()),
                     completion.allowed_token_ids,
+                    completion.transport_attempts,
                 )
             )
             if (
@@ -567,6 +600,7 @@ async def rollout_branch(
                     completion.request_sha256,
                     canonical_sha256(action.to_dict()),
                     completion.allowed_token_ids,
+                    completion.transport_attempts,
                 )
             )
             if (

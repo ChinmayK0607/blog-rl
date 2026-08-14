@@ -41,6 +41,7 @@ class RolloutDecision:
     request_sha256: str
     output_sha256: str
     allowed_token_ids: tuple[tuple[int, ...], ...] = ()
+    transport_attempts: int = 1
 
     @property
     def decision_id(self) -> str:
@@ -141,6 +142,8 @@ def _validate_decision(decision: RolloutDecision) -> None:
         character not in "0123456789abcdef" for character in decision.output_sha256
     ):
         raise ValueError(f"invalid decoded-output hash: {decision.decision_id}")
+    if not 1 <= decision.transport_attempts <= 3:
+        raise ValueError(f"invalid transport-attempt count: {decision.decision_id}")
     if decision.branch == "actual" and decision.replaced_agent is not None:
         raise ValueError("actual branches cannot name a replaced agent")
     if decision.branch == "replacement" and decision.replaced_agent is None:

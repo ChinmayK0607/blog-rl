@@ -1264,3 +1264,73 @@ def test_vllm_generator_coalesces_exact_requests_within_one_group() -> None:
         assert client.posts == 2
 
     asyncio.run(exercise())
+
+
+def test_vllm_generator_retries_only_an_identical_transport_request() -> None:
+    class FakeTokenizer:
+        eos_token_id = 0
+
+        def decode(self, token_ids, *, skip_special_tokens):
+            del token_ids, skip_special_tokens
+            return "WAIT"
+
+    class FakeChoiceMask:
+        def allowed_token_ids(self, choices, completion_ids):
+            assert choices == ("WAIT",)
+            assert completion_ids == [11]
+            return [[11]]
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "choices": [
+                    {
+                        "token_ids": [11],
+                        "finish_reason": "stop",
+                        "logprobs": {
+                            "content": [
+                                {
+                                    "logprob": 0.0,
+                                    "top_logprobs": [
+                                        {"token": "token_id:11", "logprob": 0.0}
+                                    ],
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+
+    class FlakyClient:
+        def __init__(self):
+            self.bodies = []
+
+        async def post(self, path, *, json):
+            assert path == "/inference/v1/generate"
+            self.bodies.append(json)
+            if len(self.bodies) == 1:
+                raise httpx.ReadError("connection reset")
+            return FakeResponse()
+
+    generator = object.__new__(VLLMChoiceGenerator)
+    generator.tokenizer = FakeTokenizer()
+    generator.choice_mask = FakeChoiceMask()
+    generator.timeout = 1.0
+    client = FlakyClient()
+    generator._clients = {"http://fake": client}
+
+    async def exercise() -> None:
+        completion = await generator._complete_request(
+            base_url="http://fake",
+            request_body={"seed": 17},
+            choices=("WAIT",),
+            prompt_ids=(1, 2, 3),
+            request_sha256="a" * 64,
+        )
+        assert completion.transport_attempts == 2
+        assert client.bodies == [{"seed": 17}, {"seed": 17}]
+
+    asyncio.run(exercise())
