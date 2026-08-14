@@ -78,7 +78,15 @@ def main() -> None:
     parser.add_argument("--public-adapter-repo", required=True)
     parser.add_argument("--public-adapter-revision", required=True)
     parser.add_argument("--public-source-url", required=True)
+    parser.add_argument(
+        "--policy-steps",
+        type=int,
+        required=True,
+        help="Number of logical per-policy updates; distinct from trainer packing slices.",
+    )
     args = parser.parse_args()
+    if args.policy_steps < 1:
+        parser.error("policy-steps must be positive")
 
     actual_sha256 = sha256_file(args.adapter / "adapter_model.safetensors")
     if actual_sha256 != args.adapter_sha256:
@@ -93,6 +101,11 @@ def main() -> None:
     )
     with args.trainer_config.open("rb") as handle:
         config = TrainerConfig.model_validate(tomli.load(handle))
+    if config.max_steps is not None:
+        raise ValueError(
+            "multi-run Swarm trainer max_steps must be omitted: Prime counts packing "
+            "slices, while --policy-steps controls logical policy updates"
+        )
     config.output_dir = args.output_dir
     config.model.name = args.model
     if config.model.lora is None:
@@ -115,7 +128,7 @@ def main() -> None:
                 "output_dir": run_dir,
                 "batch_size": 1,
                 "group_size": 1,
-                "max_steps": config.max_steps,
+                "max_steps": args.policy_steps,
                 "model": {
                     "name": args.model,
                     "lora": {"name": f"blue-{index}", "rank": 16, "alpha": 32},
@@ -133,6 +146,7 @@ def main() -> None:
             "output_dir": str(args.output_dir),
             "trainer_config": str(resolved_path),
             "trainer_parity_gate_sha256": parity_gate_sha256(config.rollout_parity_gate),
+            "policy_steps": args.policy_steps,
             "adapter_sha256": actual_sha256,
             "public_inputs": public_inputs,
         }

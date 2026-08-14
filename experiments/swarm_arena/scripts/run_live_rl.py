@@ -257,6 +257,13 @@ async def main() -> None:
 
     with args.trainer_config.open("rb") as handle:
         config = TrainerConfig.model_validate(tomli.load(handle))
+    if config.max_steps is not None:
+        parser.error(
+            "Swarm multi-run trainer max_steps must be omitted because it counts "
+            "packing slices, not controller policy updates"
+        )
+    if config.max_concurrent_runs != 4:
+        parser.error("Swarm live RL requires exactly four isolated trainer runs")
     shared_return_spec = (
         SharedReturnSpec(args.shared_return_replicas)
         if args.credit_estimator == "shared_return"

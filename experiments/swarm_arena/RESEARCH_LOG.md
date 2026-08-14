@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-15 04:10 IST
+Last updated: 2026-08-15 04:40 IST
 Branch: `exp/swarm-arena-4b`  
 Current matched-actor implementation checkpoint:
 `01519aa9a019871d9560971b11b80826ad1cfac1`
@@ -1448,6 +1448,35 @@ no more critical-specific than decoy-specific. Therefore:
   four-group evidence bound to the corrected trainer TOML, rerun the complete
   parity/isolation certificate, and only then attempt optimization. The failed
   run is never resumed or overwritten.
+
+### 2026-08-15 — First 4,096-token retry exposed packing-step mismatch
+
+- Status: failed closed; no optimizer update and no learned checkpoint
+- Preserved run: `/workspace/runs/rl-hf-actor-seq4096-acb242bb`
+- The fresh four-group certificate for resolved trainer SHA-256
+  `788218207782687d6a339912d50426b21f1c00cf9564f73359c9e68df25e197f`
+  passed on 64 samples and 4,154 completion tokens: mean absolute log-prob
+  error `0.0019235`, p99 `0.055065`, maximum probability error `0.071481`,
+  maximum mismatch-KL `0.048064`, probability-tail fraction `0.0031295`,
+  and four-policy isolation passed.
+- The controller then produced four signed shared-return groups. Each policy
+  batch contained 16 samples and 13,192–14,206 total prompt-plus-completion
+  tokens. Prime's trainer `max_steps` counts 4,096-token packing slices, not
+  logical Swarm controller updates. The finite value `8` therefore exhausted
+  the trainer after only 32,768 packed tokens, before any complete per-policy
+  batch (54,716 tokens total) became ready.
+- Every pre-step parity gate passed, but all eight trainer log rows reported
+  `No runs are ready to update` and `LR 0.00e+00`. The nonzero gradient norms
+  were only accumulated partial-batch gradients; no optimizer owned a complete
+  logical batch, no adapter was stepped, and no `STABLE` broadcast was written.
+  The controller was stopped after preserving its evidence and routed inputs.
+- Correction: the dedicated Swarm multi-run trainer must run without a finite
+  global `max_steps`. `prepare_live_rl_run.py` now requires an explicit
+  `--policy-steps` value for each per-policy orchestrator config, and both run
+  preparation and the live controller reject a finite trainer packing limit.
+  This separates the controller's scientific update horizon from Prime's
+  internal token-packing cadence and makes the failure mode impossible to
+  repeat silently.
 
 ## Artifact index
 
