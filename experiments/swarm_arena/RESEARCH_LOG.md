@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 20:11 IST
+Last updated: 2026-08-14 20:17 IST
 Branch: `exp/swarm-arena-4b`  
 Message-estimator implementation checkpoint:
 `567bc1393d101ca9f4a9613cabececece09a2399`  
@@ -916,27 +916,30 @@ added and must pass focused validation before analysis.
 - Compact public artifacts:
   `results/pre_rl_1_7b/message_credit_stage_b_ffad1495/`; no keys, tokens,
   model files, caches, or verbose server logs were included.
+- Final host state: vLLM and audit sessions stopped; A6000 at 1 MiB, 0%, 29 C;
+  189 GB free of 251 GB. The instance is decommission-ready but termination is
+  a user-controlled external action.
 
 ## Current decision gates
 
-Before the first real RL step, all of the following remain required:
+The Linux/live-serving, replay, delivery-edge, request-identity, and
+broadcast-only ownership gates pass mechanically. The scientific localization
+gate fails: target facts are too rare, effects are insufficiently concentrated
+on intended senders, off-role effects are too common, and receiver changes are
+no more critical-specific than decoy-specific. Therefore:
 
-- full Linux and live vLLM smoke passes at the exact public commit;
-- actual and four message-drop branches replay exactly;
-- intervention changes only the named first-turn sender delivery;
-- owned optimizer batches contain exactly four first-turn broadcast spans and
-  no action spans;
-- empty-message invariance is exact;
-- the 24-scenario critical/decoy audit shows intended-sender localization rather
-  than broad off-role effects;
-- constrained rollout/trainer parity is recertified for the new token set;
-- model-controlled opponent identities and revisions are immutable per epoch;
-- collapse monitors and frozen development/regression gates are active;
-- all inputs and outputs required for reproduction are anonymously public.
-
-If localization fails, the correct result is another rejection—not an additive
-communication reward. If it passes, the next experiment is a short,
-rollback-safe, stage-one RL pilot with no final-evaluation access.
+- no Stage C confirmation, rollout/trainer parity recertification, or RL
+  optimizer run is authorized for this estimator;
+- thresholds must not be relaxed and no additive communication reward should
+  be introduced to force a pass;
+- the next work is CPU-only evidence diagnosis: compare the five target-fact
+  pairs with the seven omissions, inspect why two positive sender effects occur
+  without the target fact, and determine whether the failure is primarily
+  warm-start capability, curriculum construction, or a genuinely nonlocal
+  causal effect;
+- any revised task, warm start, or estimator must receive a new frozen audit
+  plan and fresh development seeds while leaving the existing frozen OOD
+  evaluation unchanged.
 
 ## Artifact index
 
