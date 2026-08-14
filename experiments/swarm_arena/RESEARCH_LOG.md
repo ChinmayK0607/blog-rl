@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 18:35 IST
+Last updated: 2026-08-14 18:38 IST
 Branch: `exp/swarm-arena-4b`  
 Message-estimator implementation checkpoint:
 `567bc1393d101ca9f4a9613cabececece09a2399`  
@@ -784,6 +784,15 @@ This candidate passed Python bytecode compilation locally. Local pytest could
 not start because the macOS subproject environment had no pytest executable;
 the Linux worker owns the focused, complete, and live validation before any
 new scientific run.
+
+The first remote focused-test command named a nonexistent
+`test_live_request_identity.py`, so no test ran. The corrected focused run then
+passed the supervisor request-hash tamper case but stopped in the new cache test
+before exercising the cache: its `EpisodeConfig` accidentally retained the
+default nonzero protocol costs, which RL v3 correctly rejects because it uses
+hard constraints rather than additive communication/protocol penalties. The
+test fixture was corrected to set all three costs to zero. This was a test-only
+failure; no inference process or scientific run had started.
 
 ## Current decision gates
 

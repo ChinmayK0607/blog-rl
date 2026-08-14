@@ -1113,7 +1113,12 @@ def test_live_credit_group_routes_only_after_bound_trainer_parity_gate() -> None
 
 
 def test_vllm_generator_coalesces_exact_requests_within_one_group() -> None:
-    config = EpisodeConfig(horizon=1)
+    config = EpisodeConfig(
+        horizon=1,
+        communication_cost=0.0,
+        invalid_broadcast_cost=0.0,
+        invalid_action_cost=0.0,
+    )
     env = ArenaRLEnv(seed=13, size=12, config=config)
     env.reset(13)
     messages, _ = episode_broadcast_prompt(env, "blue-0", permutation=0)
