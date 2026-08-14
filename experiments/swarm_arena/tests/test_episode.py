@@ -8,7 +8,6 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-
 from swarm_ctf_eval.arena import WAIT, Action, legal_actions, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
 from swarm_ctf_eval.collapse_audit import audit_training_collapse
