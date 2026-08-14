@@ -99,6 +99,36 @@ def test_rollout_parity_gate_fails_before_an_out_of_envelope_update():
         validate_rollout_parity_metrics(metrics, RolloutParityGateConfig())
 
 
+def test_rollout_parity_tail_fraction_is_a_logical_batch_statistic():
+    gate = RolloutParityGateConfig(
+        max_p99_probability_error=0.1,
+        max_probability_tail_fraction=0.005,
+        max_mean_mismatch_kl=0.01,
+    )
+    # One legitimate tail token in a short packing slice looks like 1/43 and
+    # fails.  Over the complete 300-token logical policy batch it is 1/300 and
+    # passes the unchanged certified 0.5% threshold.
+    probability_errors = torch.cat(
+        [torch.tensor([0.051], device="cuda"), torch.zeros(299, device="cuda")]
+    )
+    aggregate = rollout_parity_metrics(
+        torch.zeros_like(probability_errors),
+        probability_errors,
+        torch.zeros_like(probability_errors),
+        probability_tail_threshold=0.05,
+    )
+    validate_rollout_parity_metrics(aggregate, gate)
+
+    short_slice = rollout_parity_metrics(
+        torch.zeros(43, device="cuda"),
+        probability_errors[:43],
+        torch.zeros(43, device="cuda"),
+        probability_tail_threshold=0.05,
+    )
+    with pytest.raises(RuntimeError, match="probability_tail_fraction"):
+        validate_rollout_parity_metrics(short_slice, gate)
+
+
 def test_setup_loss_fns_with_custom_config():
     """Test setup_loss_fns with CustomLossConfig importing a custom loss."""
     loss_config = CustomLossConfig(

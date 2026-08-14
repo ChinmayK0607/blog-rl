@@ -1510,6 +1510,34 @@ no more critical-specific than decoy-specific. Therefore:
   actor. It also reduces memory. No reward, dtype, optimizer, or parity threshold
   changes.
 
+### 2026-08-15 — Single-trajectory pilot exposed slice-local aggregate gate
+
+- Status: failed closed; correction under Linux test
+- Preserved run: `/workspace/runs/rl-hf-singletraj-stability-30ad49d9`
+- Source `30ad49d9e3d330872a0596b50b63742d036c719d` passed the complete
+  Linux suite (73/73). A new four-group, 64-sample, 4,158-completion-token
+  certificate for the exact 1,024-token HF+FA2 trainer passed every numerical
+  gate and four-policy isolation. Mean absolute log-probability error was
+  `0.001699`, p99 was `0.051024`, maximum probability error was `0.077751`,
+  mean mismatch-KL was `0.00008281`, maximum mismatch-KL was `0.025083`, and
+  probability-tail fraction was `0.002886 < 0.005`.
+- The real controller produced and signed all four fresh shared-return groups.
+  The first one-trajectory trainer slice then failed before any optimizer step:
+  one probability error above `0.05` among 43 completion tokens produced a
+  slice-local tail fraction of `1/43 = 0.023256`, above the certified logical-
+  batch threshold of `0.005`. No `STABLE` marker or learned checkpoint exists.
+- Root cause: single-trajectory packing fixed the forward-path mismatch, but
+  Prime applied distribution-level mean, p99, and tail-fraction gates to every
+  arbitrary packing slice. Those gates were certified over the complete
+  logical policy batch. A small slice turns one allowed rare tail into a false
+  rejection even when the full batch passes.
+- Correction: accumulate exact parity tensors separately for each isolated
+  policy run across packing slices, validate the unchanged gates when that
+  logical run becomes ready, and only then permit its optimizer step. Maximum
+  errors remain part of the same fail-closed validation; rejected batches still
+  cannot update weights. No threshold, reward, optimizer, optimization dtype,
+  or reduction dtype was changed.
+
 ## Artifact index
 
 - Public source branch:

@@ -1,6 +1,7 @@
 import prime_rl._compat  # noqa: F401 — patch ring_flash_attn compat before import
 
 from contextlib import nullcontext
+from collections import defaultdict
 import time
 from datetime import timedelta
 
@@ -250,6 +251,15 @@ def train(config: TrainerConfig):
     gc_handler = GarbageCollection(config.gc.interval) if config.gc else None
 
     logger.info(f"Starting training loop (max_steps={config.max_steps or 'infinite'})")
+    # Multi-run batches can span several packing slices before a logical policy
+    # update is ready.  Keep parity samples for each isolated run until that
+    # run is ready to step: aggregate gates (mean, p99, and tail fraction) are
+    # defined over the complete logical batch, not an arbitrary packing slice.
+    # A failed gate still raises before optimizer.step(), so no rejected batch
+    # can update weights.
+    multi_run_parity: dict[int, dict[str, list[torch.Tensor]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
     is_first_step = True
     maybe_record_function = nullcontext
     if config.trace_path:
@@ -548,6 +558,22 @@ def train(config: TrainerConfig):
                 tensors["mismatch_kl/all"].append(mismatch_kl)
                 tensors["parity_abs_logprob_error/all"].append(absolute_logprob_error)
                 tensors["parity_probability_error/all"].append(probability_error)
+                if config.max_concurrent_runs > 1 and config.rollout_parity_gate is not None:
+                    active_run_idxs = (
+                        (micro_batch["lora_num_tokens"] > 0)
+                        .nonzero(as_tuple=False)
+                        .flatten()
+                        .tolist()
+                    )
+                    if len(active_run_idxs) != 1:
+                        raise ValueError(
+                            "multi-run parity requires each micro-batch to contain "
+                            "exactly one policy adapter"
+                        )
+                    parity = multi_run_parity[active_run_idxs[0]]
+                    parity["absolute_logprob_error"].append(absolute_logprob_error)
+                    parity["probability_error"].append(probability_error)
+                    parity["mismatch_kl"].append(mismatch_kl)
                 for env_name, indices in env_to_indices.items():
                     tensors[f"mismatch_kl/{env_name}"].append(mismatch_kl[indices])
 
@@ -574,25 +600,54 @@ def train(config: TrainerConfig):
             logger.debug(micro_step_message)
 
         if config.rollout_parity_gate is not None:
-            def gathered(key: str) -> torch.Tensor:
-                local = torch.cat(tensors[key], dim=0).to("cuda")
+            def gathered(values: list[torch.Tensor]) -> torch.Tensor:
+                local = (
+                    torch.cat(values, dim=0).to("cuda")
+                    if values
+                    else torch.empty(0, device="cuda")
+                )
                 return flexible_all_gather(local)
 
-            parity_metrics = rollout_parity_metrics(
-                gathered("parity_abs_logprob_error/all"),
-                gathered("parity_probability_error/all"),
-                gathered("mismatch_kl/all"),
-                probability_tail_threshold=(
-                    config.rollout_parity_gate.probability_tail_threshold
-                ),
-            )
-            validate_rollout_parity_metrics(parity_metrics, config.rollout_parity_gate)
-            logger.info(
-                "Rollout parity gate passed before optimizer step: "
-                + ", ".join(
-                    f"{name}={value:.6g}" for name, value in parity_metrics.items()
+            if config.max_concurrent_runs == 1:
+                parity_inputs = (
+                    gathered(tensors["parity_abs_logprob_error/all"]),
+                    gathered(tensors["parity_probability_error/all"]),
+                    gathered(tensors["mismatch_kl/all"]),
                 )
-            )
+                ready_parity = [(None, parity_inputs)]
+            else:
+                ready_parity = [
+                    (
+                        run_idx,
+                        (
+                            gathered(multi_run_parity[run_idx]["absolute_logprob_error"]),
+                            gathered(multi_run_parity[run_idx]["probability_error"]),
+                            gathered(multi_run_parity[run_idx]["mismatch_kl"]),
+                        ),
+                    )
+                    for run_idx in multi_run_manager.ready_to_update_idxs
+                ]
+
+            for run_idx, parity_inputs in ready_parity:
+                parity_metrics = rollout_parity_metrics(
+                    *parity_inputs,
+                    probability_tail_threshold=(
+                        config.rollout_parity_gate.probability_tail_threshold
+                    ),
+                )
+                validate_rollout_parity_metrics(
+                    parity_metrics, config.rollout_parity_gate
+                )
+                run_label = "" if run_idx is None else f" for run {run_idx}"
+                logger.info(
+                    f"Rollout parity gate passed{run_label} before optimizer step: "
+                    + ", ".join(
+                        f"{name}={value:.6g}" for name, value in parity_metrics.items()
+                    )
+                )
+            for run_idx, _ in ready_parity:
+                if run_idx is not None:
+                    del multi_run_parity[run_idx]
 
         # compute_loss already divided by the global token count. Undo FSDP's per-rank averaging
         # across dp_cp so the final gradient is the true per-token mean over the global batch.
