@@ -1205,6 +1205,17 @@ no more critical-specific than decoy-specific. Therefore:
 - Mechanical verdict: pass. Scientific/training verdict: still not admitted;
   trainer-side constrained log-prob parity and the predeclared opponent-pool,
   intervention, KL, and collapse gates remain before any optimizer step.
+- Post-smoke adversarial review found that the v3 approval committed decision
+  IDs and completion-token counts but the router did not cryptographically bind
+  the exact in-memory `TrainingSample` content. A malicious worker could have
+  substituted same-length token or log-prob arrays after approval. No optimizer
+  had run. Supervisor/router/contract v4 now persist allowed-token rows in each
+  decision, hash the complete trusted sample projection into each shared-return
+  envelope, recompute that hash from the untrusted Prime sample, and reject any
+  mismatch before queue admission. A same-length prompt substitution is a
+  required fail-closed test. The c267 smoke remains valid rollout/replay
+  evidence but is explicitly superseded for queue-admission purposes; a v4
+  rollout-only smoke is required before trainer parity.
 
 ## Artifact index
 

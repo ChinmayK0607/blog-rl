@@ -23,7 +23,7 @@ from .prime_rl_bridge import (
 )
 from .rl_v3 import ArenaRLEnv
 
-SUPERVISOR_VERSION = "arena-fail-closed-supervisor-v3-shared-return"
+SUPERVISOR_VERSION = "arena-fail-closed-supervisor-v4-sample-bound-shared-return"
 ZERO_HASH = "0" * 64
 
 

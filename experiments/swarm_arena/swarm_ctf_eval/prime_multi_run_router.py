@@ -6,9 +6,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .prime_rl_bridge import runtime_training_sample_sha256
 from .safety_supervisor import Approval, verify_approval_signature
 
-ROUTER_VERSION = "arena-prime-multi-run-router-v3-shared-return"
+ROUTER_VERSION = "arena-prime-multi-run-router-v4-sample-bound"
 
 
 @dataclass(frozen=True)
@@ -90,6 +91,12 @@ def route_approved_samples(
                 f"trainable completion-token count mismatch for {agent_id}: "
                 f"expected {envelope.completion_tokens}, got {completion_tokens}"
             )
+        if envelope.sample_sha256s:
+            actual_sample_sha256s = tuple(
+                runtime_training_sample_sha256(sample) for sample in owned.samples
+            )
+            if actual_sample_sha256s != envelope.sample_sha256s:
+                raise ValueError(f"committed training-sample payload mismatch for {agent_id}")
 
         examples = []
         for source in owned.samples:

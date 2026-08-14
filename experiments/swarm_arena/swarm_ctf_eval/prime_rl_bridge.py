@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from dataclasses import dataclass
 from typing import Literal
@@ -38,6 +40,7 @@ class RolloutDecision:
     context_sha256: str
     request_sha256: str
     output_sha256: str
+    allowed_token_ids: tuple[tuple[int, ...], ...] = ()
 
     @property
     def decision_id(self) -> str:
@@ -59,6 +62,56 @@ class PolicyTrainingEnvelope:
     advantage: float
     decision_ids: tuple[str, ...]
     completion_tokens: int
+    sample_sha256s: tuple[str, ...] = ()
+
+
+def _sample_payload_sha256(payload: dict[str, object]) -> str:
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def rollout_training_sample_sha256(decision: RolloutDecision) -> str:
+    """Commit the exact trusted TrainingSample projection for one decision."""
+    if len(decision.allowed_token_ids) != len(decision.completion_ids):
+        raise ValueError(f"approved sample lacks exact constraint rows: {decision.decision_id}")
+    return _sample_payload_sha256(
+        {
+            "prompt_ids": decision.prompt_ids,
+            "prompt_mask": (False,) * len(decision.prompt_ids),
+            "completion_ids": decision.completion_ids,
+            "completion_mask": (True,) * len(decision.completion_ids),
+            "completion_logprobs": decision.rollout_logprobs,
+            "completion_temperatures": (1.0,) * len(decision.completion_ids),
+            "completion_allowed_token_ids": decision.allowed_token_ids,
+            "env_name": "swarm_arena_rl_v3",
+            "training_mode": "rl",
+        }
+    )
+
+
+def runtime_training_sample_sha256(sample: object) -> str:
+    """Hash an untrusted Prime-RL sample using the trusted projection schema."""
+    fields = (
+        "prompt_ids",
+        "prompt_mask",
+        "completion_ids",
+        "completion_mask",
+        "completion_logprobs",
+        "completion_temperatures",
+        "completion_allowed_token_ids",
+        "env_name",
+        "training_mode",
+    )
+    missing = [field for field in fields if not hasattr(sample, field)]
+    if missing:
+        raise ValueError(f"training sample is missing committed fields: {missing}")
+    return _sample_payload_sha256(
+        {
+            field: getattr(sample, field)
+            for field in fields
+        }
+    )
 
 
 def _validate_decision(decision: RolloutDecision) -> None:
@@ -94,6 +147,14 @@ def _validate_decision(decision: RolloutDecision) -> None:
         raise ValueError("replacement branches must name the replaced agent")
     if decision.branch == "message_drop" and decision.replaced_agent is None:
         raise ValueError("message-drop branches must name the intervened sender")
+    if decision.allowed_token_ids:
+        if len(decision.allowed_token_ids) != len(decision.completion_ids):
+            raise ValueError(f"completion/constraint-row length mismatch: {decision.decision_id}")
+        for token_id, allowed in zip(
+            decision.completion_ids, decision.allowed_token_ids, strict=True
+        ):
+            if not allowed or token_id not in allowed:
+                raise ValueError(f"sampled token is absent from its constraint row: {decision.decision_id}")
 
 
 def _decision_schedule(
@@ -293,6 +354,7 @@ def build_shared_return_training_envelopes(
                 advantage,
                 tuple(row.decision_id for row in rows),
                 sum(len(row.completion_ids) for row in rows),
+                tuple(rollout_training_sample_sha256(row) for row in rows),
             )
         )
     return tuple(envelopes)

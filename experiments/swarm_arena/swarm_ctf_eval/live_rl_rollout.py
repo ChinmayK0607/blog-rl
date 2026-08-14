@@ -445,6 +445,7 @@ async def rollout_branch(
                     canonical_sha256(broadcast_contexts[agent_id]),
                     completion.request_sha256,
                     canonical_sha256(broadcast.to_dict()),
+                    completion.allowed_token_ids,
                 )
             )
             if (
@@ -519,6 +520,7 @@ async def rollout_branch(
                     canonical_sha256(action_contexts[agent_id]),
                     completion.request_sha256,
                     canonical_sha256(action.to_dict()),
+                    completion.allowed_token_ids,
                 )
             )
             if (

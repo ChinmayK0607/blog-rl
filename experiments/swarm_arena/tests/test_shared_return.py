@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import math
+from copy import deepcopy
 from dataclasses import replace
 
 from swarm_ctf_eval.episode import EpisodeConfig
@@ -184,6 +185,27 @@ def test_shared_return_group_is_replayed_signed_and_routed_fail_closed() -> None
     merged = merge_routed_batch_groups(routed, step=0)
     assert set(merged) == {f"run_blue_{index}" for index in range(4)}
     assert all(len(batch.examples) == spec.replicas for batch in merged.values())
+
+    first_owned = group.owned_samples_by_replica[0]
+    swapped = deepcopy(first_owned[0].samples[0])
+    swapped.prompt_ids = [999 for _ in swapped.prompt_ids]
+    tampered_owned = (
+        replace(first_owned[0], samples=(swapped, *first_owned[0].samples[1:])),
+        *first_owned[1:],
+    )
+    try:
+        route_approved_samples(
+            approvals[0],
+            tampered_owned,
+            routes,
+            step=0,
+            signing_key=key,
+            trainer_parity_gate_sha256=lock.trainer_parity_gate_sha256,
+        )
+    except ValueError as error:
+        assert "committed training-sample payload mismatch" in str(error)
+    else:
+        raise AssertionError("same-length sample-content substitution must fail closed")
 
     first = group.evidence.replicas[0]
     bad_replay = replace(first.replay, terminal_return=first.replay.terminal_return + 1.0)

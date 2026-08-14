@@ -81,7 +81,11 @@ terminal return, proves the namespaces are disjoint, reconstructs every private
 context and output, checks immutable policy/constraint routing, and commits the
 complete evidence group to a hash-chained audit file. Four signed approvals per
 group all commit to that same evidence hash; each approval routes one
-trajectory's scalar to four separate policy runs. A later all-phase pilot is
+trajectory's scalar to four separate policy runs. Each envelope also commits a
+hash of the exact prompt IDs, masks, completion IDs, rollout log probabilities,
+temperatures, dynamic allowed-token rows, environment, and training mode. The
+router recomputes this hash from the untrusted `TrainingSample` and rejects any
+same-length content substitution before queue admission. A later all-phase pilot is
 more capable but requires a new run-lock hash and stronger intervention
 evidence. No choice may be made after looking at final/OOD outcomes.
 
