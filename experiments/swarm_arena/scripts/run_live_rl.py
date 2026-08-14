@@ -5,6 +5,7 @@ import asyncio
 import hashlib
 import json
 import os
+import subprocess
 import time
 from dataclasses import asdict
 from pathlib import Path
@@ -205,6 +206,15 @@ async def main() -> None:
         parser.error("curriculum offset cannot be negative")
     if args.rollout_only and args.steps != 1:
         parser.error("rollout-only diagnostics require exactly one controller step")
+    repository_root = Path(__file__).resolve().parents[3]
+    actual_commit = subprocess.check_output(
+        ["git", "-C", str(repository_root), "rev-parse", "HEAD"],
+        text=True,
+    ).strip()
+    if args.source_commit != actual_commit:
+        parser.error(
+            f"source commit {args.source_commit} does not match checked-out {actual_commit}"
+        )
 
     with args.trainer_config.open("rb") as handle:
         config = TrainerConfig.model_validate(tomli.load(handle))
@@ -271,6 +281,7 @@ async def main() -> None:
                 ordinal = step * args.groups_per_step + group_index
                 initial_state = None
                 scenario_metadata = {"source": "ordinary"}
+                sampling_namespace = None
                 seed = args.seed_base + step * 10_000 + group_index
                 size = args.size
                 if curriculum is not None:
@@ -301,6 +312,11 @@ async def main() -> None:
                     f"{args.run_id}:step-{step}:group-{group_index}:"
                     f"{scenario_metadata['source']}:{seed}"
                 )
+                if curriculum is not None and args.curriculum_kind == "alternating":
+                    sampling_namespace = (
+                        f"{args.run_id}:step-{step}:pair-{scenario_metadata['pair_index']}"
+                    )
+                    scenario_metadata["sampling_namespace"] = sampling_namespace
                 group = await build_live_credit_group(
                     generator,
                     game_id=game_id,
@@ -317,6 +333,7 @@ async def main() -> None:
                     replacement_policy_id=args.replacement_policy_id,
                     run_lock_sha256=lock.sha256,
                     initial_state=initial_state,
+                    sampling_namespace=sampling_namespace,
                 )
                 approval = approve_credit_group(lock, group.evidence, bindings, "BLUE", key)
                 append_hash_chained_record(

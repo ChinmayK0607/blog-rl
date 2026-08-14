@@ -277,6 +277,7 @@ async def rollout_branch(
     policies: dict[str, PolicyEndpoint],
     replacement_policy_id: str,
     replaced_agent: str | None,
+    sampling_namespace: str,
 ) -> BranchRollout:
     env = ArenaRLEnv(size=len(initial_state.nodes), config=config)
     env.reset_from_state(initial_state)
@@ -305,7 +306,7 @@ async def rollout_branch(
                 replaced_agent=replaced_agent,
                 replacement_policy_id=replacement_policy_id,
             )
-            key = _sampling_key(game_id, agent_id, turn, "BROADCAST")
+            key = _sampling_key(sampling_namespace, agent_id, turn, "BROADCAST")
             broadcast_jobs.append(generator.generate(endpoint, messages, sampling_key=key))
             broadcast_metadata.append((agent_id, endpoint, key))
         broadcast_completions = await asyncio.gather(*broadcast_jobs)
@@ -361,7 +362,7 @@ async def rollout_branch(
                 replaced_agent=replaced_agent,
                 replacement_policy_id=replacement_policy_id,
             )
-            key = _sampling_key(game_id, agent_id, turn, "ACT")
+            key = _sampling_key(sampling_namespace, agent_id, turn, "ACT")
             action_jobs.append(generator.generate(endpoint, messages, sampling_key=key))
             action_metadata.append((agent_id, endpoint, key, displayed))
         action_completions = await asyncio.gather(*action_jobs)
@@ -435,6 +436,7 @@ async def build_live_credit_group(
     replacement_policy_id: str,
     run_lock_sha256: str,
     initial_state: GameState | None = None,
+    sampling_namespace: str | None = None,
 ) -> LiveCreditGroup:
     if initial_state is None:
         bootstrap = ArenaRLEnv(seed=seed, size=size, config=config)
@@ -452,6 +454,7 @@ async def build_live_credit_group(
     )
     if len(trainable_agents) != 4:
         raise ValueError("live credit group requires four trainable BLUE agents")
+    resolved_sampling_namespace = sampling_namespace or game_id
     branches = await asyncio.gather(
         rollout_branch(
             generator,
@@ -462,6 +465,7 @@ async def build_live_credit_group(
             policies=policy_by_id,
             replacement_policy_id=replacement_policy_id,
             replaced_agent=None,
+            sampling_namespace=resolved_sampling_namespace,
         ),
         *(
             rollout_branch(
@@ -473,6 +477,7 @@ async def build_live_credit_group(
                 policies=policy_by_id,
                 replacement_policy_id=replacement_policy_id,
                 replaced_agent=agent_id,
+                sampling_namespace=resolved_sampling_namespace,
             )
             for agent_id in trainable_agents
         ),

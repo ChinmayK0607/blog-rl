@@ -974,6 +974,8 @@ def test_fail_closed_supervisor_replays_all_branches_and_hash_chains_approvals()
 
 
 def test_live_credit_group_routes_only_after_bound_trainer_parity_gate() -> None:
+    seen_sampling_keys: list[str] = []
+
     class FirstChoiceGenerator:
         async def generate(
             self,
@@ -982,7 +984,8 @@ def test_live_credit_group_routes_only_after_bound_trainer_parity_gate() -> None
             *,
             sampling_key: str,
         ) -> ChoiceCompletion:
-            del endpoint, sampling_key
+            del endpoint
+            seen_sampling_keys.append(sampling_key)
             text = protocol_choices(messages)[0]
             return ChoiceCompletion((10,), (11,), (0.0,), ((11,),), text)
 
@@ -1044,8 +1047,11 @@ def test_live_credit_group_routes_only_after_bound_trainer_parity_gate() -> None
             replacement_policy_id="sft-replacement",
             run_lock_sha256=lock.sha256,
             initial_state=supplied_initial_state,
+            sampling_namespace="matched-pair-7",
         )
     )
+    assert seen_sampling_keys
+    assert all(key.startswith("matched-pair-7:") for key in seen_sampling_keys)
     signing_key = b"live-supervisor-key-at-least-32-bytes"
     approval = approve_credit_group(lock, group.evidence, bindings, "BLUE", signing_key)
     assert approval.parity_mode == "trainer_pre_step"
