@@ -13,8 +13,9 @@ Every model decision records:
 - policy version, adapter revision, sampling key, and dynamic-constraint hash.
 
 The environment emits interleaved decisions, but Prime-RL must reconstruct four
-independent training samples without merging across policy IDs. Opponent and
-replacement-policy spans are masked from loss.
+independent training samples without merging across policy IDs. During the
+message-credit bootstrap, only actual BROADCAST spans are trainable; action,
+opponent, and counterfactual spans are absent from optimizer batches.
 
 `prime_rl_bridge.py` now freezes and validates the rollout-side envelope: the
 atomic branch set, agent/policy ownership, token spans, immutable revisions,
@@ -26,11 +27,13 @@ approved agent envelope into its policy's fixed run directory. This avoids a
 new optimizer implementation while still producing four independently updated
 policies. It must never send all four samples through one run.
 
-One actual game and its four replacement branches form an atomic credit group.
-All five branches share the map, opponent snapshot, and per-decision random-key
-schedule. A partial or failed group is discarded. Each trainable policy receives
-only `G_actual - G_replace_i`; the learner averages that policy's loss over
-games, not over all eight agents.
+One actual game and its four sender-message-drop branches form an atomic credit
+group. All five branches use the same policies, revisions, map, opponent
+snapshot, and per-decision random-key schedule. Drop branch `i` changes only
+delivery of sender `i`'s first-turn broadcast; downstream decisions respond normally to
+the changed inbox. A partial or failed group is discarded. Policy `i` receives
+`G_actual - G_drop_message_i` on that actual broadcast span only; the learner
+averages that policy's loss over games, not over all eight agents.
 
 The first systems gate requires exact agreement between rollout and trainer
 token IDs, masks and policy routing. Constrained-policy distributions must pass
@@ -48,6 +51,8 @@ shaping penalty to the objective.
 `safety_supervisor.py` is the only admission path into training. It binds the
 source, manifests, base, adapters, opponent and allowed dynamic constraints in
 an immutable run lock; independently reconstructs every agent's private
-observation and inbox; replays and recomputes reward for the actual and all four
-replacement branches; and writes tamper-evident approval/rejection records.
+observation and inbox; proves that policies are unchanged across the actual and
+four delivery-intervention branches; verifies that only the named sender is
+dropped; replays and recomputes reward; and writes tamper-evident
+approval/rejection records.
 Rollout workers are untrusted producers and cannot enqueue gradients directly.

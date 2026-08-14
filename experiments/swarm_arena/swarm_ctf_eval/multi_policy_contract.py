@@ -5,7 +5,7 @@ from typing import Literal
 
 from .arena import Team
 
-MULTI_POLICY_CONTRACT_VERSION = "arena-four-policy-v1"
+MULTI_POLICY_CONTRACT_VERSION = "arena-four-policy-v2-message-credit"
 Phase = Literal["BROADCAST", "ACT"]
 
 
@@ -36,6 +36,15 @@ class ReplacementCredit:
     policy_id: str
     actual_return: float
     replacement_return: float
+    advantage: float
+
+
+@dataclass(frozen=True)
+class MessageCredit:
+    agent_id: str
+    policy_id: str
+    actual_return: float
+    dropped_return: float
     advantage: float
 
 

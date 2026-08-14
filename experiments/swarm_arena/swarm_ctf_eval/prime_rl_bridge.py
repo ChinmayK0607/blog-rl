@@ -8,12 +8,14 @@ from .arena import Team
 from .multi_policy_contract import (
     AgentPolicy,
     AgentTokenSpan,
+    MessageCredit,
     ReplacementCredit,
     validate_policy_roster,
     validate_token_spans,
 )
 
-BranchKind = Literal["actual", "replacement"]
+BranchKind = Literal["actual", "replacement", "message_drop"]
+Phase = Literal["BROADCAST", "ACT"]
 
 
 @dataclass(frozen=True)
@@ -26,7 +28,7 @@ class RolloutDecision:
     policy_revision: str
     team: Team
     turn: int
-    phase: Literal["BROADCAST", "ACT"]
+    phase: Phase
     trajectory_index: int
     prompt_ids: tuple[int, ...]
     completion_ids: tuple[int, ...]
@@ -38,7 +40,12 @@ class RolloutDecision:
 
     @property
     def decision_id(self) -> str:
-        branch_id = self.branch if self.replaced_agent is None else f"replace-{self.replaced_agent}"
+        if self.replaced_agent is None:
+            branch_id = self.branch
+        elif self.branch == "message_drop":
+            branch_id = f"drop-message-{self.replaced_agent}"
+        else:
+            branch_id = f"replace-{self.replaced_agent}"
         return f"{self.game_id}:{branch_id}:{self.agent_id}:{self.turn}:{self.phase}"
 
 
@@ -80,6 +87,125 @@ def _validate_decision(decision: RolloutDecision) -> None:
         raise ValueError("actual branches cannot name a replaced agent")
     if decision.branch == "replacement" and decision.replaced_agent is None:
         raise ValueError("replacement branches must name the replaced agent")
+    if decision.branch == "message_drop" and decision.replaced_agent is None:
+        raise ValueError("message-drop branches must name the intervened sender")
+
+
+def _decision_schedule(
+    decisions: tuple[RolloutDecision, ...] | list[RolloutDecision],
+    *,
+    branch: str,
+) -> dict[tuple[str, int, str], str]:
+    schedule = {
+        (decision.agent_id, decision.turn, decision.phase): decision.sampling_key
+        for decision in decisions
+    }
+    if len(schedule) != len(decisions):
+        raise ValueError(f"{branch} branch contains duplicate agent/turn/phase decisions")
+    return schedule
+
+
+def build_message_training_envelopes(
+    decisions: tuple[RolloutDecision, ...],
+    bindings: tuple[AgentPolicy, ...],
+    credits: tuple[MessageCredit, ...],
+    trainable_team: Team,
+    *,
+    credit_turn: int,
+) -> tuple[PolicyTrainingEnvelope, ...]:
+    """Route only actual broadcast tokens using sender-specific message credit."""
+    validate_policy_roster(bindings, trainable_team)
+    if not decisions:
+        raise ValueError("a message-credit group requires rollout decisions")
+    for decision in decisions:
+        _validate_decision(decision)
+    game_ids = {decision.game_id for decision in decisions}
+    if len(game_ids) != 1:
+        raise ValueError("a training envelope cannot mix games")
+
+    binding_by_agent = {binding.agent_id: binding for binding in bindings}
+    expected_agents = {
+        binding.agent_id
+        for binding in bindings
+        if binding.trainable and binding.team == trainable_team
+    }
+    credit_by_agent = {credit.agent_id: credit for credit in credits}
+    if set(credit_by_agent) != expected_agents:
+        raise ValueError("message credits do not cover the four trainable senders")
+    for agent_id, credit in credit_by_agent.items():
+        if credit.policy_id != binding_by_agent[agent_id].policy_id:
+            raise ValueError(f"message credit is routed to the wrong policy: {agent_id}")
+
+    actual = tuple(decision for decision in decisions if decision.branch == "actual")
+    actual_schedule = _decision_schedule(actual, branch="actual")
+    drop_agents = {
+        decision.replaced_agent
+        for decision in decisions
+        if decision.branch == "message_drop"
+    }
+    if drop_agents != expected_agents:
+        raise ValueError("an atomic message-credit group requires one drop branch per sender")
+    for dropped_agent in sorted(expected_agents):
+        branch = [
+            decision
+            for decision in decisions
+            if decision.branch == "message_drop"
+            and decision.replaced_agent == dropped_agent
+        ]
+        if _decision_schedule(branch, branch=f"drop-message-{dropped_agent}") != actual_schedule:
+            raise ValueError(
+                f"message-drop branch does not share the complete random-key schedule: {dropped_agent}"
+            )
+
+    broadcast_decisions = tuple(
+        decision
+        for decision in actual
+        if decision.phase == "BROADCAST" and decision.turn == credit_turn
+    )
+    spans = tuple(
+        AgentTokenSpan(
+            decision.game_id,
+            decision.agent_id,
+            decision.policy_id,
+            decision.team,
+            decision.turn,
+            decision.phase,
+            decision.trajectory_index,
+            len(decision.prompt_ids),
+            len(decision.completion_ids),
+        )
+        for decision in broadcast_decisions
+    )
+    validate_token_spans(spans, bindings)
+    owned: dict[str, list[RolloutDecision]] = {agent_id: [] for agent_id in expected_agents}
+    for decision in broadcast_decisions:
+        binding = binding_by_agent[decision.agent_id]
+        if binding.trainable:
+            if decision.policy_id != binding.policy_id:
+                raise ValueError(f"actual decision is routed to the wrong policy: {decision.decision_id}")
+            owned[decision.agent_id].append(decision)
+    if missing := [agent_id for agent_id, rows in owned.items() if not rows]:
+        raise ValueError(f"actual branch has no trainable broadcasts for: {missing}")
+
+    envelopes = []
+    for agent_id in sorted(owned):
+        rows = sorted(owned[agent_id], key=lambda row: row.trajectory_index)
+        revisions = {row.policy_revision for row in rows}
+        if len(revisions) != 1:
+            raise ValueError(f"policy revision changed inside one game: {agent_id}")
+        credit = credit_by_agent[agent_id]
+        envelopes.append(
+            PolicyTrainingEnvelope(
+                next(iter(game_ids)),
+                agent_id,
+                credit.policy_id,
+                next(iter(revisions)),
+                credit.advantage,
+                tuple(row.decision_id for row in rows),
+                sum(len(row.completion_ids) for row in rows),
+            )
+        )
+    return tuple(envelopes)
 
 
 def build_training_envelopes(
@@ -196,6 +322,8 @@ def verify_trainer_logprob_parity(
     trainer_logprobs: dict[str, tuple[float, ...]],
     trainable_policy_ids: frozenset[str],
     *,
+    trainable_phases: frozenset[Phase] = frozenset({"BROADCAST", "ACT"}),
+    trainable_turns: frozenset[int] | None = None,
     mean_absolute_tolerance: float = 0.005,
     p99_absolute_tolerance: float = 0.12,
     max_probability_tolerance: float = 0.1,
@@ -208,7 +336,10 @@ def verify_trainer_logprob_parity(
     actual_trainable = [
         decision
         for decision in decisions
-        if decision.branch == "actual" and decision.policy_id in trainable_policy_ids
+        if decision.branch == "actual"
+        and decision.policy_id in trainable_policy_ids
+        and decision.phase in trainable_phases
+        and (trainable_turns is None or decision.turn in trainable_turns)
     ]
     expected = {decision.decision_id for decision in actual_trainable}
     if not expected:

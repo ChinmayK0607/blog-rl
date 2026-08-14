@@ -8,7 +8,7 @@ from typing import Any
 
 from .safety_supervisor import Approval, verify_approval_signature
 
-ROUTER_VERSION = "arena-prime-multi-run-router-v1"
+ROUTER_VERSION = "arena-prime-multi-run-router-v2-message-only"
 
 
 @dataclass(frozen=True)

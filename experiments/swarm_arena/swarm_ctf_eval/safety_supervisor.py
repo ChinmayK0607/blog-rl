@@ -11,17 +11,18 @@ from typing import Any, Literal
 
 from .arena import Action, GameState, Team, state_to_dict
 from .arena_protocol import Broadcast
-from .episode import EpisodeConfig
-from .multi_policy_contract import AgentPolicy, ReplacementCredit
+from .episode import EMPTY_BROADCAST, EpisodeConfig
+from .multi_policy_contract import AgentPolicy, MessageCredit, ReplacementCredit
 from .prime_rl_bridge import (
     PolicyTrainingEnvelope,
     RolloutDecision,
+    build_message_training_envelopes,
     build_training_envelopes,
     verify_trainer_logprob_parity,
 )
 from .rl_v3 import ArenaRLEnv
 
-SUPERVISOR_VERSION = "arena-fail-closed-supervisor-v1"
+SUPERVISOR_VERSION = "arena-fail-closed-supervisor-v2-message-credit"
 ZERO_HASH = "0" * 64
 
 
@@ -42,11 +43,12 @@ class RunLock:
     base_model_revision: str
     trainable_policy_revisions: tuple[tuple[str, str], ...]
     frozen_policy_revisions: tuple[tuple[str, str], ...]
-    replacement_policy_id: str
+    replacement_policy_id: str | None
     opponent_id: str
     opponent_revision: str
     allowed_constraint_hashes: tuple[str, ...]
     trainer_parity_gate_sha256: str | None = None
+    credit_estimator: Literal["policy_replacement", "message_drop"] = "policy_replacement"
 
     def validate(self) -> None:
         nonempty = (
@@ -56,7 +58,6 @@ class RunLock:
             self.base_model_revision,
             self.opponent_id,
             self.opponent_revision,
-            self.replacement_policy_id,
         )
         if not all(nonempty):
             raise ValueError("run lock contains an empty immutable identifier")
@@ -81,8 +82,14 @@ class RunLock:
         frozen = dict(self.frozen_policy_revisions)
         if len(frozen) != len(self.frozen_policy_revisions):
             raise ValueError("run lock frozen policy IDs must be distinct")
-        if self.replacement_policy_id not in frozen:
-            raise ValueError("replacement policy must have a frozen revision")
+        if self.credit_estimator == "policy_replacement":
+            if not self.replacement_policy_id or self.replacement_policy_id not in frozen:
+                raise ValueError("replacement policy must have a frozen revision")
+        elif self.credit_estimator == "message_drop":
+            if self.replacement_policy_id is not None:
+                raise ValueError("message-drop credit cannot bind a replacement policy")
+        else:
+            raise ValueError(f"unknown credit estimator: {self.credit_estimator}")
         if set(frozen) & {policy for policy, _ in self.trainable_policy_revisions}:
             raise ValueError("a policy cannot be both trainable and frozen")
         if any(not revision for revision in frozen.values()):
@@ -120,6 +127,20 @@ class CreditGroupEvidence:
     episode_config: EpisodeConfig
     actual: BranchReplay
     replacements: tuple[BranchReplay, ...]
+    decisions: tuple[RolloutDecision, ...]
+    trainer_logprobs: dict[str, tuple[float, ...]] | None
+
+
+@dataclass(frozen=True)
+class MessageCreditGroupEvidence:
+    run_lock_sha256: str
+    game_id: str
+    initial_state: GameState
+    initial_state_sha256: str
+    episode_config: EpisodeConfig
+    intervention_turn: int
+    actual: BranchReplay
+    drops: tuple[BranchReplay, ...]
     decisions: tuple[RolloutDecision, ...]
     trainer_logprobs: dict[str, tuple[float, ...]] | None
 
@@ -168,6 +189,20 @@ def _evidence_payload(evidence: CreditGroupEvidence) -> dict[str, Any]:
         "episode_config": asdict(evidence.episode_config),
         "actual": _branch_payload(evidence.actual),
         "replacements": [_branch_payload(row) for row in evidence.replacements],
+        "decisions": [asdict(row) for row in evidence.decisions],
+        "trainer_logprobs": evidence.trainer_logprobs,
+    }
+
+
+def _message_evidence_payload(evidence: MessageCreditGroupEvidence) -> dict[str, Any]:
+    return {
+        "run_lock_sha256": evidence.run_lock_sha256,
+        "game_id": evidence.game_id,
+        "initial_state_sha256": evidence.initial_state_sha256,
+        "episode_config": asdict(evidence.episode_config),
+        "intervention_turn": evidence.intervention_turn,
+        "actual": _branch_payload(evidence.actual),
+        "drops": [_branch_payload(row) for row in evidence.drops],
         "decisions": [asdict(row) for row in evidence.decisions],
         "trainer_logprobs": evidence.trainer_logprobs,
     }
@@ -272,6 +307,52 @@ def _verify_private_contexts(
         )
 
 
+def _verify_delivery_contract(
+    initial_state: GameState,
+    config: EpisodeConfig,
+    branch: BranchReplay,
+    *,
+    dropped_sender: str | None,
+    dropped_turn: int | None = None,
+) -> None:
+    if (dropped_sender is None) != (dropped_turn is None):
+        raise ValueError("message delivery intervention requires both sender and turn")
+    env = ArenaRLEnv(size=len(initial_state.nodes), config=config)
+    env.reset_from_state(initial_state)
+    for row in branch.turns:
+        phase = env.broadcast_phase(
+            dict(row.broadcasts),
+            delivered_broadcasts=dict(row.delivered_broadcasts),
+        )
+        expected = dict(phase.accepted)
+        if dropped_sender is not None and row.turn == dropped_turn:
+            if dropped_sender not in expected:
+                raise ValueError(f"message-drop branch names an unknown sender: {dropped_sender}")
+            expected[dropped_sender] = EMPTY_BROADCAST
+        if phase.delivered != expected:
+            label = "actual" if dropped_sender is None else f"drop-message-{dropped_sender}"
+            raise ValueError(f"{label} branch violates its delivery intervention")
+        env.advance(dict(row.actions))
+
+
+def _verify_common_random_outputs(decisions: tuple[RolloutDecision, ...]) -> None:
+    outputs: dict[tuple[str, str, str, str, str], str] = {}
+    for decision in decisions:
+        key = (
+            decision.policy_id,
+            decision.policy_revision,
+            decision.sampling_key,
+            decision.context_sha256,
+            decision.constraint_sha256,
+        )
+        previous = outputs.setdefault(key, decision.output_sha256)
+        if previous != decision.output_sha256:
+            raise ValueError(
+                "identical policy, private context, constraint, and sampling key produced "
+                f"different outputs: {decision.decision_id}"
+            )
+
+
 def approve_credit_group(
     lock: RunLock,
     evidence: CreditGroupEvidence,
@@ -282,6 +363,8 @@ def approve_credit_group(
     if len(signing_key) < 32:
         raise ValueError("supervisor signing key must contain at least 32 bytes")
     lock.validate()
+    if lock.credit_estimator != "policy_replacement":
+        raise ValueError("policy-replacement evidence cannot use a message-drop run lock")
     if evidence.run_lock_sha256 != lock.sha256:
         raise ValueError("credit group was produced under a different run lock")
     if evidence.game_id == "" or {row.game_id for row in evidence.decisions} != {evidence.game_id}:
@@ -427,6 +510,221 @@ def approve_credit_group(
         evidence.game_id,
         unsigned["evidence_sha256"],
         replay_return,
+        optional_float(parity["max_abs_error"]),
+        optional_float(parity["mean_abs_error"]),
+        optional_float(parity["p99_abs_error"]),
+        optional_float(parity["max_probability_error"]),
+        optional_float(parity["p99_probability_error"]),
+        optional_float(parity["probability_tail_fraction"]),
+        optional_float(parity["mean_mismatch_kl"]),
+        optional_float(parity["max_mismatch_kl"]),
+        envelopes,
+        parity_mode,
+        lock.trainer_parity_gate_sha256,
+        signature,
+    )
+
+
+def approve_message_credit_group(
+    lock: RunLock,
+    evidence: MessageCreditGroupEvidence,
+    bindings: tuple[AgentPolicy, ...],
+    trainable_team: Team,
+    signing_key: bytes,
+) -> Approval:
+    """Approve terminal-return credit for sender broadcasts only."""
+    if len(signing_key) < 32:
+        raise ValueError("supervisor signing key must contain at least 32 bytes")
+    lock.validate()
+    if lock.credit_estimator != "message_drop":
+        raise ValueError("message-drop evidence requires a message-drop run lock")
+    if evidence.run_lock_sha256 != lock.sha256:
+        raise ValueError("message-credit group was produced under a different run lock")
+    if evidence.game_id == "" or {row.game_id for row in evidence.decisions} != {evidence.game_id}:
+        raise ValueError("message-credit group mixes or omits game IDs")
+    if _state_sha256(evidence.initial_state) != evidence.initial_state_sha256:
+        raise ValueError("initial state does not match its committed hash")
+
+    policy_revisions = {
+        **dict(lock.trainable_policy_revisions),
+        **dict(lock.frozen_policy_revisions),
+    }
+    binding_by_agent = {binding.agent_id: binding for binding in bindings}
+    allowed_constraints = set(lock.allowed_constraint_hashes)
+    for decision in evidence.decisions:
+        if decision.branch not in {"actual", "message_drop"}:
+            raise ValueError(f"unexpected branch in message-credit evidence: {decision.decision_id}")
+        if decision.constraint_sha256 not in allowed_constraints:
+            raise ValueError(f"unapproved dynamic constraint: {decision.decision_id}")
+        binding = binding_by_agent.get(decision.agent_id)
+        if binding is None:
+            raise ValueError(f"decision has an unknown agent: {decision.decision_id}")
+        if decision.policy_id != binding.policy_id:
+            raise ValueError(f"message intervention changed policy routing: {decision.decision_id}")
+        expected_revision = policy_revisions.get(binding.policy_id)
+        if expected_revision is None or decision.policy_revision != expected_revision:
+            raise ValueError(f"stale or unexpected policy revision: {decision.decision_id}")
+    _verify_common_random_outputs(evidence.decisions)
+
+    if evidence.actual.replaced_agent is not None:
+        raise ValueError("actual replay cannot name an intervened sender")
+    actual_verification = verify_replay(
+        evidence.initial_state,
+        evidence.episode_config,
+        evidence.actual,
+        trainable_team,
+    )
+    _verify_delivery_contract(
+        evidence.initial_state,
+        evidence.episode_config,
+        evidence.actual,
+        dropped_sender=None,
+        dropped_turn=None,
+    )
+    _verify_private_contexts(
+        tuple(row for row in evidence.decisions if row.branch == "actual"),
+        actual_verification,
+        branch="actual",
+    )
+
+    expected_senders = sorted(
+        binding.agent_id
+        for binding in bindings
+        if binding.trainable and binding.team == trainable_team
+    )
+    dropped_senders = [row.replaced_agent for row in evidence.drops]
+    if len(dropped_senders) != 4 or sorted(
+        sender for sender in dropped_senders if sender is not None
+    ) != expected_senders:
+        raise ValueError("message-drop replays do not cover each trainable sender exactly once")
+    if evidence.intervention_turn != evidence.initial_state.turn:
+        raise ValueError("bootstrap message credit must intervene on the first episode turn")
+
+    dropped_returns: dict[str, float] = {}
+    actual_turns_by_number = {row.turn: row for row in evidence.actual.turns}
+    for branch in evidence.drops:
+        sender = branch.replaced_agent
+        if sender is None:
+            raise ValueError("message-drop replay is missing its sender")
+        verification = verify_replay(
+            evidence.initial_state,
+            evidence.episode_config,
+            branch,
+            trainable_team,
+        )
+        _verify_delivery_contract(
+            evidence.initial_state,
+            evidence.episode_config,
+            branch,
+            dropped_sender=sender,
+            dropped_turn=evidence.intervention_turn,
+        )
+        branch_decisions = tuple(
+            row
+            for row in evidence.decisions
+            if row.branch == "message_drop" and row.replaced_agent == sender
+        )
+        _verify_private_contexts(
+            branch_decisions,
+            verification,
+            branch=f"drop-message-{sender}",
+        )
+        intervention_row = next(
+            (row for row in branch.turns if row.turn == evidence.intervention_turn),
+            None,
+        )
+        actual_intervention_row = actual_turns_by_number.get(evidence.intervention_turn)
+        if intervention_row is None or actual_intervention_row is None:
+            raise ValueError("message-drop branch omits the intervention turn")
+        if dict(intervention_row.broadcasts) != dict(actual_intervention_row.broadcasts):
+            raise ValueError("emitted broadcasts changed before delivery intervention")
+        actual_sender_message = dict(actual_intervention_row.broadcasts).get(
+            sender, EMPTY_BROADCAST
+        )
+        if actual_sender_message == EMPTY_BROADCAST:
+            if branch.turns != evidence.actual.turns or not math.isclose(
+                branch.terminal_return,
+                evidence.actual.terminal_return,
+                abs_tol=1e-12,
+            ):
+                raise ValueError("dropping an already-empty sender message changed the trajectory")
+        dropped_returns[sender] = verification.terminal_return
+
+    credits = tuple(
+        MessageCredit(
+            binding.agent_id,
+            binding.policy_id,
+            evidence.actual.terminal_return,
+            dropped_returns[binding.agent_id],
+            evidence.actual.terminal_return - dropped_returns[binding.agent_id],
+        )
+        for binding in bindings
+        if binding.trainable and binding.team == trainable_team
+    )
+    envelopes = build_message_training_envelopes(
+        evidence.decisions,
+        bindings,
+        credits,
+        trainable_team,
+        credit_turn=evidence.intervention_turn,
+    )
+
+    if evidence.trainer_logprobs is None:
+        if lock.trainer_parity_gate_sha256 is None:
+            raise ValueError("deferred parity requires an immutable trainer pre-step gate")
+        parity_mode: Literal["pre_admission", "trainer_pre_step"] = "trainer_pre_step"
+        parity: dict[str, float | int | str | None] = {
+            "max_abs_error": None,
+            "mean_abs_error": None,
+            "p99_abs_error": None,
+            "max_probability_error": None,
+            "p99_probability_error": None,
+            "probability_tail_fraction": None,
+            "mean_mismatch_kl": None,
+            "max_mismatch_kl": None,
+        }
+    else:
+        parity_mode = "pre_admission"
+        parity = verify_trainer_logprob_parity(
+            evidence.decisions,
+            evidence.trainer_logprobs,
+            frozenset(dict(lock.trainable_policy_revisions)),
+            trainable_phases=frozenset({"BROADCAST"}),
+            trainable_turns=frozenset({evidence.intervention_turn}),
+        )
+
+    def optional_float(value: float | int | str | None) -> float | None:
+        return None if value is None else float(value)
+
+    unsigned = {
+        "supervisor_version": SUPERVISOR_VERSION,
+        "run_lock_sha256": lock.sha256,
+        "game_id": evidence.game_id,
+        "evidence_sha256": canonical_sha256(_message_evidence_payload(evidence)),
+        "replay_return": actual_verification.terminal_return,
+        "logprob_max_abs_error": optional_float(parity["max_abs_error"]),
+        "logprob_mean_abs_error": optional_float(parity["mean_abs_error"]),
+        "logprob_p99_abs_error": optional_float(parity["p99_abs_error"]),
+        "probability_max_abs_error": optional_float(parity["max_probability_error"]),
+        "probability_p99_abs_error": optional_float(parity["p99_probability_error"]),
+        "probability_tail_fraction": optional_float(parity["probability_tail_fraction"]),
+        "mismatch_kl_mean": optional_float(parity["mean_mismatch_kl"]),
+        "mismatch_kl_max": optional_float(parity["max_mismatch_kl"]),
+        "envelopes": [asdict(row) for row in envelopes],
+        "parity_mode": parity_mode,
+        "trainer_parity_gate_sha256": lock.trainer_parity_gate_sha256,
+    }
+    signature = hmac.new(
+        signing_key,
+        json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    return Approval(
+        SUPERVISOR_VERSION,
+        lock.sha256,
+        evidence.game_id,
+        unsigned["evidence_sha256"],
+        actual_verification.terminal_return,
         optional_float(parity["max_abs_error"]),
         optional_float(parity["mean_abs_error"]),
         optional_float(parity["p99_abs_error"]),

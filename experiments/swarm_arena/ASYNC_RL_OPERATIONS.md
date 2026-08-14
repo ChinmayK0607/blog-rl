@@ -3,8 +3,8 @@
 No model process can write directly to a trainer queue. Rollout workers write
 complete credit-group evidence to an untrusted staging queue. A separate CPU
 supervisor independently replays the game, recomputes terminal reward, validates
-the immutable run lock, verifies all five branches and sampling keys, checks
-agent/policy/token ownership, and compares constrained rollout/trainer
+the immutable run lock, verifies the actual plus four message-drop branches and
+sampling keys, checks agent/policy/token ownership, and compares constrained rollout/trainer
 log-probabilities. Only signed approval envelopes enter the trainer queue.
 Approvals use HMAC-SHA256 with a key mounted only into the supervisor and
 trainer-admission process. `prime_multi_run_router.py` verifies the signature,
@@ -20,11 +20,13 @@ does not become a negative reward that the policy can learn to trade off.
 
 The live controller is `scripts/run_live_rl.py`. It requests each of the eight
 agents independently for broadcast and action phases, records exact prompt and
-completion token spans, constructs one actual branch plus one complete
-replacement branch per trainable BLUE agent, then hands the evidence to the
-supervisor. It cannot enqueue samples unless replay, ownership, reward and
-constraint checks all pass. Multiple independently approved games may be
-merged only at the fixed four-run routing boundary.
+completion token spans, constructs one actual branch plus one branch that drops
+each trainable BLUE sender's first-turn delivered broadcast, then hands the evidence to
+the supervisor. All branches retain the same policies and shared random-key
+schedule. Only actual BROADCAST spans can enter training. The controller cannot
+enqueue samples unless replay, delivery, ownership, reward, and constraint
+checks all pass. Multiple independently approved games may be merged only at
+the fixed four-run routing boundary.
 
 ## Public-artifact launch gate
 
@@ -61,8 +63,9 @@ Named LoRA updates use an explicit unload, load, and `/v1/models` registry-path
 verification transaction on every rollout server. Reusing a name with a plain
 load call is forbidden: vLLM may return success while retaining the existing
 registration, which can silently mix stale policy bytes into counterfactual
-branches. Initial trainable-policy revision, frozen replacement revision, and
-opponent revision are separate required controller inputs.
+branches. Initial trainable-policy and opponent revisions are separate required
+controller inputs. A replacement revision is required only when explicitly
+running the retained `policy_replacement` audit mode.
 
 Serving constraints are reconstructed with the same installed xgrammar
 `choice` grammar and tokenizer vocabulary used by vLLM. A decoded canonical
@@ -98,13 +101,10 @@ target, action or KL collapse; gains against only one opponent; regression; or
 return gains without message-intervention gains. Diagnostic flags never alter
 reward.
 
-At initialization, replacing an SFT agent with the identical frozen SFT adapter
-is an invariance check and must yield exactly zero advantage; it cannot bootstrap
-learning. A distinct frozen comparator (for example, the pinned no-adapter base
-model) may be used for agent replacement credit, while the only environment
-reward remains terminal team control delta. Its identity and revision must be
-bound into the run lock, and matched decoy scenarios must be audited for
-spurious replacement effects before training.
+Dropping an already-empty message is an invariance check and must reproduce the
+exact trajectory and zero advantage. Matched decoy scenarios must also remain
+near zero. The retained whole-policy replacement mode is diagnostic only unless
+it separately passes localization gates.
 
 Promotion requires the development curriculum gates and both frozen regression
 suites. Final evaluation is run once on the selected checkpoint and cannot be
@@ -113,8 +113,8 @@ used for checkpoint selection.
 ## GPU topology
 
 The validation machine uses one RTX 6000 Ada 48 GB: one shared 1.7B backbone,
-four trainable LoRA adapters, the frozen SFT replacement adapter, and small
-rollout batches. This validates correctness, not throughput.
+four trainable LoRA adapters, the frozen SFT opponent adapter, and small rollout
+batches. This validates correctness, not throughput.
 
 The full asynchronous run should use four RTX 4090 GPUs:
 
@@ -127,7 +127,7 @@ The full asynchronous run should use four RTX 4090 GPUs:
 - bounded queues apply backpressure, and policy revisions switch only between
   complete update epochs.
 
-Actual and four replacement branches share deterministic random-key schedules
+Actual and four message-drop branches share deterministic random-key schedules
 and can be distributed across rollout workers. A branch from a stale policy or
 opponent epoch is discarded rather than mixed into training.
 

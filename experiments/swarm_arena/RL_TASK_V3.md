@@ -27,18 +27,25 @@ frozen 1.7B backbone. Each policy owns one stable teammate identity and receives
 only that agent's private context and completion tokens. The opponent team is
 model-controlled but frozen during an update epoch.
 
-For every actual game, four common-random-number replacement branches rerun the
-game with exactly one trainable agent replaced by the frozen SFT policy. Agent
+For every actual game, four common-random-number message-drop branches rerun the
+game with the same eight policies, revisions, sampling keys, and initial state.
+Branch `i` changes only the environment delivery of sender `i`'s first-turn
+broadcast to the empty message; every other message is delivered normally.
+Downstream actions are regenerated from their changed private inboxes. Sender
 `i` receives:
 
-`A_i = actual terminal return - replace-agent-i terminal return`
+`A_i = actual terminal return - drop-sender-i-message terminal return`
 
-Only the actual game's trainable-agent tokens receive gradients. Replacement
-and opponent tokens never do. This is a counterfactual baseline for the single
-terminal objective, not an additional reward. It is an exact difference for
-that replacement branch under the frozen opponent and shared random-key
-schedule; it is not a Shapley value or a claim that interactions have a unique
-causal owner.
+Only sender `i`'s corresponding first-turn BROADCAST tokens receive that advantage. Action,
+opponent, and counterfactual-branch tokens never receive gradients in the
+bootstrap stage. This is a causal communication-channel intervention for the
+single terminal objective, not an additional reward. It is not a Shapley value
+or a claim that interactions have a unique causal owner.
+
+The earlier whole-policy replacement estimator remains reproducible for audit
+history but is not the default training path: paired diagnostics found diffuse
+off-role effects. A run lock names the estimator, and evidence from one mode
+cannot be admitted under the other.
 
 ## Curriculum
 

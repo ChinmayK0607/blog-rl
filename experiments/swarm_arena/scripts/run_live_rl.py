@@ -18,6 +18,7 @@ from swarm_ctf_eval.live_rl_rollout import (
     PolicyEndpoint,
     VLLMChoiceGenerator,
     build_live_credit_group,
+    build_live_message_credit_group,
     parity_gate_sha256,
     protocol_constraint_sha256,
 )
@@ -33,6 +34,7 @@ from swarm_ctf_eval.safety_supervisor import (
     RunLock,
     append_hash_chained_record,
     approve_credit_group,
+    approve_message_credit_group,
     canonical_sha256,
 )
 
@@ -137,6 +139,13 @@ def run_lock(
     index = json.loads((args.data_dir / "index.json").read_text(encoding="utf-8"))
     if config.rollout_parity_gate is None:
         raise ValueError("trainer config is missing the pre-step parity gate")
+    frozen_revisions = [("red-opponent", args.opponent_revision)]
+    replacement_policy_id = None
+    if args.credit_estimator == "policy_replacement":
+        if args.replacement_revision is None:
+            raise ValueError("policy-replacement credit requires --replacement-revision")
+        replacement_policy_id = args.replacement_policy_id
+        frozen_revisions.append((args.replacement_policy_id, args.replacement_revision))
     return RunLock(
         args.run_id,
         args.source_commit,
@@ -149,11 +158,8 @@ def run_lock(
             (f"blue-policy-{index}", policy_revisions[f"blue-{index}"])
             for index in range(4)
         ),
-        (
-            ("red-opponent", args.opponent_revision),
-            (args.replacement_policy_id, args.replacement_revision),
-        ),
-        args.replacement_policy_id,
+        tuple(frozen_revisions),
+        replacement_policy_id,
         "sft-opponent",
         args.opponent_revision,
         (
@@ -161,6 +167,7 @@ def run_lock(
             protocol_constraint_sha256("ACT"),
         ),
         parity_gate_sha256(config.rollout_parity_gate),
+        args.credit_estimator,
     )
 
 
@@ -176,9 +183,14 @@ async def main() -> None:
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--base-revision", required=True)
     parser.add_argument("--initial-policy-revision", required=True)
+    parser.add_argument(
+        "--credit-estimator",
+        choices=("message_drop", "policy_replacement"),
+        default="message_drop",
+    )
     parser.add_argument("--replacement-policy-id", default="sft-replacement")
     parser.add_argument("--replacement-model-name", default="sft-replacement")
-    parser.add_argument("--replacement-revision", required=True)
+    parser.add_argument("--replacement-revision")
     parser.add_argument("--opponent-revision", required=True)
     parser.add_argument("--steps", type=int, default=1)
     parser.add_argument("--groups-per-step", type=int, default=1)
@@ -224,7 +236,10 @@ async def main() -> None:
     for index in range(4):
         await replace_adapter(base_urls, f"blue-{index}", args.initial_adapter)
     await replace_adapter(base_urls, "sft-opponent", args.initial_adapter)
-    if args.replacement_model_name != args.tokenizer:
+    if (
+        args.credit_estimator == "policy_replacement"
+        and args.replacement_model_name != args.tokenizer
+    ):
         await replace_adapter(base_urls, args.replacement_model_name, args.initial_adapter)
 
     bindings = tuple(
@@ -268,13 +283,17 @@ async def main() -> None:
                     "sft-opponent",
                     base_urls,
                 ),
-                PolicyEndpoint(
-                    args.replacement_policy_id,
-                    args.replacement_revision,
-                    args.replacement_model_name,
-                    base_urls,
-                ),
             )
+            if args.credit_estimator == "policy_replacement":
+                assert args.replacement_revision is not None
+                policies += (
+                    PolicyEndpoint(
+                        args.replacement_policy_id,
+                        args.replacement_revision,
+                        args.replacement_model_name,
+                        base_urls,
+                    ),
+                )
             routed_groups = []
             step_groups = []
             for group_index in range(args.groups_per_step):
@@ -317,34 +336,60 @@ async def main() -> None:
                         f"{args.run_id}:step-{step}:pair-{scenario_metadata['pair_index']}"
                     )
                     scenario_metadata["sampling_namespace"] = sampling_namespace
-                group = await build_live_credit_group(
-                    generator,
-                    game_id=game_id,
-                    seed=seed,
-                    size=size,
-                    config=EpisodeConfig(
-                        horizon=args.horizon,
-                        communication_cost=0.0,
-                        invalid_broadcast_cost=0.0,
-                        invalid_action_cost=0.0,
-                    ),
-                    bindings=bindings,
-                    policies=policies,
-                    replacement_policy_id=args.replacement_policy_id,
-                    run_lock_sha256=lock.sha256,
-                    initial_state=initial_state,
-                    sampling_namespace=sampling_namespace,
+                episode_config = EpisodeConfig(
+                    horizon=args.horizon,
+                    communication_cost=0.0,
+                    invalid_broadcast_cost=0.0,
+                    invalid_action_cost=0.0,
                 )
-                approval = approve_credit_group(lock, group.evidence, bindings, "BLUE", key)
+                if args.credit_estimator == "message_drop":
+                    group = await build_live_message_credit_group(
+                        generator,
+                        game_id=game_id,
+                        seed=seed,
+                        size=size,
+                        config=episode_config,
+                        bindings=bindings,
+                        policies=policies,
+                        run_lock_sha256=lock.sha256,
+                        initial_state=initial_state,
+                        sampling_namespace=sampling_namespace,
+                    )
+                    approval = approve_message_credit_group(
+                        lock, group.evidence, bindings, "BLUE", key
+                    )
+                    counterfactual_returns = {
+                        row.replaced_agent: row.terminal_return
+                        for row in group.evidence.drops
+                    }
+                else:
+                    group = await build_live_credit_group(
+                        generator,
+                        game_id=game_id,
+                        seed=seed,
+                        size=size,
+                        config=episode_config,
+                        bindings=bindings,
+                        policies=policies,
+                        replacement_policy_id=args.replacement_policy_id,
+                        run_lock_sha256=lock.sha256,
+                        initial_state=initial_state,
+                        sampling_namespace=sampling_namespace,
+                    )
+                    approval = approve_credit_group(
+                        lock, group.evidence, bindings, "BLUE", key
+                    )
+                    counterfactual_returns = {
+                        row.replaced_agent: row.terminal_return
+                        for row in group.evidence.replacements
+                    }
                 append_hash_chained_record(
                     trace,
                     {
                         "approval": asdict(approval),
                         "actual_return": group.evidence.actual.terminal_return,
-                        "replacement_returns": {
-                            row.replaced_agent: row.terminal_return
-                            for row in group.evidence.replacements
-                        },
+                        "credit_estimator": args.credit_estimator,
+                        "counterfactual_returns": counterfactual_returns,
                     },
                 )
                 routed_groups.append(
@@ -361,6 +406,12 @@ async def main() -> None:
                     {
                         "game_id": game_id,
                         "actual_return": group.evidence.actual.terminal_return,
+                        "credit_estimator": args.credit_estimator,
+                        "intervention_turn": (
+                            group.evidence.intervention_turn
+                            if args.credit_estimator == "message_drop"
+                            else None
+                        ),
                         "advantages": {
                             row.agent_id: row.advantage for row in approval.envelopes
                         },

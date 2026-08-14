@@ -17,7 +17,7 @@ from prime_rl.transport import TrainingSample
 
 from .arena import Action, GameState, state_to_dict
 from .arena_protocol import Broadcast, parse_action, parse_broadcast
-from .episode import EpisodeConfig
+from .episode import EMPTY_BROADCAST, EpisodeConfig
 from .episode_protocol import episode_action_prompt, episode_broadcast_prompt
 from .multi_policy_contract import AgentPolicy
 from .prime_multi_run_router import OwnedAgentSamples
@@ -26,6 +26,7 @@ from .rl_v3 import ArenaRLEnv
 from .safety_supervisor import (
     BranchReplay,
     CreditGroupEvidence,
+    MessageCreditGroupEvidence,
     ReplayTurn,
     canonical_sha256,
 )
@@ -116,6 +117,13 @@ class BranchRollout:
 @dataclass(frozen=True)
 class LiveCreditGroup:
     evidence: CreditGroupEvidence
+    bindings: tuple[AgentPolicy, ...]
+    owned_samples: tuple[OwnedAgentSamples, ...]
+
+
+@dataclass(frozen=True)
+class LiveMessageCreditGroup:
+    evidence: MessageCreditGroupEvidence
     bindings: tuple[AgentPolicy, ...]
     owned_samples: tuple[OwnedAgentSamples, ...]
 
@@ -242,9 +250,14 @@ def _policy_for_agent(
     policies: dict[str, PolicyEndpoint],
     *,
     replaced_agent: str | None,
-    replacement_policy_id: str,
+    replacement_policy_id: str | None,
 ) -> PolicyEndpoint:
-    policy_id = replacement_policy_id if agent_id == replaced_agent else bindings[agent_id].policy_id
+    if agent_id == replaced_agent:
+        if replacement_policy_id is None:
+            raise ValueError("replacement branch requires a replacement policy")
+        policy_id = replacement_policy_id
+    else:
+        policy_id = bindings[agent_id].policy_id
     try:
         return policies[policy_id]
     except KeyError as error:
@@ -275,10 +288,18 @@ async def rollout_branch(
     config: EpisodeConfig,
     bindings: tuple[AgentPolicy, ...],
     policies: dict[str, PolicyEndpoint],
-    replacement_policy_id: str,
+    replacement_policy_id: str | None,
     replaced_agent: str | None,
     sampling_namespace: str,
+    message_drop_agent: str | None = None,
+    message_drop_turn: int | None = None,
+    sample_phases: frozenset[Phase] = frozenset({"BROADCAST", "ACT"}),
+    sample_turns: frozenset[int] | None = None,
 ) -> BranchRollout:
+    if replaced_agent is not None and message_drop_agent is not None:
+        raise ValueError("a branch cannot replace a policy and drop a message simultaneously")
+    if (message_drop_agent is None) != (message_drop_turn is None):
+        raise ValueError("message drop requires both a sender and an intervention turn")
     env = ArenaRLEnv(size=len(initial_state.nodes), config=config)
     env.reset_from_state(initial_state)
     binding_by_agent = {row.agent_id: row for row in bindings}
@@ -320,11 +341,18 @@ async def rollout_branch(
             broadcast = parsed.value
             broadcasts[agent_id] = broadcast
             binding = binding_by_agent[agent_id]
+            branch = (
+                "replacement"
+                if replaced_agent is not None
+                else "message_drop"
+                if message_drop_agent is not None
+                else "actual"
+            )
             decisions.append(
                 RolloutDecision(
                     game_id,
-                    "actual" if replaced_agent is None else "replacement",
-                    replaced_agent,
+                    branch,
+                    replaced_agent or message_drop_agent,
                     agent_id,
                     endpoint.policy_id,
                     endpoint.revision,
@@ -341,11 +369,21 @@ async def rollout_branch(
                     canonical_sha256(broadcast.to_dict()),
                 )
             )
-            if replaced_agent is None and binding.trainable:
+            if (
+                branch == "actual"
+                and binding.trainable
+                and "BROADCAST" in sample_phases
+                and (sample_turns is None or turn in sample_turns)
+            ):
                 samples.append((agent_id, _training_sample(completion)))
             trajectory_index += 1
 
-        phase = env.broadcast_phase(broadcasts)
+        delivered = dict(broadcasts)
+        if message_drop_agent is not None and turn == message_drop_turn:
+            if message_drop_agent not in delivered:
+                raise ValueError(f"unknown message-drop sender: {message_drop_agent}")
+            delivered[message_drop_agent] = EMPTY_BROADCAST
+        phase = env.broadcast_phase(broadcasts, delivered_broadcasts=delivered)
         action_contexts = env.action_observations()
         action_jobs = []
         action_metadata = []
@@ -376,11 +414,18 @@ async def rollout_branch(
             action = parsed.value
             actions[agent_id] = action
             binding = binding_by_agent[agent_id]
+            branch = (
+                "replacement"
+                if replaced_agent is not None
+                else "message_drop"
+                if message_drop_agent is not None
+                else "actual"
+            )
             decisions.append(
                 RolloutDecision(
                     game_id,
-                    "actual" if replaced_agent is None else "replacement",
-                    replaced_agent,
+                    branch,
+                    replaced_agent or message_drop_agent,
                     agent_id,
                     endpoint.policy_id,
                     endpoint.revision,
@@ -397,7 +442,12 @@ async def rollout_branch(
                     canonical_sha256(action.to_dict()),
                 )
             )
-            if replaced_agent is None and binding.trainable:
+            if (
+                branch == "actual"
+                and binding.trainable
+                and "ACT" in sample_phases
+                and (sample_turns is None or turn in sample_turns)
+            ):
                 samples.append((agent_id, _training_sample(completion)))
             trajectory_index += 1
 
@@ -418,7 +468,7 @@ async def rollout_branch(
     if final is None or not (final.terminated or final.truncated):
         raise RuntimeError("live branch did not reach a terminal state")
     return BranchRollout(
-        BranchReplay(replaced_agent, tuple(turns), float(final.rewards["BLUE"])),
+        BranchReplay(replaced_agent or message_drop_agent, tuple(turns), float(final.rewards["BLUE"])),
         tuple(decisions),
         tuple(samples),
     )
@@ -519,3 +569,114 @@ async def build_live_credit_group(
         None,
     )
     return LiveCreditGroup(evidence, bindings, owned)
+
+
+async def build_live_message_credit_group(
+    generator: VLLMChoiceGenerator,
+    *,
+    game_id: str,
+    seed: int,
+    size: int,
+    config: EpisodeConfig,
+    bindings: tuple[AgentPolicy, ...],
+    policies: tuple[PolicyEndpoint, ...],
+    run_lock_sha256: str,
+    initial_state: GameState | None = None,
+    sampling_namespace: str | None = None,
+    intervention_turn: int | None = None,
+) -> LiveMessageCreditGroup:
+    """Build one actual rollout and four sender-message-drop counterfactuals."""
+    if initial_state is None:
+        bootstrap = ArenaRLEnv(seed=seed, size=size, config=config)
+        bootstrap.reset(seed)
+        initial_state = bootstrap._require_state().clone()
+    else:
+        initial_state = initial_state.clone()
+        if len(initial_state.nodes) != size:
+            raise ValueError("live message-credit size does not match its supplied initial state")
+    policy_by_id = {row.policy_id: row for row in policies}
+    if len(policy_by_id) != len(policies):
+        raise ValueError("policy endpoint IDs must be unique")
+    trainable_agents = sorted(
+        row.agent_id for row in bindings if row.trainable and row.team == "BLUE"
+    )
+    if len(trainable_agents) != 4:
+        raise ValueError("live message-credit group requires four trainable BLUE senders")
+    resolved_sampling_namespace = sampling_namespace or game_id
+    resolved_intervention_turn = (
+        initial_state.turn if intervention_turn is None else intervention_turn
+    )
+    if resolved_intervention_turn != initial_state.turn:
+        raise ValueError("bootstrap message credit currently supports the first turn only")
+    branches = await asyncio.gather(
+        rollout_branch(
+            generator,
+            game_id=game_id,
+            initial_state=initial_state,
+            config=config,
+            bindings=bindings,
+            policies=policy_by_id,
+            replacement_policy_id=None,
+            replaced_agent=None,
+            sampling_namespace=resolved_sampling_namespace,
+            sample_phases=frozenset({"BROADCAST"}),
+            sample_turns=frozenset({resolved_intervention_turn}),
+        ),
+        *(
+            rollout_branch(
+                generator,
+                game_id=game_id,
+                initial_state=initial_state,
+                config=config,
+                bindings=bindings,
+                policies=policy_by_id,
+                replacement_policy_id=None,
+                replaced_agent=None,
+                sampling_namespace=resolved_sampling_namespace,
+                message_drop_agent=agent_id,
+                message_drop_turn=resolved_intervention_turn,
+                sample_phases=frozenset(),
+            )
+            for agent_id in trainable_agents
+        ),
+    )
+    actual, *drops = branches
+    by_agent: dict[str, list[TrainingSample]] = {agent_id: [] for agent_id in trainable_agents}
+    for agent_id, sample in actual.samples:
+        by_agent[agent_id].append(sample)
+    decision_ids_by_agent = {
+        agent_id: tuple(
+            row.decision_id
+            for row in actual.decisions
+            if row.agent_id == agent_id
+            and row.phase == "BROADCAST"
+            and row.turn == resolved_intervention_turn
+        )
+        for agent_id in trainable_agents
+    }
+    binding_by_agent = {row.agent_id: row for row in bindings}
+    owned = tuple(
+        OwnedAgentSamples(
+            game_id,
+            agent_id,
+            binding_by_agent[agent_id].policy_id,
+            decision_ids_by_agent[agent_id],
+            tuple(by_agent[agent_id]),
+        )
+        for agent_id in trainable_agents
+    )
+    evidence = MessageCreditGroupEvidence(
+        run_lock_sha256,
+        game_id,
+        initial_state,
+        _state_sha256(initial_state),
+        config,
+        resolved_intervention_turn,
+        actual.replay,
+        tuple(row.replay for row in drops),
+        actual.decisions + tuple(
+            decision for branch in drops for decision in branch.decisions
+        ),
+        None,
+    )
+    return LiveMessageCreditGroup(evidence, bindings, owned)
