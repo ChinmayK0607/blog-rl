@@ -1,9 +1,13 @@
+from copy import deepcopy
 from dataclasses import replace
 
 from swarm_ctf_eval.arena import Action, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, EpisodeConfig
-from swarm_ctf_eval.message_credit_audit import message_credit_audit_record
+from swarm_ctf_eval.message_credit_audit import (
+    message_credit_audit_record,
+    summarize_message_credit_records,
+)
 from swarm_ctf_eval.multi_policy_contract import AgentPolicy
 from swarm_ctf_eval.prime_rl_bridge import RolloutDecision
 from swarm_ctf_eval.rl_v3 import ArenaRLEnv
@@ -237,6 +241,24 @@ def test_message_drop_credit_is_sender_local_and_broadcast_only() -> None:
         for branch in record["branches"]
         for turn in branch["turns"]
     )
+
+    paired_records = []
+    for pair_index in range(12):
+        critical = deepcopy(record)
+        critical["scenario"]["pair_index"] = pair_index
+        critical["scenario"]["kind"] = "critical"
+        critical["target_fact"]["present"] = True
+        critical["credits"]["blue-0"]["advantage"] = 0.2
+        critical["receiver_effect"]["target_action_sequence_changed"] = True
+        decoy = deepcopy(record)
+        decoy["scenario"]["pair_index"] = pair_index
+        decoy["scenario"]["kind"] = "decoy"
+        decoy["target_fact"]["present"] = True
+        paired_records.extend((critical, decoy))
+    summary = summarize_message_credit_records(paired_records)
+    assert summary["verdict"] == "promising"
+    assert summary["aggregate"]["intended_sender_positive"] == 12
+    assert summary["aggregate"]["localization_ratio"] is None
 
     first_drop_index = len(actual_decisions)
     mismatched_request = replace(
