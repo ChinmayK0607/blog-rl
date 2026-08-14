@@ -1038,6 +1038,28 @@ no more critical-specific than decoy-specific. Therefore:
 - Stage C remains prohibited unless Stage B is promising. If admitted, it will
   start at development pair 24 to remain disjoint. No final/OOD cases are used.
 - No optimizer or trainer process is authorized by Stage A or B.
+- Preflight: the first focused command named nonexistent
+  `tests/test_broadcast_priority.py` and therefore ran zero tests. The corrected
+  selectors passed 3/3; Ruff and compileall passed; the full Linux suite passed
+  63 tests in 41.46 seconds with only the known SWIG deprecation warnings.
+- Stage A completed 15:16:58--15:17:56 UTC (about 58 seconds): four records,
+  five replayed branches per record, 80/80 request hashes, exact hash-chain and
+  complete-evidence verification. Evidence SHA-256 is
+  `d18cdebb2f34e7c4bd4ba741d8f7567f1f3e1bfca75c924ed40c9b49cf501b73`;
+  admission SHA-256 is
+  `8e6ba6a4122c24157228bd1ed26cc7ee190d66a19412ac2a8a0111138ee23564`.
+  Mechanical Stage A passes and authorizes Stage B, not RL.
+- The first Stage B launch stopped at 15:20:57 UTC after 18/24 evidence
+  records when the inference client raised `httpx.ReadError` while awaiting an
+  action completion. It produced no analyzer verdict and no optimizer step.
+  The partial directory is immutable failed-run evidence and will not be
+  resumed, truncated, combined with another run, or scored.
+- Retry policy frozen before diagnosis/result: permit exactly one clean Stage B
+  rerun from group zero only if API/process/GPU/disk/log inspection finds no
+  OOM or model/grammar failure and a pinned structured-generation smoke passes.
+  Use the identical prompt, policy, development pairs 12--23, sampling keys,
+  and original gates. Do not add request-level retries. A second transport or
+  mechanical failure stops this audit rather than selecting a convenient run.
 
 ## Artifact index
 
