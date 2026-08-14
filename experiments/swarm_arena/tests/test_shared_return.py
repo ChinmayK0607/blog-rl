@@ -8,7 +8,6 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
 from swarm_ctf_eval.episode import EpisodeConfig
 from swarm_ctf_eval.live_rl_rollout import (
     ChoiceCompletion,
