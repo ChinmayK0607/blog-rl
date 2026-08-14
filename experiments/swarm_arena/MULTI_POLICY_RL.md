@@ -3,9 +3,11 @@
 Status: the four-policy routing and safety contract is mechanically validated.
 The original per-sender message-drop credit estimator is scientifically
 rejected and must not reach an optimizer. The shared-terminal-return candidate
-below is implemented as a rollout-only, fail-closed admission path. It remains
-scientifically unadmitted until a live serving/trainer parity certificate and
-the predeclared communication/collapse gates pass.
+below is implemented as a rollout-only, fail-closed admission path. A broad,
+mask-audited live certificate at `5e0e87ed` rejected the current vLLM/Prime
+pair on two worst-case numerical parity limits, so no RL optimizer is admitted.
+The serving/training forward paths must be reconciled and the same frozen broad
+gate must pass before the communication/collapse training gates become active.
 
 One game binds eight agent identities to eight policy IDs. Exactly four policies
 on one team are trainable during an update epoch; all opponent policies are
@@ -103,6 +105,15 @@ the certified probability, tail and mismatch-KL envelope on the actual serving
 and FSDP trainer stacks. No optimizer step is allowed when any gate fails. The
 certificate also performs a real update and proves that only the selected
 policy slot changes.
+
+The current client independently reconstructs the xgrammar allowed-token row
+at every sampled token and compares it with the server's finite top-logprob
+token IDs whenever the legal set has at most 20 entries. A mismatch is fatal.
+Transport retries are limited to three identical, seed-bound requests, recorded
+per decision, and apply only to network/protocol errors; timeouts, HTTP/model
+errors, parsing errors and mask mismatches remain non-retryable. The final
+four-group probe recorded 256/256 decisions on attempt one, proving that its
+rejected parity result is not a retry artifact.
 
 During training, `collapse_audit.py` reports—but never rewards—per-policy
 speaking extremes, repeated message targets, action concentration, KL mean/p99,

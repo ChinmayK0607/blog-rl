@@ -1,6 +1,14 @@
 # Swarm Arena 1.7B pre-RL certification
 
-Status: **passed** on one NVIDIA RTX 6000 Ada 48 GB.
+Status: **historical certificate; superseded for the shared-return RL path**.
+
+The earlier bounded certificate described below passed at commit `578a98a7`.
+It does not admit the later multi-policy shared-return implementation or its
+current serving configuration. The authoritative four-group, per-token
+mask-audited certificate at `5e0e87ed` failed the unchanged maximum probability
+error and maximum mismatch-KL gates. Current RL admission is therefore
+**rejected**. See `parity_mask_audited_broad4_5e0e87ed/` for complete compact
+evidence and `MULTI_POLICY_RL.md` for the active contract.
 
 ## Immutable inputs
 
@@ -28,7 +36,7 @@ Status: **passed** on one NVIDIA RTX 6000 Ada 48 GB.
 
 ## Interpretation
 
-This certifies correctness of the pre-RL data, safety/admission path,
+Within its historical scope, this certified correctness of the pre-RL data, safety/admission path,
 constrained loss, pinned warm start, four-policy isolation and numerical
 serving/training compatibility. It does not certify asynchronous throughput;
 that requires the planned multi-GPU topology. Re-run parity after any change to

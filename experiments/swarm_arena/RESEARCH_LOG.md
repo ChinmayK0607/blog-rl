@@ -1262,6 +1262,86 @@ no more critical-specific than decoy-specific. Therefore:
 - The original compiled vLLM server and all six pinned LoRA registrations were
   restored after the retry.
 
+### 2026-08-14 — strict serving, mask audit, and broad parity rejection
+
+- Status: completed; rejected for RL admission; no promoted optimizer output
+- Decision unlocked: the CPU-side multi-policy rollout/admission implementation
+  is complete and fail-closed, but the current vLLM/Prime numerical pair cannot
+  start RL under the frozen parity contract.
+- Source progression: `b74a8f8b` selected native eager serving; `0010a013`
+  made sampling filters explicitly neutral; `7dc6a41a` bounded serving at four
+  sequences; `8aaeaaa0` added live server-mask verification; `ae857d9d` treated
+  only vLLM's `-9999` masked sentinels as non-finite; `5e0e87ed` added bounded,
+  auditable transport recovery after a real broad-run connection reset.
+- Run-lock v5 binds the complete trainer and serving config hashes in addition
+  to source, model, adapter, opponent, data, estimator and constraint identity.
+  Each approval binds the exact prompt IDs, completion IDs, rollout log
+  probabilities, allowed-token rows, sample masks, temperatures, environment,
+  policy slot and revision. The router recomputes the complete sample hash.
+- Serving requests explicitly set temperature `1`, top-p `1`, top-k `0`,
+  min-p `0`, maximum 128 tokens, seed, top-20 token-ID logprobs, and the exact
+  structured choice list. Whenever an allowed set contains at most 20 tokens,
+  the finite server top-logprob IDs must exactly equal the independently
+  reconstructed xgrammar set. Model/HTTP/timeout/parser/mask failures are never
+  retried. Network/protocol retries are capped at three identical seed-bound
+  requests and persisted as `transport_attempts`.
+- Diagnostics were deliberately progressive. The original compiled 16-sample
+  probe failed maximum probability error (`0.140238 > 0.10`). One eager
+  16-sample diagnostic passed every gate (`0.078062` max probability error,
+  `0.018078` max mismatch-KL), showing that the path could agree narrowly but
+  not establishing broad admission. A strict one-sequence server exceeded the
+  frozen 180-second client timeout and was rejected as operationally unusable.
+- The first four-group mask-audit attempt completed two groups, then received
+  `httpx.ReadError` while the still-healthy server drained a large connection
+  pool. No model, mask or HTTP error occurred. The client now disables local
+  HTTP keep-alive and permits only bounded identical-request retries for
+  network/protocol errors. A unit test proves byte-identical request bodies;
+  focused Linux tests passed 4/4 before relaunch.
+- The fresh authoritative run at `5e0e87ed` completed four groups: two
+  communication-critical and two matched decoys over curriculum seeds 4000008
+  and 4000009, four independent replicas per group. It produced 256 decisions;
+  all 256 passed the exact mask audit and completed on transport attempt one.
+  Replay, return, private context, output, revision, sampling namespace, sample
+  content, four-policy routing, signatures and both audit chains passed.
+- Probe SHA-256:
+  `fe0ae52d78c3e85607bd1c74a265a7f7721df917fedb407c1d67d75b28d3162d`;
+  64 first-turn broadcast samples, 4,305 completion tokens and 3,672 branching
+  tokens. Four optimizer parameter sets were disjoint and the disposable
+  isolation update changed only `run_blue_0`.
+- Broad parity result: mean absolute log-probability error `0.002640`, p99
+  `0.069428`, p99 probability error `0.029992`, probability tail fraction
+  `0.003949`, and mean mismatch-KL `0.0001818` all passed. Maximum probability
+  error `0.140238` exceeded `0.10`; maximum mismatch-KL `0.100478` exceeded
+  `0.08`. The certificate exited nonzero and no trainable checkpoint was
+  written or promoted. Thresholds were not relaxed.
+- Interpretation: exact live mask equality rules out a hidden legal-token or
+  normalization-set mismatch. The remaining failure is rare numerical drift
+  between vLLM decode log-probabilities and Prime's teacher-forced forward path,
+  concentrated at a few branching tokens. Narrow probes can miss it; a broad
+  pre-step gate is necessary.
+- Validation: complete Swarm Arena tests passed 69/69 in 43.25 seconds. Ruff
+  passed on every changed file. Whole-experiment Ruff still reports 12 older,
+  unrelated import/unused-variable findings; they were not mixed into this
+  safety change.
+- GPU/cost: the decisive strict-serving through trainer-certificate window was
+  approximately 19 minutes on the $0.48/hour A6000 (about $0.15). vLLM and all
+  trainer/rollout processes were stopped afterward; final GPU state was 1 MiB,
+  0% utilization, 32 C.
+- Public evidence:
+  `results/pre_rl_1_7b/parity_compiled_fb272aed/`,
+  `results/pre_rl_1_7b/parity_eager_313c1aa7/`, and
+  `results/pre_rl_1_7b/parity_mask_audited_broad4_5e0e87ed/`. The preceding
+  transport failure and its two complete groups are preserved in
+  `results/pre_rl_1_7b/transport_failure_ae857d9d/`. Supervisor keys and
+  checkpoints are excluded; raw evidence/probe hashes are recorded before
+  compression.
+- Next action: do not spend more single-A6000 time on serving knobs. On the
+  eventual multi-GPU topology, make inference and trainer use a genuinely
+  matched forward/precision implementation (or generate rollout
+  log-probabilities through the trainer-compatible policy service), then rerun
+  this unchanged four-group gate. Only a pass can enable the first bounded RL
+  optimizer step and its communication/collapse evaluations.
+
 ## Artifact index
 
 - Public source branch:
