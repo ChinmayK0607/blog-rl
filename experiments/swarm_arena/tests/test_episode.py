@@ -212,6 +212,15 @@ def test_crossplay_controls_all_eight_agents_and_preserves_private_history() -> 
 
 def test_side_swapped_summary_removes_map_side_bias() -> None:
     def row(seed: int, blue: str, red: str, blue_return: float, condition: str) -> dict:
+        team_metrics = {
+            "broadcast_protocol_rate": 1.0,
+            "broadcast_grounded_rate": 1.0,
+            "action_protocol_rate": 1.0,
+            "communication_spend": 2.0,
+            "invalid_broadcasts": 0,
+            "invalid_actions": 0,
+            "duplicate_target_turn_rate": 0.25,
+        }
         return {
             "seed": seed,
             "blue_model": blue,
@@ -219,9 +228,10 @@ def test_side_swapped_summary_removes_map_side_bias() -> None:
             "blue_condition": condition if blue == "adapter" else "generated",
             "red_condition": condition if red == "adapter" else "generated",
             "metrics": {
-                "BLUE": {"terminal_return": blue_return},
-                "RED": {"terminal_return": -blue_return},
+                "BLUE": {"terminal_return": blue_return, **team_metrics},
+                "RED": {"terminal_return": -blue_return, **team_metrics},
             },
+            "inference": {"requests": 8, "wall_seconds": 2.0, "completion_tokens": 80},
         }
 
     rows = [
@@ -233,6 +243,10 @@ def test_side_swapped_summary_removes_map_side_bias() -> None:
     summary = summarize_side_swapped(rows)
     assert summary["conditions"]["generated:generated"]["focal_mean_side_averaged_return"] == 3.0
     assert summary["communication_effects"]["generated_minus_dropped"]["mean_return_difference"] == 2.0
+    assert summary["conditions"]["generated:generated"]["focal_metrics"][
+        "broadcast_protocol_rate"
+    ] == 1.0
+    assert summary["inference"]["completion_tokens_per_second"] == 40.0
 
 
 def test_crossplay_resume_requires_an_identical_manifest(tmp_path: Path) -> None:

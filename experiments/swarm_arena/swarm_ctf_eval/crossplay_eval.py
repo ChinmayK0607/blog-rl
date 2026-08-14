@@ -610,6 +610,15 @@ def summarize_side_swapped(
         by_key[key][orientation] = row
 
     paired = []
+    metric_keys = (
+        "broadcast_protocol_rate",
+        "broadcast_grounded_rate",
+        "action_protocol_rate",
+        "communication_spend",
+        "invalid_broadcasts",
+        "invalid_actions",
+        "duplicate_target_turn_rate",
+    )
     for (seed, focal_condition, opponent_condition), orientations in sorted(by_key.items()):
         if set(orientations) != {"focal_blue", "focal_red"}:
             continue
@@ -621,12 +630,22 @@ def summarize_side_swapped(
                 float(focal_red["metrics"]["RED"]["terminal_return"]),
             )
         )
+        focal_metrics = {
+            metric: statistics.mean(
+                (
+                    float(focal_blue["metrics"]["BLUE"][metric]),
+                    float(focal_red["metrics"]["RED"][metric]),
+                )
+            )
+            for metric in metric_keys
+        }
         paired.append(
             {
                 "seed": seed,
                 "focal_condition": focal_condition,
                 "opponent_condition": opponent_condition,
                 "focal_side_averaged_return": focal_return,
+                "focal_side_averaged_metrics": focal_metrics,
             }
         )
     if not paired:
@@ -643,6 +662,12 @@ def summarize_side_swapped(
             "focal_mean_side_averaged_return": statistics.mean(values),
             "focal_mean_side_averaged_return_95": _mean_ci(values),
             "randomization_p_two_sided": _paired_randomization_p(values),
+            "focal_metrics": {
+                metric: statistics.mean(
+                    float(row["focal_side_averaged_metrics"][metric]) for row in group
+                )
+                for metric in metric_keys
+            },
         }
 
     effects = {}
@@ -667,7 +692,18 @@ def summarize_side_swapped(
             "mean_return_difference_95": _mean_ci(differences),
             "randomization_p_two_sided": _paired_randomization_p(differences),
             "positive_seed_rate": statistics.mean(value > 0 for value in differences),
+            "seed_differences": [
+                {"seed": seed, "return_difference": difference}
+                for seed, difference in zip(common, differences, strict=True)
+            ],
         }
+    total_inference_seconds = sum(float(row["inference"]["wall_seconds"]) for row in rows)
+    completion_values = [row["inference"]["completion_tokens"] for row in rows]
+    total_completion_tokens = (
+        sum(int(value) for value in completion_values)
+        if all(value is not None for value in completion_values)
+        else None
+    )
     return {
         "crossplay_version": CROSSPLAY_VERSION,
         "focal_policy": focal,
@@ -677,6 +713,17 @@ def summarize_side_swapped(
         "test_method": "paired two-sided sign randomization; exact through 16 seeds, otherwise 100000 trials",
         "conditions": conditions,
         "communication_effects": effects,
+        "inference": {
+            "rows": len(rows),
+            "requests": sum(int(row["inference"]["requests"]) for row in rows),
+            "wall_seconds": total_inference_seconds,
+            "completion_tokens": total_completion_tokens,
+            "completion_tokens_per_second": (
+                total_completion_tokens / total_inference_seconds
+                if total_completion_tokens is not None and total_inference_seconds
+                else None
+            ),
+        },
     }
 
 
