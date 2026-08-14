@@ -1,5 +1,9 @@
 # Swarm Arena: 4v4 coordination at small-model scale
 
+The complete chronological record—including failed SFT runs, regression
+diagnosis, infrastructure incidents, rejected credit estimators, immutable
+artifacts, and current admission gates—is maintained in `RESEARCH_LOG.md`.
+
 Swarm Arena is a deterministic, discrete network-control game for studying
 whether small language-model agents learn useful team coordination. Four BLUE
 agents face four fixed-policy RED agents on a partially observed graph. Agents

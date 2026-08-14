@@ -39,6 +39,17 @@ Namespaces are one honking great idea -- let's do more of those!
 
 - **Docs reflect `main`, not history**: `docs/` describes the current state of the codebase only. Don't mention removed/legacy fields, migration paths, or "this used to be X" anecdotes.
 
+## Swarm Arena research record
+
+- Before changing or running `experiments/swarm_arena`, read
+  `experiments/swarm_arena/RESEARCH_LOG.md`.
+- Append every material experiment, failure, retry, scientific verdict, artifact
+  hash, GPU time/cost, and decommission status to that log. Do not rewrite a
+  rejected result as a success or infer RL readiness from a mechanical pass.
+- Keep large model artifacts off developer laptops. Publish selected checkpoints
+  to the public Hugging Face repository and keep only compact reports, manifests,
+  hashes, and code in Git.
+
 ## Skills
 
 Skills live in `skills/` and are symlinked to `.claude/skills/`. They teach agents how to handle specific workflows (e.g. starting the inference server, writing configs). When you make changes to the codebase, check if any skills need to be updated to stay accurate.
