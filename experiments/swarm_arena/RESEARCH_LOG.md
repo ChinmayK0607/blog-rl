@@ -629,6 +629,11 @@ This is **not yet RL-admitted**. It still requires a Linux/live inference smoke,
 new broadcast-only rollout/trainer parity certification, and a critical/decoy
 localization audit.
 
+The decision rule was frozen before live results in
+`MESSAGE_CREDIT_AUDIT_PLAN.md`: a two-pair mechanical smoke, a role-balanced
+12-pair diagnostic, and—only if that is promising—a fresh 52-pair/104-scenario
+confirmation. Thresholds cannot be relaxed after inspection.
+
 ## Phase 13 — Active GPU validation
 
 Started: 2026-08-14.  
@@ -701,6 +706,8 @@ rollback-safe, stage-one RL pilot with no final-evaluation access.
   `results/pre_rl_1_7b/paired_counterfactual_24/`
 - RL v3 manifests and audits:
   `data/rl_v3/`
+- Frozen message-credit admission plan:
+  `MESSAGE_CREDIT_AUDIT_PLAN.md`
 
 ## Future entry template
 
