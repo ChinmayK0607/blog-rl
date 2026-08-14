@@ -1,12 +1,13 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 20:23 IST
+Last updated: 2026-08-15 04:10 IST
 Branch: `exp/swarm-arena-4b`  
-Message-estimator implementation checkpoint:
-`567bc1393d101ca9f4a9613cabececece09a2399`  
-Status: environment and pre-RL infrastructure are mechanically ready; the new
-message-edge credit estimator is awaiting live GPU validation. No RL optimizer
-step has been admitted from the counterfactual audits.
+Current matched-actor implementation checkpoint:
+`01519aa9a019871d9560971b11b80826ad1cfac1`
+Status: the exact four-policy actor/trainer parity and isolation gates pass.
+The first real optimizer attempt failed closed on an oversized trainer sequence
+allocation; a fresh 4,096-token-cap retry is in progress. No failed-run output
+has been promoted.
 
 This is the durable chronological record for the Swarm Arena project. It records
 the hypothesis, design decisions, data, training, evaluations, failures,
@@ -1391,6 +1392,62 @@ no more critical-specific than decoy-specific. Therefore:
   the parallel matrix should quickly determine whether to create fresh evidence
   or terminate. Full sequence and stop conditions are in
   `PARITY_RECOVERY_PLAN.md`.
+
+### 2026-08-15 — L40S parity recovery, matched actor, and first optimizer OOM
+
+- Status: retry in progress; first optimizer attempt failed closed; no learned
+  checkpoint was written
+- Verdict: parity and four-policy isolation admitted the matched actor; the
+  16,384-token trainer layout was rejected as operationally infeasible
+- GPU: 4x NVIDIA L40S 48 GB at `64.247.196.177`; provider hourly price was not
+  supplied, so wall time is recorded without inventing a cost estimate.
+- Public inputs: Qwen3-1.7B revision
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; warm-start revision
+  `534522a8f3ff3489b1dd8318dc8e533e51264cde`; adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`.
+  Anonymous public preflight succeeded. The complete Linux Swarm suite passed
+  69/69 twice (22.42 s and 17.05 s).
+- The predeclared four-GPU trainer matrix against the published broad probe
+  selected custom Qwen3 + FlashAttention 2 by the declared first-pass rule.
+  HF + FlashAttention 2 also passed; HF + SDPA failed maximum mismatch-KL
+  (`0.101038 > 0.08`); custom + eager was an invalid Prime configuration and
+  failed at startup with `KeyError: 'eager'`. These outcomes are defects and
+  negative results, not missing arms.
+- A fresh strict-vLLM four-group recertificate failed maximum probability error
+  (`0.13877 > 0.10`) and maximum mismatch-KL (`0.114236 > 0.08`). Repeating the
+  certificate with the HF trainer produced the same outlier, locating the
+  mismatch in the serving/training boundary rather than the trainer variant.
+- Source `01519aa9a019871d9560971b11b80826ad1cfac1` added a truthful local HF
+  constrained actor. It samples from its own masked distribution, records the
+  actual behavior log-probabilities plus the complete allowed distribution,
+  uses the same BF16-by-BF16-to-FP32 LM-head path, supports five isolated LoRA
+  adapters, and hot-reloads the four trainable adapters. Trainer log-probabilities
+  are never substituted after sampling.
+- A one-group certificate passed. The authoritative fresh four-group probe had
+  SHA-256 `6f0ee9c06d53e75a915c7c24a800afefed855a255609b71ecaa91358739b30ef`,
+  64 policy samples and 4,346 completion tokens. Against exact trainer config
+  SHA-256 `1c0d354583ee7571b96c4bdab350e2dbe19effa162d5ea6d96ca4745d98747bc`,
+  mean absolute log-prob error was `0.002261`, p99 `0.079917`, maximum
+  probability error `0.099317`, p99 probability error `0.027553`, probability
+  tail fraction `0.003682`, mean mismatch-KL `0.0001510`, and maximum
+  mismatch-KL `0.074599`; every unchanged gate passed. Four optimizer parameter
+  sets were disjoint, and a disposable update changed only `run_blue_0`.
+- The first real eight-step run generated and signed four step-zero groups, then
+  failed closed before `optimizer.step()`. The unfused vocabulary head attempted
+  an additional 7.57 GiB allocation after 36.96 GiB was resident on GPU 0.
+  No `STABLE` update or learned checkpoint exists. Evidence, admission records,
+  routed batches, and the failed config remain immutable under
+  `/workspace/runs/rl-hf-actor-pilot-01519aa9`.
+- Root cause: the trainer advertised `seq_len = 16384` even though every
+  per-policy orchestrator and admitted Swarm sample is capped at 4,096. The
+  vocabulary-logit path therefore reserved four times the supported sequence
+  capacity. The correction sets the trainer cap to 4,096; it does not change
+  reward, precision, optimizer dtype, reduction dtype, policy ownership, or
+  parity thresholds.
+- Retry rule: create a new immutable run directory and source commit, regenerate
+  four-group evidence bound to the corrected trainer TOML, rerun the complete
+  parity/isolation certificate, and only then attempt optimization. The failed
+  run is never resumed or overwritten.
 
 ## Artifact index
 
