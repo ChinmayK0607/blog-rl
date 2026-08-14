@@ -7,6 +7,7 @@ import tempfile
 from dataclasses import replace
 from pathlib import Path
 
+import httpx
 import pytest
 from swarm_ctf_eval.arena import WAIT, Action, legal_actions, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
