@@ -63,6 +63,7 @@ def main() -> None:
                 },
                 "optim": {"lr": config.optim.lr},
                 "train": {"env": [{"id": "reverse-text"}]},
+                "renderer": {"name": "qwen3"},
                 "wandb": None,
             }
         )
