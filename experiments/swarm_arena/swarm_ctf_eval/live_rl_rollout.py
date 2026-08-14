@@ -165,10 +165,13 @@ class PolicyEndpoint:
     model_name: str
     base_urls: tuple[str, ...]
 
-    def validate(self) -> None:
+    def validate(self, *, require_base_urls: bool = True) -> None:
         if not self.policy_id or not self.revision or not self.model_name:
             raise ValueError("policy endpoint fields cannot be empty")
-        if not self.base_urls or any(not value.startswith("http") for value in self.base_urls):
+        if require_base_urls and (
+            not self.base_urls
+            or any(not value.startswith("http") for value in self.base_urls)
+        ):
             raise ValueError("policy endpoint requires HTTP inference URLs")
 
 

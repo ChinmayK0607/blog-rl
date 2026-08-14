@@ -14,6 +14,7 @@ import httpx
 import tomli
 from swarm_ctf_eval.communication_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.episode import EpisodeConfig
+from swarm_ctf_eval.hf_choice_generator import HFChoiceGenerator
 from swarm_ctf_eval.live_rl_rollout import (
     PolicyEndpoint,
     VLLMChoiceGenerator,
@@ -115,6 +116,7 @@ async def wait_for_policy_updates(
     *,
     expected_step: int,
     timeout: float,
+    hf_generator: HFChoiceGenerator | None = None,
 ) -> dict[str, str]:
     paths = {
         f"blue-{index}": get_step_path(
@@ -131,7 +133,10 @@ async def wait_for_policy_updates(
         missing = [name for name, path in paths.items() if not (path / "STABLE").exists()]
         raise TimeoutError(f"trainer did not publish all policy updates: {missing}")
     for name, path in paths.items():
-        await replace_adapter(base_urls, name, path)
+        if hf_generator is None:
+            await replace_adapter(base_urls, name, path)
+        else:
+            await hf_generator.replace_adapter(name, path)
     return {name: sha256_file(path / "adapter_model.safetensors") for name, path in paths.items()}
 
 
@@ -188,7 +193,12 @@ async def main() -> None:
     parser.add_argument("--data-dir", type=Path, required=True)
     parser.add_argument("--tokenizer", required=True)
     parser.add_argument("--initial-adapter", type=Path, required=True)
-    parser.add_argument("--base-url", action="append", required=True)
+    parser.add_argument("--base-url", action="append", default=[])
+    parser.add_argument(
+        "--actor",
+        choices=("vllm", "hf"),
+        default="vllm",
+    )
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--base-revision", required=True)
@@ -229,6 +239,8 @@ async def main() -> None:
         parser.error("shared-return replicas must be between 2 and 32")
     if args.credit_estimator == "shared_return" and args.inference_config is None:
         parser.error("shared-return credit requires --inference-config")
+    if args.actor == "vllm" and not args.base_url:
+        parser.error("the vLLM actor requires at least one --base-url")
     if args.curriculum_offset < 0:
         parser.error("curriculum offset cannot be negative")
     if args.rollout_only and args.steps != 1:
@@ -253,14 +265,41 @@ async def main() -> None:
     base_urls = tuple(args.base_url)
     key = signing_key(args.output_dir / "control" / "supervisor.key")
     initial_revision = args.initial_policy_revision
-    for index in range(4):
-        await replace_adapter(base_urls, f"blue-{index}", args.initial_adapter)
-    await replace_adapter(base_urls, "sft-opponent", args.initial_adapter)
-    if (
-        args.credit_estimator == "policy_replacement"
-        and args.replacement_model_name != args.tokenizer
-    ):
-        await replace_adapter(base_urls, args.replacement_model_name, args.initial_adapter)
+    adapter_names = tuple(f"blue-{index}" for index in range(4)) + (
+        "sft-opponent",
+    )
+    if args.credit_estimator == "policy_replacement":
+        adapter_names += (args.replacement_model_name,)
+    if args.actor == "vllm":
+        for name in adapter_names:
+            await replace_adapter(base_urls, name, args.initial_adapter)
+        generator_context = VLLMChoiceGenerator(args.tokenizer)
+    else:
+        if args.inference_config is None:
+            parser.error("the HF actor requires --inference-config")
+        with args.inference_config.open("rb") as handle:
+            actor_config = tomli.load(handle)
+        expected_actor = {
+            "version": "arena-hf-choice-actor-v1",
+            "model": args.tokenizer,
+            "attention": "flash_attention_2",
+            "dtype": "bfloat16",
+            "device": "cuda",
+            "max_tokens": 128,
+            "use_kv_cache": True,
+            "lm_head": "bf16xbf16-to-fp32",
+            "sampling": "temperature-1-constrained-multinomial",
+        }
+        if actor_config != expected_actor:
+            raise ValueError("HF actor config does not match the audited implementation")
+        generator_context = HFChoiceGenerator(
+            actor_config["model"],
+            args.initial_adapter,
+            adapter_names=adapter_names,
+            attention=actor_config["attention"],
+            device=actor_config["device"],
+            max_tokens=actor_config["max_tokens"],
+        )
 
     bindings = tuple(
         AgentPolicy(
@@ -290,7 +329,7 @@ async def main() -> None:
         curriculum = json.loads(manifest_path.read_text(encoding="utf-8"))
         if not curriculum.get("pairs"):
             raise ValueError(f"empty curriculum manifest: {manifest_path}")
-    async with VLLMChoiceGenerator(args.tokenizer) as generator:
+    async with generator_context as generator:
         policy_revisions = {f"blue-{index}": initial_revision for index in range(4)}
         for step in range(args.steps):
             lock = run_lock(
@@ -545,6 +584,9 @@ async def main() -> None:
                 base_urls,
                 expected_step=step + 1,
                 timeout=args.update_timeout,
+                hf_generator=(
+                    generator if isinstance(generator, HFChoiceGenerator) else None
+                ),
             )
             policy_revisions = digests
             policy_revision = canonical_sha256(policy_revisions)
