@@ -89,6 +89,29 @@ def _verify_serving_constraint_rows(
             )
 
 
+def _finite_serving_logprob_rows(
+    logprob_rows: list[dict[str, Any]],
+) -> tuple[tuple[tuple[int, float], ...], ...]:
+    rows = []
+    for row in logprob_rows:
+        finite = {}
+        for candidate in row.get("top_logprobs") or []:
+            token = candidate.get("token")
+            logprob = candidate.get("logprob")
+            if not isinstance(token, str) or not token.startswith("token_id:"):
+                raise ValueError("serving top-logprob row lacks token IDs")
+            if not isinstance(logprob, (int, float)):
+                raise ValueError("serving top-logprob row lacks numeric logprobs")
+            if float(logprob) <= -9999.0:
+                continue
+            token_id = int(token.removeprefix("token_id:"))
+            if token_id in finite:
+                raise ValueError("serving top-logprob row contains duplicate token IDs")
+            finite[token_id] = float(logprob)
+        rows.append(tuple(sorted(finite.items())))
+    return tuple(rows)
+
+
 class XGrammarChoiceMask:
     """Reconstruct vLLM's exact choice-grammar mask along a sampled token path."""
 
@@ -158,6 +181,7 @@ class ChoiceCompletion:
     text: str
     request_sha256: str
     transport_attempts: int = 1
+    serving_allowed_logprobs: tuple[tuple[tuple[int, float], ...], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -320,6 +344,7 @@ class VLLMChoiceGenerator:
                 )
             ) from error
         _verify_serving_constraint_rows(completion_ids, allowed, logprob_rows)
+        serving_allowed_logprobs = _finite_serving_logprob_rows(logprob_rows)
         return ChoiceCompletion(
             prompt_ids,
             tuple(completion_ids),
@@ -328,6 +353,7 @@ class VLLMChoiceGenerator:
             decoded,
             request_sha256,
             transport_attempts,
+            serving_allowed_logprobs,
         )
 
     async def generate(
@@ -525,6 +551,7 @@ async def rollout_branch(
                     canonical_sha256(broadcast.to_dict()),
                     completion.allowed_token_ids,
                     completion.transport_attempts,
+                    completion.serving_allowed_logprobs,
                 )
             )
             if (
@@ -601,6 +628,7 @@ async def rollout_branch(
                     canonical_sha256(action.to_dict()),
                     completion.allowed_token_ids,
                     completion.transport_attempts,
+                    completion.serving_allowed_logprobs,
                 )
             )
             if (

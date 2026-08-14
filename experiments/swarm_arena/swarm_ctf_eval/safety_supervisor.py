@@ -437,7 +437,7 @@ def _verify_delivery_contract(
 
 def _verify_common_random_outputs(decisions: tuple[RolloutDecision, ...]) -> None:
     requests: dict[tuple[str, str, str, str, str], str] = {}
-    outputs: dict[str, str] = {}
+    responses: dict[str, str] = {}
     for decision in decisions:
         key = (
             decision.policy_id,
@@ -452,11 +452,20 @@ def _verify_common_random_outputs(decisions: tuple[RolloutDecision, ...]) -> Non
                 "identical policy, private context, constraint, and sampling key produced "
                 f"different inference requests: {decision.decision_id}"
             )
-        previous = outputs.setdefault(decision.request_sha256, decision.output_sha256)
-        if previous != decision.output_sha256:
+        response_sha256 = canonical_sha256(
+            {
+                "completion_ids": decision.completion_ids,
+                "rollout_logprobs": decision.rollout_logprobs,
+                "allowed_token_ids": decision.allowed_token_ids,
+                "serving_allowed_logprobs": decision.serving_allowed_logprobs,
+                "output_sha256": decision.output_sha256,
+            }
+        )
+        previous = responses.setdefault(decision.request_sha256, response_sha256)
+        if previous != response_sha256:
             raise ValueError(
                 "identical inference request produced "
-                f"different outputs: {decision.decision_id}"
+                f"different outputs or distributions: {decision.decision_id}"
             )
 
 

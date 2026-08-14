@@ -6,6 +6,7 @@ from typing import Any
 from .safety_supervisor import verify_hash_chain
 
 SHARED_RETURN_PARITY_PROBE_VERSION = "arena-shared-return-parity-probe-v1"
+SHARED_RETURN_DISTRIBUTION_PROBE_VERSION = "arena-shared-return-parity-probe-v2"
 
 
 def build_shared_return_parity_probe(evidence_path: Path) -> dict[str, Any]:
@@ -70,28 +71,44 @@ def build_shared_return_parity_probe(evidence_path: Path) -> dict[str, Any]:
                     len(completion_ids) == len(allowed_rows) == len(rollout_logprobs)
                 ):
                     raise ValueError(f"incomplete parity token rows: {decision_id}")
-                if any(token not in allowed for token, allowed in zip(
-                    completion_ids, allowed_rows, strict=True
-                )):
+                if any(
+                    token not in allowed
+                    for token, allowed in zip(
+                        completion_ids, allowed_rows, strict=True
+                    )
+                ):
                     raise ValueError(f"parity completion violates its constraint: {decision_id}")
-                samples.append(
-                    {
-                        "decision_id": decision_id,
-                        "game_id": decision["game_id"],
-                        "replica_index": replica["replica_index"],
-                        "agent_id": decision["agent_id"],
-                        "policy_id": policy_id,
-                        "policy_slot": policy_slot,
-                        "phase": decision["phase"],
-                        "turn": decision["turn"],
-                        "prompt_ids": list(decision["prompt_ids"]),
-                        "completion_ids": completion_ids,
-                        "completion_logprobs": rollout_logprobs,
-                        "allowed_token_ids": allowed_rows,
-                    }
-                )
+                sample = {
+                    "decision_id": decision_id,
+                    "game_id": decision["game_id"],
+                    "replica_index": replica["replica_index"],
+                    "agent_id": decision["agent_id"],
+                    "policy_id": policy_id,
+                    "policy_slot": policy_slot,
+                    "phase": decision["phase"],
+                    "turn": decision["turn"],
+                    "prompt_ids": list(decision["prompt_ids"]),
+                    "completion_ids": completion_ids,
+                    "completion_logprobs": rollout_logprobs,
+                    "allowed_token_ids": allowed_rows,
+                }
+                serving_rows = decision.get("serving_allowed_logprobs")
+                if serving_rows:
+                    if len(serving_rows) != len(completion_ids):
+                        raise ValueError(
+                            f"serving distribution rows are incomplete: {decision_id}"
+                        )
+                    sample["serving_allowed_logprobs"] = serving_rows
+                samples.append(sample)
+    has_distributions = ["serving_allowed_logprobs" in row for row in samples]
+    if any(has_distributions) and not all(has_distributions):
+        raise ValueError("parity probe mixes decisions with and without serving distributions")
     return {
-        "version": SHARED_RETURN_PARITY_PROBE_VERSION,
+        "version": (
+            SHARED_RETURN_DISTRIBUTION_PROBE_VERSION
+            if all(has_distributions)
+            else SHARED_RETURN_PARITY_PROBE_VERSION
+        ),
         "source_evidence": evidence_records,
         "samples": samples,
     }

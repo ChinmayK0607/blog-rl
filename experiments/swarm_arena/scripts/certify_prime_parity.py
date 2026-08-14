@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 
+import tomli
 import torch
 import torch.distributed as dist
 from torch.distributed.tensor import DTensor
@@ -31,6 +32,20 @@ def adapter_digest(state: dict[str, torch.Tensor]) -> str:
         digest.update(str(tuple(tensor.shape)).encode())
         digest.update(tensor_bytes(tensor))
     return digest.hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def canonical_sha256(value: object) -> str:
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
 
 
 def write_run_config(output_dir: Path, run_id: str, model: str) -> None:
@@ -80,6 +95,24 @@ def constrained_logprobs(
     return torch.stack(selected_rows)
 
 
+def constrained_distribution_logprobs(
+    logits: torch.Tensor,
+    prompt_length: int,
+    allowed_rows: list[list[int]],
+) -> list[dict[int, float]]:
+    distributions = []
+    for offset, allowed in enumerate(allowed_rows):
+        prediction = logits[0, prompt_length + offset - 1].float()
+        legal_ids = torch.tensor(allowed, device=prediction.device, dtype=torch.long)
+        legal_logprobs = prediction[legal_ids] - torch.logsumexp(
+            prediction[legal_ids], dim=0
+        )
+        distributions.append(
+            dict(zip(allowed, legal_logprobs.detach().cpu().tolist(), strict=True))
+        )
+    return distributions
+
+
 def prepare_sample(
     sample: dict,
     *,
@@ -101,6 +134,7 @@ def main() -> None:
     parser.add_argument("--model", required=True)
     parser.add_argument("--adapter", type=Path, required=True)
     parser.add_argument("--adapter-sha256", required=True)
+    parser.add_argument("--trainer-config", type=Path)
     parser.add_argument("--probe", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
@@ -108,6 +142,7 @@ def main() -> None:
     parser.add_argument("--max-p99-logprob-error", type=float, default=0.12)
     parser.add_argument("--max-probability-error", type=float, default=0.1)
     parser.add_argument("--max-p99-probability-error", type=float, default=0.05)
+    parser.add_argument("--probability-tail-threshold", type=float, default=0.05)
     parser.add_argument("--max-probability-tail-fraction", type=float, default=0.005)
     parser.add_argument("--max-mean-mismatch-kl", type=float, default=0.0005)
     parser.add_argument("--max-mismatch-kl", type=float, default=0.08)
@@ -123,26 +158,71 @@ def main() -> None:
         raise ValueError("probe contains no samples")
 
     setup_torch_distributed()
-    config = TrainerConfig.model_validate(
-        {
-            "output_dir": args.output_dir,
-            "max_concurrent_runs": 4,
-            "model": {
-                "name": args.model,
-                "seq_len": 4096,
-                "attn": "flash_attention_2",
-                "impl": "auto",
-                "lora": {
-                    "rank": 16,
-                    "alpha": 32,
-                    "dropout": 0.0,
-                    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"],
-                    "initial_adapter_path": args.adapter,
-                    "initial_adapter_sha256": args.adapter_sha256,
+    trainer_config_sha256 = None
+    if args.trainer_config is None:
+        config = TrainerConfig.model_validate(
+            {
+                "output_dir": args.output_dir,
+                "max_concurrent_runs": 4,
+                "model": {
+                    "name": args.model,
+                    "seq_len": 4096,
+                    "attn": "flash_attention_2",
+                    "impl": "auto",
+                    "lora": {
+                        "rank": 16,
+                        "alpha": 32,
+                        "dropout": 0.0,
+                        "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"],
+                        "initial_adapter_path": args.adapter,
+                        "initial_adapter_sha256": args.adapter_sha256,
+                    },
                 },
-            },
-        }
-    )
+                "rollout_parity_gate": {
+                    "max_mean_logprob_error": args.max_mean_logprob_error,
+                    "max_p99_logprob_error": args.max_p99_logprob_error,
+                    "max_probability_error": args.max_probability_error,
+                    "max_p99_probability_error": args.max_p99_probability_error,
+                    "probability_tail_threshold": args.probability_tail_threshold,
+                    "max_probability_tail_fraction": (
+                        args.max_probability_tail_fraction
+                    ),
+                    "max_mean_mismatch_kl": args.max_mean_mismatch_kl,
+                    "max_mismatch_kl": args.max_mismatch_kl,
+                },
+            }
+        )
+    else:
+        with args.trainer_config.open("rb") as handle:
+            config = TrainerConfig.model_validate(tomli.load(handle))
+        config = config.model_copy(update={"output_dir": args.output_dir})
+        trainer_config_sha256 = sha256_file(args.trainer_config)
+        if config.max_concurrent_runs != 4:
+            raise ValueError("parity certification requires exactly four policy slots")
+        if config.model.name != args.model:
+            raise ValueError("trainer config model does not match --model")
+        if config.model.lora is None:
+            raise ValueError("trainer config must enable LoRA")
+        if config.model.lora.initial_adapter_path != args.adapter:
+            raise ValueError("trainer config adapter path does not match --adapter")
+        if config.model.lora.initial_adapter_sha256 != args.adapter_sha256:
+            raise ValueError("trainer config adapter digest does not match --adapter-sha256")
+    parity_gate = config.rollout_parity_gate
+    if parity_gate is None:
+        raise ValueError("trainer config is missing the rollout parity gate")
+    expected_gate = {
+        "max_mean_logprob_error": args.max_mean_logprob_error,
+        "max_p99_logprob_error": args.max_p99_logprob_error,
+        "max_probability_error": args.max_probability_error,
+        "max_p99_probability_error": args.max_p99_probability_error,
+        "probability_tail_threshold": args.probability_tail_threshold,
+        "max_probability_tail_fraction": args.max_probability_tail_fraction,
+        "max_mean_mismatch_kl": args.max_mean_mismatch_kl,
+        "max_mismatch_kl": args.max_mismatch_kl,
+    }
+    if parity_gate.model_dump(mode="json") != expected_gate:
+        raise ValueError("trainer config parity gate does not match certificate thresholds")
+    trainer_parity_gate_sha256 = canonical_sha256(expected_gate)
     device = torch.device("cuda", 0)
     manager = setup_multi_run_manager(args.output_dir, 4, device, config.model.lora)
     parallel_dims = get_parallel_dims(config.model)
@@ -165,6 +245,7 @@ def main() -> None:
     all_branching = []
     sample_summaries = []
     token_summaries = []
+    distribution_summaries = []
     model.eval()
     for sample_index, sample in enumerate(samples):
         policy_slot = int(sample.get("policy_slot", sample_index % 4))
@@ -193,6 +274,59 @@ def main() -> None:
             trainer_logprobs = constrained_logprobs(
                 logits, token_ids, prompt_length, allowed_rows
             ).cpu()
+            trainer_distributions = constrained_distribution_logprobs(
+                logits, prompt_length, allowed_rows
+            )
+        serving_distributions = sample.get("serving_allowed_logprobs")
+        if serving_distributions is not None:
+            if len(serving_distributions) != len(allowed_rows):
+                raise ValueError("serving distribution rows do not match allowed rows")
+            for token_offset, (allowed, serving_row, trainer_row) in enumerate(
+                zip(
+                    allowed_rows,
+                    serving_distributions,
+                    trainer_distributions,
+                    strict=True,
+                )
+            ):
+                serving = {int(token_id): float(value) for token_id, value in serving_row}
+                if len(serving) != len(serving_row) or any(
+                    token_id not in allowed for token_id in serving
+                ):
+                    raise ValueError("invalid serving constrained distribution row")
+                if set(serving) != set(allowed):
+                    continue
+                serving_logprobs = torch.tensor(
+                    [serving[token_id] for token_id in allowed], dtype=torch.float64
+                )
+                trainer_row_logprobs = torch.tensor(
+                    [trainer_row[token_id] for token_id in allowed], dtype=torch.float64
+                )
+                serving_probs = serving_logprobs.exp()
+                trainer_probs = trainer_row_logprobs.exp()
+                normalization_error = abs(float(serving_probs.sum()) - 1.0)
+                probability_errors = (trainer_probs - serving_probs).abs()
+                total_variation = 0.5 * float(probability_errors.sum())
+                serving_to_trainer_kl = float(
+                    (serving_probs * (serving_logprobs - trainer_row_logprobs)).sum()
+                )
+                trainer_to_serving_kl = float(
+                    (trainer_probs * (trainer_row_logprobs - serving_logprobs)).sum()
+                )
+                distribution_summaries.append(
+                    {
+                        "decision_id": sample.get("decision_id"),
+                        "agent_id": sample["agent_id"],
+                        "policy_slot": policy_slot,
+                        "token_offset": token_offset,
+                        "allowed_token_count": len(allowed),
+                        "serving_normalization_error": normalization_error,
+                        "max_probability_error": float(probability_errors.max()),
+                        "total_variation": total_variation,
+                        "serving_to_trainer_kl": serving_to_trainer_kl,
+                        "trainer_to_serving_kl": trainer_to_serving_kl,
+                    }
+                )
         all_inference.append(inference_logprobs)
         all_trainer.append(trainer_logprobs)
         all_branching.append(torch.tensor([len(row) > 1 for row in allowed_rows]))
@@ -267,7 +401,9 @@ def main() -> None:
     mean_mismatch_kl = float(mismatch_kl.mean())
     p99_absolute_error = float(torch.quantile(absolute_error, 0.99))
     p99_probability_error = float(torch.quantile(probability_error, 0.99))
-    probability_tail_fraction = float((probability_error > 0.05).float().mean())
+    probability_tail_fraction = float(
+        (probability_error > args.probability_tail_threshold).float().mean()
+    )
     parity_passed = all(
         (
             mean_absolute_error <= args.max_mean_logprob_error,
@@ -333,6 +469,10 @@ def main() -> None:
 
     report = {
         "adapter_sha256": args.adapter_sha256,
+        "trainer_config_sha256": trainer_config_sha256,
+        "trainer_parity_gate_sha256": trainer_parity_gate_sha256,
+        "trainer_model_impl": config.model.impl,
+        "trainer_attention": config.model.attn,
         "changed_runs_after_single_policy_step": changed_runs,
         "branching_tokens": int(branching.sum()),
         "completion_tokens": len(inference_logprobs),
@@ -375,6 +515,7 @@ def main() -> None:
             "max_mean_mismatch_kl": args.max_mean_mismatch_kl,
             "max_probability_error": args.max_probability_error,
             "max_p99_probability_error": args.max_p99_probability_error,
+            "probability_tail_threshold": args.probability_tail_threshold,
             "max_probability_tail_fraction": args.max_probability_tail_fraction,
         },
         "policy_slot_digests_before": slot_digests_before,
@@ -384,6 +525,52 @@ def main() -> None:
             key=lambda row: float(row["probability_error"]),
             reverse=True,
         )[:20],
+        "distribution_diagnostics": {
+            "complete_rows": len(distribution_summaries),
+            "max_serving_normalization_error": (
+                max(row["serving_normalization_error"] for row in distribution_summaries)
+                if distribution_summaries
+                else None
+            ),
+            "mean_total_variation": (
+                sum(row["total_variation"] for row in distribution_summaries)
+                / len(distribution_summaries)
+                if distribution_summaries
+                else None
+            ),
+            "max_total_variation": (
+                max(row["total_variation"] for row in distribution_summaries)
+                if distribution_summaries
+                else None
+            ),
+            "mean_serving_to_trainer_kl": (
+                sum(row["serving_to_trainer_kl"] for row in distribution_summaries)
+                / len(distribution_summaries)
+                if distribution_summaries
+                else None
+            ),
+            "max_serving_to_trainer_kl": (
+                max(row["serving_to_trainer_kl"] for row in distribution_summaries)
+                if distribution_summaries
+                else None
+            ),
+            "mean_trainer_to_serving_kl": (
+                sum(row["trainer_to_serving_kl"] for row in distribution_summaries)
+                / len(distribution_summaries)
+                if distribution_summaries
+                else None
+            ),
+            "max_trainer_to_serving_kl": (
+                max(row["trainer_to_serving_kl"] for row in distribution_summaries)
+                if distribution_summaries
+                else None
+            ),
+            "top_total_variation_rows": sorted(
+                distribution_summaries,
+                key=lambda row: row["total_variation"],
+                reverse=True,
+            )[:20],
+        },
     }
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")

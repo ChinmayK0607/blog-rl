@@ -53,12 +53,13 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   `[tool.uv.sources]`, then run `uv sync --all-extras`.
 - Swarm Arena uses Prime-RL multi-run LoRA: create four fixed `run_*`
   directories so `MultiRunManager`, `MultiLoRAOptimizer`, and the packer assign
-  one adapter slice and optimizer route to each agent policy. Before any
-  optimizer step, run the RL-v3 global audit, build one actual plus four complete
-  replacement branches, route each approved actual-agent sample only to its
-  fixed run, and require constrained rollout/trainer log-prob parity. Never send
-  all four agents through one run or assign one rollout-level advantage to all
-  four.
+  one adapter slice and optimizer route to each agent policy. The admitted
+  candidate samples four independent joint trajectories from one scenario and
+  opponent snapshot, computes the scenario-matched leave-one-out terminal-return
+  advantage, and shares each trajectory's scalar across its four agents while
+  routing every agent's own tokens only to its fixed policy run. Never send all
+  four agents through one run or merge their private contexts, gradients,
+  optimizer states, or checkpoints.
 - Seed all four Swarm Arena policy slots from one immutable warm start with
   trainer-side `model.lora.initial_adapter_path` and
   `model.lora.initial_adapter_sha256`. The trainer reads PEFT safetensors only,
@@ -66,12 +67,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   shape match, and initializes every new run before its optimizer is created.
   A resumed native run checkpoint takes precedence over this common seed.
 - Swarm Arena rollout workers never write to the trainer queue. Route complete
-  actual-plus-four-replacement evidence through `safety_supervisor.py`; require
-  independent state replay, terminal-reward recomputation, exact private-context
-  hashes, immutable run-lock revisions, constraint allowlisting, policy routing,
-  and log-prob parity. Append approvals/rejections to the hash-chained trace.
-  Any mismatch fails closed and blocks optimizer input rather than becoming a
-  reward penalty.
+  shared-return evidence through `safety_supervisor.py`; require independent
+  state replay, terminal-reward recomputation, exact private-context hashes,
+  unique sampling namespaces, immutable run-lock revisions, exact sample-content
+  commitments, constraint allowlisting, four-policy routing, and log-prob
+  parity. Append approvals/rejections to the hash-chained trace. Any mismatch
+  fails closed and blocks optimizer input rather than becoming a reward penalty.
 - Certify constrained-policy parity on the exact serving and trainer stacks
   before admitting a run. Require identical token IDs, allowed-token masks and
   policy routing, then gate the unavoidable vLLM/FSDP kernel drift with the
@@ -80,6 +81,20 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   errors on negligible-probability tokens can coexist with distributional
   agreement. Re-run the certificate after any model, adapter, tokenizer,
   precision, constraint or serving-kernel change.
+- Swarm Arena serving evidence records the finite top-logprob distribution for
+  every constrained token row, excluding only vLLM's `-9999` masked sentinels.
+  For rows that fit within the requested top-k, require the server token set to
+  exactly equal the independently reconstructed xgrammar set. The parity
+  certificate reports full-row normalization error, total variation and both
+  KL directions in addition to the frozen sampled-token gates.
+- When diagnosing a parity failure, run
+  `experiments/swarm_arena/scripts/certify_prime_parity_matrix.py` with
+  `configs/parity_matrix_1_7b.json`. It allocates one declared trainer variant
+  per visible GPU, uses independent rendezvous endpoints, records every config
+  hash and command, and selects the first passing variant in the checked-in
+  order. A matrix result is diagnostic: regenerate evidence with the selected
+  trainer config bound into the run lock and recertify before RL. Never replace
+  vLLM behavior logprobs with trainer logprobs merely to make parity pass.
 - A Swarm Arena live rollout can use deferred trainer parity only when its
   signed supervisor approval and immutable run lock contain the SHA-256 of the
   active `rollout_parity_gate`. The router must compare that digest before queue

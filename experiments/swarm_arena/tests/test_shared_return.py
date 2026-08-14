@@ -54,6 +54,7 @@ class FirstChoiceGenerator:
             ((11,),),
             text,
             request_sha256,
+            serving_allowed_logprobs=(((11, 0.0),),),
         )
 
 

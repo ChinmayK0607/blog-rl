@@ -1342,6 +1342,56 @@ no more critical-specific than decoy-specific. Therefore:
   this unchanged four-group gate. Only a pass can enable the first bounded RL
   optimizer step and its communication/collapse evaluations.
 
+### 2026-08-15 — CPU-only parity recovery implementation
+
+- Status: implementation complete; GPU execution and Linux integration tests
+  pending; no RL admission
+- Hypothesis: the rare vLLM/Prime mismatch may be isolated to the trainer model
+  or attention implementation. Test four predeclared trainer variants against
+  the same published broad probe that exposed the failure before undertaking a
+  cached Prime-native actor.
+- Scientific constraint: behavior log-probabilities are never replaced with
+  trainer values. Such relabeling would hide the off-policy distribution and
+  make the parity gate meaningless. Prime's custom Qwen3 path currently rejects
+  KV-cache generation, so using repeated full trainer forwards as an actor was
+  rejected as operationally infeasible.
+- Rollout evidence now persists each finite server top-logprob distribution,
+  excluding only masked `-9999` sentinels. Decisions validate row count, token
+  uniqueness, finiteness, sampled-token presence and membership in the trusted
+  allowed set. Fresh parity probes use schema v2; the published v1 evidence
+  remains readable without pretending it contains distributions.
+- The trainer certificate now accepts and hashes the actual trainer TOML,
+  verifies the model and pinned adapter identity, and reports full constrained
+  distribution normalization error, maximum probability error, total
+  variation, serving-to-trainer KL and trainer-to-serving KL on every complete
+  row. The original frozen sampled-token admission gates remain unchanged.
+- Added a predeclared four-variant matrix: custom+FA2 baseline, HF+FA2,
+  HF+SDPA, and custom+eager. One variant is isolated per visible GPU with a
+  unique rendezvous endpoint. The selection rule is checked in as
+  `first_passing_variant_in_declared_order`; every command, source/probe/config
+  hash, log, return code and report is persisted. No passing variant causes a
+  nonzero exit.
+- A matrix pass is diagnostic only. The selected trainer config must be bound
+  into a fresh shared-return run lock, receive new four-group rollout evidence,
+  and pass a fresh certificate before any optimizer pilot.
+- Validation: all changed Python files compiled; changed-file Ruff passed; the
+  three TOML variants and JSON matrix parsed and matched their declared
+  implementation/attention values; the four-command matrix dry run passed and
+  recorded unique GPUs/rendezvous endpoints plus stable hashes. The local
+  Homebrew `uv 0.9.2` intermittently panics in macOS dynamic-store discovery,
+  so the full Prime/xgrammar pytest suite remains a mandatory first action on
+  the Linux GPU host before model loading.
+- GPU/cost: none.
+- Cost ordering: run the four trainer variants immediately on the published
+  failing probe, without starting vLLM. Only a passing variant earns a fresh
+  schema-v2 rollout and bound recertificate. This avoids holding three idle GPUs
+  during an unnecessary initial rollout.
+- Operator decision: do not provision an unattended overnight instance for the
+  first attempt. Provision 4x L40S when the first 10--15 minutes can be watched;
+  the parallel matrix should quickly determine whether to create fresh evidence
+  or terminate. Full sequence and stop conditions are in
+  `PARITY_RECOVERY_PLAN.md`.
+
 ## Artifact index
 
 - Public source branch:

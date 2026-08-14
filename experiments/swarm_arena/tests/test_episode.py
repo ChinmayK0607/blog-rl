@@ -1332,6 +1332,7 @@ def test_vllm_generator_retries_only_an_identical_transport_request() -> None:
             request_sha256="a" * 64,
         )
         assert completion.transport_attempts == 2
+        assert completion.serving_allowed_logprobs == (((11, 0.0),),)
         assert client.bodies == [{"seed": 17}, {"seed": 17}]
 
     asyncio.run(exercise())

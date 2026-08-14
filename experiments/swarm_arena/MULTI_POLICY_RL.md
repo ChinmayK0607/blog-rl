@@ -115,6 +115,14 @@ errors, parsing errors and mask mismatches remain non-retryable. The final
 four-group probe recorded 256/256 decisions on attempt one, proving that its
 rejected parity result is not a retry artifact.
 
+The next certificate schema also persists each finite constrained serving
+distribution. Complete rows are compared with the trainer using normalization
+error, maximum probability error, total variation, and KL in both directions.
+The predeclared four-GPU diagnostic matrix is documented in
+`PARITY_RECOVERY_PLAN.md`. It may select a trainer implementation on development
+evidence, but the selected config still requires fresh evidence with its hash
+bound into the run lock before RL admission.
+
 During training, `collapse_audit.py` reports—but never rewards—per-policy
 speaking extremes, repeated message targets, action concentration, KL mean/p99,
 opponent-specific return, and return gains that disappear under message

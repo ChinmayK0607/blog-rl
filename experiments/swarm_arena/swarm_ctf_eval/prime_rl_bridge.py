@@ -42,6 +42,7 @@ class RolloutDecision:
     output_sha256: str
     allowed_token_ids: tuple[tuple[int, ...], ...] = ()
     transport_attempts: int = 1
+    serving_allowed_logprobs: tuple[tuple[tuple[int, float], ...], ...] = ()
 
     @property
     def decision_id(self) -> str:
@@ -144,6 +145,28 @@ def _validate_decision(decision: RolloutDecision) -> None:
         raise ValueError(f"invalid decoded-output hash: {decision.decision_id}")
     if not 1 <= decision.transport_attempts <= 3:
         raise ValueError(f"invalid transport-attempt count: {decision.decision_id}")
+    if decision.serving_allowed_logprobs:
+        if len(decision.serving_allowed_logprobs) != len(decision.completion_ids):
+            raise ValueError(
+                f"serving distribution rows do not match completion: {decision.decision_id}"
+            )
+        for token_id, allowed, distribution in zip(
+            decision.completion_ids,
+            decision.allowed_token_ids,
+            decision.serving_allowed_logprobs,
+            strict=True,
+        ):
+            observed_ids = [candidate for candidate, _ in distribution]
+            observed_values = [value for _, value in distribution]
+            if (
+                len(observed_ids) != len(set(observed_ids))
+                or any(candidate not in allowed for candidate in observed_ids)
+                or token_id not in observed_ids
+                or not all(math.isfinite(value) for value in observed_values)
+            ):
+                raise ValueError(
+                    f"invalid serving constrained distribution: {decision.decision_id}"
+                )
     if decision.branch == "actual" and decision.replaced_agent is not None:
         raise ValueError("actual branches cannot name a replaced agent")
     if decision.branch == "replacement" and decision.replaced_agent is None:
