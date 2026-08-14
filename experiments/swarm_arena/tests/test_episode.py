@@ -348,8 +348,10 @@ def test_certified_curriculum_pairs_critical_information_with_zero_value_decoy()
         critical.state, critical.receiver
     )
     assert Action("CAPTURE", critical.target) in legal_actions(informed, critical.receiver)
-    assert reconstruct_manifest_scenario(critical.manifest_row()) == critical
-    assert reconstruct_manifest_scenario(decoy.manifest_row()) == decoy
+    serialized_critical = json.loads(json.dumps(critical.manifest_row()))
+    serialized_decoy = json.loads(json.dumps(decoy.manifest_row()))
+    assert reconstruct_manifest_scenario(serialized_critical) == critical
+    assert reconstruct_manifest_scenario(serialized_decoy) == decoy
 
 
 def test_curriculum_manifest_balances_every_ordered_role_pair() -> None:

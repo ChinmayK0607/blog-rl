@@ -85,7 +85,7 @@ def reconstruct_manifest_scenario(row: dict) -> CommunicationScenario:
     if kind not in {"critical", "decoy"}:
         raise ValueError(f"unknown curriculum scenario kind: {kind}")
     scenario = pair[0 if kind == "critical" else 1]
-    if scenario.manifest_row() != row:
+    if _digest(scenario.manifest_row()) != _digest(row):
         raise ValueError("reconstructed scenario does not match its committed manifest row")
     return scenario
 
