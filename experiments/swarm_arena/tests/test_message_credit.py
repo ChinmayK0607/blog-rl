@@ -3,6 +3,7 @@ from dataclasses import replace
 from swarm_ctf_eval.arena import Action, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
 from swarm_ctf_eval.episode import EMPTY_BROADCAST, EpisodeConfig
+from swarm_ctf_eval.message_credit_audit import message_credit_audit_record
 from swarm_ctf_eval.multi_policy_contract import AgentPolicy
 from swarm_ctf_eval.prime_rl_bridge import RolloutDecision
 from swarm_ctf_eval.rl_v3 import ArenaRLEnv
@@ -212,6 +213,30 @@ def test_message_drop_credit_is_sender_local_and_broadcast_only() -> None:
         for decision_id in envelope.decision_ids
     } == broadcast_ids
     assert all(":ACT" not in decision_id for decision_id in broadcast_ids)
+
+    target = sorted(initial.nodes)[0]
+    record = message_credit_audit_record(
+        evidence,
+        approval,
+        {
+            "source": "curriculum",
+            "pair_index": 0,
+            "kind": "critical",
+            "sender": "blue-0",
+            "receiver": "blue-1",
+            "target": target,
+        },
+    )
+    assert record["initial_state_sha256"] == evidence.initial_state_sha256
+    assert len(record["branches"]) == 5
+    assert len(record["decisions"]) == len(evidence.decisions)
+    assert record["roles"]["off_role"] == ["blue-2", "blue-3"]
+    assert record["receiver_effect"]["actual_actions"]
+    assert all(
+        turn["legal_actions"] and turn["pre_state_sha256"]
+        for branch in record["branches"]
+        for turn in branch["turns"]
+    )
 
     first_drop_index = len(actual_decisions)
     mismatched_request = replace(

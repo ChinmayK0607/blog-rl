@@ -22,6 +22,7 @@ from swarm_ctf_eval.live_rl_rollout import (
     parity_gate_sha256,
     protocol_constraint_sha256,
 )
+from swarm_ctf_eval.message_credit_audit import message_credit_audit_record
 from swarm_ctf_eval.multi_policy_contract import AgentPolicy
 from swarm_ctf_eval.prime_multi_run_router import (
     PolicyRunRoute,
@@ -257,6 +258,9 @@ async def main() -> None:
         for index in range(4)
     )
     trace = args.output_dir / "audit" / "admission.jsonl"
+    message_evidence_trace = (
+        args.output_dir / "audit" / "message_credit_evidence.jsonl"
+    )
     result_rows = []
     curriculum = None
     if args.scenario_source == "curriculum":
@@ -357,6 +361,14 @@ async def main() -> None:
                     )
                     approval = approve_message_credit_group(
                         lock, group.evidence, bindings, "BLUE", key
+                    )
+                    append_hash_chained_record(
+                        message_evidence_trace,
+                        message_credit_audit_record(
+                            group.evidence,
+                            approval,
+                            scenario_metadata,
+                        ),
                     )
                     counterfactual_returns = {
                         row.replaced_agent: row.terminal_return

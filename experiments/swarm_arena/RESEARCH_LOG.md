@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 18:40 IST
+Last updated: 2026-08-14 19:52 IST
 Branch: `exp/swarm-arena-4b`  
 Message-estimator implementation checkpoint:
 `567bc1393d101ca9f4a9613cabececece09a2399`  
@@ -799,6 +799,52 @@ cache was exercised: `horizon=1`, while RL v3 requires a horizon of at least
 two. The fixture was corrected to `horizon=2`; the request-hash tamper test
 continued to pass, and no static, full-suite, live-inference, or scientific run
 had started at this point.
+
+Validation of commit `bd40ea931c8aab9f5e62288bda4e7ccf44b860fb` then
+passed:
+
+- focused request-coalescing and request-hash tamper tests: 2/2 in 20.45
+  seconds;
+- Ruff: all checks passed;
+- compileall: status zero;
+- complete Linux Swarm suite: 62 passed in 40.58 seconds, with only the two
+  existing third-party SWIG deprecation warnings;
+- live exact-request check: two concurrent identical requests caused exactly
+  one server POST and returned request hash `3bfe17...d033` and completion hash
+  `7e50d1...6cc3`; the same request in a fresh group caused a second POST,
+  proving cache reset.
+
+The first live adapter reload after restart returned HTTP 400 because its shell
+JSON was escaped incorrectly. The registry proved no adapter had loaded. The
+corrected request bound `smoke-adapter` to the frozen warm start, after which
+the live check above passed. Expected LoRA-tokenizer deprecation and first-shape
+Triton JIT warnings were the only live warnings.
+
+Fresh Stage A ran from 13:21:45 to 13:22:43 UTC, approximately 58 seconds. Both
+the critical and decoy groups passed signed replay, delivery, common-random
+request, and token-ownership checks. Each approval owned exactly four actual
+turn-one `BROADCAST` spans—one per BLUE policy—and zero action spans. There
+were no errors or retries. Evidence hashes were `178d06...b2b6` (critical) and
+`6a031d...3f39` (decoy); run-lock hash was `69c485...eff5`. This one smoke pair
+was not localization evidence: BLUE-2 had paired effect `D=-0.142857` and the
+other three effects were zero.
+
+Stage B was stopped before launch because the runner persisted approvals,
+returns, credits, and scenario metadata but discarded raw branch messages,
+deliveries, actions, and transitions. Running it in that form could not answer
+the frozen target-fact, receiver-action/capture, and transition-evidence gates
+without repeating all 24 scenarios. The GPU was stopped and remained at 1 MiB.
+The remote worker mapped an evidence schema but made no source change and then
+stopped responding; direct host inspection confirmed a clean worktree, no live
+process, and zero GPU utilization.
+
+A local candidate evidence writer now emits one compact hash-chained record per
+message-credit scenario. It includes scenario roles/target, initial-state and
+approval hashes, emitted and delivered broadcasts, replay-derived legal action
+sets, chosen actions, events, target before/after state and capture events,
+returns/credits, receiver effects, and per-decision request/output/context
+hashes. It must pass Linux, replay, and two-scenario live validation before
+Stage B starts.
 
 ## Current decision gates
 
