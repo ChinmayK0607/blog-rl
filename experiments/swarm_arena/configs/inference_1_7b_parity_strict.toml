@@ -3,7 +3,6 @@ max_loras = 8
 max_cpu_loras = 16
 max_lora_rank = 16
 gpu_memory_utilization = 0.82
-enable_prefix_caching = false
 
 [model]
 name = "/workspace/models/qwen3-1.7b-70d244c"
@@ -18,13 +17,14 @@ port = 8000
 level = "info"
 
 # Correctness-first bootstrap: remove server generation defaults and the
-# scheduling/batching paths that can change decode numerics. Throughput knobs
-# may only be restored one at a time behind the unchanged parity gate.
+# scheduling path that can change decode numerics. Cap serving concurrency at
+# four: a single-sequence trial exceeded the request deadline, while the
+# default unbounded batch exposed rare parity outliers. Throughput knobs may
+# only be restored one at a time behind the unchanged parity gate.
 [vllm_extra]
 generation_config = "vllm"
 async_scheduling = false
-enable_chunked_prefill = false
-max_num_seqs = 1
+max_num_seqs = 4
 
 [vllm_extra.ir_op_priority]
 rms_norm = ["native"]
