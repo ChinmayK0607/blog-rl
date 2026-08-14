@@ -1006,6 +1006,38 @@ no more critical-specific than decoy-specific. Therefore:
 - No optimizer is authorized. Passing permits a versioned prompt update and a
   newly frozen causal re-audit on unused development scenarios; it does not by
   itself authorize RL.
+- Completed result: 120 broadcasts in about 121 seconds on the A6000, no
+  errors and zero optimizer steps. `current` achieved 60/60 valid, 43/60
+  target facts (71.67%), and majority on 9/12 pairs. The preselected
+  `actionable_priority` achieved 60/60 valid, 58/60 target facts (96.67%), and
+  majority on 12/12 pairs. Its +25 percentage-point gain passes the frozen
+  confirmation threshold. Misses were isolated to pairs 17 and 22, each 4/5.
+- Verdict: capability replication passes. This permits versioning the exact
+  generic instruction into the BROADCAST prompt, but does not admit RL.
+- Compact artifact:
+  `results/pre_rl_1_7b/broadcast_priority_confirm_a1c3740a/probe.json`, 147,767
+  bytes, SHA-256
+  `c2da6a11a4cd4cd5118881ea9a3e84d817936eacafd3c963d82e3b492f3e41f7`.
+
+### 2026-08-14 — actionable-prompt causal re-audit
+
+- Status: planned; frozen before results
+- Verdict scope: message-drop estimator admission, no optimizer
+- Prompt: version `arena-episode-v5-actionable-broadcast-priority`, containing
+  exactly the independently confirmed generic instruction. The prompt never
+  receives the certified target, receiver answer, oracle action, or reward.
+- Stage A: development-manifest pairs 0--1, four alternating critical/decoy
+  scenarios, mechanical smoke only. All original exact replay, delivery,
+  common-random request, constraint, token-ownership, and supervisor gates must
+  pass before Stage B.
+- Stage B: if Stage A passes, development-manifest pairs 12--23, 24 alternating
+  critical/decoy scenarios. This slice is disjoint from Stage A and from both
+  train-pair prompt probes. Apply all eight original frozen Stage B conditions
+  in `MESSAGE_CREDIT_AUDIT_PLAN.md` unchanged; conditions 3, 5, or 6 failing
+  rejects the estimator, and thresholds will not be relaxed after inspection.
+- Stage C remains prohibited unless Stage B is promising. If admitted, it will
+  start at development pair 24 to remain disjoint. No final/OOD cases are used.
+- No optimizer or trainer process is authorized by Stage A or B.
 
 ## Artifact index
 

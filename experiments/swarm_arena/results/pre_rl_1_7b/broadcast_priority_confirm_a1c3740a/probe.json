@@ -1,0 +1,5443 @@
+{
+  "pair_offset": 12,
+  "policy_revision": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+  "rows": [
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V74",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 12,
+      "prompt_sha256": "796a55554979a6f43b3ffc94d32daae8542d3b016f68dfb374b7f36eb0b90176",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 0,
+      "request_sha256": "4c97ec4f4d6b22c490c46aa579eda4a751ca99b02d321513970ddd9a1d9c6165",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-0",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V86",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 12,
+      "prompt_sha256": "8329903c5968de2dc68ebce7fa01be5924bf83f50ff140b6b55f7ec991020652",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 0,
+      "request_sha256": "b9f8458b31af948dd19198473ac8adb0f3bc4f99f0ca4d380150a748998661d5",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-0",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 0,
+      "pair_index": 12,
+      "prompt_sha256": "796a55554979a6f43b3ffc94d32daae8542d3b016f68dfb374b7f36eb0b90176",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 1,
+      "request_sha256": "6099c6ca76da4249fde82839521f1ad4d88d926c73d94d2d09608bba55e53628",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-1",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V86",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 1
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 12,
+      "prompt_sha256": "8329903c5968de2dc68ebce7fa01be5924bf83f50ff140b6b55f7ec991020652",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 1,
+      "request_sha256": "0081c58d0f44ed3613bd4d939c1ab20512b428552eebb8906a1f5065e43c58ba",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-1",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V67",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 12,
+      "prompt_sha256": "796a55554979a6f43b3ffc94d32daae8542d3b016f68dfb374b7f36eb0b90176",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 2,
+      "request_sha256": "7ce7f4e71fdea225e05d107c098b01c1399f9750ab5942705e8625496d69fea8",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-2",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V67",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 12,
+      "prompt_sha256": "8329903c5968de2dc68ebce7fa01be5924bf83f50ff140b6b55f7ec991020652",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 2,
+      "request_sha256": "6ec523d769acf6e29dcb66c054a72a33834bab704248da6d2cbd6fcd92740f19",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-2",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V67",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 12,
+      "prompt_sha256": "796a55554979a6f43b3ffc94d32daae8542d3b016f68dfb374b7f36eb0b90176",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 3,
+      "request_sha256": "e69915baac3a57fa6f354006380d4db1573bd079636fb36dde990ef1799717ad",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-3",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V86",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 12,
+      "prompt_sha256": "8329903c5968de2dc68ebce7fa01be5924bf83f50ff140b6b55f7ec991020652",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 3,
+      "request_sha256": "06b9962011e5462c1cc7710a713bc5208adfefea757337d70d6aa85b3a170c92",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-3",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V96",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 2
+          },
+          {
+            "critical": true,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 12,
+      "prompt_sha256": "796a55554979a6f43b3ffc94d32daae8542d3b016f68dfb374b7f36eb0b90176",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 4,
+      "request_sha256": "57816c6aabdd577d4827a1bbe2afc1596ce0711f08fe1c8c22edf64cea95f01e",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-4",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V86",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 12,
+      "prompt_sha256": "8329903c5968de2dc68ebce7fa01be5924bf83f50ff140b6b55f7ec991020652",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 4,
+      "request_sha256": "01a4e5ac277c36eb9df9ddf541bd971305c2ea5683b0c7f12d14ffd31b5a64df",
+      "sampling_key": "broadcast-priority-v1:pair-12:rep-4",
+      "sender": "blue-0",
+      "target": "V48",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V48",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V45",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V68",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "FORTIFIED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "5d1ec15d30c7f48e3705615629bc792415cc34664b7520d2e7f12029e05bd4f0",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 0,
+      "request_sha256": "0a4fbb059662afb3efda2e884b2aa7be6618f2e10087197c89ce435efbaf0b26",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-0",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V45",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "c331fcba491d44ae3a370fcfb22f0fd8550321b7fae83eea89edb971ad456f4f",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 0,
+      "request_sha256": "81f3c5ca695f992b128beed34bb5ef4857d4c1b6e8200f970fd3658400ba9dba",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-0",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V18",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "COMPROMISED",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "5d1ec15d30c7f48e3705615629bc792415cc34664b7520d2e7f12029e05bd4f0",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 1,
+      "request_sha256": "536a70c767b82dd3558a1559ae6943dbf36d72915b0a0a4892717a8222021aae",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-1",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V45",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V68",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "FORTIFIED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "c331fcba491d44ae3a370fcfb22f0fd8550321b7fae83eea89edb971ad456f4f",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 1,
+      "request_sha256": "a0041f1767062b6fefeec6ee3f68dd06fd1453d5191852cf3db6826a8ad47594",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-1",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V18",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "COMPROMISED",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V45",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "5d1ec15d30c7f48e3705615629bc792415cc34664b7520d2e7f12029e05bd4f0",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 2,
+      "request_sha256": "32a95664f4f256e7882880b850d8d020167827092754ab9f83e630e50b235940",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-2",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V45",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V68",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "FORTIFIED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "c331fcba491d44ae3a370fcfb22f0fd8550321b7fae83eea89edb971ad456f4f",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 2,
+      "request_sha256": "7d414ed203476c0c2e5e0d8a20879fe4443edeb9b8ecc94e822e142fdfbc5424",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-2",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V45",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "5d1ec15d30c7f48e3705615629bc792415cc34664b7520d2e7f12029e05bd4f0",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 3,
+      "request_sha256": "125bb7939e5835e791ff5fae5a8c903ad3c789807ece1446458b9a7f12ae6a19",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-3",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V45",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "c331fcba491d44ae3a370fcfb22f0fd8550321b7fae83eea89edb971ad456f4f",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 3,
+      "request_sha256": "3e18e919502e1167ed56bae4792240c15634a78194f08b4080f27f48f57f52c0",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-3",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V45",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V68",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "FORTIFIED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "5d1ec15d30c7f48e3705615629bc792415cc34664b7520d2e7f12029e05bd4f0",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 4,
+      "request_sha256": "9e91493ee62084a76b2bc5e4e0e201fb8e69730b15f6bf9a0984b338418ddf32",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-4",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V45",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V68",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "FORTIFIED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 13,
+      "prompt_sha256": "c331fcba491d44ae3a370fcfb22f0fd8550321b7fae83eea89edb971ad456f4f",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 4,
+      "request_sha256": "461fd6a03e9949c6568d62a874f02653195d54a3eeddc8a88bb944a3218bdb27",
+      "sampling_key": "broadcast-priority-v1:pair-13:rep-4",
+      "sender": "blue-0",
+      "target": "V45",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V45",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 0,
+      "pair_index": 14,
+      "prompt_sha256": "df481bada516da51b8f5fbed3fb6a7e5302bb82654cd72515674ef90157ea161",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 0,
+      "request_sha256": "b6a8a8ac15bf041ae6812d9b2f959378aa03ef0acd9fc45e4d1d7bc9845ffea6",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-0",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V20",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 2
+          },
+          {
+            "critical": true,
+            "node": "V10",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 14,
+      "prompt_sha256": "fd3e4834cba21ef3f38a8e577a8cc8dd8a044a46f186dd40367f7b675d0891ab",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 0,
+      "request_sha256": "09e4c3ee928f7b5db835da161d6db6d72640c7d37f3797a7f7b06a723003de04",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-0",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V10",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V20",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 2
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 14,
+      "prompt_sha256": "df481bada516da51b8f5fbed3fb6a7e5302bb82654cd72515674ef90157ea161",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 1,
+      "request_sha256": "1ce365742ececd3019d46a89cfdccc986c1ed57865289b2c047b1c6e52478756",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-1",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V10",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V69",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 14,
+      "prompt_sha256": "fd3e4834cba21ef3f38a8e577a8cc8dd8a044a46f186dd40367f7b675d0891ab",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 1,
+      "request_sha256": "09cc7cdc87188dabc35bec73f060ee84c0815c054cafe5dc662b855e3093ed34",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-1",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V69",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V20",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 14,
+      "prompt_sha256": "df481bada516da51b8f5fbed3fb6a7e5302bb82654cd72515674ef90157ea161",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 2,
+      "request_sha256": "6b4166cb3baaf9a5dde22eb3be99b2219e357c0167438e0cbfa1f051d1eb2b85",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-2",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V10",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V20",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 2
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 14,
+      "prompt_sha256": "fd3e4834cba21ef3f38a8e577a8cc8dd8a044a46f186dd40367f7b675d0891ab",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 2,
+      "request_sha256": "f288c6f44da4c52bbd4e25b3194f33206781a9029f79d9bb488e75e543732777",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-2",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V46",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 2
+          },
+          {
+            "critical": false,
+            "node": "V69",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 14,
+      "prompt_sha256": "df481bada516da51b8f5fbed3fb6a7e5302bb82654cd72515674ef90157ea161",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 3,
+      "request_sha256": "0ea47edaa17c583fb126e54992ed39833827cc354d36bd01b89c28bff6abcbba",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-3",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V10",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V20",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 2
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 14,
+      "prompt_sha256": "fd3e4834cba21ef3f38a8e577a8cc8dd8a044a46f186dd40367f7b675d0891ab",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 3,
+      "request_sha256": "53888dc6227b2293dd2fbf92d064c824d70a04dcd19837f459e76ff087f92db2",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-3",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V20",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 2
+          },
+          {
+            "critical": true,
+            "node": "V10",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 14,
+      "prompt_sha256": "df481bada516da51b8f5fbed3fb6a7e5302bb82654cd72515674ef90157ea161",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 4,
+      "request_sha256": "c7eebd0993e2b31c1801d55ffdd7a8f93d92fc22052051ef9961184feb9698ee",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-4",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V10",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V20",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 14,
+      "prompt_sha256": "fd3e4834cba21ef3f38a8e577a8cc8dd8a044a46f186dd40367f7b675d0891ab",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 4,
+      "request_sha256": "1747fccc2f04d75edc46db11d37c1c8bf0aecd57ffda75151f5c0049fba55441",
+      "sampling_key": "broadcast-priority-v1:pair-14:rep-4",
+      "sender": "blue-0",
+      "target": "V10",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V10",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "062085a0966ac1a755dd05700484c0da98c2752719ca4ce83246e855bb7e64d7",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 0,
+      "request_sha256": "7a6047883ea233ac0e06c13e7f367d3a6b7e2f1cbf73af319fa97af8bbfa5126",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-0",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "9e93e750c1dec28e81a360a852404f3d942318e2932c8d0a6aedfb04734fd6c5",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 0,
+      "request_sha256": "f8b132e7eb0d4c6f342d9a33e19e9073d2b3be2090e75f85d8058f4ae5ab0362",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-0",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "062085a0966ac1a755dd05700484c0da98c2752719ca4ce83246e855bb7e64d7",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 1,
+      "request_sha256": "c933abb642e340b7996824f1aa7c65b5b17ee4ce09b99d44cb41386401476562",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-1",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "9e93e750c1dec28e81a360a852404f3d942318e2932c8d0a6aedfb04734fd6c5",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 1,
+      "request_sha256": "a364ba41a628b42c4e58f9ecd629c77bba67631ae50eb4621e85b632bc3af236",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-1",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "062085a0966ac1a755dd05700484c0da98c2752719ca4ce83246e855bb7e64d7",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 2,
+      "request_sha256": "c2af7528be4c0b8482f80861ada5ffc22dacab89240a9b2113736ada764e69e7",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-2",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "9e93e750c1dec28e81a360a852404f3d942318e2932c8d0a6aedfb04734fd6c5",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 2,
+      "request_sha256": "90f562d7744b01202ae2c599aef156f07be22ae9ac9085aac25ee3a89d5f0134",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-2",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "062085a0966ac1a755dd05700484c0da98c2752719ca4ce83246e855bb7e64d7",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 3,
+      "request_sha256": "4bc9040f6e43d4e1efe58e8ca5e43367c2af5d5686c49224c29fff52cb196a60",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-3",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "9e93e750c1dec28e81a360a852404f3d942318e2932c8d0a6aedfb04734fd6c5",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 3,
+      "request_sha256": "346b8be3ecc456542e80ebf87221dea690ecf94057a2347de922e5794651471c",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-3",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V47",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "062085a0966ac1a755dd05700484c0da98c2752719ca4ce83246e855bb7e64d7",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 4,
+      "request_sha256": "b65395e08eeeae368222fdc91d33693af794d382f9ab81cba47f2c0b891dcff7",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-4",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 15,
+      "prompt_sha256": "9e93e750c1dec28e81a360a852404f3d942318e2932c8d0a6aedfb04734fd6c5",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 4,
+      "request_sha256": "203d35b03a404259c6f6d63733f0c37c535318ca24952975ce1f79b6457ba7a1",
+      "sampling_key": "broadcast-priority-v1:pair-15:rep-4",
+      "sender": "blue-1",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V39",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "0514c86371d90c85a0554b96120c467370c1e637032ed95a51da7154dcfbc5ca",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 0,
+      "request_sha256": "f20d461c447cc15dcd3605b11e272d2fd06d8c6e4293d763f7935bc3ef21a3b8",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-0",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V39",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "aaee210e428c911d6f665d98b38ce0a260ccc4b835943aebff688980b03cb875",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 0,
+      "request_sha256": "e28f4977a547b9d71f00d9cfa539d489cb083f987a78b34a4d4801beb1e17fa0",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-0",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V39",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "0514c86371d90c85a0554b96120c467370c1e637032ed95a51da7154dcfbc5ca",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 1,
+      "request_sha256": "127afb185421680a09066d153b434a28ebd21266b7ae91831981cd44fc611162",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-1",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V39",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 1
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "aaee210e428c911d6f665d98b38ce0a260ccc4b835943aebff688980b03cb875",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 1,
+      "request_sha256": "ab147178e0fd6227c8b6a95b2bc786821bb6fd60e99b018469ff3cee4f6aa809",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-1",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V39",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "0514c86371d90c85a0554b96120c467370c1e637032ed95a51da7154dcfbc5ca",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 2,
+      "request_sha256": "1baee0d0faf48bfabd6e98b3c5febdb9d54ae51c519d0ebcc16085bb230f3447",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-2",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V39",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "aaee210e428c911d6f665d98b38ce0a260ccc4b835943aebff688980b03cb875",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 2,
+      "request_sha256": "a0c02b3aa7bd8e2d63e40f15662250e4a1ad4437d4c8942e530506d26c95c0ca",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-2",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V50",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 1
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "0514c86371d90c85a0554b96120c467370c1e637032ed95a51da7154dcfbc5ca",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 3,
+      "request_sha256": "9413ca828d5a388093efcc0811e6419109f10ffdb2b2b0ec264b66178fc49ebd",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-3",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V39",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "aaee210e428c911d6f665d98b38ce0a260ccc4b835943aebff688980b03cb875",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 3,
+      "request_sha256": "1db45fb593e26b0e6195a3e9c2f526e22a566dd17eb38d8b2a48173cbbcffd4c",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-3",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V39",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "0514c86371d90c85a0554b96120c467370c1e637032ed95a51da7154dcfbc5ca",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 4,
+      "request_sha256": "a81dce44e58931539076e0e37f70e8efc21ab16ef611913ac7e9498fd773891c",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-4",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V28",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V39",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 16,
+      "prompt_sha256": "aaee210e428c911d6f665d98b38ce0a260ccc4b835943aebff688980b03cb875",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 4,
+      "request_sha256": "eb101fba832804db37661e28971a8df484fdb92c81fc0cc5bfdc8fbec66b56d7",
+      "sampling_key": "broadcast-priority-v1:pair-16:rep-4",
+      "sender": "blue-1",
+      "target": "V39",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V39",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V77",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V79",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 17,
+      "prompt_sha256": "9892bdf1ac3fea499668c0cc3f8c95edfe53de60de3831b1772589feccbf4d41",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 0,
+      "request_sha256": "f4fff9046cfebc803562d42f42751a8b6cef27e8ae8f7a0432181b2a91f3aa3a",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-0",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V79",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V98",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 17,
+      "prompt_sha256": "5632d8f8335d8ecf82400eb87e767c5aca373dd26fc266c5854ad6970cc44708",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 0,
+      "request_sha256": "1bf4efbaa2657978f29263837f302fd1fd919db63b10e09f348dc4a88564f1b6",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-0",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V77",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V79",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 1
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 17,
+      "prompt_sha256": "9892bdf1ac3fea499668c0cc3f8c95edfe53de60de3831b1772589feccbf4d41",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 1,
+      "request_sha256": "f67e1a713f8b7b42eb572d085a3a144b2fa11e9e59b227e45182c6b616838464",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-1",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V77",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V79",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 17,
+      "prompt_sha256": "5632d8f8335d8ecf82400eb87e767c5aca373dd26fc266c5854ad6970cc44708",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 1,
+      "request_sha256": "3e26872761dca80439ac943f95156dcfd67726e63946ec20b06364cc5685524d",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-1",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V79",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V96",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 1
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 17,
+      "prompt_sha256": "9892bdf1ac3fea499668c0cc3f8c95edfe53de60de3831b1772589feccbf4d41",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 2,
+      "request_sha256": "19ad1b91136b1f95beb6e7629fdd96b7963180c55a0323ecc21b6722d305b73a",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-2",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V77",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V79",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 17,
+      "prompt_sha256": "5632d8f8335d8ecf82400eb87e767c5aca373dd26fc266c5854ad6970cc44708",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 2,
+      "request_sha256": "8fd845791bd1624478e48c8d313380b640055565d340dbc51df9c887a00f77f3",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-2",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V79",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V96",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 17,
+      "prompt_sha256": "9892bdf1ac3fea499668c0cc3f8c95edfe53de60de3831b1772589feccbf4d41",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 3,
+      "request_sha256": "cf4fed8afd9d04aca6896b5dd961e5c3058a9be5254d0c776f8169e859302efe",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-3",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V98",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V96",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 17,
+      "prompt_sha256": "5632d8f8335d8ecf82400eb87e767c5aca373dd26fc266c5854ad6970cc44708",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 3,
+      "request_sha256": "a340fe8d72bc284238717d4c032d7300a05e2a91a4d269ebacddc8b8bfa20aa6",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-3",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V98",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V96",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 17,
+      "prompt_sha256": "9892bdf1ac3fea499668c0cc3f8c95edfe53de60de3831b1772589feccbf4d41",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 4,
+      "request_sha256": "f75c95b70af99b9bd64332173ca15f7721f46c397d5bf14cfd5cc6217fe4bf6a",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-4",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V79",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 17,
+      "prompt_sha256": "5632d8f8335d8ecf82400eb87e767c5aca373dd26fc266c5854ad6970cc44708",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 4,
+      "request_sha256": "fe7f59c3dcbe5ade610fdde9cb44c7eca82bcd7c282c13557331a59d0d4f2da6",
+      "sampling_key": "broadcast-priority-v1:pair-17:rep-4",
+      "sender": "blue-1",
+      "target": "V79",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V79",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V17",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "5bbf9a9d357a5c55f3fd91a3876640bacf0a647a12c89be9063657a3106e126c",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 0,
+      "request_sha256": "3bfc3b60cd3afe77f375d5c145126c41b1664f9a18d512ca14988f5b9732d5d7",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-0",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V17",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "74f2538208186475bd2ef38adab62ed1b206e169471a05c13ccdc9c663ad3229",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 0,
+      "request_sha256": "c0d837373b6136e858092414606ea793664cdaed642681cf7c142aa0e3363cb6",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-0",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V31",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V51",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "5bbf9a9d357a5c55f3fd91a3876640bacf0a647a12c89be9063657a3106e126c",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 1,
+      "request_sha256": "43ab4d7fea672d9a049fd8319e6bd2112335315e9d11adb1d9e3a2e57ae3e82e",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-1",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V17",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V25",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "74f2538208186475bd2ef38adab62ed1b206e169471a05c13ccdc9c663ad3229",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 1,
+      "request_sha256": "b6f504feb868f2b35109964379b8b428cefeaf574519e22fca462539f81c8f09",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-1",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V17",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V51",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "5bbf9a9d357a5c55f3fd91a3876640bacf0a647a12c89be9063657a3106e126c",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 2,
+      "request_sha256": "7aa6ded408f597545408b0807a0cf1fcf96a3aae71033bae901d3a6225254067",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-2",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V17",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "74f2538208186475bd2ef38adab62ed1b206e169471a05c13ccdc9c663ad3229",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 2,
+      "request_sha256": "328f21b13e081ea4b9a96a7330b899e7d19aebbb3a58c982358dbe4bdbb3d32b",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-2",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V51",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "5bbf9a9d357a5c55f3fd91a3876640bacf0a647a12c89be9063657a3106e126c",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 3,
+      "request_sha256": "aff0247e77a379c86aeefcfc96669fb603e39a8982270b1d96f27f811d923c5f",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-3",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V17",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "74f2538208186475bd2ef38adab62ed1b206e169471a05c13ccdc9c663ad3229",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 3,
+      "request_sha256": "68cc7311f058b15bb3f3087e84b68cb68346af5ac465072403e30268679c369f",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-3",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V25",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "5bbf9a9d357a5c55f3fd91a3876640bacf0a647a12c89be9063657a3106e126c",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 4,
+      "request_sha256": "2e94356ef49305ea60eed159fc236d66bc7d4ca9438bdcf38e418eb040870cc4",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-4",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V17",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V54",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 18,
+      "prompt_sha256": "74f2538208186475bd2ef38adab62ed1b206e169471a05c13ccdc9c663ad3229",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 4,
+      "request_sha256": "5e0e2dde6274218b029c05a05df6a425ff4d070a880db4212c04bfd2365e2eaa",
+      "sampling_key": "broadcast-priority-v1:pair-18:rep-4",
+      "sender": "blue-2",
+      "target": "V17",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V17",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V68",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 19,
+      "prompt_sha256": "2d3d45ac67dffb2d100af792b9c1667b900c859bd64f33e134de7224f4fb363e",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 0,
+      "request_sha256": "795f2c337102e89a23bb294fd157171577e00bdf02434024017922697bb5962c",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-0",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V68",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 19,
+      "prompt_sha256": "08e9c1b5ff83b2a5fe93190fa3ee2a6d2e02ac923f3d90858d6a2d2cdd3bbbe9",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 0,
+      "request_sha256": "38c5320eb158c8269f45e128a8966ffaa61a1a7b4518405602fd354ca00e60bb",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-0",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V66",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V15",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 19,
+      "prompt_sha256": "2d3d45ac67dffb2d100af792b9c1667b900c859bd64f33e134de7224f4fb363e",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 1,
+      "request_sha256": "3f59b046d725ae0fad0652047904b6444f9f917bb657ae6be1c85ae6170e8fe1",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-1",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V68",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V78",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 2
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 19,
+      "prompt_sha256": "08e9c1b5ff83b2a5fe93190fa3ee2a6d2e02ac923f3d90858d6a2d2cdd3bbbe9",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 1,
+      "request_sha256": "991f5f99bc2e25132f7fc99d067fd52e40178432d3d7a0843d8065b8681dc13f",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-1",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V66",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V68",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 19,
+      "prompt_sha256": "2d3d45ac67dffb2d100af792b9c1667b900c859bd64f33e134de7224f4fb363e",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 2,
+      "request_sha256": "3c9c8c8b03e812504ee9f081c7b8c37b756c2ac90a5b15c4b32fa5d680606ad3",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-2",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V68",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 19,
+      "prompt_sha256": "08e9c1b5ff83b2a5fe93190fa3ee2a6d2e02ac923f3d90858d6a2d2cdd3bbbe9",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 2,
+      "request_sha256": "4f1cb4764a20b2258dd61eabd9396152bdc6abda3b4d65d5b2665bc2abcffe61",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-2",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V68",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 1
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 19,
+      "prompt_sha256": "2d3d45ac67dffb2d100af792b9c1667b900c859bd64f33e134de7224f4fb363e",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 3,
+      "request_sha256": "65af213528d753a641b2afb3b31345b257aea1fa24e31578e47df9cbd840f4ed",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-3",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V68",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V78",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 19,
+      "prompt_sha256": "08e9c1b5ff83b2a5fe93190fa3ee2a6d2e02ac923f3d90858d6a2d2cdd3bbbe9",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 3,
+      "request_sha256": "b9517e4e73d16d4df751fe40db45a32a27466352b417555d9f26cbd0d2229202",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-3",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V66",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V68",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 19,
+      "prompt_sha256": "2d3d45ac67dffb2d100af792b9c1667b900c859bd64f33e134de7224f4fb363e",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 4,
+      "request_sha256": "9fad21a3b0b5079ea65ff57da9fef150d743604f09fe5fcc3eda8bc6dacc8cd4",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-4",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V68",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 19,
+      "prompt_sha256": "08e9c1b5ff83b2a5fe93190fa3ee2a6d2e02ac923f3d90858d6a2d2cdd3bbbe9",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 4,
+      "request_sha256": "e9a29eb75f8321681ec5220e9d42194ca92bdfdc7a03a00980abb7a4707e8472",
+      "sampling_key": "broadcast-priority-v1:pair-19:rep-4",
+      "sender": "blue-2",
+      "target": "V68",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V68",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V34",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 20,
+      "prompt_sha256": "43bd10642cf79beb0824ff5e7da772d9d34b1c16f339a58b926b1fce222e4c91",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 0,
+      "request_sha256": "0c754cbcbeb57f10a7936df74b0b582268ce53e18621e70969f8a0c8b305db18",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-0",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V34",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 20,
+      "prompt_sha256": "aebd32f5e03ca2c7da6557a3f9526614425811ad412ec7693bd79279acf16a3a",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 0,
+      "request_sha256": "c344d1e1ee59fb78f6d1a2f281afba3d5e15431ff59bf19bc4d8971b9b4a959e",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-0",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V34",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 1
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 20,
+      "prompt_sha256": "43bd10642cf79beb0824ff5e7da772d9d34b1c16f339a58b926b1fce222e4c91",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 1,
+      "request_sha256": "6724e79fd92f2d10c70e2504b37c1a2e66ca68920780e95e70a6687cdb00b4fc",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-1",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V34",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 20,
+      "prompt_sha256": "aebd32f5e03ca2c7da6557a3f9526614425811ad412ec7693bd79279acf16a3a",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 1,
+      "request_sha256": "f5ebc4bb5ef7a10138f973a2f6bb2a4cd242a56107d9220a707c4bda4dba7875",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-1",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V34",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 20,
+      "prompt_sha256": "43bd10642cf79beb0824ff5e7da772d9d34b1c16f339a58b926b1fce222e4c91",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 2,
+      "request_sha256": "4c452efca5990472fd8217ad37b8d33fcd214f39862ff0385814c46b0c138e66",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-2",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V34",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 20,
+      "prompt_sha256": "aebd32f5e03ca2c7da6557a3f9526614425811ad412ec7693bd79279acf16a3a",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 2,
+      "request_sha256": "f8505d4d2dea4944c2d9e8c7858e47eb56b6a7df07dbc426306cafb77cd907b0",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-2",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V95",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "FORTIFIED",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 20,
+      "prompt_sha256": "43bd10642cf79beb0824ff5e7da772d9d34b1c16f339a58b926b1fce222e4c91",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 3,
+      "request_sha256": "c923fea1e53740ef4123bae6e130abc3aa925395099020f9523a5857fb91d92a",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-3",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V34",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 20,
+      "prompt_sha256": "aebd32f5e03ca2c7da6557a3f9526614425811ad412ec7693bd79279acf16a3a",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 3,
+      "request_sha256": "1c928a10a17d5aaff0118e82aa1e7c8e7bf3257eae2b1be52db8ad6596a225a0",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-3",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V34",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 20,
+      "prompt_sha256": "43bd10642cf79beb0824ff5e7da772d9d34b1c16f339a58b926b1fce222e4c91",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 4,
+      "request_sha256": "828380d23219b9c21b8795d0448692b9c1d9eb661179eb2c9657751865533633",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-4",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V34",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V32",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 1
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 20,
+      "prompt_sha256": "aebd32f5e03ca2c7da6557a3f9526614425811ad412ec7693bd79279acf16a3a",
+      "protocol_valid": true,
+      "receiver": "blue-3",
+      "repetition": 4,
+      "request_sha256": "8308b33a4017df40844c040f762914661ca35e03820ca895e53e8b586f57eaa1",
+      "sampling_key": "broadcast-priority-v1:pair-20:rep-4",
+      "sender": "blue-2",
+      "target": "V34",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V34",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V87",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 21,
+      "prompt_sha256": "c5ddaaaf5f11e88e4d7a39f84d42e0d9c6473ce6333284c5bf0947fd6bad8566",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 0,
+      "request_sha256": "8aa6e5a0404a4e2c2c97ffd74f984b3bdbc71883767c0ba34d2819df2c7121f2",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-0",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V39",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 21,
+      "prompt_sha256": "6e310c0bccec7590f1b61790d8a148c1e8dc437e53e8af8c413719da104f5d08",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 0,
+      "request_sha256": "533d61c5e9202d2d0704a0cf2fcde86594327c55381bd0f138012ef61778b734",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-0",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V87",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 1
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 21,
+      "prompt_sha256": "c5ddaaaf5f11e88e4d7a39f84d42e0d9c6473ce6333284c5bf0947fd6bad8566",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 1,
+      "request_sha256": "ec3d9dd41256a85d0a05da6cc182977b396c14d4b21bdba52f61adb4502a2041",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-1",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 21,
+      "prompt_sha256": "6e310c0bccec7590f1b61790d8a148c1e8dc437e53e8af8c413719da104f5d08",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 1,
+      "request_sha256": "f2b655417f8d46588ed34dd21bbbf95b59f8dc6c5c49db6dd03b6e32d2a7c2e1",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-1",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V63",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 21,
+      "prompt_sha256": "c5ddaaaf5f11e88e4d7a39f84d42e0d9c6473ce6333284c5bf0947fd6bad8566",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 2,
+      "request_sha256": "3f443634206c9c0a9b975fce42f5cbf622e0a637eeb58a96346f315512404adc",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-2",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 21,
+      "prompt_sha256": "6e310c0bccec7590f1b61790d8a148c1e8dc437e53e8af8c413719da104f5d08",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 2,
+      "request_sha256": "b20efc559c3a0060756a8b77a4fd768269e8b5794ee322f8f1c7a1da48445a1a",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-2",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V63",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 21,
+      "prompt_sha256": "c5ddaaaf5f11e88e4d7a39f84d42e0d9c6473ce6333284c5bf0947fd6bad8566",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 3,
+      "request_sha256": "7c2bd3f04a267f3e1d4158b315b222ea6aaa50a416b443e40e000ce89ee11274",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-3",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 21,
+      "prompt_sha256": "6e310c0bccec7590f1b61790d8a148c1e8dc437e53e8af8c413719da104f5d08",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 3,
+      "request_sha256": "6ff3ed546289d02d63724c95570ddbfa5b07e6039124f893880c83ad115e6017",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-3",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 21,
+      "prompt_sha256": "c5ddaaaf5f11e88e4d7a39f84d42e0d9c6473ce6333284c5bf0947fd6bad8566",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 4,
+      "request_sha256": "0c6a3ef221d13f98371e0eda310992cef366a2a34800ee34e30920ab4a2d1549",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-4",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V67",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 21,
+      "prompt_sha256": "6e310c0bccec7590f1b61790d8a148c1e8dc437e53e8af8c413719da104f5d08",
+      "protocol_valid": true,
+      "receiver": "blue-0",
+      "repetition": 4,
+      "request_sha256": "ebbacbea246fd8b57c1cdd196ce4c7ce1cf62ff09762651bd81353b86d6fa3e0",
+      "sampling_key": "broadcast-priority-v1:pair-21:rep-4",
+      "sender": "blue-3",
+      "target": "V67",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V67",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V90",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 2
+          },
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "5f803830fbfec3fc0eca7f26d959e62c8381946645bfd1f88107160816801e4a",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 0,
+      "request_sha256": "8c05dcc1a092e4acc2d149d641318db0fb1f4b7e78f4882ad6d454a7046e03f5",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-0",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V45",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "9c464b54facffe91746365237af8f6a46bc6d0e1b3b0befe189dafeff390cf65",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 0,
+      "request_sha256": "1eee494eea7479dace50d2e1c8a2a68069d68e43dedf031203f40f2f7759b359",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-0",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V45",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V90",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "5f803830fbfec3fc0eca7f26d959e62c8381946645bfd1f88107160816801e4a",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 1,
+      "request_sha256": "48e3354447ac3d40269c133456ce16d6ce09f03756af9f9aa981258f76d5447f",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-1",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V90",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "9c464b54facffe91746365237af8f6a46bc6d0e1b3b0befe189dafeff390cf65",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 1,
+      "request_sha256": "52add2c35bbde750d17f59dc7a6324f8b0940905e5247e27c91b29c1f30a38c5",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-1",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V45",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V35",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 2
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "5f803830fbfec3fc0eca7f26d959e62c8381946645bfd1f88107160816801e4a",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 2,
+      "request_sha256": "d1dc0d8ee58de60bd168940a4d73dd05757449c26a340e57c202d977092aed4c",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-2",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V90",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "9c464b54facffe91746365237af8f6a46bc6d0e1b3b0befe189dafeff390cf65",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 2,
+      "request_sha256": "b88a857bd1068f28eeb24482046f3675f98b6452a439dcfe7f68d7104d842824",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-2",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V45",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V90",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "5f803830fbfec3fc0eca7f26d959e62c8381946645bfd1f88107160816801e4a",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 3,
+      "request_sha256": "b8ed584f66699fea0457e47829128aa3fd79f17a7863a944ef4a09e6a88e5bf5",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-3",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V90",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "9c464b54facffe91746365237af8f6a46bc6d0e1b3b0befe189dafeff390cf65",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 3,
+      "request_sha256": "f6a12634a1b58dc7622d52e4f3e20f2617ca0f5437b6ebcfac927d249afbb58e",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-3",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V31",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V90",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "EXPOSED",
+            "value": 2
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "5f803830fbfec3fc0eca7f26d959e62c8381946645bfd1f88107160816801e4a",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 4,
+      "request_sha256": "16d5a140e4377f1b287becb1eb379f9c918810081f985d39cbd7039f1e88fc8b",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-4",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V35",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 2
+          },
+          {
+            "critical": false,
+            "node": "V45",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 22,
+      "prompt_sha256": "9c464b54facffe91746365237af8f6a46bc6d0e1b3b0befe189dafeff390cf65",
+      "protocol_valid": true,
+      "receiver": "blue-1",
+      "repetition": 4,
+      "request_sha256": "5e861fd9ca5ec5b9a7725ea1a00a18c6c03d0f3a83bdac102d2e1135124c2233",
+      "sampling_key": "broadcast-priority-v1:pair-22:rep-4",
+      "sender": "blue-3",
+      "target": "V31",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V31",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V50",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V69",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 2
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 23,
+      "prompt_sha256": "3bd62403654e4e26b6e225d3e5109c4c2dad6e9289e978f4f050bf9e17d2ded9",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 0,
+      "request_sha256": "24ddc5dea800d1c844118cefeac86d4b6e4415c831fd80df8a71f29a0ff1621c",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-0",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V30",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V50",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 23,
+      "prompt_sha256": "d0bfa96c3dcf943244557f301cc4829df34832c88c7dd71673c1de1765a3ebe7",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 0,
+      "request_sha256": "c292db35f60d935dfd7bb1fb45604764ef67e674db1eba60283414cf366d9036",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-0",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V87",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V30",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 23,
+      "prompt_sha256": "3bd62403654e4e26b6e225d3e5109c4c2dad6e9289e978f4f050bf9e17d2ded9",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 1,
+      "request_sha256": "6afaf000ddc7cad3bb4bd667cbcfaa21ecf434ce583f5f40cdc22d5ebfd6f47c",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-1",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V50",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V30",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 23,
+      "prompt_sha256": "d0bfa96c3dcf943244557f301cc4829df34832c88c7dd71673c1de1765a3ebe7",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 1,
+      "request_sha256": "4264773c9c50cd291c3bb1d9da9c52b3679fe31493960968ba24eae275301550",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-1",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V30",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V41",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 23,
+      "prompt_sha256": "3bd62403654e4e26b6e225d3e5109c4c2dad6e9289e978f4f050bf9e17d2ded9",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 2,
+      "request_sha256": "45994335d57637059022990a47d9518895bcdee46fc16225372b02d16ce47d44",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-2",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V30",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V50",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 23,
+      "prompt_sha256": "d0bfa96c3dcf943244557f301cc4829df34832c88c7dd71673c1de1765a3ebe7",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 2,
+      "request_sha256": "729488601269480f3b5b36e949844c0b7c13ad75b09d9525b0d9f28eebbc7dd0",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-2",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V30",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V69",
+            "observed_turn": 1,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 2
+          }
+        ],
+        "intent": null,
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 23,
+      "prompt_sha256": "3bd62403654e4e26b6e225d3e5109c4c2dad6e9289e978f4f050bf9e17d2ded9",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 3,
+      "request_sha256": "bf1b5b003086efa078ec1430a3c01e6c2d6078d7a38f5d2993f8cc72025b22fc",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-3",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V30",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 1,
+      "pair_index": 23,
+      "prompt_sha256": "d0bfa96c3dcf943244557f301cc4829df34832c88c7dd71673c1de1765a3ebe7",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 3,
+      "request_sha256": "d9bad94870ad79cf3578e1f2259a22d5c4538b9ab85bffb758c5e18a8c9964d7",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-3",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": false,
+            "node": "V41",
+            "observed_turn": 1,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          {
+            "critical": true,
+            "node": "V50",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 23,
+      "prompt_sha256": "3bd62403654e4e26b6e225d3e5109c4c2dad6e9289e978f4f050bf9e17d2ded9",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 4,
+      "request_sha256": "9c712be156a5a4f76a854c1df3b182e5ec1c7bbe3ef065bdd9ede771cb1cdd74",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-4",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": false,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "current"
+    },
+    {
+      "broadcast": {
+        "facts": [
+          {
+            "critical": true,
+            "node": "V50",
+            "observed_turn": 1,
+            "owner": "RED",
+            "status": "COMPROMISED",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V30",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "EXPOSED",
+            "value": 3
+          }
+        ],
+        "intent": {
+          "type": "WAIT"
+        },
+        "request_resource": 0
+      },
+      "errors": [],
+      "fact_count": 2,
+      "pair_index": 23,
+      "prompt_sha256": "d0bfa96c3dcf943244557f301cc4829df34832c88c7dd71673c1de1765a3ebe7",
+      "protocol_valid": true,
+      "receiver": "blue-2",
+      "repetition": 4,
+      "request_sha256": "c9a794dd34f0cd2189e163ceb2ffab73626a4b2db38b225ca80e9894cb795293",
+      "sampling_key": "broadcast-priority-v1:pair-23:rep-4",
+      "sender": "blue-3",
+      "target": "V30",
+      "target_fact_present": true,
+      "target_observation": {
+        "critical": true,
+        "node": "V30",
+        "observed_turn": 0,
+        "owner": "NEUTRAL",
+        "status": "EXPOSED",
+        "value": 3
+      },
+      "variant": "actionable_priority"
+    }
+  ],
+  "schema_version": "broadcast-priority-probe-v1",
+  "summary": {
+    "actionable_priority": {
+      "mean_fact_count": 1.8333333333333333,
+      "pairs": 12,
+      "pairs_target_fact_majority": 12,
+      "protocol_valid_rate": 1.0,
+      "repetitions": 5,
+      "samples": 60,
+      "target_fact_rate": 0.9666666666666667,
+      "target_fact_rate_by_pair": {
+        "12": 1.0,
+        "13": 1.0,
+        "14": 1.0,
+        "15": 1.0,
+        "16": 1.0,
+        "17": 0.8,
+        "18": 1.0,
+        "19": 1.0,
+        "20": 1.0,
+        "21": 1.0,
+        "22": 0.8,
+        "23": 1.0
+      }
+    },
+    "current": {
+      "mean_fact_count": 1.8833333333333333,
+      "pairs": 12,
+      "pairs_target_fact_majority": 9,
+      "protocol_valid_rate": 1.0,
+      "repetitions": 5,
+      "samples": 60,
+      "target_fact_rate": 0.7166666666666667,
+      "target_fact_rate_by_pair": {
+        "12": 0.8,
+        "13": 0.8,
+        "14": 0.4,
+        "15": 1.0,
+        "16": 0.8,
+        "17": 0.8,
+        "18": 0.4,
+        "19": 0.8,
+        "20": 0.8,
+        "21": 1.0,
+        "22": 0.4,
+        "23": 0.6
+      }
+    }
+  },
+  "variants": {
+    "actionable_priority": "\n\nFACT PRIORITY: Use the limited fact slots for information most likely to change a teammate's legal action. Prefer actionable EXPOSED or COMPROMISED nodes, then critical or high-value nodes, then other facts. A slightly older actionable fact can be more useful than an unrelated fresh fact. Use recency only to resolve conflicting reports about the same node.",
+    "current": ""
+  }
+}

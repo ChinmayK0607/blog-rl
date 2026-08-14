@@ -7,7 +7,7 @@ from .arena import Action
 from .arena_protocol import displayed_actions
 from .episode import ArenaEpisodeEnv
 
-EPISODE_PROMPT_VERSION = "arena-episode-v4-observation-boundaries"
+EPISODE_PROMPT_VERSION = "arena-episode-v5-actionable-broadcast-priority"
 
 BASE_SYSTEM_PROMPT = """You are one of four teammates in a deterministic graph-control game against four opponents. The episode lasts several simultaneous turns. You receive no intermediate task reward; the team is scored only at the end.
 
@@ -21,6 +21,8 @@ BROADCAST_SYSTEM_PROMPT = (
 
 PHASE: BROADCAST
 Communication is optional and consumes your private episodic budget. A non-empty message uses 1 unit plus 1 per fact, 1 for an intent, and 1 for a resource request. The `reward_contract` field states whether this budget use also affects terminal reward. Send only information present in your observation and at most two facts. An empty message uses zero units.
+
+Use the limited fact slots for information most likely to change a teammate's legal action. Prefer actionable EXPOSED or COMPROMISED nodes, then critical or high-value nodes, then other facts. A slightly older actionable fact can be more useful than an unrelated fresh fact. Use recency only to resolve conflicting reports about the same node.
 
 Return exactly:
 {"facts":[{"node":"ID","owner":"BLUE|RED|NEUTRAL","status":"SECURE|FORTIFIED|EXPOSED|COMPROMISED","value":1,"critical":false,"observed_turn":0}],"intent":{"type":"ACTION","target":"ID"}|null,"request_resource":0}
