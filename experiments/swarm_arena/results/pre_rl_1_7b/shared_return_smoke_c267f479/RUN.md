@@ -1,5 +1,10 @@
 # Shared-return rollout-only smoke
 
+> Superseded for queue-admission purposes by
+> `../shared_return_smoke_ab981247/`. This v3 run remains valid replay and
+> routing evidence, but its approval did not bind the exact in-memory
+> `TrainingSample` payload. No optimizer used this evidence.
+
 This is compact, complete evidence for the first live execution of the
 fail-closed shared-terminal-return path. No trainer or optimizer process ran.
 

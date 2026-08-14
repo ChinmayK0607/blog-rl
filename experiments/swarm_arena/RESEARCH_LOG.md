@@ -1216,6 +1216,22 @@ no more critical-specific than decoy-specific. Therefore:
   required fail-closed test. The c267 smoke remains valid rollout/replay
   evidence but is explicitly superseded for queue-admission purposes; a v4
   rollout-only smoke is required before trainer parity.
+- The required v4 smoke completed under source
+  `ab981247772c66cff5f5b00922fc1fa9c8f1aea0`. The immutable source guard first
+  rejected a mistyped full SHA before any model request; the corrected command
+  completed four replicas with returns `[-0.083333, 0, +0.083333, 0]` and LOO
+  advantages `[-0.111111, ~0, +0.111111, ~0]`. All 64 decisions persisted
+  complete allowed-token rows; all 16 envelopes contained a non-empty exact
+  sample hash; replay, context, output, signature, sample, routing, and both
+  audit-chain checks passed. Focused tests passed 4/4 and the full suite passed
+  65/65 in 41.07 seconds. No trainer or optimizer ran.
+- Authoritative v4 evidence:
+  `results/pre_rl_1_7b/shared_return_smoke_ab981247/` (488,081 bytes).
+  Complete-evidence SHA-256:
+  `6fae21eba1438282023df10ef808abe26b24ac75364ca9acd940f89c03c0c0d0`;
+  admission SHA-256:
+  `1c2115b593556ef75cf08b7785d50b00cd123671d7b3da7634c2e49ac93dfd58`.
+  The v3 directory is marked superseded for queue admission.
 
 ## Artifact index
 
