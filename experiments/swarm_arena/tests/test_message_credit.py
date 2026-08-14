@@ -266,32 +266,6 @@ def test_message_drop_credit_is_sender_local_and_broadcast_only() -> None:
     assert summary["aggregate"]["localization_ratio"] is None
 
 
-def test_broadcast_priority_variants_are_generic_and_summarized() -> None:
-    messages = [
-        {"role": "system", "content": "base"},
-        {"role": "user", "content": "private observation"},
-    ]
-    for variant, suffix in PROMPT_VARIANTS.items():
-        updated = apply_prompt_variant(messages, variant)
-        assert updated[0]["content"] == "base" + suffix
-        assert messages[0]["content"] == "base"
-        assert "target" not in suffix.lower()
-    rows = [
-        {
-            "variant": "current",
-            "pair_index": pair,
-            "repetition": repetition,
-            "protocol_valid": True,
-            "target_fact_present": pair % 2 == 0,
-            "fact_count": 2,
-        }
-        for pair in range(12)
-        for repetition in range(2)
-    ]
-    summary = summarize_priority_rows(rows)
-    assert summary["current"]["target_fact_rate"] == 0.5
-    assert summary["current"]["pairs_target_fact_majority"] == 6
-
     first_drop_index = len(actual_decisions)
     mismatched_request = replace(
         evidence.decisions[first_drop_index],
@@ -341,3 +315,30 @@ def test_broadcast_priority_variants_are_generic_and_summarized() -> None:
         assert "delivery intervention" in str(error)
     else:
         raise AssertionError("a missing sender-message drop must fail closed")
+
+
+def test_broadcast_priority_variants_are_generic_and_summarized() -> None:
+    messages = [
+        {"role": "system", "content": "base"},
+        {"role": "user", "content": "private observation"},
+    ]
+    for variant, suffix in PROMPT_VARIANTS.items():
+        updated = apply_prompt_variant(messages, variant)
+        assert updated[0]["content"] == "base" + suffix
+        assert messages[0]["content"] == "base"
+        assert "target" not in suffix.lower()
+    rows = [
+        {
+            "variant": "current",
+            "pair_index": pair,
+            "repetition": repetition,
+            "protocol_valid": True,
+            "target_fact_present": pair % 2 == 0,
+            "fact_count": 2,
+        }
+        for pair in range(12)
+        for repetition in range(2)
+    ]
+    summary = summarize_priority_rows(rows)
+    assert summary["current"]["target_fact_rate"] == 0.5
+    assert summary["current"]["pairs_target_fact_majority"] == 6
