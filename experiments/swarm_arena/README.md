@@ -38,7 +38,9 @@ Only its manifest and independent audit are committed here.
 From the Prime-RL repository root:
 
 ```bash
-uv run --with ./experiments/swarm_arena \
+CUDA_VISIBLE_DEVICES="" \
+PYTHONPATH="$PWD/experiments/swarm_arena" \
+uv run --with ./experiments/swarm_arena --with pytest \
   pytest experiments/swarm_arena/tests -q
 
 uv run --with ./experiments/swarm_arena \

@@ -24,7 +24,9 @@ manifest on the GPU machine.
 Re-run before training:
 
 ```bash
-uv run --project experiments/swarm_arena --with pytest \
+CUDA_VISIBLE_DEVICES="" \
+PYTHONPATH="$PWD/experiments/swarm_arena" \
+uv run --with ./experiments/swarm_arena --with pytest \
   pytest experiments/swarm_arena/tests -q
 uv run --with ./experiments/swarm_arena \
   python -m swarm_ctf_eval.arena_data_audit \

@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-14 17:54 IST  
+Last updated: 2026-08-14 18:06 IST
 Branch: `exp/swarm-arena-4b`  
 Message-estimator implementation checkpoint:
 `567bc1393d101ca9f4a9613cabececece09a2399`  
@@ -665,6 +665,51 @@ Early host checkpoint:
   changed to public HTTPS without changing committed source;
 - environment synchronization and Linux/runtime tests in progress;
 - no optimizer or result-producing rollout started at this checkpoint.
+
+Linux test checkpoint:
+
+- the first isolated-project invocation failed during collection because the
+  Swarm Arena project metadata did not include runtime imports `httpx` and
+  `huggingface_hub`;
+- running against the synchronized root environment then exposed that the
+  scripts-namespace test also requires `experiments/swarm_arena` on
+  `PYTHONPATH`;
+- these were invocation/packaging defects, not estimator failures, and no GPU
+  workload or optimizer was started while they were unresolved;
+- with the correct root overlay and Python path, the complete Linux Swarm suite
+  passed: **61 passed**, with two third-party `SwigPy` deprecation warnings, in
+  40.39 seconds with the GPU disabled;
+- the exact corrected invocation, run from the repository root, was
+  `CUDA_VISIBLE_DEVICES="" PYTHONPATH="$PWD/experiments/swarm_arena" uv run
+  --with ./experiments/swarm_arena --with pytest pytest
+  experiments/swarm_arena/tests -q`;
+- `README.md` and `GPU_HANDOFF.md` were corrected so a clean checkout does not
+  repeat this detour.
+
+A local macOS recheck did not enter test collection: the installed Homebrew
+`uv` was 0.9.2, older than the repository's required `>=0.11.1`, and the
+sandbox also denied that binary's shared cache path. No dependency or machine
+configuration was changed to mask this; the Linux result above is the executed
+validation of the corrected command.
+
+At 2026-08-14 18:06 IST the A6000 remained idle (1 MiB / 49,140 MiB,
+0% utilization, 29 C) with no vLLM, inference, RL, or `torchrun` process. Live
+runtime/vLLM validation was authorized only after the corrected suite passed.
+
+Pinned public inference assets were then staged without using private tokens:
+
+- base: `Qwen/Qwen3-1.7B`, revision
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`, 3.8 GB, approximately nine
+  seconds to download;
+- SFT adapter:
+  `CK0607/Qwen3-1.7B-Swarm-Arena-SFT-v2-step320-noneligible`, 25 MB,
+  approximately two seconds to download, verified SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`;
+- 189 GB host storage remained free after staging.
+
+No model process or optimizer had started at this checkpoint. The next paid-GPU
+operation was the live vLLM startup/smoke, followed by Stage A only if serving
+and structured generation were clean.
 
 ## Current decision gates
 
