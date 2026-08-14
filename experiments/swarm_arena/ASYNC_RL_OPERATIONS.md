@@ -57,6 +57,13 @@ are stored under `results/pre_rl_1_7b/`. Any change to the model, adapter,
 tokenizer, structured constraints, precision path or inference/trainer kernels
 invalidates the certificate and requires a rerun.
 
+Named LoRA updates use an explicit unload, load, and `/v1/models` registry-path
+verification transaction on every rollout server. Reusing a name with a plain
+load call is forbidden: vLLM may return success while retaining the existing
+registration, which can silently mix stale policy bytes into counterfactual
+branches. Initial trainable-policy revision, frozen replacement revision, and
+opponent revision are separate required controller inputs.
+
 For live asynchronous rollouts, the supervisor may defer the numerical portion
 of parity to the trainer only when the signed approval and immutable run lock
 bind the exact trainer parity-gate digest. The trainer gathers the exact
@@ -81,6 +88,14 @@ parity failure. Training diagnostics pause checkpoint promotion on speaking,
 target, action or KL collapse; gains against only one opponent; regression; or
 return gains without message-intervention gains. Diagnostic flags never alter
 reward.
+
+At initialization, replacing an SFT agent with the identical frozen SFT adapter
+is an invariance check and must yield exactly zero advantage; it cannot bootstrap
+learning. A distinct frozen comparator (for example, the pinned no-adapter base
+model) may be used for agent replacement credit, while the only environment
+reward remains terminal team control delta. Its identity and revision must be
+bound into the run lock, and matched decoy scenarios must be audited for
+spurious replacement effects before training.
 
 Promotion requires the development curriculum gates and both frozen regression
 suites. Final evaluation is run once on the selected checkpoint and cannot be

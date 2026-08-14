@@ -64,19 +64,41 @@ def signing_key(path: Path) -> bytes:
     return key
 
 
-async def load_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> None:
+async def replace_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> None:
+    """Atomically refresh one named LoRA and verify the server's registered path."""
     async with httpx.AsyncClient(timeout=120.0) as client:
-        responses = await asyncio.gather(
+        unloads = await asyncio.gather(
             *(
                 client.post(
-                    f"{base_url.rstrip('/')}/load_lora_adapter",
+                    f"{base_url.rstrip('/')}/v1/unload_lora_adapter",
+                    json={"lora_name": name},
+                )
+                for base_url in base_urls
+            )
+        )
+        for response in unloads:
+            if response.status_code not in {200, 404}:
+                response.raise_for_status()
+        loads = await asyncio.gather(
+            *(
+                client.post(
+                    f"{base_url.rstrip('/')}/v1/load_lora_adapter",
                     json={"lora_name": name, "lora_path": str(path)},
                 )
                 for base_url in base_urls
             )
         )
-    for response in responses:
+        for response in loads:
+            response.raise_for_status()
+        registries = await asyncio.gather(
+            *(client.get(f"{base_url.rstrip('/')}/v1/models") for base_url in base_urls)
+        )
+    expected_path = str(path.resolve())
+    for response in registries:
         response.raise_for_status()
+        matches = [row for row in response.json()["data"] if row["id"] == name]
+        if len(matches) != 1 or matches[0].get("root") != expected_path:
+            raise RuntimeError(f"LoRA registry did not bind {name} to {expected_path}")
 
 
 async def wait_for_policy_updates(
@@ -101,7 +123,7 @@ async def wait_for_policy_updates(
         missing = [name for name, path in paths.items() if not (path / "STABLE").exists()]
         raise TimeoutError(f"trainer did not publish all policy updates: {missing}")
     for name, path in paths.items():
-        await load_adapter(base_urls, name, path)
+        await replace_adapter(base_urls, name, path)
     return {name: sha256_file(path / "adapter_model.safetensors") for name, path in paths.items()}
 
 
@@ -128,9 +150,9 @@ def run_lock(
         ),
         (
             ("red-opponent", args.opponent_revision),
-            ("sft-replacement", args.replacement_revision),
+            (args.replacement_policy_id, args.replacement_revision),
         ),
-        "sft-replacement",
+        args.replacement_policy_id,
         "sft-opponent",
         args.opponent_revision,
         (
@@ -152,6 +174,9 @@ async def main() -> None:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--base-revision", required=True)
+    parser.add_argument("--initial-policy-revision", required=True)
+    parser.add_argument("--replacement-policy-id", default="sft-replacement")
+    parser.add_argument("--replacement-model-name", default="sft-replacement")
     parser.add_argument("--replacement-revision", required=True)
     parser.add_argument("--opponent-revision", required=True)
     parser.add_argument("--steps", type=int, default=1)
@@ -185,10 +210,12 @@ async def main() -> None:
         config = TrainerConfig.model_validate(tomli.load(handle))
     base_urls = tuple(args.base_url)
     key = signing_key(args.output_dir / "control" / "supervisor.key")
-    initial_revision = args.replacement_revision
+    initial_revision = args.initial_policy_revision
     for index in range(4):
-        await load_adapter(base_urls, f"blue-{index}", args.initial_adapter)
-    await load_adapter(base_urls, "sft-replacement", args.initial_adapter)
+        await replace_adapter(base_urls, f"blue-{index}", args.initial_adapter)
+    await replace_adapter(base_urls, "sft-opponent", args.initial_adapter)
+    if args.replacement_model_name != args.tokenizer:
+        await replace_adapter(base_urls, args.replacement_model_name, args.initial_adapter)
 
     bindings = tuple(
         AgentPolicy(
@@ -228,13 +255,13 @@ async def main() -> None:
                 PolicyEndpoint(
                     "red-opponent",
                     args.opponent_revision,
-                    "sft-replacement",
+                    "sft-opponent",
                     base_urls,
                 ),
                 PolicyEndpoint(
-                    "sft-replacement",
+                    args.replacement_policy_id,
                     args.replacement_revision,
-                    "sft-replacement",
+                    args.replacement_model_name,
                     base_urls,
                 ),
             )
@@ -287,7 +314,7 @@ async def main() -> None:
                     ),
                     bindings=bindings,
                     policies=policies,
-                    replacement_policy_id="sft-replacement",
+                    replacement_policy_id=args.replacement_policy_id,
                     run_lock_sha256=lock.sha256,
                     initial_state=initial_state,
                 )

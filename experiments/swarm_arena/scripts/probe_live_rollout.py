@@ -14,19 +14,40 @@ from swarm_ctf_eval.rl_v3 import ArenaRLEnv
 from swarm_ctf_eval.structured_protocol import protocol_choices
 
 
-async def load_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> None:
+async def replace_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> None:
     async with httpx.AsyncClient(timeout=120.0) as client:
-        responses = await asyncio.gather(
+        unloads = await asyncio.gather(
             *(
                 client.post(
-                    f"{base_url.rstrip('/')}/load_lora_adapter",
+                    f"{base_url.rstrip('/')}/v1/unload_lora_adapter",
+                    json={"lora_name": name},
+                )
+                for base_url in base_urls
+            )
+        )
+        for response in unloads:
+            if response.status_code not in {200, 404}:
+                response.raise_for_status()
+        loads = await asyncio.gather(
+            *(
+                client.post(
+                    f"{base_url.rstrip('/')}/v1/load_lora_adapter",
                     json={"lora_name": name, "lora_path": str(path)},
                 )
                 for base_url in base_urls
             )
         )
-    for response in responses:
+        for response in loads:
+            response.raise_for_status()
+        registries = await asyncio.gather(
+            *(client.get(f"{base_url.rstrip('/')}/v1/models") for base_url in base_urls)
+        )
+    expected_path = str(path.resolve())
+    for response in registries:
         response.raise_for_status()
+        matches = [row for row in response.json()["data"] if row["id"] == name]
+        if len(matches) != 1 or matches[0].get("root") != expected_path:
+            raise RuntimeError(f"LoRA registry did not bind {name} to {expected_path}")
 
 
 async def main() -> None:
@@ -38,7 +59,7 @@ async def main() -> None:
     args = parser.parse_args()
 
     base_urls = tuple(args.base_url)
-    await load_adapter(base_urls, args.adapter_name, args.adapter)
+    await replace_adapter(base_urls, args.adapter_name, args.adapter)
     env = ArenaRLEnv(
         seed=7_000_003,
         size=12,
