@@ -4,7 +4,7 @@ import json
 from itertools import permutations
 from typing import Any
 
-STRUCTURED_PROTOCOL_VERSION = "arena-structured-protocol-v1-dynamic-json-schema"
+STRUCTURED_PROTOCOL_VERSION = "arena-structured-protocol-v2-xgrammar-choice-mask"
 
 
 def _const(value: Any) -> dict[str, Any]:

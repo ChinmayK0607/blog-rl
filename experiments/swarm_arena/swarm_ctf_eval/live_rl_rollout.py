@@ -4,11 +4,14 @@ import asyncio
 import hashlib
 import json
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal
 
 import httpx
+import torch
+import xgrammar as xgr
 from renderers import Qwen3Renderer, Qwen3RendererConfig
-from transformers import AutoTokenizer
+from transformers import AutoConfig, AutoTokenizer
+from vllm.v1.structured_output.utils import choice_as_grammar
 
 from prime_rl.transport import TrainingSample
 
@@ -28,11 +31,56 @@ from .safety_supervisor import (
 )
 from .structured_protocol import (
     STRUCTURED_PROTOCOL_VERSION,
-    completion_allowed_token_ids,
     protocol_choices,
 )
 
 Phase = Literal["BROADCAST", "ACT"]
+
+
+class XGrammarChoiceMask:
+    """Reconstruct vLLM's exact choice-grammar mask along a sampled token path."""
+
+    def __init__(self, tokenizer: Any, vocab_size: int) -> None:
+        tokenizer_info = xgr.TokenizerInfo.from_huggingface(
+            tokenizer,
+            vocab_size=vocab_size,
+        )
+        self.compiler = xgr.GrammarCompiler(
+            tokenizer_info,
+            max_threads=8,
+            cache_enabled=True,
+        )
+        self.vocab_size = vocab_size
+        token_ids = torch.arange(vocab_size, dtype=torch.int64)
+        self._token_ids = token_ids
+        self._word_indices = token_ids // 32
+        self._bit_indices = token_ids % 32
+
+    def allowed_token_ids(
+        self,
+        choices: tuple[str, ...],
+        completion_ids: list[int],
+    ) -> list[list[int]]:
+        compiled = self.compiler.compile_grammar(choice_as_grammar(list(choices)))
+        matcher = xgr.GrammarMatcher(compiled)
+        bitmask = xgr.allocate_token_bitmask(1, self.vocab_size)
+        rows: list[list[int]] = []
+        for token_id in completion_ids:
+            xgr.reset_token_bitmask(bitmask)
+            matcher.fill_next_token_bitmask(bitmask)
+            words = bitmask[0].to(torch.int64)
+            accepted = (
+                (words[self._word_indices] >> self._bit_indices) & 1
+            ).to(torch.bool)
+            allowed = self._token_ids[accepted].tolist()
+            if token_id not in allowed or not matcher.accept_token(token_id):
+                raise ValueError(
+                    f"completion token {token_id} is rejected by the serving choice grammar"
+                )
+            rows.append(allowed)
+        if not matcher.is_terminated():
+            raise ValueError("structured completion ended before its choice grammar terminated")
+        return rows
 
 
 @dataclass(frozen=True)
@@ -89,6 +137,8 @@ class VLLMChoiceGenerator:
             self.tokenizer,
             Qwen3RendererConfig(enable_thinking=False),
         )
+        config = AutoConfig.from_pretrained(tokenizer_path)
+        self.choice_mask = XGrammarChoiceMask(self.tokenizer, int(config.vocab_size))
         self.timeout = timeout
         self._clients: dict[str, httpx.AsyncClient] = {}
 
@@ -140,13 +190,9 @@ class VLLMChoiceGenerator:
         eos_token_id = self.tokenizer.eos_token_id
         if eos_token_id is None:
             raise ValueError("tokenizer has no EOS token")
-        choice_token_ids = [
-            [*self.tokenizer.encode(value, add_special_tokens=False), eos_token_id]
-            for value in choices
-        ]
         decoded = self.tokenizer.decode(completion_ids, skip_special_tokens=True)
         try:
-            allowed = completion_allowed_token_ids(completion_ids, choice_token_ids)
+            allowed = self.choice_mask.allowed_token_ids(choices, completion_ids)
         except ValueError as error:
             matching_choices = [
                 index for index, value in enumerate(choices) if value == decoded
@@ -161,7 +207,13 @@ class VLLMChoiceGenerator:
                         "finish_reason": choice.get("finish_reason"),
                         "matching_choice_indices": matching_choices,
                         "matching_choice_token_ids": [
-                            choice_token_ids[index] for index in matching_choices
+                            [
+                                *self.tokenizer.encode(
+                                    choices[index], add_special_tokens=False
+                                ),
+                                eos_token_id,
+                            ]
+                            for index in matching_choices
                         ],
                     },
                     sort_keys=True,

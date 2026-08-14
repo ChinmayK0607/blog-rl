@@ -64,6 +64,15 @@ registration, which can silently mix stale policy bytes into counterfactual
 branches. Initial trainable-policy revision, frozen replacement revision, and
 opponent revision are separate required controller inputs.
 
+Serving constraints are reconstructed with the same installed xgrammar
+`choice` grammar and tokenizer vocabulary used by vLLM. A decoded canonical
+choice can have multiple valid tokenizations, so a trie built only from
+`tokenizer.encode(choice)` is not equivalent to the serving distribution. The
+controller records xgrammar's exact allowed-token bitmask at every sampled
+token; any token rejected by that grammar or any unterminated completion fails
+the group. This constraint implementation has its own protocol version and
+therefore invalidates older parity certificates.
+
 For live asynchronous rollouts, the supervisor may defer the numerical portion
 of parity to the trainer only when the signed approval and immutable run lock
 bind the exact trainer parity-gate digest. The trainer gathers the exact
