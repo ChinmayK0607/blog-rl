@@ -438,10 +438,29 @@ async def main() -> None:
                         else reconstruct_v3_scenario
                     )
                     scenario = reconstruct_scenario(pair[kind])
-                    initial_state = scenario.state
                     seed = scenario.seed
                     size = scenario.size
                     horizon = args.horizon or scenario.horizon
+                    world_metadata = {}
+                    if args.task_data_version == "v4":
+                        world_index = pair_index % len(scenario.worlds)
+                        world = scenario.worlds[world_index]
+                        initial_state = world.state
+                        world_metadata = {
+                            "world": world.label,
+                            "active_target": world.active_target,
+                            "target": world.active_target,
+                            "candidate_targets": list(scenario.candidate_targets),
+                            "state_sha256": pair[kind]["worlds"][world_index][
+                                "state_sha256"
+                            ],
+                        }
+                    else:
+                        initial_state = scenario.state
+                        world_metadata = {
+                            "target": scenario.target,
+                            "state_sha256": pair[kind]["state_sha256"],
+                        }
                     scenario_metadata = {
                         "source": "curriculum",
                         "split": args.curriculum_split,
@@ -450,9 +469,8 @@ async def main() -> None:
                         "seed": scenario.seed,
                         "sender": scenario.sender,
                         "receiver": scenario.receiver,
-                        "target": scenario.target,
                         "minimum_certified_advantage": scenario.minimum_advantage,
-                        "state_sha256": pair[kind]["state_sha256"],
+                        **world_metadata,
                     }
                 game_id = (
                     f"{args.run_id}:step-{step}:group-{group_index}:"
