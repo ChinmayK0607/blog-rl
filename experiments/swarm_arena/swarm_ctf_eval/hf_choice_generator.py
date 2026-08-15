@@ -245,7 +245,10 @@ class HFChoiceGenerator:
             distributed_position_ids = distribute_tensor(
                 position_ids, mesh, placements
             )
-            with torch.inference_mode():
+            # DTensor/Transformers causal-mask construction mutates tensor
+            # version counters, which inference_mode forbids. no_grad keeps the
+            # actor graph-free while matching the certified trainer forward.
+            with torch.no_grad():
                 output = self.model.model(
                     input_ids=distributed_input_ids,
                     position_ids=distributed_position_ids,

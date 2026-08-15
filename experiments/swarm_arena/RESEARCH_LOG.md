@@ -1615,6 +1615,11 @@ no more critical-specific than decoy-specific. Therefore:
   parameters. The actor now explicitly replicates token and position tensors
   onto the model device mesh, then localizes the world-size-one hidden state and
   LM-head weight only for the final BF16-to-FP32 projection.
+- The distributed-input retry reached causal-mask construction, then failed
+  before sampling because Transformers mutates DTensor version counters and
+  PyTorch `inference_mode` forbids that operation. The Prime actor uses
+  `no_grad` instead, matching the certificate and trainer's graph-free
+  evaluation semantics without the stricter version-counter prohibition.
 
 ## Artifact index
 
