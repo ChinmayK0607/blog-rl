@@ -1786,6 +1786,62 @@ no more critical-specific than decoy-specific. Therefore:
   not a promoted checkpoint. Instance decommissioned: yes, after final Git
   publication; evaluator and all GPU allocations have been shut down.
 
+### 2026-08-15 — Next-iteration design decision: fast bounded-lag RL and information handoffs
+
+- Status: planned design decision; no new data collection, training, or
+  evaluation was run for this entry. It is deliberately separated from the
+  rejected v1 result.
+- Async execution: the exact Prime actor/trainer route remains a reference and
+  calibration harness, not the preferred high-throughput rollout backend. The
+  next implementation should use Prime-RL's multi-agent abstraction with a
+  community-optimized actor backend and kernels (for example a vLLM-class
+  server with FlashAttention) plus asynchronous rollout queues.
+- Bounded off-policyness: every accepted trajectory must retain its behavior
+  adapter/version hash, behavior log-probabilities, sampling settings, dynamic
+  constraint hash, and per-agent token span. Before the next run, predeclare a
+  maximum policy-version lag, a behavior-versus-trainer divergence/importance
+  bound, and a discard rule for stale or divergent batches. These bounds solve
+  rollout staleness; a fixed calibration probe still checks that the actor and
+  trainer implement the same constrained distribution closely enough. Exact
+  bitwise parity is not the goal, and the old thresholds will not be loosened
+  retrospectively to relabel rejected v1 evidence.
+- Environment preservation: retain the current 4v4 graph-control game,
+  simultaneous actions, strict grounded broadcasts, randomized node names,
+  safe discrete simulator, and terminal control-margin reward. Do **not** add a
+  speaking bonus, supervised message target, reward shaping, or an action that
+  is mechanically unlocked by chat.
+- New optional scenario family: add randomized **information handoff** states.
+  In such a state, one dynamically selected agent can privately observe a
+  valuable exposure/critical fact but cannot exploit it immediately because of
+  legitimate map geometry, budget, or current commitment. A different nearby
+  teammate can choose among otherwise plausible legal targets but cannot see
+  which one is valuable. The sender's grounded fact can therefore improve the
+  teammate's next decision, while an unsupported, dropped, delayed, shuffled,
+  or irrelevant message cannot be rewarded by construction. Roles must rotate
+  with state rather than becoming fixed agent identities.
+- Controls: mix ordinary maps, genuine handoff maps, and matched decoy maps in
+  the training curriculum so that silence is sometimes correct. The original
+  frozen game remains a regression/gameplay suite. After the new scenario is
+  specified and tested, generate a new seed-disjoint frozen final for the new
+  communication mechanism; the original frozen OOD suite is not silently
+  repurposed as its final test.
+- Interpretation: three valid v1 updates are enough to establish mechanical
+  feasibility, not enough to assess learning. The horizon-4 audit is evidence
+  that messages can affect behavior, but it rejects the current sender-credit
+  estimator as a per-agent reward signal. A larger or redesigned audit may be
+  run only from a new, predeclared plan.
+- Next CPU-only work, in order: (1) formalize the handoff state generator and
+  invariants; (2) extend the exact solver and replay oracle; (3) construct
+  train/development/frozen-final seed manifests plus ordinary and decoy
+  controls; (4) run model-free and base/SFT message-intervention audits; and
+  (5) implement the async rollout record, calibration probe, and stale-batch
+  rejection logic. GPU work begins only after these gates are fixed.
+- Next GPU work, if the CPU gate passes: first a no-update fast-backend
+  calibration/throughput pilot, then a longer shared-terminal-reward baseline
+  against a model-controlled opponent pool. A credit-aware comparison is
+  permitted only if the new counterfactual credit audit passes its frozen gate.
+  Instance decommissioned: yes; no GPU is required for the next CPU phase.
+
 ## Artifact index
 
 - Public source branch:
