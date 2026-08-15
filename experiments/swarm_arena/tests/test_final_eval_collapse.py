@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from scripts.audit_final_eval_collapse import _behavior_summary, _evaluation_metrics
 
 

@@ -2001,8 +2001,9 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-15 — RL v4 production orchestration and fresh L40S allocation
 
-- Status: production canary retry in progress; first launch rejected before an
-  optimizer update.
+- Status: completed eight-update development run, three-opponent online
+  evaluation, regressions, KL and collapse audit; selection and frozen final
+  remained closed.
 - User directive: finish the CPU production pass, then use a newly provisioned
   4x NVIDIA L40S host for approximately three to four hours to obtain useful RL
   evidence. The provider rate was not supplied, so cost will not be invented.
@@ -2110,12 +2111,64 @@ no more critical-specific than decoy-specific. Therefore:
   `/workspace/runs/rl-v4-production-1379f9c2` was then initialized from the
   original pinned SFT adapter, not from the canary. It uses the same source,
   production-plan, data, opponent rotation, reward, and locked parity hashes.
-- Next action: finish the fresh eight-update run without moving aggregate
-  gates, then execute only the 96-game online development monitor plus compact
-  regression and collapse diagnostics. Selection and frozen evaluation remain
-  closed.
-- Instance decommissioned: no; user expects it to remain available for the
-  current three-to-four-hour window.
+- The fresh production run completed all eight optimizer updates: 32 signed,
+  replayed, rescored, and admitted groups and four separately optimized LoRA
+  policies. Update-level `(mean return, mean absolute advantage, nonzero
+  advantages / 16)` was: `(0.00622, 0.09758, 12)`, `(-0.02053, 0.11518, 13)`,
+  `(0.09083, 0.08444, 12)`, `(0.00332, 0.06992, 16)`,
+  `(0.07407, 0.12654, 16)`, `(0.00721, 0.10907, 16)`,
+  `(0.03251, 0.07850, 8)`, and `(0.11687, 0.10485, 15)`. This demonstrates
+  dense, nondegenerate learning signal; it is not a monotonic learning curve.
+- The final adapter-set revision is
+  `d60f358d32448f26f7cce7ecc6f9f53f212906303e0deeda779354a44129b156`.
+  Role adapter SHA-256 values are `b2ee1004...` (blue-0), `aa032a5e...`
+  (blue-1), `9735e411...` (blue-2), and `a27efc4a...` (blue-3). Final update
+  aggregate parity remained within every locked bound: mean log-probability
+  error `0.00256--0.00343`, p99 log-probability error `0.0768--0.0990`, p99
+  probability error `0.0285--0.0343`, probability-tail fraction
+  `0.00352--0.00534`, and mean mismatch-KL `0.000179--0.000350`.
+- Three disjoint 96-game online development monitors used the base, SFT, and
+  historical opponent families. Candidate action validity, broadcast protocol
+  validity, and broadcast grounding were all `1.0`. Capability differences
+  versus SFT were mixed: hard-suite differences were `+0.0306`, `+0.0193`, and
+  `-0.0280`; legacy differences were `-0.0351`, `+0.0187`, and `+0.0307` for
+  base, SFT, and historical opponents respectively. With only four independent
+  paired units per cell, these are development signals, not a capability claim.
+- Critical normal-minus-dropped message effects were positive against every
+  opponent: `+0.0846` (base, 95% CI `[+0.0397,+0.1295]`), `+0.0315` (SFT,
+  `[-0.0063,+0.0711]`), and `+0.0904` (historical,
+  `[+0.0219,+0.1677]`). Matched-decoy effects were `+0.0583`, `-0.00525`, and
+  `+0.0393`. The base decoy confidence interval excludes zero, so the run shows
+  promising communication sensitivity but does **not** establish
+  information-specific communication or emergent swarm cooperation.
+- The reference-state candidate-to-SFT KL probe passed comfortably: overall
+  mean `0.000410`, p99 `0.01261`, maximum `0.03790`; per-policy mean KL was
+  `0.0000557--0.000879`. Scope is 16 constrained reference-state broadcast
+  samples, not the full on-policy state distribution. Both 128-case non-arena
+  regressions passed for all four policies: v1 exact match stayed `0.17969`; v2
+  improved from SFT `0.51172` to `0.51953--0.53125`; leakage remained zero.
+- The first collapse-audit invocation exposed a summary-schema assumption
+  (`KeyError: candidate_normal_return_by_opponent`). The audit now derives its
+  paired metrics from immutable rows; four focused tests and the full Linux
+  suite passed (**102 tests**, two known SWIG deprecation warnings, 40.00 s).
+  The corrected audit passed all stop/inspect gates: no action, speaking,
+  repeated-target, KL, single-opponent, or return-without-message collapse.
+  Per-role speaking rates were `0.3529--0.3566`.
+- The four standard PEFT adapters and seven compact reports were uploaded to a
+  public, anonymously downloaded, checksum-verified Hugging Face bundle at
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-step8-development`,
+  revision `6a660a3fabfebd3270753155a131d2148d463b82`. It is explicitly labelled
+  **not admitted**. No checkpoint was copied to the Mac.
+- Operational note: the first KL diagnostic failed before model loading because
+  PEFT was absent. The remote environment was repaired with `uv`, the retry
+  passed, and the failed log was retained. At completion there were no vLLM,
+  trainer, rollout, or evaluation processes and every GPU was idle. Provider
+  rate was not supplied, so cost is not estimated.
+- Next scientific action: do not open selection/frozen evaluation for this
+  checkpoint. Redesign the next training mix to require the recipient to use
+  private sender information while matched decoys remain causally inert, then
+  run a longer predeclared training schedule and select exactly one checkpoint
+  before opening the next tier.
 
 ## Artifact index
 
