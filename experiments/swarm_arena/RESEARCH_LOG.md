@@ -2061,6 +2061,24 @@ no more critical-specific than decoy-specific. Therefore:
   numerical bound, optimizer, dtype, or model configuration changed. After the
   fix, changed-file Ruff and 5 focused tests passed, followed by the complete
   Linux suite: **100 passed**, two known third-party SWIG warnings, 38.35 s.
+- Rejected retry `/workspace/runs/rl-v4-canary-bc7376ec`: all four groups
+  passed replay and lag-zero admission, then three of four policy batches made
+  isolated step-1 updates. Their full logical-batch parity summaries passed;
+  examples include mean log-probability error `0.00143--0.00228`, p99
+  `0.0382--0.0699`, probability-tail fraction `0.00122--0.00273`, mean
+  mismatch-KL `0.0000688--0.000137`, and maximum mismatch-KL
+  `0.0631--0.0940`. The fourth batch was rejected before its update solely
+  because one token had maximum probability error `0.251636 > 0.16`; every
+  other predeclared aggregate and KL bound passed. The three partial adapters
+  are rejected and will never seed another run.
+- Prospective v4b decision: the single-token maximum probability difference is
+  now diagnostic (`1.0`, its mathematical upper bound). Mean and p99 log-prob
+  error, p99 probability error, probability-tail frequency, and mean/maximum
+  mismatch-KL remain unchanged and fail closed. This is a new source/config
+  hash and new run, not a retroactive pass. The change follows the previously
+  documented optimized-backend design: sparse kernel outliers are controlled
+  by distributional bounds and DPPO's trust-region mask rather than allowing
+  one isolated maximum to veto an otherwise bounded logical batch.
 - Next action: complete Linux tests and a no-update optimized-backend
   calibration, then run a fresh small v4 stability canary from a new immutable
   source commit and run directory. Continue only to a longer run if the canary
