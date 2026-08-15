@@ -1998,6 +1998,8 @@ no more critical-specific than decoy-specific. Therefore:
   release attachment. The complete 7.4 MB raw/log/evidence archive has SHA-256
   `162eae39d36cc7906c2d865ed924d8eaa140237b8d10910c50f966ac695f8fd0`
   and excludes supervisor signing keys. No model checkpoint was copied locally.
+  Public release:
+  `https://github.com/ChinmayK0607/blog-rl/releases/tag/swarm-arena-v4-pretrain-2026-08-15`.
 
 ## Artifact index
 

@@ -90,3 +90,6 @@ It contains the compressed raw evaluation, signed admission/evidence JSONL, and
 runtime logs; supervisor signing keys are explicitly excluded.
 The recomputable compact reward-density summary has SHA-256
 `8618fb4bebf9e165ba40f997efd405f9f296a8f9ac18900db91cd1bea62d4a27`.
+
+Public raw evidence:
+`https://github.com/ChinmayK0607/blog-rl/releases/tag/swarm-arena-v4-pretrain-2026-08-15`
