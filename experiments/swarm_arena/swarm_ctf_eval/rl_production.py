@@ -106,6 +106,33 @@ def exact_curriculum_schedule(
     return tuple(assignments)
 
 
+def scenario_sampling_namespace(
+    assignment: ScenarioAssignment | None,
+    *,
+    run_id: str,
+    step: int,
+    fallback_pair_index: int | None = None,
+) -> str | None:
+    """Return a shared sampling namespace only for matched curriculum pairs.
+
+    Production ordinary assignments deliberately ignore the legacy alternating
+    fallback. They have no matched pair and must keep independent sampling.
+    """
+    if not run_id or step < 0:
+        raise ValueError("sampling namespaces require a run ID and non-negative step")
+    if assignment is not None:
+        if assignment.kind == "ordinary":
+            return None
+        pair_index = assignment.pair_index
+    else:
+        pair_index = fallback_pair_index
+    if pair_index is None:
+        return None
+    if pair_index < 0:
+        raise ValueError("sampling namespace pair index cannot be negative")
+    return f"{run_id}:step-{step}:pair-{pair_index}"
+
+
 @dataclass(frozen=True)
 class OpponentSnapshot:
     opponent_id: str

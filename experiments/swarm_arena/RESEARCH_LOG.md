@@ -2001,7 +2001,8 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-15 — RL v4 production orchestration and fresh L40S allocation
 
-- Status: implementation and GPU validation in progress; no result yet.
+- Status: production canary retry in progress; first launch rejected before an
+  optimizer update.
 - User directive: finish the CPU production pass, then use a newly provisioned
   4x NVIDIA L40S host for approximately three to four hours to obtain useful RL
   evidence. The provider rate was not supplied, so cost will not be invented.
@@ -2037,10 +2038,34 @@ no more critical-specific than decoy-specific. Therefore:
   passed; 15 focused production/async/shared-return tests passed in 36.46 s;
   and the complete project-scoped Swarm suite passed **98 tests** with only the
   two known third-party SWIG deprecation warnings in 39.06 s.
+- Three independent vLLM 0.22.0 servers on GPUs 1--3 passed the exact live
+  structured probe with the pinned SFT adapter: one valid 83-token broadcast
+  and one valid 8-token legal action. The probe SHA-256 is
+  `74cb20fef8c3e11c5ca416eb1185744d558eb4f825ef36bf4512bfbdae94ec46`;
+  inference-config SHA-256 is
+  `300f6f5910456fae7aa93c8c7c97c34caf2b5ca2d028433782ef3d8daffe4420`.
+  Both enter immutable production-plan hash
+  `65f5e0f719ab5b13524d5c12c3e3c41844d011727bee08ce83a7639b1eb01d43`.
+- Rejected canary `/workspace/runs/rl-v4-canary-57aff316`: its first complete
+  group passed replay, signing, four-policy ownership, and lag-zero async
+  admission with 2,848 selected BLUE tokens and exactly zero behavior/current
+  log-ratio. Before the remaining groups were generated, the controller raised
+  `KeyError: pair_index`. A production ordinary assignment had incorrectly
+  fallen through to the legacy alternating-pair namespace branch. The trainer
+  was healthy and waiting; no batch was sent, no optimizer ran, and no learned
+  checkpoint exists. This is rejected orchestration evidence, not an RL result.
+- Correction: sampling-namespace selection is now a tested pure helper.
+  Production ordinary games never receive a paired namespace; matched critical
+  and decoy scenarios retain their shared namespace; the old non-production
+  alternating path keeps its explicit fallback. No reward, curriculum mix,
+  numerical bound, optimizer, dtype, or model configuration changed. After the
+  fix, changed-file Ruff and 5 focused tests passed, followed by the complete
+  Linux suite: **100 passed**, two known third-party SWIG warnings, 38.35 s.
 - Next action: complete Linux tests and a no-update optimized-backend
-  calibration, then run a small v4 stability canary. Continue only to a longer
-  run if the canary produces four complete policy updates without protocol,
-  replay, numerical, KL, or collapse failure.
+  calibration, then run a fresh small v4 stability canary from a new immutable
+  source commit and run directory. Continue only to a longer run if the canary
+  produces four complete policy updates without protocol, replay, numerical,
+  KL, or collapse failure.
 - Instance decommissioned: no; user expects it to remain available for the
   current three-to-four-hour window.
 

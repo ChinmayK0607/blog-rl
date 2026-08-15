@@ -8,6 +8,7 @@ from swarm_ctf_eval.rl_production import (
     OpponentPool,
     OpponentSnapshot,
     exact_curriculum_schedule,
+    scenario_sampling_namespace,
 )
 
 
@@ -60,6 +61,48 @@ def test_stage_two_mix_requires_complete_twenty_group_blocks() -> None:
             ordinary_seed_base=1,
             shuffle_seed=2,
         )
+
+
+def test_production_ordinary_scenario_never_uses_legacy_pair_fallback() -> None:
+    ordinary = exact_curriculum_schedule(
+        CurriculumMix(50, 25, 25),
+        total_groups=4,
+        pair_offset=0,
+        ordinary_seed_base=8_000_000,
+        shuffle_seed=20_260_815,
+    )
+    ordinary_assignment = next(row for row in ordinary if row.kind == "ordinary")
+
+    assert (
+        scenario_sampling_namespace(
+            ordinary_assignment,
+            run_id="canary",
+            step=0,
+            fallback_pair_index=999,
+        )
+        is None
+    )
+
+
+def test_sampling_namespace_matches_critical_decoy_pair_and_legacy_fallback() -> None:
+    schedule = exact_curriculum_schedule(
+        CurriculumMix(50, 25, 25),
+        total_groups=4,
+        pair_offset=7,
+        ordinary_seed_base=8_000_000,
+        shuffle_seed=20_260_815,
+    )
+    paired = [row for row in schedule if row.kind in {"critical", "decoy"}]
+
+    assert {
+        scenario_sampling_namespace(row, run_id="canary", step=2) for row in paired
+    } == {"canary:step-2:pair-7"}
+    assert scenario_sampling_namespace(
+        None,
+        run_id="legacy",
+        step=3,
+        fallback_pair_index=4,
+    ) == "legacy:step-3:pair-4"
 
 
 def test_opponent_pool_rotates_all_model_families_exactly() -> None:

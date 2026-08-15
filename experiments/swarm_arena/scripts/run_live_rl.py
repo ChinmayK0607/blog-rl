@@ -50,6 +50,7 @@ from swarm_ctf_eval.rl_production import (
     ProductionPlan,
     exact_curriculum_schedule,
     load_production_plan,
+    scenario_sampling_namespace,
 )
 from swarm_ctf_eval.safety_supervisor import (
     RunLock,
@@ -681,15 +682,20 @@ async def main() -> None:
                     f"{args.run_id}:step-{step}:group-{group_index}:"
                     f"{scenario_metadata['source']}:{seed}"
                 )
-                if assignment is not None and assignment.kind in {"critical", "decoy"}:
-                    sampling_namespace = (
-                        f"{args.run_id}:step-{step}:pair-{assignment.pair_index}"
-                    )
-                    scenario_metadata["sampling_namespace"] = sampling_namespace
-                elif curriculum is not None and args.curriculum_kind == "alternating":
-                    sampling_namespace = (
-                        f"{args.run_id}:step-{step}:pair-{scenario_metadata['pair_index']}"
-                    )
+                fallback_pair_index = (
+                    int(scenario_metadata["pair_index"])
+                    if assignment is None
+                    and curriculum is not None
+                    and args.curriculum_kind == "alternating"
+                    else None
+                )
+                sampling_namespace = scenario_sampling_namespace(
+                    assignment,
+                    run_id=args.run_id,
+                    step=step,
+                    fallback_pair_index=fallback_pair_index,
+                )
+                if sampling_namespace is not None:
                     scenario_metadata["sampling_namespace"] = sampling_namespace
                 scenario_metadata["opponent"] = (
                     asdict(scheduled_opponent)
