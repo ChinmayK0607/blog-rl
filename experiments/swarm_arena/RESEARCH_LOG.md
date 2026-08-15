@@ -1,11 +1,13 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-15 19:35 IST
+Last updated: 2026-08-16 02:58 IST
 Branch: `exp/swarm-arena-4b`  
-Current public checkpoint: `530ae3ed`.
-Status: the v4 task and pre-training baseline pass mechanically. The final CPU
-production-orchestration pass and a fresh 4x L40S v4 RL run are in progress; no
-new checkpoint has been promoted.
+Current public development checkpoint: Hugging Face revision
+`1af877668ee3cdd8dd5ccd4734ce620bbe5e2aa0` (not admitted).
+Status: the fresh 30-update four-policy RL v4 run and development diagnostics
+are complete. The selected step-20 checkpoint is mechanically stable and
+public; capability and RL-specific communication improvement are not
+established, and selection/frozen final remain unopened.
 
 This is the durable chronological record for the Swarm Arena project. It records
 the hypothesis, design decisions, data, training, evaluations, failures,
@@ -2170,6 +2172,112 @@ no more critical-specific than decoy-specific. Therefore:
   run a longer predeclared training schedule and select exactly one checkpoint
   before opening the next tier.
 
+### 2026-08-16 — RL v4 fresh 30-update run and compact checkpoint pulse
+
+- Status: completed, published, and GPU processes stopped. Verdict:
+  **mechanical pass and exploratory information-specific communication signal;
+  capability improvement and RL-specific communication improvement not
+  established; not admitted**.
+- Hypothesis and decision: test whether the exact v4 production path remains
+  stable for 30 updates and whether later checkpoints improve task return or
+  causal message use. The run retained verified terminal team return only,
+  four distinct BLUE LoRA policies, and the exact 50/25/25
+  ordinary/critical/matched-decoy schedule. No shaping reward or gate was
+  relaxed.
+- Immutable training identity: source commit
+  `12e0c461a28c3d0311d0353ab1ed45bcffb0b569`; production-plan semantic
+  SHA-256 `65f5e0f719ab5b13524d5c12c3e3c41844d011727bee08ce83a7639b1eb01d43`;
+  base revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; SFT revision
+  `534522a8f3ff3489b1dd8318dc8e533e51264cde`; SFT adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`.
+  The offset-capable development evaluator is public at commit `6d6fe88e`.
+- Hardware/runtime: four NVIDIA L40S 46,068 MiB GPUs. Actor startup was
+  approximately 18:19:41 UTC, update 30 completed at approximately 21:06:37
+  UTC, and public verification plus GPU shutdown completed at 21:22:05 UTC:
+  about 3 h 02 min of allocated-node wall time for this run segment. The
+  provider rate was not supplied, so cost is not invented.
+- Launch retries: preparation first failed before run creation because
+  `PYTHONPATH` was absent. The first trainer entrypoint then failed before model
+  loading because single-rank distributed variables were unset; it was
+  relaunched under `torchrun --standalone`. Both failures were retained as
+  invocation evidence and produced no accepted update.
+- Training result: all 30 updates completed, comprising 120 complete groups and
+  480 game replicas. Mean return was `+0.0173472`, mean absolute advantage was
+  `0.0964001`, and mean nonzero-advantage rate was `0.8625`; every update had
+  nonzero learning signal. All four adapters were distinct and all four changed
+  at every update. The final step-30 adapter-set revision was
+  `32d3e0d71c5c05c2d3592826067b75eb9b7c5fbd125c516acc8e3fdc36c20880`.
+- Admission/parity: 120/120 logical policy batches passed and no admission
+  record was rejected. Worst aggregate values across the run were mean
+  log-probability error `0.00391042`, p99 log-probability error `0.12181`, p99
+  probability error `0.0488602`, probability-tail fraction `0.00952931`, and
+  mean mismatch KL `0.000456511`, all inside the locked bounds.
+- Checkpoint preservation: Prime retained only the two newest broadcaster
+  snapshots, so a fresh same-lineage step 10 could not be recovered after that
+  retention window. Fresh steps 18, 20, and 30 were exported before pruning.
+  The public earlier step-8 checkpoint was included only as an explicitly
+  independent baseline, never represented as part of the fresh learning curve.
+- Pulse design: a fixed 66-game development pulse used one ordinary case and
+  one critical/decoy pair, base/SFT/historical opponents, both sides, all five
+  critical message conditions, and normal/dropped decoys. The first pulse
+  invocation used `data/rl_v4`, but the compact v3 curriculum runner requires
+  `data/rl_v3/development.json`; all four jobs failed before their first model
+  request. The empty failed directories were archived, the exact path was
+  corrected, and the rerun completed. This was an orchestration failure, not a
+  model result.
+- Pulse result: all action, broadcast, and grounding rates were `1.0`. The
+  predeclared score selected fresh step 20. Ordinary candidate-minus-SFT was
+  `-0.05357`, `+0.10714`, and `+0.04762` at fresh steps 18, 20, and 30. The
+  independent earlier step 8 was `-0.05952`. The tiny pulse had no positive
+  information-specific message effect and was used only for selection.
+- Non-overlapping development holdout: three new ordinary cases and three new
+  critical/decoy pairs produced 198 games across the three inference GPUs.
+  Step-20 ordinary candidate-minus-SFT was `+0.00344379`, effectively flat.
+  Critical normal-minus-dropped, sender-shuffled, delayed, and zero-budget were
+  each `+0.0444444`; matched-decoy normal-minus-dropped was `-0.0579710`.
+  Protocol and grounding stayed `1.0`. This supports information-specific
+  message sensitivity on these held-out cases, but the SFT critical
+  normal-minus-dropped effect was also `+0.0444444`. RL preserved the behavior;
+  it did not demonstrably improve it.
+- Opponent result: the collapse audit's ordinary-only mean candidate returns
+  were `+0.18697` against base, `+0.04114` against SFT, and `-0.06972` against
+  the historical league. This is not single-opponent collapse, but it rules out
+  a claim of uniform opponent-pool improvement.
+- Regression/KL/collapse: both 256-case frozen non-arena suites passed for all
+  four policies with zero leakage. V1 deltas versus SFT ranged from `0` to
+  `-0.0078125`; v2 ranged from `+0.0078125` to `+0.01171875`. Overall
+  constrained candidate-to-SFT KL mean was `0.0013720` and p99 `0.0248497`.
+  BLUE-3 p99 was `0.216858`, below the fixed `0.30` limit but a role asymmetry to
+  monitor. No action, speech, repeated-target, excessive-KL, opponent, or
+  return-without-message collapse flag fired; per-role speaking rate was
+  `0.54545`.
+- Summary-tool failure and fix: the existing shared-return training summarizer
+  assumed all four groups had curriculum `kind` and `pair_index` fields. The
+  production 50/25/25 mix includes two ordinary groups, so it raised
+  `KeyError`. Ordinary groups are now handled explicitly and both the legacy
+  all-curriculum and production mixtures are tested. Linux Ruff passed and the
+  two focused tests passed.
+- Selected artifact: step-20 revision
+  `7fe8ff458b73ea055b9f28b5b95db13961b3bc839298c294f12e2a81c527223d`;
+  policy SHA-256 values are `4e25a6c8...`, `18ce7da6...`, `37092538...`, and
+  `280d9b13...`. The public bundle was anonymously downloaded and all 17 files
+  checksum-verified at
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-long-development`,
+  revision `1af877668ee3cdd8dd5ccd4734ce620bbe5e2aa0`. It is labelled
+  `not-admitted`; the temporary Hub credential was removed after publication.
+- Compact Git artifacts: `results/rl_v4_1_7b_long/` contains the full 30-update
+  progress/summary, pulse, selection rule, non-overlapping holdout, KL,
+  regression, collapse, publication record, and human-readable report. No
+  checkpoint was copied to the Mac.
+- Final state: all vLLM, trainer, controller, rescorer, and evaluation processes
+  stopped; all four GPUs reported 0 MiB. The node is safe to decommission.
+- Next action: do not open selection or frozen final for this run. The strongest
+  justified conclusion is that the RL system is stable and the task measures
+  information-specific communication, while 30 updates did not improve either
+  holdout capability or communication over SFT. A future run should use a
+  longer schedule or a stronger optimization change and compare RL-minus-SFT
+  intervention effects directly.
+
 ## Artifact index
 
 - Public source branch:
@@ -2193,6 +2301,9 @@ no more critical-specific than decoy-specific. Therefore:
   `RL_TASK_V4.md`, `PROGRESS_EVAL_V4.md`, and `data/rl_v4/`
 - RL v4 pre-training baseline and stage-1 reward-density evidence:
   `results/rl_v4_pretrain_1_7b/`
+- RL v4 30-update development result:
+  `results/rl_v4_1_7b_long/` and
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-long-development`
 - Frozen message-credit admission plan:
   `MESSAGE_CREDIT_AUDIT_PLAN.md`
 - Public, non-admitted mechanical RL artifact:

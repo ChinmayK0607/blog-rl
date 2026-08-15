@@ -1,0 +1,15 @@
+{
+  "eligible_steps": [
+    20,
+    30,
+    18
+  ],
+  "rule": "maximize ordinary_candidate_minus_sft + critical_normal_minus_dropped - abs(decoy_normal_minus_dropped); break ties toward later step",
+  "scope": "development-only automatic holdout selection",
+  "scores": {
+    "18": -0.05357142857142857,
+    "20": 0.07936507936507933,
+    "30": 0.04761904761904761
+  },
+  "selected_step": 20
+}

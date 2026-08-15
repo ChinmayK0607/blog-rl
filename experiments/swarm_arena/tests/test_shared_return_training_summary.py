@@ -40,3 +40,21 @@ def test_shared_return_summary_checks_signal_and_policy_isolation(tmp_path) -> N
     assert result["steps"][0]["critical_minus_decoy_mean_return"] == 0.05
     assert result["steps"][1]["policies_changed_since_previous_step"] == 4
     assert all(result["mechanical_checks"].values())
+
+
+def test_shared_return_summary_accepts_production_50_25_25_mix(tmp_path) -> None:
+    row = _step(0)
+    for group in row["groups"][:2]:
+        group["scenario"] = {"source": "ordinary"}
+    progress = tmp_path / "progress.json"
+    progress.write_text(json.dumps([row]), encoding="utf-8")
+
+    result = summarize(progress)
+
+    step = result["steps"][0]
+    assert (step["ordinary_groups"], step["critical_groups"], step["decoy_groups"]) == (
+        2,
+        1,
+        1,
+    )
+    assert result["mechanical_checks"]["recognized_four_group_mixture"]

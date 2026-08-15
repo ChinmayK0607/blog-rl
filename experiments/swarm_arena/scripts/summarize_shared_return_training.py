@@ -17,7 +17,10 @@ def _step_summary(row: dict[str, Any], previous: dict[str, str] | None) -> dict[
     advantages = [float(replica["advantage"]) for replica in replicas]
     by_pair: dict[int, dict[str, dict[str, Any]]] = defaultdict(dict)
     for group in groups:
-        by_pair[int(group["scenario"]["pair_index"])][str(group["scenario"]["kind"])] = group
+        scenario = group["scenario"]
+        if scenario.get("kind") not in {"critical", "decoy"}:
+            continue
+        by_pair[int(scenario["pair_index"])][str(scenario["kind"])] = group
     paired_differences = []
     namespace_match = True
     for kinds in by_pair.values():
@@ -34,12 +37,14 @@ def _step_summary(row: dict[str, Any], previous: dict[str, str] | None) -> dict[
             for left, right in zip(critical["replicas"], decoy["replicas"], strict=True)
         )
     digests = {str(key): str(value) for key, value in row["policy_adapter_sha256"].items()}
+    kinds = [group["scenario"].get("kind", "ordinary") for group in groups]
     return {
         "step": int(row["step"]),
         "groups": len(groups),
         "replicas": len(replicas),
-        "critical_groups": sum(group["scenario"]["kind"] == "critical" for group in groups),
-        "decoy_groups": sum(group["scenario"]["kind"] == "decoy" for group in groups),
+        "ordinary_groups": kinds.count("ordinary"),
+        "critical_groups": kinds.count("critical"),
+        "decoy_groups": kinds.count("decoy"),
         "mean_return": statistics.mean(returns),
         "return_stdev": statistics.pstdev(returns),
         "mean_absolute_advantage": statistics.mean(abs(value) for value in advantages),
@@ -90,7 +95,16 @@ def summarize(path: Path) -> dict[str, Any]:
             "four_groups_per_step": all(step["groups"] == 4 for step in steps),
             "sixteen_replicas_per_step": all(step["replicas"] == 16 for step in steps),
             "balanced_critical_decoy": all(
-                step["critical_groups"] == step["decoy_groups"] == 2 for step in steps
+                step["critical_groups"] == step["decoy_groups"] > 0 for step in steps
+            ),
+            "recognized_four_group_mixture": all(
+                (
+                    step["ordinary_groups"],
+                    step["critical_groups"],
+                    step["decoy_groups"],
+                )
+                in {(0, 2, 2), (2, 1, 1)}
+                for step in steps
             ),
             "paired_sampling_namespaces": all(
                 step["paired_sampling_namespaces"] for step in steps
