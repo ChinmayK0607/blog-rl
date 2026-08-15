@@ -2095,11 +2095,25 @@ no more critical-specific than decoy-specific. Therefore:
   `0.15`, p99 probability error `0.07`, probability-tail fraction `0.02` above
   error `0.05`, and mean mismatch-KL `0.001`. If a fresh run fails any of these
   aggregate gates, the vLLM route is rejected rather than relaxing them.
-- Next action: complete Linux tests and a no-update optimized-backend
-  calibration, then run a fresh small v4 stability canary from a new immutable
-  source commit and run directory. Continue only to a longer run if the canary
-  produces four complete policy updates without protocol, replay, numerical,
-  KL, or collapse failure.
+- Accepted v4c canary `/workspace/runs/rl-v4c-canary-1379f9c2`: all four
+  rollout groups passed replay, lag-zero rescore/admission, and the locked
+  aggregate parity bounds; all four independently optimized policies wrote a
+  stable step-1 adapter. Across the four logical policy batches, mean
+  log-probability error was `0.00154--0.00208`, p99 log-probability error
+  `0.0425--0.0678`, p99 probability error `0.0187--0.0237`, probability-tail
+  fraction `0.000310--0.002473`, and mean mismatch-KL
+  `0.0000576--0.000168`. The largest raw mismatch-KL was `0.138117`, confirming
+  it was a sparse maximum rather than an aggregate drift failure. The canary
+  adapter-set revision is
+  `eb4ff30b0235872c0750eb2a153754c8a0618e2ebd118c058b16eabf35d07ce1`.
+- A fresh eight-update production run
+  `/workspace/runs/rl-v4-production-1379f9c2` was then initialized from the
+  original pinned SFT adapter, not from the canary. It uses the same source,
+  production-plan, data, opponent rotation, reward, and locked parity hashes.
+- Next action: finish the fresh eight-update run without moving aggregate
+  gates, then execute only the 96-game online development monitor plus compact
+  regression and collapse diagnostics. Selection and frozen evaluation remain
+  closed.
 - Instance decommissioned: no; user expects it to remain available for the
   current three-to-four-hour window.
 
