@@ -28,6 +28,15 @@ enqueue samples unless replay, delivery, ownership, reward, and constraint
 checks all pass. Multiple independently approved games may be merged only at
 the fixed four-run routing boundary.
 
+For the information-handoff curriculum, launch the controller with
+`--task-data-version v4 --data-dir experiments/swarm_arena/data/rl_v4` and do
+not pass `--horizon` unless the run is an explicitly labelled ablation. The
+controller then binds composite hashes for the v4 curriculum/train,
+development, and frozen-evaluation inputs in the run lock and uses each
+selected scenario's certified horizon. The default
+remains v3 for replaying old evidence; a v3 run cannot silently read v4 split
+names, and a v4 run cannot silently fall back to the old two-turn horizon.
+
 ## Public-artifact launch gate
 
 Paid GPU work must not start from private or authentication-only inputs.

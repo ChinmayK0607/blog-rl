@@ -33,7 +33,6 @@ from swarm_ctf_eval.prime_multi_run_router import (
     send_approved_batches,
     validate_single_trajectory_packing,
 )
-from swarm_ctf_eval.rl_v3 import RL_TASK_VERSION
 from swarm_ctf_eval.safety_supervisor import (
     RunLock,
     SharedReturnSpec,
@@ -44,10 +43,13 @@ from swarm_ctf_eval.safety_supervisor import (
     canonical_sha256,
     shared_return_evidence_payload,
 )
+from swarm_ctf_eval.task_data_binding import (
+    TaskDataBinding,
+    resolve_task_data_binding,
+)
 
 from prime_rl.configs.trainer import TrainerConfig
 from prime_rl.utils.pathing import get_broadcast_dir, get_step_path
-
 
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
@@ -145,10 +147,10 @@ def run_lock(
     args: argparse.Namespace,
     config: TrainerConfig,
     *,
+    data_binding: TaskDataBinding,
     policy_revisions: dict[str, str],
     shared_return_spec: SharedReturnSpec | None,
 ) -> RunLock:
-    index = json.loads((args.data_dir / "index.json").read_text(encoding="utf-8"))
     if config.rollout_parity_gate is None:
         raise ValueError("trainer config is missing the pre-step parity gate")
     frozen_revisions = [("red-opponent", args.opponent_revision)]
@@ -161,10 +163,10 @@ def run_lock(
     return RunLock(
         args.run_id,
         args.source_commit,
-        RL_TASK_VERSION,
-        index["splits"]["train"]["sha256"],
-        index["splits"]["development"]["sha256"],
-        sha256_file(args.data_dir / "final_eval_design.json"),
+        data_binding.task_version,
+        data_binding.train_sha256,
+        data_binding.development_sha256,
+        data_binding.final_sha256,
         args.base_revision,
         tuple(
             (f"blue-policy-{index}", policy_revisions[f"blue-{index}"])
@@ -192,6 +194,7 @@ async def main() -> None:
     parser.add_argument("--trainer-config", type=Path, required=True)
     parser.add_argument("--inference-config", type=Path)
     parser.add_argument("--data-dir", type=Path, required=True)
+    parser.add_argument("--task-data-version", choices=("v3", "v4"), default="v3")
     parser.add_argument("--tokenizer", required=True)
     parser.add_argument("--initial-adapter", type=Path, required=True)
     parser.add_argument("--base-url", action="append", default=[])
@@ -231,7 +234,14 @@ async def main() -> None:
     )
     parser.add_argument("--curriculum-offset", type=int, default=0)
     parser.add_argument("--rollout-only", action="store_true")
-    parser.add_argument("--horizon", type=int, default=2)
+    parser.add_argument(
+        "--horizon",
+        type=int,
+        help=(
+            "override the episode horizon; curriculum scenarios otherwise use "
+            "their manifest-certified horizon and ordinary games default to 2"
+        ),
+    )
     parser.add_argument("--update-timeout", type=float, default=600.0)
     args = parser.parse_args()
     if args.steps < 1 or args.groups_per_step < 1:
@@ -244,6 +254,8 @@ async def main() -> None:
         parser.error("the vLLM actor requires at least one --base-url")
     if args.curriculum_offset < 0:
         parser.error("curriculum offset cannot be negative")
+    if args.horizon is not None and args.horizon < 1:
+        parser.error("horizon must be positive")
     if args.rollout_only and args.steps != 1:
         parser.error("rollout-only diagnostics require exactly one controller step")
     repository_root = Path(__file__).resolve().parents[3]
@@ -270,6 +282,7 @@ async def main() -> None:
         if args.credit_estimator == "shared_return"
         else None
     )
+    data_binding = resolve_task_data_binding(args.data_dir, args.task_data_version)
     base_urls = tuple(args.base_url)
     key = signing_key(args.output_dir / "control" / "supervisor.key")
     initial_revision = args.initial_policy_revision
@@ -353,7 +366,9 @@ async def main() -> None:
     result_rows = []
     curriculum = None
     if args.scenario_source == "curriculum":
-        manifest_path = args.data_dir / f"{args.curriculum_split}.json"
+        manifest_path = args.data_dir / data_binding.curriculum_manifest(
+            args.curriculum_split
+        )
         curriculum = json.loads(manifest_path.read_text(encoding="utf-8"))
         if not curriculum.get("pairs"):
             raise ValueError(f"empty curriculum manifest: {manifest_path}")
@@ -363,6 +378,7 @@ async def main() -> None:
             lock = run_lock(
                 args,
                 config,
+                data_binding=data_binding,
                 policy_revisions=policy_revisions,
                 shared_return_spec=shared_return_spec,
             )
@@ -401,6 +417,7 @@ async def main() -> None:
                 sampling_namespace = None
                 seed = args.seed_base + step * 10_000 + group_index
                 size = args.size
+                horizon = args.horizon or 2
                 if curriculum is not None:
                     if args.curriculum_kind == "alternating":
                         kind = "critical" if ordinal % 2 == 0 else "decoy"
@@ -413,6 +430,7 @@ async def main() -> None:
                     initial_state = scenario.state
                     seed = scenario.seed
                     size = scenario.size
+                    horizon = args.horizon or scenario.horizon
                     scenario_metadata = {
                         "source": "curriculum",
                         "split": args.curriculum_split,
@@ -435,7 +453,7 @@ async def main() -> None:
                     )
                     scenario_metadata["sampling_namespace"] = sampling_namespace
                 episode_config = EpisodeConfig(
-                    horizon=args.horizon,
+                    horizon=horizon,
                     communication_cost=0.0,
                     invalid_broadcast_cost=0.0,
                     invalid_action_cost=0.0,
