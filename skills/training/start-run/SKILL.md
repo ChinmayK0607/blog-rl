@@ -105,6 +105,11 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   `exec` target and attach logging with `tmux pipe-pane`. Avoid making a shell
   pipeline ending in `tee` the pane's main process; a logging-process exit can
   otherwise tear down a healthy server and look like a model failure.
+- Complete the project pytest gate before starting any live `torchrun`. The
+  repository-level `cleanup_zombies` fixture invokes `pkill -f torchrun` at
+  module setup, so even a read-only test invocation can terminate unrelated
+  trainers or rollout actors owned by the same user. Never run pytest beside a
+  live training, certification, or rollout process on the same host.
 
 ## `sft` — SFT training
 

@@ -1627,6 +1627,85 @@ no more critical-specific than decoy-specific. Therefore:
   FSDP placement exact and avoids projecting every prefix token over the full
   vocabulary during autoregressive generation.
 
+### 2026-08-15 — Exact Prime actor passes bound four-group recert
+
+- Status: recertification admitted; one-step optimizer stability pilot running
+- Source: `471684263ffd7f13272ee6a2647cbf9b48b80d5b`.
+- The first complete one-group rollout from the exact Prime FSDP actor produced
+  16 policy samples and 1,040 completion tokens in 308.6 seconds. Its fresh
+  certificate passed every unchanged numerical gate: mean absolute
+  log-probability error `0.0005634`, p99 `0.021916`, maximum probability error
+  `0.022617`, p99 probability error `0.014307`, probability-tail fraction `0`,
+  mean mismatch-KL `0.00000909`, and maximum mismatch-KL `0.0040605`. All four
+  policy adapter slots passed isolation.
+- The first four-group recertification directory,
+  `/workspace/runs/prime-parity-4g-47168426`, was terminated by an external
+  `SIGTERM` after one of four groups. The controller emitted no diagnostic and
+  all CUDA memory was released. This was not a model, parity, or simulator
+  failure: the concurrently launched repository pytest session's autouse
+  `cleanup_zombies` fixture executes `pkill -f torchrun` at module setup.
+- The full project-scoped Linux suite nevertheless completed successfully:
+  90 passed with 31 warnings in 20.59 seconds. The interrupted evidence remains
+  preserved and is ineligible for certification or training.
+- Operational correction: complete pytest before starting any live
+  `torchrun`; never use pytest as a concurrent health check on the same host.
+  The run-start, monitor, and Swarm asynchronous-operation instructions now
+  state this explicitly.
+- A new immutable public-preflighted directory,
+  `/workspace/runs/prime-parity-4g-r2-47168426`, was created with the same
+  source, inputs, trainer config, thresholds, four groups, and balanced
+  alternating curriculum. It completed all four groups and 64 policy samples
+  in 1,203 seconds. Probe SHA-256:
+  `160cd12152e57968ad40cf04f3d92744bd0dc140a95d251874903b1989dd67d1`.
+- The bound certificate passed parity and isolation over 3,954 completion
+  tokens: mean absolute log-probability error `0.0006103`, p99 `0.0195237`,
+  maximum probability error `0.0281846`, p99 probability error `0.0115359`,
+  probability-error tail fraction `0`, mean mismatch-KL `0.0000164615`, and
+  maximum mismatch-KL `0.00813663`. A disposable optimizer step changed only
+  `run_blue_0`. Certificate SHA-256:
+  `9468217b71f6d2cd481b279201807ead940374ff4a108b43bf4b7e4c151a6a37`.
+- The exact public inputs and unchanged parity gate are now bound into
+  `/workspace/runs/rl-prime-stability-47168426`. A one-step four-policy
+  optimizer pilot is running with the trainer on GPU 0 and exact Prime actor on
+  GPU 1. The model-controlled RED opponent is the frozen SFT adapter; it is not
+  a deterministic policy.
+- GPU/cost: 4x NVIDIA L40S host; only GPU 1 was used by each rollout actor.
+  Provider hourly price remains unknown, so no fabricated dollar estimate is
+  recorded. Instance decommissioned: no; required stability and development
+  work remains.
+
+### 2026-08-15 — First complete four-policy optimizer stability pass
+
+- Status: completed and admitted as a mechanical RL stability pass
+- Run: `/workspace/runs/rl-prime-stability-47168426`; source
+  `471684263ffd7f13272ee6a2647cbf9b48b80d5b`; exact Prime actor on GPU 1,
+  Prime multi-run trainer on GPU 0, frozen sampled SFT opponent, four balanced
+  critical/decoy groups, 16 independent joint-trajectory replicas, and one
+  logical update for each of four separately optimized BLUE LoRA policies.
+- All four complete logical batches passed the unchanged parity gate immediately
+  before `optimizer.step()`. Their maximum probability errors were at most
+  `0.0278276`; their maximum mismatch-KL values were at most `0.0140302`.
+  Every optimizer step used learning rate `5e-6` and produced a `STABLE`
+  filesystem broadcast.
+- The training summary passed every mechanical check: four groups, 16 replicas,
+  balanced critical/decoy cases, paired sampling namespaces, nonzero learning
+  signal, four distinct adapters, and complete policy updates. Mean absolute
+  advantage was `0.0751488`; 62.5% of replica advantages were nonzero.
+- Final step-one adapter SHA-256 values were `195f1e20...96f8`,
+  `cb0f1ff7...15a6`, `e43953d8...ae3`, and `ae715efc...36ae` for BLUE policies
+  zero through three. Training-summary SHA-256:
+  `11638fa50dec032ce901203853b8eae64a0d7cfb03cf12b797c8901f712f4848`.
+- The controller exited normally after recording progress. The trainer is
+  deliberately configured with an infinite packing horizon, so it was stopped
+  only after all four stable updates were verified; the resulting elastic
+  SIGHUP in its tail is expected teardown, not a training failure.
+- Verdict: **mechanical pass**. This establishes a working, non-collapsing
+  four-policy RL update path. It is not evidence of improved return or learned
+  communication; those require the longer run and held-out interventions.
+- Next action: a fresh four-step run from the same warm start is now active on
+  GPUs 0-1 while the isolated development-evaluation server remains healthy on
+  GPU 2. Instance decommissioned: no.
+
 ## Artifact index
 
 - Public source branch:

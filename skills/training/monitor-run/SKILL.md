@@ -34,6 +34,10 @@ Default cadence: **1 hour** (researcher can override). At each check-in:
 **Notes**: anything unusual (errors, restarts, hangs). Omit if nothing notable.
 ```
 
+Do not run the repository pytest suite as a health check while `torchrun` is
+live. Its repository-level zombie-cleanup fixture uses `pkill -f torchrun` and
+will terminate unrelated training or rollout jobs owned by the same user.
+
 ### Restarting a run
 
 **Never restart unless the researcher explicitly asked.** Confirm the exact restart command and the conditions that warrant one.

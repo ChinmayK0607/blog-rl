@@ -14,7 +14,12 @@ def load_rows(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
-def compare(base_rows: list[dict[str, Any]], adapter_rows: list[dict[str, Any]]) -> dict[str, Any]:
+def compare(
+    base_rows: list[dict[str, Any]],
+    adapter_rows: list[dict[str, Any]],
+    *,
+    comparison_protocol: str = "paired-swarm-regression-v1",
+) -> dict[str, Any]:
     base = {row["id"]: row for row in base_rows}
     adapter = {row["id"]: row for row in adapter_rows}
     if len(base) != len(base_rows) or len(adapter) != len(adapter_rows):
@@ -55,7 +60,7 @@ def compare(base_rows: list[dict[str, Any]], adapter_rows: list[dict[str, Any]])
         "arena_leakage_not_increased": adapter_leakage <= base_leakage,
     }
     return {
-        "comparison_protocol": "paired-swarm-regression-v1",
+        "comparison_protocol": comparison_protocol,
         "overall": overall,
         "categories": by_category,
         "base_arena_leakage": base_leakage,
@@ -69,8 +74,17 @@ def main() -> None:
     parser.add_argument("--base-rows", type=Path, required=True)
     parser.add_argument("--adapter-rows", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--comparison-protocol",
+        choices=("paired-swarm-regression-v1", "paired-swarm-regression-v2"),
+        default="paired-swarm-regression-v1",
+    )
     args = parser.parse_args()
-    result = compare(load_rows(args.base_rows), load_rows(args.adapter_rows))
+    result = compare(
+        load_rows(args.base_rows),
+        load_rows(args.adapter_rows),
+        comparison_protocol=args.comparison_protocol,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True))

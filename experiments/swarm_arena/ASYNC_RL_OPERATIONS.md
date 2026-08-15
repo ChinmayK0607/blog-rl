@@ -136,6 +136,11 @@ and use `tmux pipe-pane` for persistent logs. Do not use a shell pipeline ending
 in `tee` as the pane's lifecycle owner: a logger exit can close the pane even
 when the server itself was healthy.
 
+Run the complete Linux pytest gate before launching any live `torchrun` on the
+host. The repository-level `cleanup_zombies` fixture executes
+`pkill -f torchrun`, so running pytest concurrently is destructive even when
+the selected tests are otherwise read-only.
+
 When launching multiple independent vLLM processes on one host, give every
 process unique `VLLM_CACHE_ROOT`, `TRITON_CACHE_DIR`,
 `TORCHINDUCTOR_CACHE_DIR`, `data_parallel_rpc_port`, and API port values.

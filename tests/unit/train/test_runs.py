@@ -11,6 +11,7 @@ from safetensors.torch import save_file
 from prime_rl.configs.trainer import LoRAConfig
 from prime_rl.trainer.models.layers.lora import MultiLoRALinear
 from prime_rl.trainer.runs import MultiRunManager, load_initial_adapter_state
+from prime_rl.trainer.weights import peft_adapter_state_dict
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -122,6 +123,19 @@ def test_lora_config_can_disable_grouped_mm() -> None:
     config = LoRAConfig(use_grouped_mm=False)
 
     assert config.use_grouped_mm is False
+
+
+def test_peft_adapter_state_dict_prefixes_keys_and_rejects_mixed_input() -> None:
+    tensor = torch.ones(2, 3)
+    raw = {"model.layers.0.self_attn.q_proj.lora_A.weight": tensor}
+
+    converted = peft_adapter_state_dict(raw)
+
+    key = "base_model.model.model.layers.0.self_attn.q_proj.lora_A.weight"
+    assert list(converted) == [key]
+    assert converted[key] is tensor
+    with pytest.raises(ValueError, match="mixes PEFT-prefixed and unprefixed"):
+        peft_adapter_state_dict({**raw, **converted})
 
 
 def test_initial_adapter_rejects_checksum_mismatch(tmp_path: Path) -> None:
