@@ -1620,6 +1620,12 @@ no more critical-specific than decoy-specific. Therefore:
   PyTorch `inference_mode` forbids that operation. The Prime actor uses
   `no_grad` instead, matching the certificate and trainer's graph-free
   evaluation semantics without the stricter version-counter prohibition.
+- The next retry showed that direct backbone calls also bypass the FSDP root's
+  placement hook, leaving rotary buffers local beside DTensor activations. The
+  actor now enters through the normal fully-sharded model root and installs a
+  scoped LM-head pre-hook that retains only the final hidden token. This keeps
+  FSDP placement exact and avoids projecting every prefix token over the full
+  vocabulary during autoregressive generation.
 
 ## Artifact index
 

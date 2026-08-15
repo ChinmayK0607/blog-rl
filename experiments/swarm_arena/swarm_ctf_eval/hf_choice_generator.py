@@ -222,7 +222,7 @@ class HFChoiceGenerator:
         past_key_values: Any | None,
     ) -> tuple[torch.Tensor, Any]:
         if self._prime_backend:
-            from torch.distributed.tensor import DTensor, Replicate, distribute_tensor
+            from torch.distributed.tensor import DTensor
 
             from prime_rl.trainer.models.layers.lora import set_lora_num_tokens
 
@@ -234,39 +234,29 @@ class HFChoiceGenerator:
             position_ids = torch.arange(
                 input_ids.shape[1], device=self.device
             ).unsqueeze(0)
-            embedding_weight = self.model.model.embed_tokens.weight
-            if not isinstance(embedding_weight, DTensor):
-                raise RuntimeError("Prime actor expected an FSDP DTensor embedding")
-            mesh = embedding_weight.device_mesh
-            placements = [Replicate() for _ in range(mesh.ndim)]
-            distributed_input_ids = distribute_tensor(
-                input_ids, mesh, placements
-            )
-            distributed_position_ids = distribute_tensor(
-                position_ids, mesh, placements
-            )
-            # DTensor/Transformers causal-mask construction mutates tensor
-            # version counters, which inference_mode forbids. no_grad keeps the
-            # actor graph-free while matching the certified trainer forward.
-            with torch.no_grad():
-                output = self.model.model(
-                    input_ids=distributed_input_ids,
-                    position_ids=distributed_position_ids,
-                    use_cache=False,
-                    return_dict=True,
-                )
-                hidden = output.last_hidden_state[:, -1, :]
-                if isinstance(hidden, DTensor):
-                    hidden = hidden.to_local()
-                weight = self.model.lm_head.weight
-                if isinstance(weight, DTensor):
-                    weight = weight.to_local()
-                hidden = hidden.to(torch.bfloat16)
-                weight = weight.to(torch.bfloat16)
-                with torch.autocast("cuda", enabled=False):
-                    logits = torch.mm(
-                        hidden, weight.t(), out_dtype=torch.float32
-                    )[0]
+            def last_hidden_only(
+                _module: torch.nn.Module, inputs: tuple[Any, ...]
+            ) -> tuple[Any, ...]:
+                return (inputs[0][:, -1:, :], *inputs[1:])
+
+            hook = self.model.lm_head.register_forward_pre_hook(last_hidden_only)
+            try:
+                # Enter through the fully-sharded root so FSDP owns input
+                # placement. The pre-hook avoids a full-sequence vocabulary
+                # projection while retaining the exact Prime LM-head kernel.
+                with torch.no_grad():
+                    output = self.model(
+                        input_ids=input_ids,
+                        position_ids=position_ids,
+                        labels=None,
+                        temperature=None,
+                    )
+            finally:
+                hook.remove()
+            logits = output["logits"] if isinstance(output, dict) else output.logits
+            if isinstance(logits, DTensor):
+                logits = logits.to_local()
+            logits = logits[0, -1].float()
             return logits, None
         backbone = self.model.get_base_model()
         with torch.inference_mode():
