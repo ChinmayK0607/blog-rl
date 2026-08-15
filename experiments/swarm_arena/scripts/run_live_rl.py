@@ -293,13 +293,15 @@ async def main() -> None:
             "dtype": "bfloat16",
             "device": "cuda",
             "max_tokens": 128,
-            "use_kv_cache": True,
             "lm_head": "bf16xbf16-to-fp32",
             "sampling": "temperature-1-constrained-multinomial",
         }
         attention = actor_config.pop("attention", None)
+        use_kv_cache = actor_config.pop("use_kv_cache", None)
         if attention not in {"flash_attention_2", "sdpa"}:
             raise ValueError("HF actor attention must be an audited FA2 or SDPA path")
+        if not isinstance(use_kv_cache, bool):
+            raise ValueError("HF actor use_kv_cache must be explicit")
         if actor_config != expected_actor:
             raise ValueError("HF actor config does not match the audited implementation")
         generator_context = HFChoiceGenerator(
@@ -309,6 +311,7 @@ async def main() -> None:
             attention=attention,
             device=actor_config["device"],
             max_tokens=actor_config["max_tokens"],
+            use_kv_cache=use_kv_cache,
         )
 
     bindings = tuple(

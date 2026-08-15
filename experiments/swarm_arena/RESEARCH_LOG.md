@@ -1565,6 +1565,33 @@ no more critical-specific than decoy-specific. Therefore:
   earlier SDPA matrix failure compared against a vLLM actor and does not answer
   this matched-forward question.
 
+### 2026-08-15 — Full-prefix SDPA isolates KV-cache parity failure
+
+- Status: cached diagnostic rejected; full-prefix numerical path admitted for a
+  fresh-rollout test
+- Preserved run: `/workspace/runs/rl-hf-sdpa-probe-16245067`
+- Source `16245067ab4e7d9890cb16bad3c5e353c4ac50b6` passed 89/89
+  project-scoped Linux tests. A fresh critical-curriculum group produced 16
+  policy samples and 954 completion tokens with nonzero shared-return
+  advantages (`+0.190476`, `-0.190476`, `0`, `0`).
+- The cached HF-SDPA actor versus HF-SDPA trainer certificate failed only
+  maximum mismatch-KL: `0.092147 > 0.08`. Mean absolute log-probability error
+  (`0.001923`), p99 (`0.049209`), maximum probability error (`0.074383`), p99
+  probability error (`0.021608`), tail fraction (`0.002096`), and mean
+  mismatch-KL (`0.0001504`) all passed. No training was attempted.
+- Source `b9847abf` added a reusable diagnostic that recomputes the same probe's
+  PEFT actor distributions with full-prefix SDPA and no KV cache. This is
+  explicitly labeled numerical evidence rather than a valid replacement for
+  the behavior-policy probabilities from the original cached rollout.
+- The full-prefix certificate passed every unchanged gate and policy-isolation
+  check: mean absolute log-probability error `0.001945`, p99 `0.060908`, maximum
+  probability error `0.068723`, p99 probability error `0.027233`, tail fraction
+  `0.001048`, mean mismatch-KL `0.0001040`, and maximum mismatch-KL `0.050092`.
+- Decision: implement an explicitly configured no-KV-cache actor and require
+  fresh rollout evidence from that actual behavior policy. This trades actor
+  throughput for correct on-policy probabilities; cached probabilities will
+  not be relabeled or used for training.
+
 ## Artifact index
 
 - Public source branch:

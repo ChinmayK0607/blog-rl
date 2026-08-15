@@ -29,6 +29,7 @@ class HFChoiceGenerator:
         attention: str = "flash_attention_2",
         device: str = "cuda",
         max_tokens: int = 128,
+        use_kv_cache: bool = True,
     ) -> None:
         from transformers.utils import import_utils
 
@@ -42,6 +43,7 @@ class HFChoiceGenerator:
         self.device = torch.device(device)
         self.max_tokens = max_tokens
         self.attention = attention
+        self.use_kv_cache = use_kv_cache
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.renderer = Qwen3Renderer(
             self.tokenizer,
@@ -134,7 +136,7 @@ class HFChoiceGenerator:
             output = backbone.model(
                 input_ids=input_ids,
                 past_key_values=past_key_values,
-                use_cache=True,
+                use_cache=self.use_kv_cache,
                 return_dict=True,
             )
             hidden = output.last_hidden_state[:, -1, :].to(dtype=torch.bfloat16)
@@ -209,6 +211,10 @@ class HFChoiceGenerator:
                 next_input = torch.tensor(
                     [[token_id]], dtype=torch.long, device=self.device
                 )
+                if not self.use_kv_cache:
+                    token_input = torch.cat((token_input, next_input), dim=1)
+                    next_input = token_input
+                    cache = None
                 logits, cache = self._last_token_logits(
                     next_input,
                     past_key_values=cache,
