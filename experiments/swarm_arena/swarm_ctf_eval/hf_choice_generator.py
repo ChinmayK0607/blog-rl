@@ -222,8 +222,9 @@ class HFChoiceGenerator:
         past_key_values: Any | None,
     ) -> tuple[torch.Tensor, Any]:
         if self._prime_backend:
-            from prime_rl.trainer.models.layers.lora import set_lora_num_tokens
             from torch.distributed.tensor import DTensor, Replicate, distribute_tensor
+
+            from prime_rl.trainer.models.layers.lora import set_lora_num_tokens
 
             counts = torch.zeros(
                 len(self._prime_slots), dtype=torch.int32, device=self.device
