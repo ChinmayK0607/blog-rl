@@ -30,6 +30,9 @@ class HFChoiceGenerator:
         device: str = "cuda",
         max_tokens: int = 128,
         use_kv_cache: bool = True,
+        prime_model_config: Any | None = None,
+        prime_actor_state_dir: Path | None = None,
+        prime_matmul_precision: str = "high",
     ) -> None:
         from transformers.utils import import_utils
 
@@ -44,6 +47,7 @@ class HFChoiceGenerator:
         self.max_tokens = max_tokens
         self.attention = attention
         self.use_kv_cache = use_kv_cache
+        self._prime_backend = prime_model_config is not None
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.renderer = Qwen3Renderer(
             self.tokenizer,
@@ -63,20 +67,37 @@ class HFChoiceGenerator:
         self._token_ids = torch.arange(self.vocab_size, dtype=torch.int64)
         self._word_indices = self._token_ids // 32
         self._bit_indices = self._token_ids % 32
-        base_model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            dtype=torch.bfloat16,
-            attn_implementation=attention,
-        ).to(self.device)
-        first, *remaining = adapter_names
-        self.model = PeftModel.from_pretrained(
-            base_model,
-            initial_adapter,
-            adapter_name=first,
-            is_trainable=False,
-        )
-        for name in remaining:
-            self.model.load_adapter(initial_adapter, adapter_name=name, is_trainable=False)
+        self._prime_slots: dict[str, int] = {}
+        self._prime_manager: Any | None = None
+        if self._prime_backend:
+            if use_kv_cache:
+                raise ValueError("Prime actor requires full-prefix generation")
+            if prime_actor_state_dir is None:
+                raise ValueError("Prime actor requires an isolated actor-state directory")
+            self.model = self._setup_prime_model(
+                prime_model_config,
+                prime_actor_state_dir,
+                adapter_names,
+                model_path,
+                prime_matmul_precision,
+            )
+        else:
+            base_model = AutoModelForCausalLM.from_pretrained(
+                model_path,
+                dtype=torch.bfloat16,
+                attn_implementation=attention,
+            ).to(self.device)
+            first, *remaining = adapter_names
+            self.model = PeftModel.from_pretrained(
+                base_model,
+                initial_adapter,
+                adapter_name=first,
+                is_trainable=False,
+            )
+            for name in remaining:
+                self.model.load_adapter(
+                    initial_adapter, adapter_name=name, is_trainable=False
+                )
         self.model.eval()
         self._adapter_paths = {
             name: str(initial_adapter.resolve()) for name in adapter_names
@@ -84,10 +105,69 @@ class HFChoiceGenerator:
         self._lock = asyncio.Lock()
         self._group_requests: dict[str, asyncio.Task[ChoiceCompletion]] | None = None
 
+    def _setup_prime_model(
+        self,
+        model_config: Any,
+        state_dir: Path,
+        adapter_names: tuple[str, ...],
+        model_path: str,
+        matmul_precision: str,
+    ) -> Any:
+        import tomli_w
+
+        from prime_rl.trainer.model import setup_model
+        from prime_rl.trainer.parallel_dims import get_parallel_dims
+        from prime_rl.trainer.runs import setup_multi_run_manager
+        from prime_rl.trainer.utils import setup_torch_distributed
+
+        state_dir.mkdir(parents=True, exist_ok=False)
+        for name in adapter_names:
+            control = state_dir / f"run_{name}" / "control"
+            control.mkdir(parents=True)
+            with (control / "orch.toml").open("wb") as handle:
+                tomli_w.dump(
+                    {
+                        "batch_size": 1,
+                        "group_size": 1,
+                        "max_steps": 1,
+                        "model": {
+                            "name": model_path,
+                            "lora": {"name": name, "rank": 16, "alpha": 32},
+                        },
+                        "optim": {"lr": 0.000005},
+                        "renderer": {"name": "qwen3", "enable_thinking": False},
+                        "train": {"env": [{"id": "reverse-text"}]},
+                    },
+                    handle,
+                )
+        setup_torch_distributed()
+        torch.set_float32_matmul_precision(matmul_precision)
+        manager = setup_multi_run_manager(
+            state_dir,
+            len(adapter_names),
+            self.device,
+            model_config.lora,
+        )
+        model = setup_model(model_config, get_parallel_dims(model_config))
+        manager.discover_runs()
+        manager.synchronize_state()
+        expected = {f"run_{name}" for name in adapter_names}
+        if set(manager.id_2_idx) != expected:
+            raise RuntimeError("Prime actor did not discover every isolated adapter slot")
+        self._prime_manager = manager
+        self._prime_slots = {
+            name: manager.id_2_idx[f"run_{name}"] for name in adapter_names
+        }
+        return model
+
     async def __aenter__(self) -> HFChoiceGenerator:
         return self
 
     async def __aexit__(self, *args: object) -> None:
+        if self._prime_backend:
+            import torch.distributed as dist
+
+            dist.destroy_process_group()
         return None
 
     @asynccontextmanager
@@ -104,6 +184,16 @@ class HFChoiceGenerator:
         expected = str(path.resolve())
         async with self._lock:
             if self._adapter_paths.get(name) == expected:
+                return
+            if self._prime_backend:
+                assert self._prime_manager is not None
+                digest = hashlib.sha256(
+                    (path / "adapter_model.safetensors").read_bytes()
+                ).hexdigest()
+                self._prime_manager.load_adapter(
+                    self._prime_slots[name], path, digest
+                )
+                self._adapter_paths[name] = expected
                 return
             if name in self._adapter_paths:
                 active = next(
@@ -131,6 +221,31 @@ class HFChoiceGenerator:
         *,
         past_key_values: Any | None,
     ) -> tuple[torch.Tensor, Any]:
+        if self._prime_backend:
+            from prime_rl.trainer.models.layers.lora import set_lora_num_tokens
+
+            counts = torch.zeros(
+                len(self._prime_slots), dtype=torch.int32, device=self.device
+            )
+            counts[self._active_prime_slot] = input_ids.shape[1]
+            set_lora_num_tokens(counts)
+            position_ids = torch.arange(
+                input_ids.shape[1], device=self.device
+            ).unsqueeze(0)
+            with torch.inference_mode():
+                output = self.model.model(
+                    input_ids=input_ids,
+                    position_ids=position_ids,
+                    use_cache=False,
+                    return_dict=True,
+                )
+                hidden = output.last_hidden_state[:, -1, :].to(torch.bfloat16)
+                weight = self.model.lm_head.weight.to(torch.bfloat16)
+                with torch.autocast("cuda", enabled=False):
+                    logits = torch.mm(
+                        hidden, weight.t(), out_dtype=torch.float32
+                    )[0]
+            return logits, None
         backbone = self.model.get_base_model()
         with torch.inference_mode():
             output = backbone.model(
@@ -157,7 +272,10 @@ class HFChoiceGenerator:
         async with self._lock:
             if endpoint.model_name not in self._adapter_paths:
                 raise ValueError(f"HF actor has no adapter named {endpoint.model_name}")
-            self.model.set_adapter(endpoint.model_name)
+            if self._prime_backend:
+                self._active_prime_slot = self._prime_slots[endpoint.model_name]
+            else:
+                self.model.set_adapter(endpoint.model_name)
             compiled = self.compiler.compile_grammar(choice_as_grammar(list(choices)))
             matcher = xgr.GrammarMatcher(compiled)
             bitmask = xgr.allocate_token_bitmask(1, self.vocab_size)
@@ -254,7 +372,9 @@ class HFChoiceGenerator:
         seed = int.from_bytes(digest[4:8], "big")
         request_sha256 = canonical_sha256(
             {
-                "actor": "hf-choice-v1",
+                "actor": (
+                    "prime-choice-v1" if self._prime_backend else "hf-choice-v1"
+                ),
                 "attention": self.attention,
                 "max_tokens": self.max_tokens,
                 "policy_id": endpoint.policy_id,

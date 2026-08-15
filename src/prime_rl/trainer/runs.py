@@ -277,13 +277,23 @@ class MultiRunManager:
         """Initialize one run from the trainer-owned, checksum-pinned PEFT adapter."""
         if self._initial_adapter_path is None or self._initial_adapter_sha256 is None:
             return
-        if self._initial_adapter_state is None:
-            self._initial_adapter_state = load_initial_adapter_state(
-                self._initial_adapter_path, self._initial_adapter_sha256
-            )
+        self.load_adapter(idx, self._initial_adapter_path, self._initial_adapter_sha256)
 
+    @torch.no_grad()
+    def load_adapter(self, idx: int, path: Path, expected_sha256: str) -> None:
+        """Load one checksum-pinned PEFT adapter into an existing isolated run slot."""
+        if (
+            path == self._initial_adapter_path
+            and expected_sha256 == self._initial_adapter_sha256
+        ):
+            if self._initial_adapter_state is None:
+                self._initial_adapter_state = load_initial_adapter_state(
+                    path, expected_sha256
+                )
+            source = self._initial_adapter_state
+        else:
+            source = load_initial_adapter_state(path, expected_sha256)
         target = dict(self.get_named_parameters_for_run(idx))
-        source = self._initial_adapter_state
         missing = sorted(set(target) - set(source))
         unexpected = sorted(set(source) - set(target))
         if missing or unexpected:

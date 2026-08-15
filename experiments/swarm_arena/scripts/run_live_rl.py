@@ -197,7 +197,7 @@ async def main() -> None:
     parser.add_argument("--base-url", action="append", default=[])
     parser.add_argument(
         "--actor",
-        choices=("vllm", "hf"),
+        choices=("vllm", "hf", "prime"),
         default="vllm",
     )
     parser.add_argument("--run-id", required=True)
@@ -288,7 +288,11 @@ async def main() -> None:
         with args.inference_config.open("rb") as handle:
             actor_config = tomli.load(handle)
         expected_actor = {
-            "version": "arena-hf-choice-actor-v1",
+            "version": (
+                "arena-prime-choice-actor-v1"
+                if args.actor == "prime"
+                else "arena-hf-choice-actor-v1"
+            ),
             "model": args.tokenizer,
             "dtype": "bfloat16",
             "device": "cuda",
@@ -298,10 +302,16 @@ async def main() -> None:
         }
         attention = actor_config.pop("attention", None)
         use_kv_cache = actor_config.pop("use_kv_cache", None)
-        if attention not in {"flash_attention_2", "sdpa"}:
+        allowed_attention = {"sdpa"} if args.actor == "prime" else {
+            "flash_attention_2",
+            "sdpa",
+        }
+        if attention not in allowed_attention:
             raise ValueError("HF actor attention must be an audited FA2 or SDPA path")
         if not isinstance(use_kv_cache, bool):
             raise ValueError("HF actor use_kv_cache must be explicit")
+        if args.actor == "prime" and use_kv_cache:
+            raise ValueError("Prime actor requires full-prefix generation")
         if actor_config != expected_actor:
             raise ValueError("HF actor config does not match the audited implementation")
         generator_context = HFChoiceGenerator(
@@ -312,6 +322,11 @@ async def main() -> None:
             device=actor_config["device"],
             max_tokens=actor_config["max_tokens"],
             use_kv_cache=use_kv_cache,
+            prime_model_config=(config.model if args.actor == "prime" else None),
+            prime_actor_state_dir=(
+                args.output_dir / "actor_state" if args.actor == "prime" else None
+            ),
+            prime_matmul_precision=config.matmul_precision,
         )
 
     bindings = tuple(

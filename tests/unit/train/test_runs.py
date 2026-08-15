@@ -100,6 +100,23 @@ def test_checksum_pinned_initial_adapter_populates_every_run(tmp_path: Path) -> 
         assert torch.equal(loaded["proj.lora_A.weight"], source["base_model.model.proj.lora_A.weight"])
         assert torch.equal(loaded["proj.lora_B.weight"], source["base_model.model.proj.lora_B.weight"])
 
+    replacement_dir = tmp_path / "replacement"
+    replacement_dir.mkdir()
+    replacement = {name: value + 10 for name, value in source.items()}
+    replacement_path = replacement_dir / "adapter_model.safetensors"
+    save_file(replacement, replacement_path)
+    replacement_digest = hashlib.sha256(replacement_path.read_bytes()).hexdigest()
+    manager.load_adapter(0, replacement_dir, replacement_digest)
+
+    changed = dict(manager.get_named_parameters_for_run(0))
+    unchanged = dict(manager.get_named_parameters_for_run(1))
+    assert torch.equal(
+        changed["proj.lora_A.weight"], replacement["base_model.model.proj.lora_A.weight"]
+    )
+    assert torch.equal(
+        unchanged["proj.lora_A.weight"], source["base_model.model.proj.lora_A.weight"]
+    )
+
 
 def test_lora_config_can_disable_grouped_mm() -> None:
     config = LoRAConfig(use_grouped_mm=False)

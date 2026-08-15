@@ -1592,6 +1592,25 @@ no more critical-specific than decoy-specific. Therefore:
   throughput for correct on-policy probabilities; cached probabilities will
   not be relabeled or used for training.
 
+### 2026-08-15 — Four-group probe rejects PEFT as the live behavior backend
+
+- Status: failed closed; no training attempted
+- Preserved evidence: `/workspace/runs/hf-parity-nocache-0b1519c4`
+- The actual full-prefix HF-SDPA behavior actor completed four balanced
+  critical/decoy groups (64 samples, 4,129 completion tokens) in 391 seconds.
+  A wider certificate found an outlier absent from the 16-sample probe:
+  maximum probability error `0.124935 > 0.1`. The PEFT actor and Prime trainer
+  therefore remain numerically different even without KV caching.
+- Disabling Prime's grouped LoRA GEMM produced identical certificate metrics,
+  ruling out grouped-versus-looped adapter matmul as the cause. Gates remained
+  unchanged and neither rejected certificate was used for optimization.
+- Correction under test: serve constrained actions from the exact Prime model,
+  multi-LoRA slot, SDPA attention, BF16-to-FP32 LM head, and full-prefix path
+  used by the trainer. Actor slots remain isolated and accept only
+  checksum-pinned PEFT adapter broadcasts. The controller must run as a
+  one-rank `torchrun` process so this truthful actor initializes the same
+  distributed/FSDP model path as certification and training.
+
 ## Artifact index
 
 - Public source branch:
