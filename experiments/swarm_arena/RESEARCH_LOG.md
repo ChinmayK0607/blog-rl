@@ -1927,6 +1927,78 @@ no more critical-specific than decoy-specific. Therefore:
   pool. Escalate to a longer run only if development capability,
   communication-intervention, regression, and collapse gates remain healthy.
 
+### 2026-08-15 — RL v4 SFT baseline and stage-1 reward-density run
+
+- Status: completed pre-training evaluation and rollout-only diagnostic; no
+  optimizer update. Verdict: the 1.7B SFT is RL-usable, but no communication or
+  RL-improvement claim is admitted.
+- Hardware/runtime: one user-provided NVIDIA RTX A6000 48 GB host. vLLM 0.22
+  served the pinned Qwen3-1.7B BF16
+  backbone plus dynamic rank-16 LoRAs. The first evaluation process started at
+  approximately 11:02 UTC and the last model rollout completed at approximately
+  11:53 UTC. Using the earlier user-reported `$0.48/hour` rate for this same
+  host class gives roughly `$0.41` for that 51-minute GPU-active window; later
+  artifact handling is not included. Instance decommissioned: not yet at this
+  log checkpoint; inference has been stopped and GPU state is 1 MiB / 0%.
+- Immutable models: base revision
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; SFT revision
+  `534522a8f3ff3489b1dd8318dc8e533e51264cde`; adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`.
+- Linux gate: after all live-v4 fixes and the rollout-summary implementation,
+  the complete project-scoped suite passed **90 tests** with two third-party
+  SWIG deprecation warnings in 35.80 seconds. Ruff passed the changed files.
+- Serving compatibility: the first static LoRA launch exposed a vLLM 0.22
+  loader-signature change (`moe_ep_spec`). Commit `3fdf72b1` updated Prime's
+  key-prefix wrapper and the repaired server registered both `base` and `sft`.
+  A production dynamic-adapter broadcast/action probe then passed.
+- Development baseline: `run_progress_eval_v4.py --tier online` completed all
+  96 games. Its fixed historical label `candidate_rl` is the SFT adapter in
+  this pre-training run, and `sft_init` is the untouched base; model revisions
+  in the manifest remove ambiguity. SFT-minus-base return was `+0.2868501`
+  (95% interval `[+0.1191502,+0.4653010]`) on legacy ordinary maps and
+  `+0.2031388` (`[+0.1572712,+0.2720588]`) on hard ordinary maps. Action,
+  broadcast, and grounded-broadcast rates were all `1.0`.
+- Communication baseline: critical normal-minus-dropped was directionally
+  positive at `+0.0597636`, but its four-bundle interval
+  `[-0.0022629,+0.1079741]` crossed zero. The matched-decoy effect was
+  `+0.0388356` with interval `[-0.0334280,+0.1110991]`. The online tier
+  correctly rejected a communication claim and left the larger selection and
+  frozen tiers unopened.
+- Live v4 integration failures: the first rollout called the v3 scenario
+  reconstructor; the retry reached `HandoffScenario` but assumed a single
+  `.state` instead of its two latent worlds. Both failed before any model
+  decision, evidence admission, or optimizer input. Commits `c1c2fdb2` and
+  `7af9d102` dispatch to the correct reconstructor and choose worlds
+  deterministically by pair index, pairing critical and decoy on the same
+  world. The v4 run lock now binds composite train/curriculum, development, and
+  frozen-evaluation hashes (`535c29bd...`, `e1a46a3b...`, `440bc41e...`) and
+  uses the scenario-certified horizon unless an ablation explicitly overrides
+  it.
+- Reward-density diagnostic: 24 signed shared-return groups used the exact
+  stage-1 mixture: 12 ordinary, six critical, six matched decoy. Four
+  independently sampled complete-game replicas per group produced 96 games.
+  Overall mean return was `+0.0261111`, range `[-0.30,+0.6206897]`, mean
+  absolute leave-one-out advantage `0.1042770`, nonzero-advantage rate
+  `0.9583333`, and within-group return-variance rate `0.9583333`. Mean absolute
+  advantage was `0.1488890` ordinary, `0.0597869` critical, and `0.0595430`
+  decoy. Critical-minus-decoy mean return was `-0.0212387`; this is a
+  pre-training diagnostic, not a communication estimate.
+- Decision unlocked: pure verified terminal team return is sufficiently dense
+  for the next optimizer run. Do not add speaking, capture, or message bonuses.
+  Start multi-GPU asynchronous RL with the 50/25/25 stage-1 mixture, four
+  independent BLUE LoRA policies, a model-controlled opponent pool, bounded
+  policy lag, and the existing signed replay/admission boundary. Use the
+  96-game online tier for directional monitoring; keep selection and frozen
+  final closed until checkpoint selection.
+- Compact public artifacts: `results/rl_v4_pretrain_1_7b/`. Baseline file
+  hashes are `5c8bb163...` manifest, `dc290a42...` rows, and `876e38a2...`
+  summary. Content-addressed reward-density summary SHA-256 is `8618fb4b...`.
+  The 59.8 MB raw
+  evaluation trace remained off the Mac and compressed to 2.6 MB for public
+  release attachment. The complete 7.4 MB raw/log/evidence archive has SHA-256
+  `162eae39d36cc7906c2d865ed924d8eaa140237b8d10910c50f966ac695f8fd0`
+  and excludes supervisor signing keys. No model checkpoint was copied locally.
+
 ## Artifact index
 
 - Public source branch:
@@ -1948,6 +2020,8 @@ no more critical-specific than decoy-specific. Therefore:
   `data/rl_v3/`
 - RL v4 task, progress evaluation, manifests, and audits:
   `RL_TASK_V4.md`, `PROGRESS_EVAL_V4.md`, and `data/rl_v4/`
+- RL v4 pre-training baseline and stage-1 reward-density evidence:
+  `results/rl_v4_pretrain_1_7b/`
 - Frozen message-credit admission plan:
   `MESSAGE_CREDIT_AUDIT_PLAN.md`
 - Public, non-admitted mechanical RL artifact:

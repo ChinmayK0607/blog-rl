@@ -1,0 +1,111 @@
+{
+  "config": {
+    "base_url": "http://127.0.0.1:8000/v1",
+    "baseline": {
+      "models": [
+        "base",
+        "base",
+        "base",
+        "base"
+      ],
+      "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e"
+    },
+    "candidate": {
+      "models": [
+        "sft",
+        "sft",
+        "sft",
+        "sft"
+      ],
+      "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde|adapter-sha256:2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b"
+    },
+    "opponents": [
+      {
+        "id": "base",
+        "models": [
+          "base",
+          "base",
+          "base",
+          "base"
+        ],
+        "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e"
+      },
+      {
+        "id": "sft",
+        "models": [
+          "sft",
+          "sft",
+          "sft",
+          "sft"
+        ],
+        "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde|adapter-sha256:2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b"
+      },
+      {
+        "id": "historical_league",
+        "models": [
+          "historical-blue-0",
+          "historical-blue-1",
+          "historical-blue-2",
+          "historical-blue-3"
+        ],
+        "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c"
+      }
+    ]
+  },
+  "config_sha256": "429beb1096f4cc078f2c310ffce413816560197b7eb6305cb87c40b9db4c5de9",
+  "critical_conditions": [
+    "normal",
+    "dropped"
+  ],
+  "decoy_conditions": [
+    "normal",
+    "dropped"
+  ],
+  "design_sha256": "45807f24acd0a40206f4b0064b9d8424ce75a12be3ecf05b83bf3907ebcc7650",
+  "generation": {
+    "max_tokens": 160,
+    "structured": true,
+    "temperature": 0.0
+  },
+  "handoff_case_ids": [
+    "handoff-bundle-000-critical-left_exposed",
+    "handoff-bundle-000-critical-right_exposed",
+    "handoff-bundle-000-decoy-left_exposed",
+    "handoff-bundle-000-decoy-right_exposed",
+    "handoff-bundle-001-critical-left_exposed",
+    "handoff-bundle-001-critical-right_exposed",
+    "handoff-bundle-001-decoy-left_exposed",
+    "handoff-bundle-001-decoy-right_exposed",
+    "handoff-bundle-002-critical-left_exposed",
+    "handoff-bundle-002-critical-right_exposed",
+    "handoff-bundle-002-decoy-left_exposed",
+    "handoff-bundle-002-decoy-right_exposed",
+    "handoff-bundle-003-critical-left_exposed",
+    "handoff-bundle-003-critical-right_exposed",
+    "handoff-bundle-003-decoy-left_exposed",
+    "handoff-bundle-003-decoy-right_exposed"
+  ],
+  "handoff_manifest_sha256": "1c70c8ff8253535853e8684c1d2c01a76e9b36dd34d68f3f695e12fa617fc031",
+  "hard_manifest_sha256": "0e60c12e10c322ee081d666aa02d6237cd65e6e8992e19722b225a4c35b3bf4a",
+  "opponents": {
+    "sft": "534522a8f3ff3489b1dd8318dc8e533e51264cde|adapter-sha256:2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b"
+  },
+  "ordinary_case_ids": [
+    "legacy-1000003-canonical",
+    "legacy-1000196-canonical",
+    "legacy-1000389-canonical",
+    "legacy-1000582-canonical",
+    "ordinary-hard-000",
+    "ordinary-hard-001",
+    "ordinary-hard-002",
+    "ordinary-hard-003"
+  ],
+  "sha256": "3d001d9dfe847b01a8c410b814b28e8c396206b6731940a3d2f4664041affc0a",
+  "sides": [
+    "BLUE",
+    "RED"
+  ],
+  "source_commit": "3fdf72b1d45ca34843e6118d0615b17cc1d3071b",
+  "tier": "online",
+  "version": "arena-rl-progress-eval-v4"
+}

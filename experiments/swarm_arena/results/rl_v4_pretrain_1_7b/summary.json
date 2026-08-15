@@ -1,0 +1,90 @@
+{
+  "candidate_protocol": {
+    "action_protocol_rate": 1.0,
+    "broadcast_grounded_rate": 1.0,
+    "broadcast_protocol_rate": 1.0
+  },
+  "capability_rl_minus_sft": {
+    "ordinary_hard": {
+      "definition": "candidate RL minus SFT, paired by map/opponent/side",
+      "independent_units": 4,
+      "mean_difference": 0.20313880056527117,
+      "mean_difference_95": [
+        0.15727124183006536,
+        0.2720588235294118
+      ],
+      "paired_cells": 8,
+      "positive_unit_rate": 1,
+      "unit_effects_sha256": "c50664030b37c824bfbb03356cf3f0ca11f3433be536afa863e8eb290f818957"
+    },
+    "ordinary_legacy": {
+      "definition": "candidate RL minus SFT, paired by map/opponent/side",
+      "independent_units": 4,
+      "mean_difference": 0.2868500502496005,
+      "mean_difference_95": [
+        0.11915024630541872,
+        0.4653010033444816
+      ],
+      "paired_cells": 8,
+      "positive_unit_rate": 1,
+      "unit_effects_sha256": "a7a3e30ed614ab6c6bb2e1255aebc64ce1328bc20bf097218c533ac28b6df150"
+    }
+  },
+  "claim_boundary": "Ordinary return measures game capability. Communication requires positive causal message interventions on two-world handoffs and a null matched-decoy effect.",
+  "claim_checks": {
+    "all_tested_critical_intervention_intervals_positive": false,
+    "communication_claim_passed": false,
+    "critical_effect_positive_against_every_opponent": true,
+    "full_intervention_matrix": false,
+    "hard_capability_interval_positive": true,
+    "legacy_capability_interval_positive": true,
+    "matched_decoy_interval_includes_zero": true
+  },
+  "communication_effects": {
+    "normal_minus_dropped": {
+      "definition": "critical handoff normal minus dropped",
+      "independent_units": 4,
+      "mean_difference": 0.05976358411703239,
+      "mean_difference_95": [
+        -0.0022629310344827527,
+        0.10797413793103447
+      ],
+      "paired_cells": 16,
+      "positive_unit_rate": 0.75,
+      "unit_effects_sha256": "58f0799477d91e73137cab04dac2dbb81cf901ee8c28c272a47cdf91318acd11"
+    }
+  },
+  "communication_effects_by_opponent": {
+    "sft": {
+      "normal_minus_dropped": {
+        "definition": "critical handoff normal minus dropped vs sft",
+        "independent_units": 4,
+        "mean_difference": 0.05976358411703239,
+        "mean_difference_95": [
+          -0.0022629310344827527,
+          0.10797413793103447
+        ],
+        "paired_cells": 16,
+        "positive_unit_rate": 0.75,
+        "unit_effects_sha256": "58f0799477d91e73137cab04dac2dbb81cf901ee8c28c272a47cdf91318acd11"
+      }
+    }
+  },
+  "independent_unit": "game seed for ordinary cases; two-world latent bundle for handoffs",
+  "matched_decoy_normal_minus_dropped": {
+    "definition": "matched-decoy normal minus dropped",
+    "independent_units": 4,
+    "mean_difference": 0.03883555381400208,
+    "mean_difference_95": [
+      -0.0334280303030303,
+      0.11109913793103447
+    ],
+    "paired_cells": 16,
+    "positive_unit_rate": 0.5,
+    "unit_effects_sha256": "2c11446b3e91c18f8aefb0bb9ad50ad212e12cbea7c9c231b19df90d9f08cfbb"
+  },
+  "rows": 96,
+  "scope": "online development evaluation; not a final research claim",
+  "tier": "online",
+  "version": "arena-rl-progress-eval-v4"
+}
