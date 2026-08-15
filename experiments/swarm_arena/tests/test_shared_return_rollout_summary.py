@@ -48,6 +48,7 @@ def test_summarizes_reward_density_and_matched_handoffs(tmp_path: Path) -> None:
     assert summary["overall"]["replicas"] == 12
     assert summary["overall"]["nonzero_advantage_rate"] == 1.0
     assert summary["families"]["ordinary"]["return_variance_group_rate"] == 1.0
+    assert all(set(row) == {"groups", "sha256"} for row in summary["inputs"])
     assert summary["paired_handoff"] == {
         "complete_pairs": 1,
         "replica_differences": 4,

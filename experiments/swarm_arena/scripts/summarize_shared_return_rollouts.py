@@ -8,7 +8,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-VERSION = "arena-shared-return-rollout-summary-v1"
+VERSION = "arena-shared-return-rollout-summary-v2-content-addressed"
 EPSILON = 1e-12
 
 
@@ -65,7 +65,6 @@ def summarize(paths: list[Path]) -> dict[str, Any]:
         groups.extend(file_groups)
         inputs.append(
             {
-                "path": str(path),
                 "sha256": _sha256_file(path),
                 "groups": len(file_groups),
             }
@@ -98,7 +97,7 @@ def summarize(paths: list[Path]) -> dict[str, Any]:
 
     return {
         "version": VERSION,
-        "inputs": inputs,
+        "inputs": sorted(inputs, key=lambda row: row["sha256"]),
         "overall": _metrics(groups),
         "families": {
             family: _metrics(rows) for family, rows in sorted(by_family.items())
