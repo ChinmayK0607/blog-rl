@@ -176,6 +176,7 @@ def apply_lora_to_model(model: nn.Module, config: LoRAConfig) -> None:
                 n_adapters=n_loras,
                 alpha=config.alpha,
                 dropout=config.dropout,
+                use_grouped_mm=config.use_grouped_mm,
             )
         # Handle GroupedExperts (MoE)
         elif isinstance(base_module, GroupedExperts):

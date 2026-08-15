@@ -15,6 +15,7 @@ fused_lm_head_token_chunk_size = "disabled"
 rank = 16
 alpha = 32
 dropout = 0.0
+use_grouped_mm = false
 target_modules = ["q_proj", "k_proj", "v_proj", "o_proj"]
 initial_adapter_path = "/workspace/artifacts/warmstart-1.7b-step320"
 initial_adapter_sha256 = "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b"

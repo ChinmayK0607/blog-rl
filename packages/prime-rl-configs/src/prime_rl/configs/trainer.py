@@ -86,6 +86,9 @@ class LoRAConfig(BaseConfig):
     dropout: float = Field(0.0, ge=0, le=1)
     """LoRA dropout rate."""
 
+    use_grouped_mm: bool = True
+    """Use grouped GEMMs for multi-adapter LoRA. Disable to match standard PEFT matmul numerics."""
+
     target_modules: list[str] = [
         "q_proj",
         "k_proj",

@@ -101,6 +101,12 @@ def test_checksum_pinned_initial_adapter_populates_every_run(tmp_path: Path) -> 
         assert torch.equal(loaded["proj.lora_B.weight"], source["base_model.model.proj.lora_B.weight"])
 
 
+def test_lora_config_can_disable_grouped_mm() -> None:
+    config = LoRAConfig(use_grouped_mm=False)
+
+    assert config.use_grouped_mm is False
+
+
 def test_initial_adapter_rejects_checksum_mismatch(tmp_path: Path) -> None:
     weights_path = tmp_path / "adapter_model.safetensors"
     save_file({"proj.lora_A.weight": torch.zeros(2, 3)}, weights_path)
