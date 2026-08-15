@@ -1610,6 +1610,11 @@ no more critical-specific than decoy-specific. Therefore:
   checksum-pinned PEFT adapter broadcasts. The controller must run as a
   one-rank `torchrun` process so this truthful actor initializes the same
   distributed/FSDP model path as certification and training.
+- First integration attempt failed before producing any sample because calling
+  the FSDP-sharded backbone directly mixed local token tensors with DTensor
+  parameters. The actor now explicitly replicates token and position tensors
+  onto the model device mesh, then localizes the world-size-one hidden state and
+  LM-head weight only for the final BF16-to-FP32 projection.
 
 ## Artifact index
 

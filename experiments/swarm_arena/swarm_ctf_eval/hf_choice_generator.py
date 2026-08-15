@@ -223,6 +223,7 @@ class HFChoiceGenerator:
     ) -> tuple[torch.Tensor, Any]:
         if self._prime_backend:
             from prime_rl.trainer.models.layers.lora import set_lora_num_tokens
+            from torch.distributed.tensor import DTensor, Replicate, distribute_tensor
 
             counts = torch.zeros(
                 len(self._prime_slots), dtype=torch.int32, device=self.device
@@ -232,15 +233,32 @@ class HFChoiceGenerator:
             position_ids = torch.arange(
                 input_ids.shape[1], device=self.device
             ).unsqueeze(0)
+            embedding_weight = self.model.model.embed_tokens.weight
+            if not isinstance(embedding_weight, DTensor):
+                raise RuntimeError("Prime actor expected an FSDP DTensor embedding")
+            mesh = embedding_weight.device_mesh
+            placements = [Replicate() for _ in range(mesh.ndim)]
+            distributed_input_ids = distribute_tensor(
+                input_ids, mesh, placements
+            )
+            distributed_position_ids = distribute_tensor(
+                position_ids, mesh, placements
+            )
             with torch.inference_mode():
                 output = self.model.model(
-                    input_ids=input_ids,
-                    position_ids=position_ids,
+                    input_ids=distributed_input_ids,
+                    position_ids=distributed_position_ids,
                     use_cache=False,
                     return_dict=True,
                 )
-                hidden = output.last_hidden_state[:, -1, :].to(torch.bfloat16)
-                weight = self.model.lm_head.weight.to(torch.bfloat16)
+                hidden = output.last_hidden_state[:, -1, :]
+                if isinstance(hidden, DTensor):
+                    hidden = hidden.to_local()
+                weight = self.model.lm_head.weight
+                if isinstance(weight, DTensor):
+                    weight = weight.to_local()
+                hidden = hidden.to(torch.bfloat16)
+                weight = weight.to(torch.bfloat16)
                 with torch.autocast("cuda", enabled=False):
                     logits = torch.mm(
                         hidden, weight.t(), out_dtype=torch.float32
