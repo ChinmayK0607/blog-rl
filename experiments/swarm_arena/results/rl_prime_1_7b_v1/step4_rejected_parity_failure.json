@@ -1,0 +1,24 @@
+{
+  "version": "swarm-arena-parity-rejection-v1",
+  "status": "rejected_before_optimizer",
+  "source_commit": "471684263ffd7f13272ee6a2647cbf9b48b80d5b",
+  "run": "/workspace/runs/rl-prime-long-4step-47168426",
+  "attempted_logical_step": 4,
+  "reason": "The fourth batch failed the pre-optimizer actor/trainer numerical-parity gate. No failed-policy optimizer update or adapter export was selected.",
+  "failed_gates": {
+    "p99_probability_error": {
+      "observed": 0.062207937,
+      "maximum": 0.05
+    },
+    "probability_tail_fraction": {
+      "observed": 0.01183432,
+      "maximum": 0.005
+    }
+  },
+  "selection": "none",
+  "notes": [
+    "Steps 1-3 are mechanically valid rollout/trainer evidence only.",
+    "This rejected step is never used as baseline, checkpoint, or performance evidence.",
+    "Parity thresholds, reward, optimizer, optimization dtype, and reduction dtype were not relaxed."
+  ]
+}

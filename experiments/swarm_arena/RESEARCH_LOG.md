@@ -1706,6 +1706,86 @@ no more critical-specific than decoy-specific. Therefore:
   GPUs 0-1 while the isolated development-evaluation server remains healthy on
   GPU 2. Instance decommissioned: no.
 
+### 2026-08-15 — Four-policy RL v1: mechanically valid updates, scientific admission rejected
+
+- Status: completed; source `471684263ffd7f13272ee6a2647cbf9b48b80d5b`.
+  GPU: four NVIDIA L40S host. Exact Prime actor used GPU 1; the Prime trainer
+  used GPU 0; an isolated evaluation server used GPU 2. The provider rate was
+  not recorded, so no cost is inferred.
+- Preflight and parity: a Linux run of the project-scoped suite passed 90 tests
+  (31 warnings, 20.59 seconds) before live `torchrun` work. A fresh four-group
+  exact-actor certificate (`prime-parity-4g-r2-47168426`) covered 64 samples
+  and 3,954 completion tokens. It passed all unchanged gates and policy
+  isolation: mean absolute log-probability error `0.0006103`, p99 `0.0195237`,
+  max probability error `0.0281846`, p99 probability error `0.0115359`, tail
+  fraction `0`, mean mismatch-KL `0.0000164615`, and max mismatch-KL
+  `0.00813663`. Probe SHA-256:
+  `160cd12152e57968ad40cf04f3d92744bd0dc140a95d251874903b1989dd67d1`;
+  certificate SHA-256:
+  `9468217b71f6d2cd481b279201807ead940374ff4a108b43bf4b7e4c151a6a37`.
+- Training: the long run (`rl-prime-long-4step-47168426`) completed exactly
+  three valid logical updates. Every valid update contained four distinct,
+  independently optimized BLUE LoRA policies, four balanced critical/decoy
+  groups, 16 independent joint-trajectory replicas, shared terminal team
+  reward, paired sampling namespaces, and nonzero learning signal. Aggregate
+  mean absolute advantage was `0.0713141`, nonzero-advantage rate `0.8333333`,
+  and mean return `0.0361149`. The complete three-step summary SHA-256 is
+  `bfef06fe4568f55fcb70827ff35ace9af4196011b49c92bde8d0d775ec202163`.
+- Fail-closed step four: a fourth proposed update was rejected *before*
+  optimizer execution because `p99_probability_error=0.062207937 > 0.05` and
+  `probability_tail_fraction=0.01183432 > 0.005`. No threshold, reward,
+  optimizer, optimization dtype, or reduction dtype changed. Its partial
+  output is excluded from every baseline, checkpoint selection, and claim.
+- Development-only evaluation: the 210-row model-pool/intervention suite had
+  perfect action protocol and grounded broadcast rates, but candidate-minus-SFT
+  ordinary return was `-0.00610169` across 24 paired cells. Candidate normal
+  minus dropped, shuffled, delayed, and zero-budget messages was exactly zero
+  in all 18 critical paired cells. Opponent-conditioned normal returns were
+  `+0.09937` vs base, `-0.01996` vs historical step 1, and `-0.01502` vs SFT.
+  This does not pass general capability or communication gates; the frozen OOD
+  final evaluation remains unopened.
+- Safeguards: candidate-to-start KL was low (overall mean `0.00156537`, p99
+  `0.0388221`). Both frozen non-arena regression suites passed with no leakage.
+  The initial collapse audit had a serving-label versus stable-policy-label
+  alias bug; the audit now resolves explicit `SERVED_MODEL=POLICY_ID` aliases,
+  and unit coverage prevents recurrence. The corrected audit found no speech,
+  action, repeated-target, excess-KL, or return-without-communication collapse.
+  It did correctly flag that model-pool performance was not broad.
+- Communication-credit gate, horizon 2: four exact Prime paired rollout-only
+  groups found zero intended-sender effects despite target facts and some
+  receiver action changes. The proposed message-drop RL repeat was not
+  launched.
+- Communication-credit gate, horizon 4 Stage B: 12 independent, hash-chained
+  critical/decoy pairs were collected across five fresh shards. All 12 had
+  identical sender messages and grounded target facts. The intended sender
+  mean effect was `+0.0631044` (absolute mean `0.1117224`), with seven positive,
+  three negative, and two zero effects. Critical receiver target effects were
+  `10/12` versus `2/12` for decoys. However, the predeclared sign gate failed,
+  localization was `1.938x < 2x`, and nonzero off-role effects occurred in
+  `6/12 > 4/12` pairs. The estimator is rejected: there is information-sensitive
+  behavior, but not sufficiently localized counterfactual sender credit for
+  small-model per-agent reward assignment. Summary SHA-256:
+  `986cbfd771fa5cd5356f99e65ebbe956f45cf74d6441bb66a11dfee9b03cd3ea`.
+- Verdict: **mechanical pass; RL-improvement and communication admission
+  rejected**. The current environment is not justified for another targeted
+  message-credit RL campaign. Redesign the frequency and exclusivity of
+  communication-critical states, then rerun the frozen credit gate before
+  spending more RL compute.
+- Public compact evidence: `results/rl_prime_1_7b_v1/`. No full checkpoint is
+  copied to the Mac; only code, reports, manifests, and hashes are retained in
+  Git. Final source validation after the audit hardening: `ruff check` passed
+  and the full Linux project-scoped suite passed **93 tests** (31 warnings,
+  20.05 seconds). The exact cached runtime interpreter was used because the
+  detached tools checkout lacks its editable `deps/pydantic-config` dependency;
+  no package set, code path, or numerical configuration was substituted.
+  The four distinct step-three adapters and all compact reports are public at
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v1`, revision
+  `ad51ef261f3e7b7b2d3c6433106bd667ba1da81c`. The publisher anonymously
+  downloaded and checksum-verified all 21 public files. Its model card and
+  provenance mark the artifact `not-admitted`; it is a reproducibility record,
+  not a promoted checkpoint. Instance decommissioned: yes, after final Git
+  publication; evaluator and all GPU allocations have been shut down.
+
 ## Artifact index
 
 - Public source branch:
@@ -1727,6 +1807,8 @@ no more critical-specific than decoy-specific. Therefore:
   `data/rl_v3/`
 - Frozen message-credit admission plan:
   `MESSAGE_CREDIT_AUDIT_PLAN.md`
+- Public, non-admitted mechanical RL artifact:
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v1`
 
 ## Future entry template
 

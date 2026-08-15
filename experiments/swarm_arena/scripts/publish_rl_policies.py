@@ -61,9 +61,11 @@ Swarm Arena 4v4 partially observed graph-control simulator. Policy directories
 `policy_blue_0` through `policy_blue_3` retain separate optimizer identities and
 must be assigned to their corresponding BLUE roles.
 
-Selected trainer step: `{step}`. Exact provenance, policy hashes, public input
-revisions, and compact evaluation reports are in `PROVENANCE.json`,
-`SHA256SUMS`, and `results/`.
+Selected trainer step: `{step}`. **Release status:
+`{provenance['admission_status']}`.** {provenance['admission_note']}
+
+Exact provenance, policy hashes, public input revisions, and compact evaluation
+reports are in `PROVENANCE.json`, `SHA256SUMS`, and `results/`.
 
 The reward is the zero-sum terminal control-margin delta. There is no speaking,
 silence, capture, or learned-judge bonus. Higher return is evidence of task
@@ -87,6 +89,17 @@ def main() -> None:
     parser.add_argument("--base-revision", required=True)
     parser.add_argument("--initial-adapter-repo", required=True)
     parser.add_argument("--initial-adapter-revision", required=True)
+    parser.add_argument(
+        "--admission-status",
+        choices=("admitted", "not-admitted", "rejected"),
+        default="not-admitted",
+        help="Scientific release status, reproduced in provenance and the model card.",
+    )
+    parser.add_argument(
+        "--admission-note",
+        default="This release is a reproducibility artifact, not a promoted checkpoint.",
+        help="Short claim-boundary note reproduced in provenance and the model card.",
+    )
     parser.add_argument("--report", action="append", type=_report_argument, default=[])
     args = parser.parse_args()
     if args.step < 1:
@@ -143,6 +156,8 @@ def main() -> None:
         "initial_adapter_revision": args.initial_adapter_revision,
         "run_dir": str(args.run_dir),
         "selected_step": args.step,
+        "admission_status": args.admission_status,
+        "admission_note": args.admission_note,
         "policy_adapter_sha256": policy_hashes,
         "reports": sorted(reports),
         "claim_boundary": (

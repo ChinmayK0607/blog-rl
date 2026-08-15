@@ -1,0 +1,91 @@
+{
+  "aggregate": {
+    "mean_absolute_advantage": 0.07131410256410256,
+    "mean_nonzero_advantage_rate": 0.8333333333333334,
+    "mean_return": 0.036114926739926737
+  },
+  "completed_steps": 3,
+  "input": "/workspace/runs/rl-prime-long-4step-47168426/live_rl_progress.json",
+  "mechanical_checks": {
+    "all_policies_change_between_updates": true,
+    "balanced_critical_decoy": true,
+    "four_distinct_policy_adapters": true,
+    "four_groups_per_step": true,
+    "nonzero_learning_signal_every_step": true,
+    "paired_sampling_namespaces": true,
+    "sixteen_replicas_per_step": true
+  },
+  "scope": "rollout and optimizer diagnostics only; not an evaluation of learned communication",
+  "steps": [
+    {
+      "critical_groups": 2,
+      "critical_minus_decoy_mean_return": 0.0,
+      "decoy_groups": 2,
+      "distinct_policy_adapters": 4,
+      "groups": 4,
+      "mean_absolute_advantage": 0.07886904761904762,
+      "mean_return": 0.015625,
+      "negative_advantages": 8,
+      "nonzero_advantage_rate": 0.75,
+      "paired_sampling_namespaces": true,
+      "policies_changed_since_previous_step": null,
+      "policy_adapter_sha256": {
+        "blue-0": "db1dfc4d2c1dcbdf740ded15f5897a48f41cf1b2f8f54703f1965d68b7dcbe03",
+        "blue-1": "78a6cd74f707a03a83a57179ee0d4b375ed6efc33381bace296b5add756cd591",
+        "blue-2": "17405fbf082fd9cd5bfd48f25865e93887336b1015d8d3c1b600d39460025fcd",
+        "blue-3": "d0d18e831d07db5b7e17d59e6e0f2690d343fff7ba84dd88c869d54a4d0570b5"
+      },
+      "positive_advantages": 4,
+      "replicas": 16,
+      "return_stdev": 0.08252893547917924,
+      "step": 0
+    },
+    {
+      "critical_groups": 2,
+      "critical_minus_decoy_mean_return": -0.03708791208791209,
+      "decoy_groups": 2,
+      "distinct_policy_adapters": 4,
+      "groups": 4,
+      "mean_absolute_advantage": 0.060897435897435896,
+      "mean_return": 0.0364010989010989,
+      "negative_advantages": 8,
+      "nonzero_advantage_rate": 0.75,
+      "paired_sampling_namespaces": true,
+      "policies_changed_since_previous_step": 4,
+      "policy_adapter_sha256": {
+        "blue-0": "1a78588c4b6e12d688c8c07e8efa22334635fa53bc2574059c579218fd9c4749",
+        "blue-1": "3a131e75f9f16a89e54c59d3e745b249bb2b71d269cef6385b1e44748eb12d91",
+        "blue-2": "fb9d0daeef9422bc86dbf2d407829b4224c0ff2c81087a12ee267267a99ea14d",
+        "blue-3": "51c221be13aadd307a329b4fe82bd986be37c53cafe9af7dd8053adc760a6f69"
+      },
+      "positive_advantages": 4,
+      "replicas": 16,
+      "return_stdev": 0.0630934271684913,
+      "step": 1
+    },
+    {
+      "critical_groups": 2,
+      "critical_minus_decoy_mean_return": 0.038461538461538464,
+      "decoy_groups": 2,
+      "distinct_policy_adapters": 4,
+      "groups": 4,
+      "mean_absolute_advantage": 0.07417582417582418,
+      "mean_return": 0.05631868131868132,
+      "negative_advantages": 10,
+      "nonzero_advantage_rate": 1,
+      "paired_sampling_namespaces": true,
+      "policies_changed_since_previous_step": 4,
+      "policy_adapter_sha256": {
+        "blue-0": "9b15487157166d5508c481f51b1dba870349586b5187401f91e1a16d45f62d6f",
+        "blue-1": "2b44d88b7159a546de2d718938b0f2c8c0cf2ac91081cd121ca481c945e416cf",
+        "blue-2": "80e460d64083c02411685aaa0a3a5835f5477e2e5ca9d803469f0415c2c7b49a",
+        "blue-3": "1ae8a70d142d7f6abb1c1d79eaf6c87f9057b1c38e0bbbf13154135e25537c33"
+      },
+      "positive_advantages": 6,
+      "replicas": 16,
+      "return_stdev": 0.07277627570851432,
+      "step": 2
+    }
+  ],
+  "version": "arena-shared-return-training-summary-v1"
+}

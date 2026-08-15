@@ -36,3 +36,52 @@ def test_behavior_summary_detects_action_and_speaking_collapse() -> None:
     assert all(item["never_speaking"] for item in report.values())
     assert all(item["action_collapse"] for item in report.values())
     assert not any(item["excessive_kl"] for item in report.values())
+
+
+def test_behavior_summary_maps_explicit_served_policy_aliases() -> None:
+    raw = {
+        "blue_agent_models": {
+            f"blue-{index}": f"served-step3-blue-{index}" for index in range(4)
+        },
+        "turns": [
+            {
+                "broadcasts": [
+                    {
+                        "agent_id": f"blue-{index}",
+                        "team": "BLUE",
+                        "parsed_message": {
+                            "facts": [],
+                            "intent": None,
+                            "request_resource": 0,
+                        },
+                    }
+                    for index in range(4)
+                ],
+                "actions": [
+                    {
+                        "agent_id": f"blue-{index}",
+                        "team": "BLUE",
+                        "selected_action": {"type": "WAIT"},
+                    }
+                    for index in range(4)
+                ],
+            }
+        ],
+    }
+    kl = {
+        "per_policy": {
+            f"blue-{index}": {
+                "candidate_to_baseline_kl": {"mean": 0.01, "p99": 0.02}
+            }
+            for index in range(4)
+        }
+    }
+    aliases = {
+        f"served-step3-blue-{index}": f"blue-{index}" for index in range(4)
+    }
+    report = _behavior_summary(
+        [({"side": "BLUE"}, raw)],
+        kl,
+        policy_aliases=aliases,
+    )
+    assert set(report) == set(kl["per_policy"])

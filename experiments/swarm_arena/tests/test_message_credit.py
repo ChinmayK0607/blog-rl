@@ -1,6 +1,8 @@
 from copy import deepcopy
 from dataclasses import replace
+from pathlib import Path
 
+from scripts.summarize_message_credit_audit import load_verified_payloads
 from swarm_ctf_eval.arena import Action, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
 from swarm_ctf_eval.broadcast_priority import (
@@ -21,9 +23,28 @@ from swarm_ctf_eval.safety_supervisor import (
     MessageCreditGroupEvidence,
     ReplayTurn,
     RunLock,
+    append_hash_chained_record,
     approve_message_credit_group,
     canonical_sha256,
 )
+
+
+def test_message_credit_summary_combines_independently_verified_shards(
+    tmp_path: Path,
+) -> None:
+    first = tmp_path / "first.jsonl"
+    second = tmp_path / "second.jsonl"
+    append_hash_chained_record(first, {"pair": 0, "kind": "critical"})
+    append_hash_chained_record(first, {"pair": 0, "kind": "decoy"})
+    append_hash_chained_record(second, {"pair": 1, "kind": "critical"})
+    append_hash_chained_record(second, {"pair": 1, "kind": "decoy"})
+
+    assert load_verified_payloads([first, second]) == [
+        {"pair": 0, "kind": "critical"},
+        {"pair": 0, "kind": "decoy"},
+        {"pair": 1, "kind": "critical"},
+        {"pair": 1, "kind": "decoy"},
+    ]
 
 
 def test_message_drop_credit_is_sender_local_and_broadcast_only() -> None:

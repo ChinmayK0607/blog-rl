@@ -10,6 +10,15 @@ from typing import Any
 VERSION = "arena-development-collapse-audit-v1"
 
 
+def _policy_alias(raw: str) -> tuple[str, str]:
+    served, separator, policy = raw.partition("=")
+    if not separator or not served or not policy:
+        raise argparse.ArgumentTypeError(
+            "policy aliases must use SERVED_MODEL=POLICY_ID"
+        )
+    return served, policy
+
+
 def _concentration(values: list[str]) -> float | None:
     if not values:
         return None
@@ -39,11 +48,13 @@ def _behavior_summary(
     records: list[tuple[dict[str, Any], dict[str, Any]]],
     kl_report: dict[str, Any],
     *,
+    policy_aliases: dict[str, str] | None = None,
     speaking_extreme: float = 0.98,
     concentration_limit: float = 0.95,
     kl_mean_limit: float = 0.08,
     kl_p99_limit: float = 0.30,
 ) -> dict[str, Any]:
+    aliases = policy_aliases or {}
     messages: dict[str, list[bool]] = defaultdict(list)
     targets: dict[str, list[str]] = defaultdict(list)
     actions: dict[str, list[str]] = defaultdict(list)
@@ -54,7 +65,8 @@ def _behavior_summary(
             for broadcast in turn["broadcasts"]:
                 if broadcast["team"] != side:
                     continue
-                policy = str(agent_models[broadcast["agent_id"]])
+                served_model = str(agent_models[broadcast["agent_id"]])
+                policy = aliases.get(served_model, served_model)
                 message = broadcast["parsed_message"]
                 nonempty = _is_nonempty(message)
                 messages[policy].append(nonempty)
@@ -64,7 +76,8 @@ def _behavior_summary(
             for action in turn["actions"]:
                 if action["team"] != side:
                     continue
-                policy = str(agent_models[action["agent_id"]])
+                served_model = str(agent_models[action["agent_id"]])
+                policy = aliases.get(served_model, served_model)
                 actions[policy].append(
                     json.dumps(action["selected_action"], sort_keys=True, separators=(",", ":"))
                 )
@@ -108,6 +121,13 @@ def main() -> None:
     parser.add_argument("--eval-dir", type=Path, required=True)
     parser.add_argument("--policy-kl", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--policy-alias",
+        action="append",
+        type=_policy_alias,
+        default=[],
+        help="Map one served model alias to its stable KL policy ID.",
+    )
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError(f"refusing to overwrite collapse audit: {args.output}")
@@ -133,7 +153,17 @@ def main() -> None:
         raise ValueError("collapse audit has no candidate normal trajectories")
     summary = json.loads((args.eval_dir / "summary.json").read_text(encoding="utf-8"))
     kl_report = json.loads(args.policy_kl.read_text(encoding="utf-8"))
-    per_policy = _behavior_summary(selected, kl_report)
+    policy_aliases = dict(args.policy_alias)
+    if len(policy_aliases) != len(args.policy_alias):
+        raise ValueError("served model aliases must be unique")
+    unknown_targets = set(policy_aliases.values()) - set(kl_report["per_policy"])
+    if unknown_targets:
+        raise ValueError(f"policy aliases target unknown KL policies: {sorted(unknown_targets)}")
+    per_policy = _behavior_summary(
+        selected,
+        kl_report,
+        policy_aliases=policy_aliases,
+    )
     opponent_returns = {
         str(key): float(value)
         for key, value in summary["candidate_normal_return_by_opponent"].items()

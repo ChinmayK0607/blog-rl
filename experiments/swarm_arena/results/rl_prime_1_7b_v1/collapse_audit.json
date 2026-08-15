@@ -1,0 +1,82 @@
+{
+  "flags": {
+    "action_collapse": false,
+    "always_or_never_speaking": false,
+    "excessive_kl": false,
+    "performance_against_only_one_opponent": true,
+    "repeated_target_collapse": false,
+    "return_gain_without_message_gain": false
+  },
+  "mean_critical_normal_minus_dropped": 0.0,
+  "mean_return_by_opponent": {
+    "base": 0.09936734929238678,
+    "historical-step1": -0.019963369963369965,
+    "sft": -0.01501831501831502
+  },
+  "mean_return_gain": -0.006101688166905556,
+  "passed": false,
+  "per_policy": {
+    "blue-0": {
+      "action_collapse": false,
+      "action_concentration": 0.3333333333333333,
+      "always_speaking": false,
+      "decisions": 156,
+      "excessive_kl": false,
+      "message_target_concentration": 0.14285714285714285,
+      "message_targets": 84,
+      "messages": 156,
+      "never_speaking": false,
+      "reference_state_kl_mean": 0.0009231962981028417,
+      "reference_state_kl_p99": 0.03882210701704025,
+      "repeated_target_collapse": false,
+      "speaking_rate": 0.5384615384615384
+    },
+    "blue-1": {
+      "action_collapse": false,
+      "action_concentration": 0.23076923076923078,
+      "always_speaking": false,
+      "decisions": 156,
+      "excessive_kl": false,
+      "message_target_concentration": 0.14285714285714285,
+      "message_targets": 84,
+      "messages": 156,
+      "never_speaking": false,
+      "reference_state_kl_mean": 0.002835343453722516,
+      "reference_state_kl_p99": 0.048386115580797195,
+      "repeated_target_collapse": false,
+      "speaking_rate": 0.5384615384615384
+    },
+    "blue-2": {
+      "action_collapse": false,
+      "action_concentration": 0.34615384615384615,
+      "always_speaking": false,
+      "decisions": 156,
+      "excessive_kl": false,
+      "message_target_concentration": 0.14285714285714285,
+      "message_targets": 84,
+      "messages": 156,
+      "never_speaking": false,
+      "reference_state_kl_mean": 0.0022750515463315453,
+      "reference_state_kl_p99": 0.024963248521089554,
+      "repeated_target_collapse": false,
+      "speaking_rate": 0.5384615384615384
+    },
+    "blue-3": {
+      "action_collapse": false,
+      "action_concentration": 0.28846153846153844,
+      "always_speaking": false,
+      "decisions": 156,
+      "excessive_kl": false,
+      "message_target_concentration": 0.16666666666666666,
+      "message_targets": 84,
+      "messages": 156,
+      "never_speaking": false,
+      "reference_state_kl_mean": 0.0006254154369052331,
+      "reference_state_kl_p99": 0.01621602475643158,
+      "repeated_target_collapse": false,
+      "speaking_rate": 0.5384615384615384
+    }
+  },
+  "scope": "development diagnostic stop/inspect gates; never reward terms",
+  "version": "arena-development-collapse-audit-v1"
+}
