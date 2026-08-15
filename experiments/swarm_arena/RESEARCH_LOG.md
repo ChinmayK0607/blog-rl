@@ -1842,6 +1842,91 @@ no more critical-specific than decoy-specific. Therefore:
   permitted only if the new counterfactual credit audit passes its frozen gate.
   Instance decommissioned: yes; no GPU is required for the next CPU phase.
 
+### 2026-08-15 — RL v4 CPU gate: information handoffs, harder eval, and async admission
+
+- Status: completed CPU design, generation, audit, and unit verification. No
+  GPU was allocated and cost was zero.
+- Hypothesis: communication should improve a teammate's selection among actions
+  that are already legal, rather than mechanically unlock an action. This
+  directly addresses the v3 audit's weak/localized sender signal without adding
+  a message reward or changing the game.
+- Environment: `arena-information-handoff-v2` creates balanced two-world
+  bundles. The receiver has identical stale observations and the same legal
+  actions in `left_exposed` and `right_exposed`; a remote sender privately sees
+  the active exposure and cannot exploit either candidate. The exact
+  decentralized solver permits one receiver action across the dropped-message
+  information set and separate actions after the message. A matched decoy
+  changes only receiver knowledge, making both worlds distinguishable without
+  chat and giving exact zero message value.
+- Generated manifests: 240 train bundles at 12/13 nodes and horizons 4/5; 48
+  development bundles at 14/16 nodes and horizons 6/8; and 24 frozen OOD
+  bundles at 18/20 nodes and horizons 8/10. All 12 ordered sender/receiver roles
+  are exactly balanced. The hard ordinary development and frozen suites each
+  contain 24 seed-disjoint cases; the frozen suite uses 18/20 nodes and 8/10
+  turns. Curriculum stages mix ordinary, critical handoff, and matched-decoy
+  cases at 50/25/25 then 70/15/15.
+- Handoff manifest SHA-256 values: train
+  `665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681`;
+  development
+  `1c70c8ff8253535853e8684c1d2c01a76e9b36dd34d68f3f695e12fa617fc031`;
+  frozen OOD
+  `be928d297d49954e4a29c1343e13df40580edb39a810d297d66b06b492402bc2`.
+  Hard ordinary SHA-256 values: development
+  `0e60c12e10c322ee081d666aa02d6237cd65e6e8992e19722b225a4c35b3bf4a`;
+  frozen OOD
+  `73f58e8fec965569ccb4e190e7c65ac1e3fe87f2806c8cbacac1af85e66efb6e`.
+- Exact audit: every scenario reconstructs from its manifest and content hash;
+  all old/new split-overlap sets are empty; all action sets match across latent
+  worlds; both captures are already legal; critical receiver worlds are
+  indistinguishable without the message; decoy worlds are distinguishable;
+  sender observations and structural worlds match critical to decoy; and the
+  sender cannot act on either candidate. Every invariant rate is `1.0`.
+  Certified minimum critical advantage is positive against balanced,
+  aggressive, and defensive opponent anchors: train mean `0.06625352`
+  (minimum `0.05128205`), development mean `0.05685693` (minimum
+  `0.04651163`), and frozen mean `0.04569230` (minimum `0.03921569`). Every
+  matched decoy has exact zero advantage.
+- Evaluation: `arena-rl-progress-eval-v4` separates paired candidate-RL minus
+  SFT capability on legacy and hard ordinary maps from causal communication on
+  critical handoffs. It reports normal minus dropped, sender-shuffled, delayed,
+  and zero-budget effects, opponent slices, and a null decoy control. Bootstrap
+  units are whole procedural seeds or two-world bundles—not agents, turns,
+  sides, or repeated interventions. Online, checkpoint-selection, and frozen
+  tiers prevent training-time peeking at the final suite.
+- The resumable runner now executes the complete matrix. Online is 96 games
+  with one SFT opponent and normal/dropped messages; selection is 1,296 games
+  across three opponent families and all interventions; frozen final is 3,168
+  games. The legacy final uses 24 map seeds under three legal-option orders
+  (72 paired cells), while the new hard and handoff finals use 18/20 nodes and
+  8/10-turn horizons. Frozen execution requires an explicit canonical design
+  digest, and raw trajectories are intended to stay on remote storage rather
+  than being copied to the Mac.
+- Async implementation: the exact Prime actor is now explicitly a reference
+  and calibration route. `swarm_ctf_eval.async_admission` permits a fast
+  community actor backend only with immutable behavior adapter hashes,
+  revisions, update indices, exact constraints, complete current-policy
+  log-probabilities, an approved no-update calibration, and explicit
+  precommitted bounds for lag, log ratios, importance ratios, and probability
+  drift. Limits have no arbitrary defaults and are hashed into the run lock.
+  Stale/divergent batches are discarded atomically; frozen-opponent changes and
+  malformed evidence fail admission. Rejected v1 evidence remains rejected.
+- Verification: the broader dependency-free CPU suite passed 51 tests after
+  adding async admission, handoff invariants, manifest balancing, tier locking,
+  progress endpoints, and resume tests. Ruff passed every changed Python file.
+  A clean regeneration matched every committed generated file byte-for-byte,
+  and the independent global audit passed with SHA-256
+  `940447c0feb9eef484ec088a239125075e851b9cec35ea86280acd3bbde99052`.
+  Torch/vLLM-dependent Linux tests were not installed on the Mac and remain a
+  pre-GPU-host gate.
+- Existing evidence boundary: the v3 frozen OOD suite is unchanged. V4 has not
+  trained or evaluated a model yet, so this entry establishes task validity and
+  measurement design, not learned capability or communication.
+- Next GPU gate: run a no-update production-backend calibration/throughput
+  probe, freeze its calibration digest and admission limits, then launch a small
+  shared-terminal-reward stability pilot against the base/SFT/historical model
+  pool. Escalate to a longer run only if development capability,
+  communication-intervention, regression, and collapse gates remain healthy.
+
 ## Artifact index
 
 - Public source branch:
@@ -1861,6 +1946,8 @@ no more critical-specific than decoy-specific. Therefore:
   `results/pre_rl_1_7b/paired_counterfactual_24/`
 - RL v3 manifests and audits:
   `data/rl_v3/`
+- RL v4 task, progress evaluation, manifests, and audits:
+  `RL_TASK_V4.md`, `PROGRESS_EVAL_V4.md`, and `data/rl_v4/`
 - Frozen message-credit admission plan:
   `MESSAGE_CREDIT_AUDIT_PLAN.md`
 - Public, non-admitted mechanical RL artifact:

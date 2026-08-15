@@ -39,14 +39,16 @@ The publish scripts explicitly create public repositories and repeat their
 verification without credentials. A missing, private, mutable, or mismatched
 artifact fails before launch; logging in is not an acceptable substitute.
 
-## Pre-RL parity contract
+## Pre-RL calibration contract
 
-Parity is evaluated over the model's constrained choice distribution, not the
-unrestricted vocabulary. The rollout certificate uses the exact vLLM server,
+Calibration is evaluated over the model's constrained choice distribution, not
+the unrestricted vocabulary. A fixed probe uses the production actor backend,
 pinned base revision and pinned adapter, then rescores those same tokenized
 prompts with the actual Prime FSDP trainer. It checks token IDs, dynamic legal
 sets, completion masks, policy ownership and four-run adapter initialization.
-A real single-policy optimizer step must change only its assigned `run_*` slot.
+A slower exact Prime actor remains a reference implementation, not a required
+production rollout path. A real single-policy optimizer step must change only
+its assigned `run_*` slot.
 
 Different CUDA kernels do not produce bitwise-identical logits. Admission is
 therefore fail-closed on a checked-in numerical envelope: mean and p99 absolute
@@ -76,14 +78,30 @@ token; any token rejected by that grammar or any unterminated completion fails
 the group. This constraint implementation has its own protocol version and
 therefore invalidates older parity certificates.
 
-For live asynchronous rollouts, the supervisor may defer the numerical portion
-of parity to the trainer only when the signed approval and immutable run lock
-bind the exact trainer parity-gate digest. The trainer gathers the exact
-trainable token set across ranks, recomputes all probability-drift and
-mismatch-KL metrics, and raises before `optimizer.step()` if any threshold is
-exceeded. Admission rejects a missing or mismatched gate digest. This keeps
-rollout workers outside the trusted boundary without allowing a failed serving
-versus trainer comparison to update weights.
+## Bounded asynchronous production admission
+
+`swarm_ctf_eval.async_admission` separates two effects that must not be
+conflated:
+
+- **backend mismatch:** the fixed no-update calibration measures numerical
+  drift between the optimized serving kernels and trainer implementation;
+- **policy staleness:** every rollout records its behavior adapter SHA-256,
+  immutable revision and update index, while trainer rescoring uses the current
+  revision and update index.
+
+Every run must explicitly precommit its maximum policy-update lag, mean and p99
+absolute log-ratio limits, symmetric importance-ratio limit, p99 probability
+error, and probability-tail limit. These values have no hidden library
+defaults; their serialized SHA-256 enters the run lock. The CPU admission
+function validates exact constraint rows, constraint and calibration allowlists,
+policy rosters, immutable behavior revisions, complete current-policy
+log-probabilities, and per-policy lag. A well-formed rollout outside any bound
+is discarded whole. It is never clipped, relabelled, or partly routed to an
+optimizer. Malformed or incomplete evidence fails the supervisor.
+
+This permits vLLM-class continuous batching and community-optimized attention
+kernels while bounding off-policyness. It does not retroactively relax the v1
+parity gate or turn its rejected step four into evidence.
 
 Every supervisor decision is appended to a hash-chained JSONL audit log and
 periodically uploaded with immutable checkpoints. The frozen manifests, source
@@ -95,8 +113,8 @@ different value creates a new run; it cannot append to the old trace.
 
 Infrastructure failures stop optimizer input immediately: incomplete branch
 groups, replay/state/reward mismatch, policy or token misrouting, unexpected
-constraint hashes, non-finite values, stale policy revisions, and log-prob
-parity failure. Training diagnostics pause checkpoint promotion on speaking,
+constraint hashes, non-finite values, policy lag or log-ratio bounds, and
+uncertified backend calibration. Training diagnostics pause checkpoint promotion on speaking,
 target, action or KL collapse; gains against only one opponent; regression; or
 return gains without message-intervention gains. Diagnostic flags never alter
 reward.
@@ -124,12 +142,13 @@ The full asynchronous run should use four RTX 4090 GPUs:
   adapters with continuous batching;
 - CPU supervisor: replay, credit-group validation, hash-chain audit and queue
   admission;
-- bounded queues apply backpressure, and policy revisions switch only between
-  complete update epochs.
+- bounded queues apply backpressure; every rollout is pinned to one complete
+  behavior-policy snapshot and admitted only within the precommitted lag bound.
 
 Actual and four message-drop branches share deterministic random-key schedules
-and can be distributed across rollout workers. A branch from a stale policy or
-opponent epoch is discarded rather than mixed into training.
+and can be distributed across rollout workers. A branch beyond the lag bound,
+or with a changed frozen opponent, is discarded rather than mixed into
+training.
 
 For remote runs, make the inference command the `tmux` pane's `exec` process
 and use `tmux pipe-pane` for persistent logs. Do not use a shell pipeline ending

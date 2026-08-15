@@ -42,10 +42,13 @@ a neutral node are contested rather than resolved by iteration order.
 
 ## Reward
 
-Reward is zero-sum. It is the change in weighted node control and resource
-opportunity, plus symmetric information gain and invalid-action penalties.
-Critical, exposed, fortified, and compromised states have explicit symmetric
-values. No model-written text is passed to a learned reward model.
+The legacy one-turn solver score is zero-sum and includes symmetric control,
+resource opportunity, information gain, and invalid-action terms. The main
+multi-turn RL task uses only the normalized terminal control-margin delta. It
+has no additive message, capture, silence, sender, curriculum, or learned-judge
+bonus. Invalid structured output fails admission instead of becoming a
+tradeable negative reward. No model-written text is passed to a learned reward
+model.
 
 Action redundancy is not inferred from matching target strings. Evaluation uses
 a leave-one-agent-out counterfactual: an action is redundant only if replacing it
@@ -92,6 +95,16 @@ The oracle enumerates every legal four-agent joint action against the specified
 opponent. A rollout is optimal when its realized reward matches the best reward;
 it is not required to reproduce one arbitrary canonical assignment. This avoids
 false negatives when several joint actions are equally good.
+
+The RL progress evaluation is separate from this legacy SFT/protocol suite. It
+preserves the existing 14/16-node, 6/8-turn ordinary OOD baseline and adds
+seed-disjoint 18/20-node, 8/10-turn ordinary maps. Its communication suite uses
+paired latent worlds: the receiver can legally capture either candidate in both
+worlds, but only a remote sender knows which target is exposed. Matched decoys
+give that fact directly to the receiver and therefore have exact zero message
+value. Candidate-minus-SFT return measures game capability; communication is a
+separate causal endpoint requiring normal messages to beat dropped, shuffled,
+delayed, and zero-budget conditions without a decoy effect.
 
 ## Data isolation and reproducibility
 

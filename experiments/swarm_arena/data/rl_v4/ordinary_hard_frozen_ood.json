@@ -1,0 +1,160 @@
+{
+  "case_count": 24,
+  "cases": [
+    {
+      "case_id": "ordinary-hard-000",
+      "horizon": 8,
+      "seed": 14000069,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-001",
+      "horizon": 10,
+      "seed": 14000280,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-002",
+      "horizon": 8,
+      "seed": 14000491,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-003",
+      "horizon": 10,
+      "seed": 14000702,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-004",
+      "horizon": 8,
+      "seed": 14000913,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-005",
+      "horizon": 10,
+      "seed": 14001124,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-006",
+      "horizon": 8,
+      "seed": 14001335,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-007",
+      "horizon": 10,
+      "seed": 14001546,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-008",
+      "horizon": 8,
+      "seed": 14001757,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-009",
+      "horizon": 10,
+      "seed": 14001968,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-010",
+      "horizon": 8,
+      "seed": 14002179,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-011",
+      "horizon": 10,
+      "seed": 14002390,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-012",
+      "horizon": 8,
+      "seed": 14002601,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-013",
+      "horizon": 10,
+      "seed": 14002812,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-014",
+      "horizon": 8,
+      "seed": 14003023,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-015",
+      "horizon": 10,
+      "seed": 14003234,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-016",
+      "horizon": 8,
+      "seed": 14003445,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-017",
+      "horizon": 10,
+      "seed": 14003656,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-018",
+      "horizon": 8,
+      "seed": 14003867,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-019",
+      "horizon": 10,
+      "seed": 14004078,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-020",
+      "horizon": 8,
+      "seed": 14004289,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-021",
+      "horizon": 10,
+      "seed": 14004500,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-022",
+      "horizon": 8,
+      "seed": 14004711,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-023",
+      "horizon": 10,
+      "seed": 14004922,
+      "size": 20
+    }
+  ],
+  "horizons": [
+    8,
+    10
+  ],
+  "seed_start": 14000069,
+  "sha256": "73f58e8fec965569ccb4e190e7c65ac1e3fe87f2806c8cbacac1af85e66efb6e",
+  "sizes": [
+    18,
+    20
+  ],
+  "version": "arena-rl-progress-eval-v4"
+}

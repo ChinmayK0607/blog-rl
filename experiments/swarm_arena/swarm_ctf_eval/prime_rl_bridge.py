@@ -183,6 +183,11 @@ def _validate_decision(decision: RolloutDecision) -> None:
                 raise ValueError(f"sampled token is absent from its constraint row: {decision.decision_id}")
 
 
+def validate_rollout_decision(decision: RolloutDecision) -> None:
+    """Validate one rollout decision at a trusted admission boundary."""
+    _validate_decision(decision)
+
+
 def _decision_schedule(
     decisions: tuple[RolloutDecision, ...] | list[RolloutDecision],
     *,

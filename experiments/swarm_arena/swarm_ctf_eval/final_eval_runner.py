@@ -5,9 +5,9 @@ from typing import Any
 
 from .arena import GameState, Team
 from .arena_eval import ArenaModel
-from .crossplay_eval import evaluate_crossplay
 from .arena_generation import generate_state
 from .communication_curriculum import permute_agent_labels, swap_team_labels
+from .crossplay_eval import evaluate_crossplay
 from .episode import EMPTY_BROADCAST, EpisodeConfig
 from .final_eval_v3 import COMMUNICATION_CONDITIONS
 from .rl_v3 import ArenaRLEnv
@@ -80,9 +80,10 @@ def evaluate_final_case(
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if condition not in COMMUNICATION_CONDITIONS:
         raise ValueError(f"unknown final-eval condition: {condition}")
-    if identity.suite in {"critical", "decoy"} and initial_state is None:
+    handoff_suites = {"critical", "decoy", "handoff_critical", "handoff_decoy"}
+    if identity.suite in handoff_suites and initial_state is None:
         raise ValueError("critical and decoy evaluation require a frozen initial state")
-    if identity.suite == "critical" and critical_target is None:
+    if identity.suite in {"critical", "handoff_critical"} and critical_target is None:
         raise ValueError("critical evaluation requires its certified target")
 
     seed, size, horizon = case

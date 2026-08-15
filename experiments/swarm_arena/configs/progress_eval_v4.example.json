@@ -1,0 +1,38 @@
+{
+  "base_url": "http://127.0.0.1:8000/v1",
+  "candidate": {
+    "revision": "REPLACE_WITH_CANDIDATE_ADAPTER_SET_SHA256",
+    "models": [
+      "candidate-blue-0",
+      "candidate-blue-1",
+      "candidate-blue-2",
+      "candidate-blue-3"
+    ]
+  },
+  "baseline": {
+    "revision": "REPLACE_WITH_SFT_ADAPTER_SHA256",
+    "models": ["sft", "sft", "sft", "sft"]
+  },
+  "opponents": [
+    {
+      "id": "base",
+      "revision": "REPLACE_WITH_BASE_REVISION",
+      "models": ["base", "base", "base", "base"]
+    },
+    {
+      "id": "sft",
+      "revision": "REPLACE_WITH_SFT_ADAPTER_SHA256",
+      "models": ["sft", "sft", "sft", "sft"]
+    },
+    {
+      "id": "historical_league",
+      "revision": "REPLACE_WITH_HISTORICAL_ADAPTER_SET_SHA256",
+      "models": [
+        "historical-blue-0",
+        "historical-blue-1",
+        "historical-blue-2",
+        "historical-blue-3"
+      ]
+    }
+  ]
+}

@@ -95,6 +95,25 @@ one-turn-delayed, and zero-budget episodes on the same frozen cases. A return
 gain without positive paired communication effects is capability learning, not
 evidence of swarm cooperation.
 
+## RL v4: information handoffs and progress measurement
+
+RL v4 keeps the game and terminal reward unchanged, but adds paired two-world
+states where one agent privately learns which of two already-legal targets is
+valuable and a teammate must act on that fact. The message changes the
+teammate's choice, never the legal action set. Every critical case has a matched
+decoy where the teammate already knows the answer and communication has exactly
+zero oracle value. See `RL_TASK_V4.md`; immutable manifests and reconstruction
+audits are under `data/rl_v4/`.
+
+`PROGRESS_EVAL_V4.md` defines three tiers. The existing 14/16-node, 6/8-turn OOD
+suite remains the comparability baseline. A new seed-disjoint 18/20-node,
+8/10-turn ordinary suite measures harder gameplay, and the paired two-world
+suite measures causal use of normal versus dropped, shuffled, delayed, and
+zero-budget communication. The frozen final is opened once after checkpoint
+selection; cheap development subsets are used during training. The resumable
+entry point is `scripts/run_progress_eval_v4.py`, with a served-model roster
+template at `configs/progress_eval_v4.example.json`.
+
 ## Non-arena regression gate
 
 `REGRESSION_PLAN.md` defines a frozen 256-case overspecialization suite and the

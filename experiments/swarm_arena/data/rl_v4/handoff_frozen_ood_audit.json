@@ -1,0 +1,40 @@
+{
+  "certificate_scope": "exact best receiver policy over two latent worlds against each frozen opponent style",
+  "critical_advantage": {
+    "maximum": 0.05882352941176471,
+    "mean": 0.045692304532107035,
+    "minimum": 0.0392156862745098
+  },
+  "decoy_zero_advantage_rate": 1,
+  "invariants": {
+    "both_candidate_captures_already_legal": 1,
+    "critical_receiver_worlds_indistinguishable_without_message": 1,
+    "decoy_receiver_worlds_distinguishable_without_message": 1,
+    "message_does_not_change_receiver_legal_actions": 1,
+    "only_receiver_knowledge_changes": 1,
+    "receiver_action_sets_match_across_worlds": 1,
+    "sender_cannot_act_on_candidates": 1,
+    "sender_observations_identical": 1,
+    "structural_worlds_identical": 1
+  },
+  "manifest_sha256": "be928d297d49954e4a29c1343e13df40580edb39a810d297d66b06b492402bc2",
+  "ordered_role_pairs": {
+    "blue-0->blue-1": 2,
+    "blue-0->blue-2": 2,
+    "blue-0->blue-3": 2,
+    "blue-1->blue-0": 2,
+    "blue-1->blue-2": 2,
+    "blue-1->blue-3": 2,
+    "blue-2->blue-0": 2,
+    "blue-2->blue-1": 2,
+    "blue-2->blue-3": 2,
+    "blue-3->blue-0": 2,
+    "blue-3->blue-1": 2,
+    "blue-3->blue-2": 2
+  },
+  "pair_count": 24,
+  "role_balance_range": [
+    2,
+    2
+  ]
+}
