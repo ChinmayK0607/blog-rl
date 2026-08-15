@@ -16,10 +16,10 @@ from swarm_ctf_eval.communication_curriculum import (
     reconstruct_manifest_scenario as reconstruct_v3_scenario,
 )
 from swarm_ctf_eval.episode import EpisodeConfig
-from swarm_ctf_eval.hf_choice_generator import HFChoiceGenerator
 from swarm_ctf_eval.handoff_curriculum import (
     reconstruct_manifest_scenario as reconstruct_v4_scenario,
 )
+from swarm_ctf_eval.hf_choice_generator import HFChoiceGenerator
 from swarm_ctf_eval.live_rl_rollout import (
     PolicyEndpoint,
     VLLMChoiceGenerator,
