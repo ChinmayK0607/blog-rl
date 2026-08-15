@@ -12,9 +12,14 @@ from pathlib import Path
 
 import httpx
 import tomli
-from swarm_ctf_eval.communication_curriculum import reconstruct_manifest_scenario
+from swarm_ctf_eval.communication_curriculum import (
+    reconstruct_manifest_scenario as reconstruct_v3_scenario,
+)
 from swarm_ctf_eval.episode import EpisodeConfig
 from swarm_ctf_eval.hf_choice_generator import HFChoiceGenerator
+from swarm_ctf_eval.handoff_curriculum import (
+    reconstruct_manifest_scenario as reconstruct_v4_scenario,
+)
 from swarm_ctf_eval.live_rl_rollout import (
     PolicyEndpoint,
     VLLMChoiceGenerator,
@@ -427,7 +432,12 @@ async def main() -> None:
                         kind = args.curriculum_kind
                         pair_index = args.curriculum_offset + ordinal
                     pair = curriculum["pairs"][pair_index % len(curriculum["pairs"])]
-                    scenario = reconstruct_manifest_scenario(pair[kind])
+                    reconstruct_scenario = (
+                        reconstruct_v4_scenario
+                        if args.task_data_version == "v4"
+                        else reconstruct_v3_scenario
+                    )
+                    scenario = reconstruct_scenario(pair[kind])
                     initial_state = scenario.state
                     seed = scenario.seed
                     size = scenario.size
