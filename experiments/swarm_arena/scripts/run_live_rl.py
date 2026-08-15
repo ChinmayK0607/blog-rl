@@ -290,7 +290,6 @@ async def main() -> None:
         expected_actor = {
             "version": "arena-hf-choice-actor-v1",
             "model": args.tokenizer,
-            "attention": "flash_attention_2",
             "dtype": "bfloat16",
             "device": "cuda",
             "max_tokens": 128,
@@ -298,13 +297,16 @@ async def main() -> None:
             "lm_head": "bf16xbf16-to-fp32",
             "sampling": "temperature-1-constrained-multinomial",
         }
+        attention = actor_config.pop("attention", None)
+        if attention not in {"flash_attention_2", "sdpa"}:
+            raise ValueError("HF actor attention must be an audited FA2 or SDPA path")
         if actor_config != expected_actor:
             raise ValueError("HF actor config does not match the audited implementation")
         generator_context = HFChoiceGenerator(
             actor_config["model"],
             args.initial_adapter,
             adapter_names=adapter_names,
-            attention=actor_config["attention"],
+            attention=attention,
             device=actor_config["device"],
             max_tokens=actor_config["max_tokens"],
         )

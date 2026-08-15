@@ -1538,6 +1538,33 @@ no more critical-specific than decoy-specific. Therefore:
   cannot update weights. No threshold, reward, optimizer, optimization dtype,
   or reduction dtype was changed.
 
+### 2026-08-15 — Logical-batch FA2 pilot found a genuine cached-forward tail
+
+- Status: failed closed after one isolated policy update; rejected as a
+  four-policy stability run
+- Preserved run: `/workspace/runs/rl-hf-logicalbatch-stability-cd9bc506`
+- Source `cd9bc5064f2b26e8c45dba22349ede99232171b1` passed the full
+  Linux suite (84/84). Its fresh 64-sample, 4,141-token certificate passed all
+  unchanged gates: mean absolute log-probability error `0.001607`, p99
+  `0.051024`, maximum probability error `0.092168`, tail fraction `0.002898`,
+  mean mismatch-KL `0.00006677`, maximum mismatch-KL `0.039641`, and all four
+  policies remained isolated.
+- The first complete logical policy batch passed live parity and made one real
+  optimizer step at learning rate `5e-6`. Its gate values included p99
+  probability error `0.024223`, tail fraction `0.001017`, and maximum
+  mismatch-KL `0.002927`; a stable adapter broadcast was written.
+- The next isolated policy batch failed before its optimizer step with maximum
+  probability error `0.119982 > 0.1`, p99 probability error
+  `0.067708 > 0.05`, and tail fraction `0.012371 > 0.005`. The controller and
+  trainer were stopped. Because only one of four shared policies updated, this
+  partial checkpoint is not an accepted pilot or a usable RL result.
+- Interpretation: logical-batch accounting removed the earlier false positive,
+  leaving a genuine rare mismatch between cached token-by-token FA2 actor
+  generation and the trainer's full-sequence FA2 forward. Thresholds were not
+  loosened. The next diagnostic matches both sides on Hugging Face SDPA; the
+  earlier SDPA matrix failure compared against a vLLM actor and does not answer
+  this matched-forward question.
+
 ## Artifact index
 
 - Public source branch:
