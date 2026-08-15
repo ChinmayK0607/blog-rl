@@ -112,11 +112,38 @@ This permits vLLM-class continuous batching and community-optimized attention
 kernels while bounding off-policyness. It does not retroactively relax the v1
 parity gate or turn its rejected step four into evidence.
 
+The production controller accepts `--production-plan`. The immutable plan
+binds trainable phases/turns, an exact ordinary/critical/matched-decoy mixture,
+a base/SFT/historical/current model-opponent rotation, the serving backend and
+kernel calibration, queue capacity, and every bounded-off-policy limit into
+each run lock.
+
+The first optimized-backend pilot intentionally uses lag zero. The separate
+filesystem rescore worker verifies that all four current adapter hashes and
+update indices still exactly equal their behavior snapshots, then returns the
+same backend's recorded token log-probabilities. This is valid only at lag zero;
+`run_lag_zero_rescore_worker.py` rejects a stale adapter. Backend/trainer drift
+is checked independently by the bound no-update calibration and Prime's
+pre-optimizer gate. Lag one or two requires a real current-policy constrained
+rescorer; changing only the limit is insufficient.
+
+`AtomicAsyncTrainingQueue` accepts or rejects one complete four-policy group.
+It cannot route a subset, reuse a rollout ID, mix trainer steps, or clip a
+divergent group. Production co-packing is allowed under the calibrated
+off-policy envelope, but every complete trajectory must still fit `seq_len`.
+
 Every supervisor decision is appended to a hash-chained JSONL audit log and
 periodically uploaded with immutable checkpoints. The frozen manifests, source
 commit, base revision, four adapter revisions, opponent revision, and allowed
 dynamic-constraint hashes are bound into a run-lock digest. Resuming with a
 different value creates a new run; it cannot append to the old trace.
+
+`run_checkpoint_monitor.py` is the resume-safe promotion sidecar. Its immutable
+plan must contain exactly one export, online 96-game evaluation, both regression
+suites, policy-KL check, collapse audit, and public checkpoint publication task.
+It refuses selection or frozen evaluation during training and records every
+argv, return code, and log. These diagnostics can pause promotion; none changes
+reward.
 
 ## Stop and promotion policy
 

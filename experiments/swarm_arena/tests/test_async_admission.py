@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from types import SimpleNamespace
 
 import pytest
 from swarm_ctf_eval.async_admission import (
@@ -9,6 +10,7 @@ from swarm_ctf_eval.async_admission import (
     PolicySnapshot,
     admit_async_rollout,
 )
+from swarm_ctf_eval.async_training_queue import AtomicAsyncTrainingQueue
 from swarm_ctf_eval.prime_rl_bridge import RolloutDecision
 
 SHA_A = "a" * 64
@@ -152,4 +154,112 @@ def test_rejects_unknown_calibration_and_malformed_constraint_evidence() -> None
             allowed_backend_calibrations=frozenset({("vllm", "0.10.2", SHA_C, SHA_D)}),
             allowed_constraint_sha256s=frozenset({SHA_C}),
             limits=_limits(),
+        )
+
+
+def test_admission_checks_only_the_signed_trainable_span_selection() -> None:
+    behavior = _snapshot("blue-0-policy", "step-4", 4, trainable=True, adapter_sha256=SHA_A)
+    opponent = _snapshot("red-policy", "frozen", 0, trainable=False, adapter_sha256=SHA_B)
+    header = AsyncRolloutHeader(
+        "rollout-selected-spans",
+        "vllm",
+        "0.10.2",
+        SHA_C,
+        SHA_D,
+        (behavior, opponent),
+    )
+    action = _decision("blue-0-policy", "step-4")
+    broadcast = replace(
+        action,
+        phase="BROADCAST",
+        sampling_key="game-1:blue-0:0:BROADCAST",
+    )
+    red = _decision("red-policy", "frozen", agent_id="red-0", team="RED")
+    result = admit_async_rollout(
+        header,
+        (action, broadcast, red),
+        (
+            _snapshot("blue-0-policy", "step-4", 4, trainable=True, adapter_sha256=SHA_A),
+            opponent,
+        ),
+        {action.decision_id: action.rollout_logprobs},
+        trainable_decision_ids=frozenset({action.decision_id}),
+        allowed_backend_calibrations=frozenset({("vllm", "0.10.2", SHA_C, SHA_D)}),
+        allowed_constraint_sha256s=frozenset({SHA_C}),
+        limits=_limits(),
+    )
+
+    assert result.accepted
+    assert result.metrics["decisions"] == 1
+
+
+def test_atomic_queue_never_routes_a_partial_four_policy_group(tmp_path) -> None:
+    behavior = tuple(
+        _snapshot(
+            f"blue-{index}-policy",
+            "step-0",
+            0,
+            trainable=True,
+            adapter_sha256=SHA_A,
+        )
+        for index in range(4)
+    )
+    opponent = _snapshot("red-policy", "frozen", 0, trainable=False, adapter_sha256=SHA_B)
+    header = AsyncRolloutHeader(
+        "rollout-four-policy",
+        "vllm",
+        "0.10.2",
+        SHA_C,
+        SHA_D,
+        (*behavior, opponent),
+    )
+    blue_decisions = tuple(
+        _decision(
+            snapshot.policy_id,
+            snapshot.revision,
+            agent_id=f"blue-{index}",
+        )
+        for index, snapshot in enumerate(behavior)
+    )
+    red = _decision("red-policy", "frozen", agent_id="red-0", team="RED")
+    queue = AtomicAsyncTrainingQueue(
+        capacity=1,
+        audit_path=tmp_path / "async.jsonl",
+        allowed_backend_calibrations=frozenset({("vllm", "0.10.2", SHA_C, SHA_D)}),
+        allowed_constraint_sha256s=frozenset({SHA_C}),
+        limits=_limits(),
+    )
+    batches = {
+        f"run_blue_{index}": SimpleNamespace(step=0, examples=[index])
+        for index in range(4)
+    }
+    result = queue.admit(
+        header=header,
+        decisions=(*blue_decisions, red),
+        trainable_decision_ids=frozenset(row.decision_id for row in blue_decisions),
+        current_snapshots=(*behavior, opponent),
+        current_policy_logprobs={
+            row.decision_id: row.rollout_logprobs for row in blue_decisions
+        },
+        routed_batches=batches,
+        trainer_step=0,
+    )
+
+    assert result.accepted
+    assert queue.size == 1
+    merged = queue.pop_logical_update(groups=1, trainer_step=0)
+    assert set(merged) == set(batches)
+    assert queue.size == 0
+
+    with pytest.raises(ValueError, match="all four isolated policy batches"):
+        queue.admit(
+            header=replace(header, rollout_id="rollout-partial"),
+            decisions=(*blue_decisions, red),
+            trainable_decision_ids=frozenset(row.decision_id for row in blue_decisions),
+            current_snapshots=(*behavior, opponent),
+            current_policy_logprobs={
+                row.decision_id: row.rollout_logprobs for row in blue_decisions
+            },
+            routed_batches={key: value for key, value in batches.items() if key != "run_blue_3"},
+            trainer_step=0,
         )

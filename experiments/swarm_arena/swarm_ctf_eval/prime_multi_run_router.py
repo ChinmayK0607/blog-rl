@@ -175,3 +175,24 @@ def validate_single_trajectory_packing(
                 f"{run_id} could co-pack multiple trajectories; the live path "
                 "would differ from per-sample parity certification"
             )
+
+
+def validate_training_batch_lengths(
+    batches: dict[str, Any],
+    *,
+    seq_len: int,
+) -> None:
+    """Require complete trajectories to fit while allowing production co-packing."""
+    if seq_len < 1:
+        raise ValueError("trainer sequence length must be positive")
+    for run_id, batch in sorted(batches.items()):
+        lengths = [
+            len(sample.prompt_ids) + len(sample.completion_ids)
+            for sample in batch.examples
+        ]
+        if not lengths:
+            raise ValueError(f"{run_id} contains an empty training batch")
+        if max(lengths) > seq_len:
+            raise ValueError(
+                f"{run_id} contains a trajectory longer than trainer seq_len {seq_len}"
+            )

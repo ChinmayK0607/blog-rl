@@ -1,13 +1,11 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-15 04:40 IST
+Last updated: 2026-08-15 19:35 IST
 Branch: `exp/swarm-arena-4b`  
-Current matched-actor implementation checkpoint:
-`01519aa9a019871d9560971b11b80826ad1cfac1`
-Status: the exact four-policy actor/trainer parity and isolation gates pass.
-The first real optimizer attempt failed closed on an oversized trainer sequence
-allocation; a fresh 4,096-token-cap retry is in progress. No failed-run output
-has been promoted.
+Current public checkpoint: `530ae3ed`.
+Status: the v4 task and pre-training baseline pass mechanically. The final CPU
+production-orchestration pass and a fresh 4x L40S v4 RL run are in progress; no
+new checkpoint has been promoted.
 
 This is the durable chronological record for the Swarm Arena project. It records
 the hypothesis, design decisions, data, training, evaluations, failures,
@@ -2000,6 +1998,51 @@ no more critical-specific than decoy-specific. Therefore:
   and excludes supervisor signing keys. No model checkpoint was copied locally.
   Public release:
   `https://github.com/ChinmayK0607/blog-rl/releases/tag/swarm-arena-v4-pretrain-2026-08-15`.
+
+### 2026-08-15 — RL v4 production orchestration and fresh L40S allocation
+
+- Status: implementation and GPU validation in progress; no result yet.
+- User directive: finish the CPU production pass, then use a newly provisioned
+  4x NVIDIA L40S host for approximately three to four hours to obtain useful RL
+  evidence. The provider rate was not supplied, so cost will not be invented.
+- Fresh-host inspection: all four 46,068 MiB GPUs were idle at 0 MiB/0%,
+  temperatures 24--25 C; the 2.5 TB filesystem had 2.3 TB free; no trainer,
+  rollout, vLLM, or stale tmux process existed. The reused address presented a
+  new ED25519 fingerprint, so its key was isolated in a task-specific temporary
+  known-hosts file instead of replacing the developer's normal SSH trust file.
+- CPU contract under implementation: train each BLUE policy's own `BROADCAST`
+  and `ACT` spans across every episode turn; generate the exact 50/25/25
+  ordinary/critical/matched-decoy schedule before sampling; rotate base, SFT,
+  historical, and current model-controlled opponents exactly; bind the complete
+  plan into the run lock; and admit/reject only complete four-policy groups.
+- Async policy: begin with an optimized vLLM-class actor at explicit lag zero.
+  A separate same-backend worker must prove current adapter hashes equal the
+  behavior snapshot; Prime still checks the independently calibrated numerical
+  envelope immediately before optimization. This is not called lag-one/two
+  async RL. A real current-policy constrained rescorer is required before
+  admitting stale rollouts.
+- Reward remains only verified normalized terminal team return with the
+  leave-one-out replica baseline. No message, action, capture, silence, judge,
+  or other additive shaping term is introduced.
+- Promotion automation under implementation: resume-safe checkpoint export,
+  online 96-game monitoring, both non-arena regression suites, policy KL,
+  collapse audit, model-pool cross-play, and public artifact publication. The
+  monitor is prohibited from opening selection/frozen evaluation during
+  training.
+- The fresh clone initially repeated the repository's SSH-submodule problem for
+  `renderers` and `verifiers`; only the clone-local submodule URLs are being
+  changed to public HTTPS. This is an invocation/preflight issue, not an RL
+  result, and no GPU process has started.
+- Linux CPU validation completed before any `torchrun`: changed-file Ruff
+  passed; 15 focused production/async/shared-return tests passed in 36.46 s;
+  and the complete project-scoped Swarm suite passed **98 tests** with only the
+  two known third-party SWIG deprecation warnings in 39.06 s.
+- Next action: complete Linux tests and a no-update optimized-backend
+  calibration, then run a small v4 stability canary. Continue only to a longer
+  run if the canary produces four complete policy updates without protocol,
+  replay, numerical, KL, or collapse failure.
+- Instance decommissioned: no; user expects it to remain available for the
+  current three-to-four-hour window.
 
 ## Artifact index
 

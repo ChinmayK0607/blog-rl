@@ -312,14 +312,14 @@ def build_shared_return_training_envelopes(
     advantage: float,
     *,
     trainable_phases: frozenset[Phase],
-    trainable_turns: frozenset[int],
+    trainable_turns: frozenset[int] | None,
 ) -> tuple[PolicyTrainingEnvelope, ...]:
     """Route selected actual spans to four policies with one joint-trajectory advantage."""
     validate_policy_roster(bindings, trainable_team)
     if not math.isfinite(advantage):
         raise ValueError("shared-return advantage must be finite")
-    if not trainable_phases or not trainable_turns:
-        raise ValueError("shared-return routing requires explicit phases and turns")
+    if not trainable_phases or trainable_turns == frozenset():
+        raise ValueError("shared-return routing requires phases and either all or explicit turns")
     if not decisions:
         raise ValueError("a shared-return replica requires rollout decisions")
     for decision in decisions:
@@ -342,7 +342,7 @@ def build_shared_return_training_envelopes(
         for decision in decisions
         if decision.team == trainable_team
         and decision.phase in trainable_phases
-        and decision.turn in trainable_turns
+        and (trainable_turns is None or decision.turn in trainable_turns)
     )
     spans = tuple(
         AgentTokenSpan(

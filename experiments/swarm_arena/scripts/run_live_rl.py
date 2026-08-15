@@ -7,11 +7,17 @@ import json
 import os
 import subprocess
 import time
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 
 import httpx
 import tomli
+from swarm_ctf_eval.async_admission import AsyncRolloutHeader, PolicySnapshot
+from swarm_ctf_eval.async_rescore import (
+    FilesystemCurrentPolicyRescorer,
+    write_current_snapshot_manifest,
+)
+from swarm_ctf_eval.async_training_queue import AtomicAsyncTrainingQueue
 from swarm_ctf_eval.communication_curriculum import (
     reconstruct_manifest_scenario as reconstruct_v3_scenario,
 )
@@ -37,6 +43,13 @@ from swarm_ctf_eval.prime_multi_run_router import (
     route_approved_samples,
     send_approved_batches,
     validate_single_trajectory_packing,
+    validate_training_batch_lengths,
+)
+from swarm_ctf_eval.rl_production import (
+    OpponentSnapshot,
+    ProductionPlan,
+    exact_curriculum_schedule,
+    load_production_plan,
 )
 from swarm_ctf_eval.safety_supervisor import (
     RunLock,
@@ -156,10 +169,17 @@ def run_lock(
     data_binding: TaskDataBinding,
     policy_revisions: dict[str, str],
     shared_return_spec: SharedReturnSpec | None,
+    opponent: OpponentSnapshot | None = None,
+    production_plan: ProductionPlan | None = None,
 ) -> RunLock:
     if config.rollout_parity_gate is None:
         raise ValueError("trainer config is missing the pre-step parity gate")
-    frozen_revisions = [("red-opponent", args.opponent_revision)]
+    opponent_revision = (
+        opponent.revision if opponent is not None else args.opponent_revision
+    )
+    if opponent_revision is None:
+        raise ValueError("run lock requires an immutable opponent revision")
+    frozen_revisions = [("red-opponent", opponent_revision)]
     replacement_policy_id = None
     if args.credit_estimator == "policy_replacement":
         if args.replacement_revision is None:
@@ -180,8 +200,8 @@ def run_lock(
         ),
         tuple(frozen_revisions),
         replacement_policy_id,
-        "sft-opponent",
-        args.opponent_revision,
+        opponent.opponent_id if opponent is not None else "sft-opponent",
+        opponent_revision,
         (
             protocol_constraint_sha256("BROADCAST"),
             protocol_constraint_sha256("ACT"),
@@ -191,6 +211,7 @@ def run_lock(
         shared_return_spec.sha256 if shared_return_spec is not None else None,
         sha256_file(args.trainer_config) if shared_return_spec is not None else None,
         sha256_file(args.inference_config) if shared_return_spec is not None else None,
+        production_plan.sha256 if production_plan is not None else None,
     )
 
 
@@ -222,7 +243,17 @@ async def main() -> None:
     parser.add_argument("--replacement-policy-id", default="sft-replacement")
     parser.add_argument("--replacement-model-name", default="sft-replacement")
     parser.add_argument("--replacement-revision")
-    parser.add_argument("--opponent-revision", required=True)
+    parser.add_argument("--opponent-revision")
+    parser.add_argument(
+        "--production-plan",
+        type=Path,
+        help=(
+            "immutable v4 plan for all-turn spans, exact curriculum, opponent pool, "
+            "and bounded async admission"
+        ),
+    )
+    parser.add_argument("--async-rescore-dir", type=Path)
+    parser.add_argument("--async-rescore-timeout", type=float, default=600.0)
     parser.add_argument("--steps", type=int, default=1)
     parser.add_argument("--groups-per-step", type=int, default=1)
     parser.add_argument("--seed-base", type=int, default=7_000_003)
@@ -264,6 +295,19 @@ async def main() -> None:
         parser.error("horizon must be positive")
     if args.rollout_only and args.steps != 1:
         parser.error("rollout-only diagnostics require exactly one controller step")
+    if args.production_plan is None and args.opponent_revision is None:
+        parser.error("--opponent-revision is required without --production-plan")
+    if args.production_plan is not None:
+        if args.credit_estimator != "shared_return":
+            parser.error("production plans require shared terminal return")
+        if args.task_data_version != "v4":
+            parser.error("production plans require --task-data-version v4")
+        if args.actor != "vllm":
+            parser.error("the optimized production plan currently requires the vLLM actor")
+        if args.async_rescore_dir is None:
+            parser.error("production plans require --async-rescore-dir")
+        if args.async_rescore_timeout <= 0:
+            parser.error("async rescore timeout must be positive")
     repository_root = Path(__file__).resolve().parents[3]
     actual_commit = subprocess.check_output(
         ["git", "-C", str(repository_root), "rev-parse", "HEAD"],
@@ -283,23 +327,80 @@ async def main() -> None:
         )
     if config.max_concurrent_runs != 4:
         parser.error("Swarm live RL requires exactly four isolated trainer runs")
-    shared_return_spec = (
-        SharedReturnSpec(args.shared_return_replicas)
-        if args.credit_estimator == "shared_return"
-        else None
-    )
+    production_plan = None
+    opponent_runtime_paths: dict[str, Path | None] = {}
+    scenario_schedule = None
+    opponent_schedule = None
+    if args.production_plan is not None:
+        production_plan, opponent_runtime_paths = load_production_plan(
+            args.production_plan
+        )
+        if args.groups_per_step != production_plan.groups_per_update:
+            parser.error("groups-per-step must match the immutable production plan")
+        total_groups = args.steps * args.groups_per_step
+        scenario_schedule = exact_curriculum_schedule(
+            production_plan.mix,
+            total_groups=total_groups,
+            pair_offset=production_plan.pair_offset,
+            ordinary_seed_base=production_plan.ordinary_seed_base,
+            shuffle_seed=production_plan.curriculum_shuffle_seed,
+        )
+        opponent_schedule = production_plan.opponent_pool.schedule(total_groups)
+    shared_return_spec = None
+    if args.credit_estimator == "shared_return":
+        shared_return_spec = SharedReturnSpec(
+            args.shared_return_replicas,
+            trainable_phases=(
+                production_plan.trainable_phases
+                if production_plan is not None
+                else ("BROADCAST",)
+            ),
+            trainable_turn_offsets=(
+                production_plan.trainable_turn_offsets
+                if production_plan is not None
+                else (0,)
+            ),
+        )
     data_binding = resolve_task_data_binding(args.data_dir, args.task_data_version)
     base_urls = tuple(args.base_url)
     key = signing_key(args.output_dir / "control" / "supervisor.key")
     initial_revision = args.initial_policy_revision
+    initial_adapter_sha256 = sha256_file(
+        args.initial_adapter / "adapter_model.safetensors"
+    )
     adapter_names = tuple(f"blue-{index}" for index in range(4)) + (
         "sft-opponent",
     )
+    if production_plan is not None:
+        adapter_names = tuple(f"blue-{index}" for index in range(4)) + tuple(
+            snapshot.model_name
+            for snapshot in production_plan.opponent_pool.snapshots
+            if snapshot.adapter_sha256 is not None
+        )
     if args.credit_estimator == "policy_replacement":
         adapter_names += (args.replacement_model_name,)
     if args.actor == "vllm":
-        for name in adapter_names:
+        for name in tuple(f"blue-{index}" for index in range(4)):
             await replace_adapter(base_urls, name, args.initial_adapter)
+        if production_plan is None:
+            await replace_adapter(base_urls, "sft-opponent", args.initial_adapter)
+        else:
+            for snapshot in production_plan.opponent_pool.snapshots:
+                path = opponent_runtime_paths[snapshot.opponent_id]
+                if path is None:
+                    continue
+                adapter_file = path / "adapter_model.safetensors"
+                if not adapter_file.is_file():
+                    raise FileNotFoundError(
+                        f"missing opponent adapter for {snapshot.opponent_id}: {adapter_file}"
+                    )
+                actual_sha256 = sha256_file(adapter_file)
+                if actual_sha256 != snapshot.adapter_sha256:
+                    raise ValueError(
+                        f"opponent adapter checksum mismatch for {snapshot.opponent_id}: "
+                        f"{actual_sha256}"
+                    )
+                await replace_adapter(base_urls, snapshot.model_name, path)
         generator_context = VLLMChoiceGenerator(args.tokenizer)
     else:
         if args.inference_config is None:
@@ -369,9 +470,38 @@ async def main() -> None:
     shared_return_evidence_trace = (
         args.output_dir / "audit" / "shared_return_evidence.jsonl"
     )
+    async_queue = None
+    async_rescorer = None
+    if production_plan is not None:
+        async_queue = AtomicAsyncTrainingQueue(
+            capacity=production_plan.rollout_queue_capacity,
+            audit_path=args.output_dir / "audit" / "async_admission.jsonl",
+            allowed_backend_calibrations=frozenset(
+                {
+                    (
+                        production_plan.backend.name,
+                        production_plan.backend.version,
+                        production_plan.backend.kernel_config_sha256,
+                        production_plan.backend.calibration_sha256,
+                    )
+                }
+            ),
+            allowed_constraint_sha256s=frozenset(
+                {
+                    protocol_constraint_sha256("BROADCAST"),
+                    protocol_constraint_sha256("ACT"),
+                }
+            ),
+            limits=production_plan.admission_limits,
+        )
+        assert args.async_rescore_dir is not None
+        async_rescorer = FilesystemCurrentPolicyRescorer(
+            args.async_rescore_dir,
+            timeout=args.async_rescore_timeout,
+        )
     result_rows = []
     curriculum = None
-    if args.scenario_source == "curriculum":
+    if args.scenario_source == "curriculum" or production_plan is not None:
         manifest_path = args.data_dir / data_binding.curriculum_manifest(
             args.curriculum_split
         )
@@ -380,15 +510,27 @@ async def main() -> None:
             raise ValueError(f"empty curriculum manifest: {manifest_path}")
     async with generator_context as generator:
         policy_revisions = {f"blue-{index}": initial_revision for index in range(4)}
+        policy_adapter_sha256 = {
+            f"blue-{index}": initial_adapter_sha256 for index in range(4)
+        }
         for step in range(args.steps):
-            lock = run_lock(
-                args,
-                config,
-                data_binding=data_binding,
-                policy_revisions=policy_revisions,
-                shared_return_spec=shared_return_spec,
-            )
-            policies = tuple(
+            if production_plan is not None:
+                assert args.async_rescore_dir is not None
+                write_current_snapshot_manifest(
+                    args.async_rescore_dir / "current_snapshots.json",
+                    plan_sha256=production_plan.sha256,
+                    snapshots=tuple(
+                        PolicySnapshot(
+                            policy_id=f"blue-policy-{index}",
+                            revision=policy_revisions[f"blue-{index}"],
+                            adapter_sha256=policy_adapter_sha256[f"blue-{index}"],
+                            update_index=step,
+                            trainable=True,
+                        )
+                        for index in range(4)
+                    ),
+                )
+            blue_policies = tuple(
                 PolicyEndpoint(
                     f"blue-policy-{index}",
                     policy_revisions[f"blue-{index}"],
@@ -396,36 +538,98 @@ async def main() -> None:
                     base_urls,
                 )
                 for index in range(4)
-            ) + (
-                PolicyEndpoint(
-                    "red-opponent",
-                    args.opponent_revision,
-                    "sft-opponent",
-                    base_urls,
-                ),
             )
-            if args.credit_estimator == "policy_replacement":
-                assert args.replacement_revision is not None
-                policies += (
-                    PolicyEndpoint(
-                        args.replacement_policy_id,
-                        args.replacement_revision,
-                        args.replacement_model_name,
-                        base_urls,
-                    ),
-                )
             routed_groups = []
             step_groups = []
             for group_index in range(args.groups_per_step):
                 ordinal = step * args.groups_per_step + group_index
+                scheduled_opponent = (
+                    opponent_schedule[ordinal]
+                    if opponent_schedule is not None
+                    else None
+                )
+                if (
+                    scheduled_opponent is not None
+                    and scheduled_opponent.family == "current"
+                ):
+                    scheduled_opponent = replace(
+                        scheduled_opponent,
+                        model_name="blue-0",
+                        revision=policy_revisions["blue-0"],
+                        adapter_sha256=policy_adapter_sha256["blue-0"],
+                        update_index=step,
+                    )
+                opponent_revision = (
+                    scheduled_opponent.revision
+                    if scheduled_opponent is not None
+                    else args.opponent_revision
+                )
+                assert opponent_revision is not None
+                opponent_model_name = (
+                    scheduled_opponent.model_name
+                    if scheduled_opponent is not None
+                    else "sft-opponent"
+                )
+                policies = blue_policies + (
+                    PolicyEndpoint(
+                        "red-opponent",
+                        opponent_revision,
+                        opponent_model_name,
+                        base_urls,
+                    ),
+                )
+                if args.credit_estimator == "policy_replacement":
+                    assert args.replacement_revision is not None
+                    policies += (
+                        PolicyEndpoint(
+                            args.replacement_policy_id,
+                            args.replacement_revision,
+                            args.replacement_model_name,
+                            base_urls,
+                        ),
+                    )
+                lock = run_lock(
+                    args,
+                    config,
+                    data_binding=data_binding,
+                    policy_revisions=policy_revisions,
+                    shared_return_spec=shared_return_spec,
+                    opponent=scheduled_opponent,
+                    production_plan=production_plan,
+                )
                 initial_state = None
                 scenario_metadata = {"source": "ordinary"}
                 sampling_namespace = None
                 seed = args.seed_base + step * 10_000 + group_index
                 size = args.size
                 horizon = args.horizon or 2
-                if curriculum is not None:
-                    if args.curriculum_kind == "alternating":
+                assignment = (
+                    scenario_schedule[ordinal]
+                    if scenario_schedule is not None
+                    else None
+                )
+                if assignment is not None and assignment.kind == "ordinary":
+                    assert production_plan is not None
+                    assert assignment.ordinary_seed is not None
+                    seed = assignment.ordinary_seed
+                    size = production_plan.ordinary_sizes[
+                        ordinal % len(production_plan.ordinary_sizes)
+                    ]
+                    horizon = production_plan.ordinary_horizons[
+                        ordinal % len(production_plan.ordinary_horizons)
+                    ]
+                    scenario_metadata = {
+                        "source": "ordinary",
+                        "schedule_ordinal": ordinal,
+                        "seed": seed,
+                    }
+                elif curriculum is not None:
+                    if assignment is not None:
+                        kind = assignment.kind
+                        assert kind in {"critical", "decoy"}
+                        assert assignment.pair_index is not None
+                        pair_index = assignment.pair_index
+                    elif args.curriculum_kind == "alternating":
                         kind = "critical" if ordinal % 2 == 0 else "decoy"
                         pair_index = (args.curriculum_offset + ordinal) // 2
                     else:
@@ -470,17 +674,33 @@ async def main() -> None:
                         "sender": scenario.sender,
                         "receiver": scenario.receiver,
                         "minimum_certified_advantage": scenario.minimum_advantage,
+                        "schedule_ordinal": ordinal,
                         **world_metadata,
                     }
                 game_id = (
                     f"{args.run_id}:step-{step}:group-{group_index}:"
                     f"{scenario_metadata['source']}:{seed}"
                 )
-                if curriculum is not None and args.curriculum_kind == "alternating":
+                if assignment is not None and assignment.kind in {"critical", "decoy"}:
+                    sampling_namespace = (
+                        f"{args.run_id}:step-{step}:pair-{assignment.pair_index}"
+                    )
+                    scenario_metadata["sampling_namespace"] = sampling_namespace
+                elif curriculum is not None and args.curriculum_kind == "alternating":
                     sampling_namespace = (
                         f"{args.run_id}:step-{step}:pair-{scenario_metadata['pair_index']}"
                     )
                     scenario_metadata["sampling_namespace"] = sampling_namespace
+                scenario_metadata["opponent"] = (
+                    asdict(scheduled_opponent)
+                    if scheduled_opponent is not None
+                    else {
+                        "opponent_id": "sft-opponent",
+                        "family": "sft",
+                        "model_name": "sft-opponent",
+                        "revision": opponent_revision,
+                    }
+                )
                 episode_config = EpisodeConfig(
                     horizon=horizon,
                     communication_cost=0.0,
@@ -520,9 +740,89 @@ async def main() -> None:
                             strict=True,
                         )
                     )
-                    routed_groups.append(
-                        merge_routed_batch_groups(replica_routes, step=step)
+                    routed_group = merge_routed_batch_groups(
+                        replica_routes,
+                        step=step,
                     )
+                    if production_plan is None:
+                        routed_groups.append(routed_group)
+                    else:
+                        assert scheduled_opponent is not None
+                        assert async_queue is not None and async_rescorer is not None
+                        opponent_artifact_sha256 = (
+                            scheduled_opponent.adapter_sha256
+                            or canonical_sha256(
+                                {
+                                    "base_model_revision": scheduled_opponent.revision
+                                }
+                            )
+                        )
+                        behavior_snapshots = tuple(
+                            PolicySnapshot(
+                                policy_id=f"blue-policy-{index}",
+                                revision=policy_revisions[f"blue-{index}"],
+                                adapter_sha256=policy_adapter_sha256[f"blue-{index}"],
+                                update_index=step,
+                                trainable=True,
+                            )
+                            for index in range(4)
+                        ) + (
+                            PolicySnapshot(
+                                policy_id="red-opponent",
+                                revision=scheduled_opponent.revision,
+                                adapter_sha256=opponent_artifact_sha256,
+                                update_index=scheduled_opponent.update_index,
+                                trainable=False,
+                            ),
+                        )
+                        all_decisions = tuple(
+                            decision
+                            for replica in group.evidence.replicas
+                            for decision in replica.decisions
+                        )
+                        trainable_decision_ids = frozenset(
+                            decision_id
+                            for approval in approvals
+                            for envelope in approval.envelopes
+                            for decision_id in envelope.decision_ids
+                        )
+                        selected_decisions = tuple(
+                            decision
+                            for decision in all_decisions
+                            if decision.decision_id in trainable_decision_ids
+                        )
+                        header = AsyncRolloutHeader(
+                            rollout_id=game_id,
+                            backend_name=production_plan.backend.name,
+                            backend_version=production_plan.backend.version,
+                            kernel_config_sha256=(
+                                production_plan.backend.kernel_config_sha256
+                            ),
+                            calibration_sha256=(
+                                production_plan.backend.calibration_sha256
+                            ),
+                            policy_snapshots=behavior_snapshots,
+                        )
+                        current_snapshots, current_logprobs = await async_rescorer.rescore(
+                            rollout_id=game_id,
+                            plan_sha256=production_plan.sha256,
+                            behavior_snapshots=behavior_snapshots,
+                            decisions=selected_decisions,
+                        )
+                        admission = async_queue.admit(
+                            header=header,
+                            decisions=all_decisions,
+                            trainable_decision_ids=trainable_decision_ids,
+                            current_snapshots=current_snapshots,
+                            current_policy_logprobs=current_logprobs,
+                            routed_batches=routed_group,
+                            trainer_step=step,
+                        )
+                        if not admission.accepted:
+                            raise RuntimeError(
+                                "bounded async admission rejected the logical group: "
+                                + "; ".join(admission.reasons)
+                            )
                     append_hash_chained_record(
                         shared_return_evidence_trace,
                         shared_return_evidence_payload(group.evidence),
@@ -652,11 +952,24 @@ async def main() -> None:
                 )
                 print(json.dumps(result_rows[-1], sort_keys=True))
                 continue
-            batches = merge_routed_batch_groups(tuple(routed_groups), step=step)
-            validate_single_trajectory_packing(
-                batches,
-                seq_len=config.model.seq_len,
+            batches = (
+                async_queue.pop_logical_update(
+                    groups=args.groups_per_step,
+                    trainer_step=step,
+                )
+                if async_queue is not None
+                else merge_routed_batch_groups(tuple(routed_groups), step=step)
             )
+            if production_plan is None:
+                validate_single_trajectory_packing(
+                    batches,
+                    seq_len=config.model.seq_len,
+                )
+            else:
+                validate_training_batch_lengths(
+                    batches,
+                    seq_len=config.model.seq_len,
+                )
             await send_approved_batches(args.output_dir, batches)
             digests = await wait_for_policy_updates(
                 args.output_dir,
@@ -668,6 +981,7 @@ async def main() -> None:
                 ),
             )
             policy_revisions = digests
+            policy_adapter_sha256 = dict(digests)
             policy_revision = canonical_sha256(policy_revisions)
             result_rows.append(
                 {

@@ -27,10 +27,15 @@ def build_shared_return_parity_probe(evidence_path: Path) -> dict[str, Any]:
         if not isinstance(replicas, list) or len(replicas) != int(spec["replicas"]):
             raise ValueError("evidence record has an invalid shared-return replica set")
         phases = set(spec["trainable_phases"])
-        turns = {
-            int(initial_state["turn"]) + int(offset)
-            for offset in spec["trainable_turn_offsets"]
-        }
+        offsets = spec["trainable_turn_offsets"]
+        turns = (
+            None
+            if offsets is None
+            else {
+                int(initial_state["turn"]) + int(offset)
+                for offset in offsets
+            }
+        )
         evidence_records.append(
             {
                 "record_sha256": record["record_sha256"],
@@ -44,7 +49,7 @@ def build_shared_return_parity_probe(evidence_path: Path) -> dict[str, Any]:
                 for decision in replica["decisions"]
                 if decision["team"] == "BLUE"
                 and decision["phase"] in phases
-                and int(decision["turn"]) in turns
+                and (turns is None or int(decision["turn"]) in turns)
             ]
             selected.sort(key=lambda row: int(row["trajectory_index"]))
             if not selected:

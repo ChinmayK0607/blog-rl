@@ -53,6 +53,7 @@ class RunLock:
     credit_estimator_config_sha256: str | None = None
     trainer_config_sha256: str | None = None
     serving_config_sha256: str | None = None
+    production_plan_sha256: str | None = None
 
     def validate(self) -> None:
         nonempty = (
@@ -83,6 +84,10 @@ class RunLock:
             self.trainer_parity_gate_sha256
         ):
             raise ValueError("run lock trainer parity gate has an invalid SHA-256 digest")
+        if self.production_plan_sha256 is not None and not _is_sha256(
+            self.production_plan_sha256
+        ):
+            raise ValueError("run lock production plan has an invalid SHA-256 digest")
         frozen = dict(self.frozen_policy_revisions)
         if len(frozen) != len(self.frozen_policy_revisions):
             raise ValueError("run lock frozen policy IDs must be distinct")
@@ -172,7 +177,7 @@ class MessageCreditGroupEvidence:
 class SharedReturnSpec:
     replicas: int
     trainable_phases: tuple[Literal["BROADCAST", "ACT"], ...] = ("BROADCAST",)
-    trainable_turn_offsets: tuple[int, ...] = (0,)
+    trainable_turn_offsets: tuple[int, ...] | None = (0,)
     baseline: Literal["leave_one_out_mean"] = "leave_one_out_mean"
     reward: Literal["verified_terminal_team_return"] = "verified_terminal_team_return"
 
@@ -185,12 +190,13 @@ class SharedReturnSpec:
             raise ValueError("shared-return phases must be non-empty and unique")
         if any(phase not in {"BROADCAST", "ACT"} for phase in self.trainable_phases):
             raise ValueError("shared-return spec contains an unknown phase")
-        if not self.trainable_turn_offsets or len(set(self.trainable_turn_offsets)) != len(
-            self.trainable_turn_offsets
-        ):
-            raise ValueError("shared-return turn offsets must be non-empty and unique")
-        if any(offset < 0 for offset in self.trainable_turn_offsets):
-            raise ValueError("shared-return turn offsets cannot be negative")
+        if self.trainable_turn_offsets is not None:
+            if not self.trainable_turn_offsets or len(set(self.trainable_turn_offsets)) != len(
+                self.trainable_turn_offsets
+            ):
+                raise ValueError("shared-return turn offsets must be non-empty and unique")
+            if any(offset < 0 for offset in self.trainable_turn_offsets):
+                raise ValueError("shared-return turn offsets cannot be negative")
         if self.baseline != "leave_one_out_mean":
             raise ValueError("shared-return spec contains an unsupported baseline")
         if self.reward != "verified_terminal_team_return":
@@ -895,7 +901,11 @@ def approve_shared_return_group(
         raise ValueError("shared-return group ID cannot be empty")
     if _state_sha256(evidence.initial_state) != evidence.initial_state_sha256:
         raise ValueError("initial state does not match its committed hash")
-    if max(evidence.spec.trainable_turn_offsets) >= evidence.episode_config.horizon:
+    if (
+        evidence.spec.trainable_turn_offsets is not None
+        and evidence.initial_state.turn + max(evidence.spec.trainable_turn_offsets)
+        >= evidence.episode_config.horizon
+    ):
         raise ValueError("shared-return trainable turn falls outside the episode horizon")
     if len(evidence.replicas) != evidence.spec.replicas:
         raise ValueError("shared-return evidence has the wrong replica count")
@@ -918,9 +928,13 @@ def approve_shared_return_group(
     allowed_constraints = set(lock.allowed_constraint_hashes)
     seen_sampling_keys: set[str] = set()
     verifications: list[ReplayVerification] = []
-    absolute_turns = frozenset(
-        evidence.initial_state.turn + offset
-        for offset in evidence.spec.trainable_turn_offsets
+    absolute_turns = (
+        None
+        if evidence.spec.trainable_turn_offsets is None
+        else frozenset(
+            evidence.initial_state.turn + offset
+            for offset in evidence.spec.trainable_turn_offsets
+        )
     )
     phases = frozenset(evidence.spec.trainable_phases)
 
@@ -1019,7 +1033,7 @@ def approve_shared_return_group(
             for decision in replica.decisions
             if decision.policy_id in dict(lock.trainable_policy_revisions)
             and decision.phase in phases
-            and decision.turn in absolute_turns
+            and (absolute_turns is None or decision.turn in absolute_turns)
         }
         if set(evidence.trainer_logprobs) != expected_ids:
             raise ValueError("trainer log-prob rows do not exactly match shared-return spans")

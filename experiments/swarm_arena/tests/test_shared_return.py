@@ -259,6 +259,54 @@ def test_shared_return_group_is_replayed_signed_and_routed_fail_closed() -> None
         raise AssertionError("unbound shared-return serving config must fail closed")
 
 
+def test_shared_return_can_train_each_agents_actions_and_messages_on_all_turns() -> None:
+    spec = SharedReturnSpec(
+        replicas=2,
+        trainable_phases=("BROADCAST", "ACT"),
+        trainable_turn_offsets=None,
+    )
+    lock = _lock(spec)
+    group = asyncio.run(
+        build_live_shared_return_group(
+            FirstChoiceGenerator(),  # type: ignore[arg-type]
+            group_id="shared-all-turns",
+            seed=303,
+            size=12,
+            config=EpisodeConfig(
+                horizon=2,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            ),
+            spec=spec,
+            bindings=_bindings(),
+            policies=_endpoints(),
+            run_lock_sha256=lock.sha256,
+        )
+    )
+    approvals = approve_shared_return_group(
+        lock,
+        group.evidence,
+        _bindings(),
+        "BLUE",
+        b"shared-return-test-signing-key-32-bytes",
+    )
+
+    assert len(approvals) == 2
+    for approval, owned in zip(
+        approvals,
+        group.owned_samples_by_replica,
+        strict=True,
+    ):
+        assert all(len(envelope.decision_ids) == 4 for envelope in approval.envelopes)
+        assert all(len(agent.samples) == 4 for agent in owned)
+        assert {
+            decision_id.rsplit(":", 2)[-1]
+            for envelope in approval.envelopes
+            for decision_id in envelope.decision_ids
+        } == {"BROADCAST", "ACT"}
+
+
 def test_published_v4_evidence_builds_policy_bound_parity_probe() -> None:
     evidence = (
         Path(__file__).resolve().parents[1]

@@ -129,6 +129,7 @@ def admit_async_rollout(
     current_snapshots: tuple[PolicySnapshot, ...],
     trainer_logprobs: dict[str, tuple[float, ...]],
     *,
+    trainable_decision_ids: frozenset[str] | None = None,
     allowed_backend_calibrations: frozenset[tuple[str, str, str, str]],
     allowed_constraint_sha256s: frozenset[str],
     limits: AsyncAdmissionLimits,
@@ -183,11 +184,20 @@ def admit_async_rollout(
     if observed_policy_ids != set(behavior_by_policy):
         raise ValueError("rollout decisions do not cover the complete snapshotted policy roster")
 
-    selected = tuple(
+    eligible = tuple(
         decision
         for decision in decisions
         if decision.branch == "actual" and behavior_by_policy[decision.policy_id].trainable
     )
+    eligible_ids = {decision.decision_id for decision in eligible}
+    if trainable_decision_ids is None:
+        selected = eligible
+    else:
+        if not trainable_decision_ids or not trainable_decision_ids <= eligible_ids:
+            raise ValueError("trainable decision selection is empty or contains ineligible spans")
+        selected = tuple(
+            decision for decision in eligible if decision.decision_id in trainable_decision_ids
+        )
     if not selected:
         raise ValueError("async admission requires actual decisions from trainable policies")
     selected_policy_ids = {decision.policy_id for decision in selected}

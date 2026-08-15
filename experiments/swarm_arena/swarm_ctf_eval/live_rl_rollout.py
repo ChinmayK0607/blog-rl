@@ -909,8 +909,12 @@ async def build_live_shared_return_group(
     if len(trainable_agents) != 4:
         raise ValueError("live shared-return group requires four trainable BLUE agents")
     base_namespace = sampling_namespace or group_id
-    absolute_turns = frozenset(
-        initial_state.turn + offset for offset in spec.trainable_turn_offsets
+    absolute_turns = (
+        None
+        if spec.trainable_turn_offsets is None
+        else frozenset(
+            initial_state.turn + offset for offset in spec.trainable_turn_offsets
+        )
     )
     phases = frozenset(spec.trainable_phases)
     replica_game_ids = tuple(
@@ -954,7 +958,7 @@ async def build_live_shared_return_group(
                 for row in branch.decisions
                 if row.agent_id == agent_id
                 and row.phase in phases
-                and row.turn in absolute_turns
+                and (absolute_turns is None or row.turn in absolute_turns)
             )
             for agent_id in trainable_agents
         }
