@@ -16,7 +16,7 @@ from swarm_ctf_eval.providers import OpenAICompatibleProvider
 from swarm_ctf_eval.structured_protocol import protocol_response_format
 
 CONDITIONS = ("normal", "dropped", "sender_shuffled", "delayed", "zero_budget")
-VERSION = "arena-final-eval-development-v1"
+VERSION = "arena-final-eval-development-v2"
 
 
 def _canonical_sha256(value: object) -> str:
@@ -192,12 +192,16 @@ def main() -> None:
     parser.add_argument("--data-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--ordinary-cases", type=int, default=3)
+    parser.add_argument("--ordinary-offset", type=int, default=0)
     parser.add_argument("--curriculum-pairs", type=int, default=2)
+    parser.add_argument("--curriculum-offset", type=int, default=0)
     parser.add_argument("--api-key", default="local")
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
     if args.ordinary_cases < 1 or args.curriculum_pairs < 1:
         parser.error("case counts must be positive")
+    if args.ordinary_offset < 0 or args.curriculum_offset < 0:
+        parser.error("case offsets must be non-negative")
 
     config = json.loads(args.config.read_text(encoding="utf-8"))
     base_url = str(config["base_url"])
@@ -213,7 +217,12 @@ def main() -> None:
     if len(opponents) < 3:
         raise ValueError("development evaluation requires at least three opponents")
     curriculum = json.loads((args.data_dir / "development.json").read_text(encoding="utf-8"))
-    selected_pairs = list(curriculum["pairs"][: args.curriculum_pairs])
+    pair_stop = args.curriculum_offset + args.curriculum_pairs
+    selected_pairs = list(curriculum["pairs"][args.curriculum_offset : pair_stop])
+    if len(selected_pairs) != args.curriculum_pairs:
+        parser.error("curriculum window exceeds the development manifest")
+    ordinary_stop = args.ordinary_offset + args.ordinary_cases
+    ordinary_cases = development_cases(ordinary_stop)[args.ordinary_offset : ordinary_stop]
     source_commit = subprocess.check_output(
         ["git", "rev-parse", "HEAD"], text=True
     ).strip()
@@ -223,7 +232,9 @@ def main() -> None:
         "config": config,
         "config_sha256": _canonical_sha256(config),
         "development_manifest_sha256": curriculum["sha256"],
-        "ordinary_cases": development_cases(args.ordinary_cases),
+        "ordinary_cases": ordinary_cases,
+        "ordinary_offset": args.ordinary_offset,
+        "curriculum_offset": args.curriculum_offset,
         "curriculum_pair_state_sha256": [
             {
                 "critical": pair["critical"]["state_sha256"],
@@ -300,7 +311,7 @@ def main() -> None:
         ),
         ("sft_init", str(config["baseline"]["revision"]), baseline),
     )
-    for seed, size, horizon in development_cases(args.ordinary_cases):
+    for seed, size, horizon in ordinary_cases:
         case_id = f"ordinary-{seed}"
         for opponent_id, (opponent_revision, opponent) in opponents.items():
             for variant, revision, focal in variants:
@@ -319,7 +330,7 @@ def main() -> None:
                         condition="normal",
                     )
 
-    for pair_index, pair in enumerate(selected_pairs):
+    for pair_index, pair in enumerate(selected_pairs, start=args.curriculum_offset):
         for kind in ("critical", "decoy"):
             scenario = reconstruct_manifest_scenario(pair[kind])
             conditions = CONDITIONS if kind == "critical" else ("normal", "dropped")

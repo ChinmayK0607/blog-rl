@@ -45,6 +45,22 @@ All summaries bootstrap the seed or two-world bundle—not individual agents,
 turns, sides, opponents, or latent worlds—as the independent unit. Existing
 non-arena regression and collapse gates remain mandatory.
 
+## Ten-update pulse
+
+Long runs may preserve checkpoints every ten optimizer updates and compare them
+with a fixed 66-game development pulse. One ordinary development case and one
+critical/decoy pair are evaluated against base, SFT, and historical opponents,
+on both sides. The critical pair uses normal, dropped, sender-shuffled, delayed,
+and zero-budget messaging; the matched decoy uses normal and dropped messaging.
+The pulse therefore retains capability, protocol, opponent, side, and causal
+message checks while remaining small enough to run routinely.
+
+Pulse results are trend diagnostics, not checkpoint-admission evidence. A
+larger development window must use non-overlapping offsets, and selection plus
+frozen final remain closed. If an earlier checkpoint came from a separate run,
+the report must label it as an independent baseline rather than a point on the
+same learning curve.
+
 ## Run it
 
 The runner is resumable and writes a content-bound manifest before its first
@@ -59,6 +75,10 @@ uv run --with ./experiments/swarm_arena \
   --data-dir experiments/swarm_arena/data/rl_v4 \
   --output-dir /workspace/results/progress-v4-online
 ```
+
+The compact development runner supports non-overlapping windows with
+`--ordinary-offset` and `--curriculum-offset`. For example, after a pulse that
+uses index zero, a larger follow-up starts both windows at index one.
 
 The online tier executes 96 complete games: eight ordinary capability cells and
 four two-world handoff bundles against the SFT opponent, on both sides, using
