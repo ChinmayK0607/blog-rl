@@ -12,6 +12,8 @@ from pathlib import Path
 
 import httpx
 import tomli
+from prime_rl.configs.trainer import TrainerConfig
+from prime_rl.utils.pathing import get_broadcast_dir, get_step_path
 from swarm_ctf_eval.communication_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.episode import EpisodeConfig
 from swarm_ctf_eval.hf_choice_generator import HFChoiceGenerator
@@ -47,9 +49,6 @@ from swarm_ctf_eval.task_data_binding import (
     TaskDataBinding,
     resolve_task_data_binding,
 )
-
-from prime_rl.configs.trainer import TrainerConfig
-from prime_rl.utils.pathing import get_broadcast_dir, get_step_path
 
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
