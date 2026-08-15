@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from scripts.audit_final_eval_collapse import _behavior_summary
+import pytest
+
+from scripts.audit_final_eval_collapse import _behavior_summary, _evaluation_metrics
 
 
 def test_behavior_summary_detects_action_and_speaking_collapse() -> None:
@@ -85,3 +87,58 @@ def test_behavior_summary_maps_explicit_served_policy_aliases() -> None:
         policy_aliases=aliases,
     )
     assert set(report) == set(kl["per_policy"])
+
+
+def test_evaluation_metrics_are_derived_from_paired_v4_rows() -> None:
+    rows = []
+    for opponent, candidate, baseline in (("base", 0.3, 0.1), ("sft", 0.2, 0.25)):
+        common = {
+            "case_id": f"ordinary-{opponent}",
+            "suite": "ordinary_hard",
+            "opponent_id": opponent,
+            "side": "BLUE",
+            "condition": "normal",
+            "option_order": "canonical",
+        }
+        rows.extend(
+            (
+                {**common, "policy_variant": "candidate_rl", "terminal_return": candidate},
+                {**common, "policy_variant": "sft_init", "terminal_return": baseline},
+            )
+        )
+    for case_id, normal, dropped in (("critical-a", 0.4, 0.1), ("critical-b", 0.2, 0.1)):
+        common = {
+            "case_id": case_id,
+            "suite": "handoff_critical",
+            "opponent_id": "sft",
+            "side": "BLUE",
+            "policy_variant": "candidate_rl",
+        }
+        rows.extend(
+            (
+                {**common, "condition": "normal", "terminal_return": normal},
+                {**common, "condition": "dropped", "terminal_return": dropped},
+            )
+        )
+
+    opponent_returns, return_gain, message_gain = _evaluation_metrics(rows)
+    assert opponent_returns == {"base": 0.3, "sft": 0.2}
+    assert return_gain == pytest.approx(0.075)
+    assert message_gain == pytest.approx(0.2)
+
+
+def test_evaluation_metrics_reject_incomplete_pairs() -> None:
+    with pytest.raises(ValueError, match="paired ordinary"):
+        _evaluation_metrics(
+            [
+                {
+                    "case_id": "ordinary-a",
+                    "suite": "ordinary_hard",
+                    "opponent_id": "sft",
+                    "side": "BLUE",
+                    "condition": "normal",
+                    "policy_variant": "candidate_rl",
+                    "terminal_return": 0.1,
+                }
+            ]
+        )

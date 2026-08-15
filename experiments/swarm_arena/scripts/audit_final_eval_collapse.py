@@ -114,6 +114,63 @@ def _behavior_summary(
     return per_policy
 
 
+def _evaluation_metrics(
+    rows: list[dict[str, Any]],
+) -> tuple[dict[str, float], float, float]:
+    ordinary: dict[tuple[str, ...], dict[str, float]] = defaultdict(dict)
+    critical: dict[tuple[str, ...], dict[str, float]] = defaultdict(dict)
+    for row in rows:
+        suite = str(row["suite"])
+        condition = str(row["condition"])
+        variant = str(row["policy_variant"])
+        value = float(row["terminal_return"])
+        if suite.startswith("ordinary_") and condition == "normal":
+            if variant not in {"candidate_rl", "sft_init"}:
+                continue
+            key = (
+                str(row["case_id"]),
+                str(row["opponent_id"]),
+                str(row["side"]),
+                str(row.get("option_order", "canonical")),
+            )
+            if variant in ordinary[key]:
+                raise ValueError("duplicate ordinary capability cell in collapse audit")
+            ordinary[key][variant] = value
+        elif (
+            suite in {"critical", "handoff_critical"}
+            and variant == "candidate_rl"
+            and condition in {"normal", "dropped"}
+        ):
+            key = (
+                str(row["case_id"]),
+                str(row["opponent_id"]),
+                str(row["side"]),
+            )
+            if condition in critical[key]:
+                raise ValueError("duplicate critical intervention cell in collapse audit")
+            critical[key][condition] = value
+
+    if not ordinary or any(set(cell) != {"candidate_rl", "sft_init"} for cell in ordinary.values()):
+        raise ValueError("collapse audit requires complete paired ordinary candidate/SFT cells")
+    if not critical or any(set(cell) != {"normal", "dropped"} for cell in critical.values()):
+        raise ValueError("collapse audit requires complete paired critical normal/dropped cells")
+
+    opponent_values: dict[str, list[float]] = defaultdict(list)
+    for key, cell in ordinary.items():
+        opponent_values[key[1]].append(cell["candidate_rl"])
+    opponent_returns = {
+        opponent: statistics.mean(values)
+        for opponent, values in sorted(opponent_values.items())
+    }
+    return_gain = statistics.mean(
+        cell["candidate_rl"] - cell["sft_init"] for cell in ordinary.values()
+    )
+    message_gain = statistics.mean(
+        cell["normal"] - cell["dropped"] for cell in critical.values()
+    )
+    return opponent_returns, return_gain, message_gain
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Audit a completed development evaluation for policy collapse."
@@ -151,7 +208,6 @@ def main() -> None:
     ]
     if not selected:
         raise ValueError("collapse audit has no candidate normal trajectories")
-    summary = json.loads((args.eval_dir / "summary.json").read_text(encoding="utf-8"))
     kl_report = json.loads(args.policy_kl.read_text(encoding="utf-8"))
     policy_aliases = dict(args.policy_alias)
     if len(policy_aliases) != len(args.policy_alias):
@@ -164,14 +220,7 @@ def main() -> None:
         kl_report,
         policy_aliases=policy_aliases,
     )
-    opponent_returns = {
-        str(key): float(value)
-        for key, value in summary["candidate_normal_return_by_opponent"].items()
-    }
-    return_gain = float(summary["ordinary_candidate_minus_sft"]["mean_difference"])
-    message_gain = float(
-        summary["critical_normal_minus_intervention"]["dropped"]["mean_difference"]
-    )
+    opponent_returns, return_gain, message_gain = _evaluation_metrics(list(rows.values()))
     flags = {
         "always_or_never_speaking": any(
             item["always_speaking"] or item["never_speaking"]
