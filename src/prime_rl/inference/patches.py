@@ -269,9 +269,11 @@ def _patch_lora_key_prefix():
     """
     from vllm.lora.lora_model import (
         LoRAModel,
+        MoEEPLoadSpec,
         PEFTHelper,
         TensorizerConfig,
         WeightsMapper,
+        _is_remote_expert_key,
         get_lora_id,
         is_base_embedding_weights,
         os,
@@ -292,6 +294,7 @@ def _patch_lora_key_prefix():
         weights_mapper: WeightsMapper | None = None,
         tensorizer_config_dict: dict | None = None,
         skip_prefixes: list[str] | None = None,
+        moe_ep_spec: MoEEPLoadSpec | None = None,
     ) -> "LoRAModel":
         """Create a LoRAModel from a local checkpoint.
 
@@ -307,6 +310,8 @@ def _patch_lora_key_prefix():
             skip_prefixes: List of module name prefixes to skip during loading.
                 Models can define this to skip modules not used in inference
                 (e.g., MTP layers). Format: ["mtp."]
+            moe_ep_spec: Expert-parallel slicing metadata used to skip remote
+                expert weights while loading MoE adapters.
 
         Returns:
             Loaded LoRA Model.
@@ -368,6 +373,7 @@ def _patch_lora_key_prefix():
             tensors = TensorDeserializer(
                 lora_tensor_path,
                 dtype=tensorizer_config.dtype,
+                device=device,
                 **tensorizer_args.deserialization_kwargs,
             )
             check_unexpected_modules(tensors)
@@ -384,11 +390,21 @@ def _patch_lora_key_prefix():
                 # Load tensors if there are only expected modules.
                 check_unexpected_modules(f)
                 for module in f.keys():  # noqa
+                    if moe_ep_spec is not None and _is_remote_expert_key(
+                        module, moe_ep_spec
+                    ):
+                        continue
                     tensors[module] = f.get_tensor(module)
         elif os.path.isfile(lora_bin_file_path) or os.path.isfile(lora_pt_file_path):
             lora_file_path = lora_bin_file_path if os.path.isfile(lora_bin_file_path) else lora_pt_file_path
             tensors = torch.load(lora_file_path, map_location=device, weights_only=True)
             check_unexpected_modules(tensors)
+            if moe_ep_spec is not None:
+                tensors = {
+                    key: value
+                    for key, value in tensors.items()
+                    if not _is_remote_expert_key(key, moe_ep_spec)
+                }
         else:
             raise ValueError(f"{lora_dir} doesn't contain tensors")
 
