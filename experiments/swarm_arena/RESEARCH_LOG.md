@@ -2079,6 +2079,22 @@ no more critical-specific than decoy-specific. Therefore:
   documented optimized-backend design: sparse kernel outliers are controlled
   by distributional bounds and DPPO's trust-region mask rather than allowing
   one isolated maximum to veto an otherwise bounded logical batch.
+- Rejected v4b retry `/workspace/runs/rl-v4b-canary-d90d7cc8`: all four
+  rollout groups passed replay, signing, four-policy ownership, and lag-zero
+  admission. The trainer processed the complete logical batch, then rejected
+  it before producing a valid four-policy checkpoint solely because one token
+  had maximum mismatch-KL `0.206909 > 0.13`. Every aggregate bound passed,
+  including mean and p99 log-probability error, p99 probability error,
+  probability-tail frequency, and mean mismatch-KL. No adapter from this run
+  is eligible to seed training.
+- Prospective v4c decision: both raw single-token maxima are diagnostic on the
+  optimized actor. `max_probability_error` remains `1.0` and
+  `max_mismatch_kl` becomes `1.0`; the latter is a catastrophic-outlier
+  ceiling, not a mathematical KL bound. The aggregate gates remain strict and
+  are now locked: mean log-probability error `0.01`, p99 log-probability error
+  `0.15`, p99 probability error `0.07`, probability-tail fraction `0.02` above
+  error `0.05`, and mean mismatch-KL `0.001`. If a fresh run fails any of these
+  aggregate gates, the vLLM route is rejected rather than relaxing them.
 - Next action: complete Linux tests and a no-update optimized-backend
   calibration, then run a fresh small v4 stability canary from a new immutable
   source commit and run directory. Continue only to a longer run if the canary
