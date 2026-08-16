@@ -2620,6 +2620,61 @@ no more critical-specific than decoy-specific. Therefore:
 - Instance decommissioned: no; inference GPUs remain live for the corrected
   restart, trainer GPU is idle.
 
+### 2026-08-16 — rejected exact-behavior null pulse on corrected L40 launch
+
+- Status: stopped before update 1; second corrected restart pending.
+- Verdict: rejected as training evidence; evaluator-control diagnosis.
+- Hypothesis: routing both step-zero arms through the same registered SFT alias
+  would make two independently generated temperature-zero games behaviorally
+  identical.
+- Decision unlocked: do not use full-game behavioral identity as a serving
+  determinism gate. Require exact four-model roster identity and complete valid
+  protocols at step zero; retain the separately bound token-level parity test
+  as the numerical trainer/serving gate.
+- Source commit: `37adfe2bf4a6b69f21f482e0fada259caf9901a6`.
+- Base / adapter / opponent revisions: unchanged from the preceding entry.
+- Data split and manifest SHA-256: curriculum
+  `2dd25a990ddae837502dcdbe261dd87e67e5ca6657cb0dc9e775fb211283adcd`;
+  handoff train
+  `665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681`;
+  schedule `73f9e5b888282cdd1a311a1f5d1581ad2fae5868be1c6f1723091ec814a197de`.
+- GPU, wall time, and estimated cost: four L40s on
+  `216.81.248.55:40300`; about 15 minutes for fresh certification, preflight,
+  and the stopped pulse. Provider price was not supplied.
+- Exact launcher/config: runtime certificate body SHA-256
+  `67edc6d4571085c8bf4e01b27939b2f7eff00c42c03c8c8f6b308e1ff20e7c82`;
+  production plan body SHA-256
+  `ccd03763fb24871b9a7b4398a70a78cf318b26971104d27f7c6d8db65230e3f7`;
+  trainer config SHA-256
+  `a74ab9bccce2140536323bd0c16ebe54d7db61faf30dc3f205198c4e7c2da25d`.
+- Predeclared gates: 109 Linux tests passed. Fresh 32-sample parity passed
+  with mean absolute log-probability error `0.00228372`, p99 `0.0743217`,
+  probability-tail fraction `0.00146306`, mean mismatch KL `0.000116482`,
+  max mismatch KL `0.0353720`, disjoint optimizer sets, and single-policy
+  isolation.
+- Results: public-input preflight passed and both W&B streams opened explicit
+  offline runs. The step-zero pulse completed 16 games. Legacy and hard
+  capability differences were exactly zero and all action/broadcast/grounding
+  protocol rates were 1.0. One of four critical handoff outcomes diverged,
+  yielding RL-specific communication lift `-0.0909091` despite both arms using
+  the exact same four `sft-opponent` aliases.
+- Failures and retries: temperature-zero greedy generation is not a promise of
+  bitwise identical multi-turn trajectories on GPU. A near-tied token can
+  change under nondeterministic CUDA/vLLM reduction or batching order; one
+  changed action then changes later observations. Exact full-game equality was
+  therefore an invalid null gate. The trainer remained blocked at step zero;
+  logs contain no optimizer metric or live progress record.
+- Artifact paths and hashes: rejected raw trajectories stay only in
+  `/workspace/runs/rl-v4-staged-120-37adfe2b-l40-20260816`; no large artifact
+  was copied to the Mac.
+- Interpretation: configuration identity is deterministic and appropriate for
+  this integration smoke test; independent game returns are not. Token-level
+  numerical parity, adapter hashes, alias registration, and policy-isolation
+  checks continue to cover the failure modes that matter before optimization.
+- Next action: test and publish the corrected null-control semantics, recapture
+  a certificate bound to the new commit, and require observed update-1 metrics.
+- Instance decommissioned: no; inference servers remain resident, GPU 0 idle.
+
 ## Artifact index
 
 - Public source branch:

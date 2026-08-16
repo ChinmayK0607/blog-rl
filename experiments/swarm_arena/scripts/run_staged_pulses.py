@@ -71,6 +71,25 @@ def _candidate_models(step: int, sft_model: str) -> list[str]:
     return [f"blue-{index}" for index in range(4)]
 
 
+def _validate_step_zero_control_config(config: dict) -> None:
+    """Require the null pulse to use the exact same served roster.
+
+    Two independently generated, multi-turn games are not a bitwise identity
+    test, even with temperature zero: GPU reductions can move a near-tied token
+    across the greedy boundary and the trajectories then diverge.  Exact
+    trainer/serving numerical agreement is certified separately.  Here the
+    fail-closed invariant is that the candidate and baseline requests address
+    the same four model aliases; the pulse itself remains a protocol and
+    end-to-end evaluator smoke test.
+    """
+    candidate = config.get("candidate", {}).get("models")
+    baseline = config.get("baseline", {}).get("models")
+    if not isinstance(candidate, list) or len(candidate) != 4:
+        raise ValueError("step-zero candidate roster must contain four models")
+    if candidate != baseline:
+        raise ValueError("step-zero candidate and baseline rosters must be identical")
+
+
 def _validate_summary(path: Path, *, step: int) -> dict:
     summary = json.loads(path.read_text(encoding="utf-8"))
     if summary.get("version") != PROGRESS_EVAL_V5_VERSION:
@@ -78,13 +97,14 @@ def _validate_summary(path: Path, *, step: int) -> dict:
     if summary.get("tier") != "pulse" or summary.get("rows") != 16:
         raise ValueError(f"update {step} pulse is incomplete or has the wrong scope")
     if step == 0:
-        invariants = (
-            summary["capability_rl_minus_sft"]["ordinary_legacy"]["mean_difference"],
-            summary["capability_rl_minus_sft"]["ordinary_hard"]["mean_difference"],
-            summary["rl_specific_communication_lift"]["mean_difference"],
+        protocol = summary.get("candidate_protocol", {})
+        required = (
+            protocol.get("action_protocol_rate"),
+            protocol.get("broadcast_protocol_rate"),
+            protocol.get("broadcast_grounded_rate"),
         )
-        if any(abs(float(value)) > 1e-12 for value in invariants):
-            raise ValueError("step-zero SFT-vs-SFT pulse failed exact behavioral invariance")
+        if any(value != 1.0 for value in required):
+            raise ValueError("step-zero end-to-end protocol smoke test failed")
     return summary
 
 
@@ -205,6 +225,8 @@ def main() -> None:
                     },
                 ],
             }
+            if step == 0:
+                _validate_step_zero_control_config(config)
             config_path = args.eval_root / f"update-{step}-config.json"
             _atomic_json(config_path, config)
             command = [

@@ -17,7 +17,11 @@ from scripts.run_progress_eval_v4 import (
     _ordinary_cases,
     _validate_frozen_confirmation,
 )
-from scripts.run_staged_pulses import _candidate_models, _wait_retained_checkpoints
+from scripts.run_staged_pulses import (
+    _candidate_models,
+    _validate_step_zero_control_config,
+    _wait_retained_checkpoints,
+)
 from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
 
 
@@ -49,6 +53,17 @@ def test_step_zero_pulse_uses_one_alias_for_exact_harness_control() -> None:
     ]
     with pytest.raises(ValueError, match="cannot be negative"):
         _candidate_models(-1, "sft-opponent")
+
+
+def test_step_zero_control_requires_identical_four_model_rosters() -> None:
+    config = {
+        "candidate": {"models": ["sft-opponent"] * 4},
+        "baseline": {"models": ["sft-opponent"] * 4},
+    }
+    _validate_step_zero_control_config(config)
+    config["candidate"]["models"][3] = "blue-3"
+    with pytest.raises(ValueError, match="rosters must be identical"):
+        _validate_step_zero_control_config(config)
 
 
 def test_frozen_tier_requires_exact_design_digest() -> None:
