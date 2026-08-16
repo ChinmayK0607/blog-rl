@@ -2832,6 +2832,67 @@ no more critical-specific than decoy-specific. Therefore:
   require update 10 plus its first communication pulse before judging promise.
 - Instance decommissioned: no; inference remains resident for a cheap restart.
 
+### 2026-08-16 — fresh certified staged 120-update restart
+
+- Status: running; first logical update pending at launch time.
+- Verdict: mechanically admitted; no learning or communication verdict yet.
+- Hypothesis: a length-robust distributional parity gate permits the staged
+  shared-return run to continue while still rejecting systematic
+  serving/trainer drift.
+- Decision unlocked: require the first complete logical update and the
+  predeclared update-10 causal-communication pulse before interpreting the
+  run; retain the same learning rate and curriculum.
+- Source commit: `683a19212ac327c368935fa934449497bb04fb28`.
+- Base / adapter / opponent revisions: base `Qwen/Qwen3-1.7B` at
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; initial adapter
+  `CK0607/Qwen3-1.7B-Swarm-Arena-SFT-v2-step320-noneligible` at
+  `534522a8f3ff3489b1dd8318dc8e533e51264cde`, local adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`.
+- Data split and manifest SHA-256: task version
+  `arena-rl-v4-information-handoff`; train
+  `535c29bd5be475c615554c0fbd4aedab8566f16baf9ee0a2d69a42d92800ec38`,
+  development
+  `e1a46a3b3a54b7410e330f49e59fae6d4ea0a7764d081e9df050fd6f27bd89eb`,
+  final `440bc41ef06a755a0174245640fb6a837d31af39372fa4bf90994574feb63dec`.
+  The immutable schedule contains 480 groups over 120 logical updates: 152
+  critical, 152 paired decoy, and 176 ordinary cases.
+- GPU, wall time, and estimated cost: four NVIDIA L40 46,068 MiB GPUs on
+  `216.81.248.55:40300`; provider price was not supplied. Three GPUs serve
+  rollouts and GPU 0 trains four independent LoRA policy slots.
+- Exact launcher/config: run directory
+  `/workspace/runs/rl-v4-staged-120-683a1921-l40-20260816`, session prefix
+  `swarm-120-683a`, config `configs/rl_v4_1_7b_staged.toml`, constant LR
+  `7.5e-6`, checkpoint/pulse interval 10.
+- Predeclared gates: fresh 32-decision certificate passed with mean absolute
+  log-probability error `0.0020536655`, p99 absolute error `0.0598721877`,
+  p99 probability error `0.0225713346`, mean mismatch-KL `0.0001295755`, raw
+  maximum mismatch-KL `0.0508227348`, and disjoint four-policy optimizer
+  parameter sets. Runtime certificate SHA-256
+  `96bbe2d9b03af51bdcd1eec53a18bbe8cb6bc2125e64ecb60899619233eb1145`;
+  production-plan SHA-256
+  `44ea3918e1e09ace953aa8d4f000ef4dc81a2ff6a79a4c3efa7601de18b70aac`.
+- Results: pending.
+- Failures and retries: the first public-source preflight attempt used an
+  incorrectly expanded commit URL and failed with HTTP 404 before creating a
+  run directory or starting a trainer. The exact full commit URL passed on the
+  immediate retry. Linux tests passed `110/110` before certification.
+- W&B: credentials were forwarded through netrc without printing the token.
+  Trainer telemetry is in
+  `wandb/offline-run-20260816_114828-ingmc3tn` under the run directory;
+  controller/evaluation telemetry is in
+  `/workspace/blog-rl/wandb/offline-run-20260816_114755-rl-v4-staged-120-683a1921-l40-20260816-controller-v1`.
+  A run-scoped finalizer will close sidecars and sync both records when the
+  controller completes or fails.
+- Artifact paths and hashes: raw checkpoints/trajectories remain only on the
+  paid host; compact source and protocol evidence are public. Nothing was
+  copied to the Mac.
+- Interpretation: this is a clean prospective restart, not a continuation of
+  or retrospective repair to the rejected eight-update run.
+- Next action: verify update 1, then inspect update 10 checkpoint, causal
+  interventions, regressions, collapse diagnostics, and cross-play while the
+  predeclared 120-update schedule proceeds.
+- Instance decommissioned: no.
+
 ## Artifact index
 
 - Public source branch:
