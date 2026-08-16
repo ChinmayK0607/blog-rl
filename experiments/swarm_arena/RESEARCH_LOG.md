@@ -2834,7 +2834,7 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-16 — fresh certified staged 120-update restart
 
-- Status: running; first logical update pending at launch time.
+- Status: running; first logical four-policy update verified.
 - Verdict: mechanically admitted; no learning or communication verdict yet.
 - Hypothesis: a length-robust distributional parity gate permits the staged
   shared-return run to continue while still rejecting systematic
@@ -2871,7 +2871,12 @@ no more critical-specific than decoy-specific. Therefore:
   `96bbe2d9b03af51bdcd1eec53a18bbe8cb6bc2125e64ecb60899619233eb1145`;
   production-plan SHA-256
   `44ea3918e1e09ace953aa8d4f000ef4dc81a2ff6a79a4c3efa7601de18b70aac`.
-- Results: pending.
+- Results: logical update 1 (schedule step 0) completed. All four policy slots
+  passed their online pre-optimizer parity gates and stepped at the configured
+  LR `7.5e-6`. Across the 16 game replicas, mean return was
+  `0.0304603495`, 8/16 returns were nonzero, and the range was
+  `[-0.0416666667, 0.2]`. The resulting joint policy revision is
+  `acf2f97d95b0e0a2855c854a2630db9c94b3bfa4e8df768357d5d7b43b8483cb`.
 - Failures and retries: the first public-source preflight attempt used an
   incorrectly expanded commit URL and failed with HTTP 404 before creating a
   run directory or starting a trainer. The exact full commit URL passed on the
