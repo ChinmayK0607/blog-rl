@@ -77,30 +77,40 @@ class AsyncRolloutHeader:
 @dataclass(frozen=True)
 class AsyncAdmissionLimits:
     max_policy_lag: int
-    max_mean_abs_log_ratio: float
-    max_p99_abs_log_ratio: float
-    max_symmetric_importance_ratio: float
-    max_p99_probability_error: float
+    max_mean_abs_log_ratio: float | None
+    max_mean_mismatch_kl: float | None
+    max_p99_abs_log_ratio: float | None
+    max_symmetric_importance_ratio: float | None
+    max_p99_probability_error: float | None
     probability_tail_threshold: float
-    max_probability_tail_fraction: float
+    max_probability_tail_fraction: float | None
 
     def validate(self) -> None:
         if self.max_policy_lag < 0:
             raise ValueError("maximum policy lag cannot be negative")
-        positive = {
+        optional_positive = {
             "max_mean_abs_log_ratio": self.max_mean_abs_log_ratio,
+            "max_mean_mismatch_kl": self.max_mean_mismatch_kl,
             "max_p99_abs_log_ratio": self.max_p99_abs_log_ratio,
             "max_symmetric_importance_ratio": self.max_symmetric_importance_ratio,
             "max_p99_probability_error": self.max_p99_probability_error,
-            "probability_tail_threshold": self.probability_tail_threshold,
         }
-        if any(not math.isfinite(value) or value <= 0 for value in positive.values()):
+        if any(
+            value is not None and (not math.isfinite(value) or value <= 0)
+            for value in optional_positive.values()
+        ) or not math.isfinite(self.probability_tail_threshold) or self.probability_tail_threshold <= 0:
             raise ValueError("async numerical limits must be finite and positive")
-        if self.max_symmetric_importance_ratio < 1:
+        if (
+            self.max_symmetric_importance_ratio is not None
+            and self.max_symmetric_importance_ratio < 1
+        ):
             raise ValueError("symmetric importance-ratio limit must be at least one")
         if (
-            not math.isfinite(self.max_probability_tail_fraction)
-            or not 0 <= self.max_probability_tail_fraction <= 1
+            self.max_probability_tail_fraction is not None
+            and (
+                not math.isfinite(self.max_probability_tail_fraction)
+                or not 0 <= self.max_probability_tail_fraction <= 1
+            )
         ):
             raise ValueError("probability-tail fraction limit must be in [0, 1]")
 
@@ -275,6 +285,10 @@ def admit_async_rollout(
     abs_ratios = [abs(value) for value in all_ratios]
     symmetric_importance_ratios = [_exp_or_infinity(value) for value in abs_ratios]
     mean_abs_log_ratio = sum(abs_ratios) / len(abs_ratios)
+    mismatch_kls = [
+        _exp_or_infinity(value) - value - 1.0 for value in all_ratios
+    ]
+    mean_mismatch_kl = sum(mismatch_kls) / len(mismatch_kls)
     p99_abs_log_ratio = _quantile(abs_ratios, 0.99)
     max_symmetric_importance_ratio = max(symmetric_importance_ratios)
     p99_probability_error = _quantile(all_probability_errors, 0.99)
@@ -286,6 +300,10 @@ def admit_async_rollout(
         "mean absolute log ratio": (
             mean_abs_log_ratio,
             limits.max_mean_abs_log_ratio,
+        ),
+        "mean mismatch KL": (
+            mean_mismatch_kl,
+            limits.max_mean_mismatch_kl,
         ),
         "p99 absolute log ratio": (
             p99_abs_log_ratio,
@@ -307,8 +325,10 @@ def admit_async_rollout(
     reasons.extend(
         f"{name} {value:.8g} exceeds {bound:.8g}"
         for name, (value, bound) in numerical_checks.items()
-        if not math.isfinite(value) or value > bound
+        if bound is not None and (not math.isfinite(value) or value > bound)
     )
+    if not math.isfinite(mean_mismatch_kl):
+        reasons.append("mean mismatch KL is non-finite")
 
     per_policy = {}
     for policy_id, ratios in sorted(per_policy_ratios.items()):
@@ -336,6 +356,7 @@ def admit_async_rollout(
             "tokens": len(all_ratios),
             "max_policy_lag": max(policy_lags.values()),
             "mean_abs_log_ratio": mean_abs_log_ratio,
+            "mean_mismatch_kl": mean_mismatch_kl,
             "p99_abs_log_ratio": p99_abs_log_ratio,
             "max_symmetric_importance_ratio": max_symmetric_importance_ratio,
             "p99_probability_error": p99_probability_error,

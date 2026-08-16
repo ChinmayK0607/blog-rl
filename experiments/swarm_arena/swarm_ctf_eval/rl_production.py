@@ -435,7 +435,11 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         )
         for row in pool_rows
     }
-    limits = AsyncAdmissionLimits(**raw["async_admission"]["limits"])
+    limit_values = dict(raw["async_admission"]["limits"])
+    # Backward-compatible loading for immutable plans produced before the
+    # robust mean mismatch-KL diagnostic became configurable.
+    limit_values.setdefault("max_mean_mismatch_kl", None)
+    limits = AsyncAdmissionLimits(**limit_values)
     backend = AsyncBackendIdentity(**raw["async_admission"]["backend"])
     turns = raw["trainable_spans"]["turn_offsets"]
     stage_rows = raw.get("curriculum_stages", [])

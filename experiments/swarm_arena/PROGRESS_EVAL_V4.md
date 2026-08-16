@@ -45,21 +45,28 @@ All summaries bootstrap the seed or two-world bundle—not individual agents,
 turns, sides, opponents, or latent worlds—as the independent unit. Existing
 non-arena regression and collapse gates remain mandatory.
 
-## Ten-update pulse
+## Ten-update progress subset
 
-Long runs may preserve checkpoints every ten optimizer updates and compare them
-with a fixed 66-game development pulse. One ordinary development case and one
-critical/decoy pair are evaluated against base, SFT, and historical opponents,
-on both sides. The critical pair uses normal, dropped, sender-shuffled, delayed,
-and zero-budget messaging; the matched decoy uses normal and dropped messaging.
-The pulse therefore retains capability, protocol, opponent, side, and causal
-message checks while remaining small enough to run routinely.
+Long runs preserve checkpoints every ten logical updates and compare them on a
+fixed, paired development subset large enough to be useful as a learning
+curve. It contains six legacy maps, six hard maps, and six two-world
+critical/matched-decoy handoff bundles. Every case is played from both sides
+against the immutable SFT opponent. Critical and decoy cases use normal and
+dropped messaging; capability cases compare candidate RL directly with the SFT
+initializer.
 
-Pulse results are trend diagnostics, not checkpoint-admission evidence. A
-larger development window must use non-overlapping offsets, and selection plus
-frozen final remain closed. If an earlier checkpoint came from a separate run,
-the report must label it as an independent baseline rather than a point on the
-same learning curve.
+Update zero executes 192 complete games and stores 72 immutable SFT baseline
+rows. Later checkpoints reuse those exact baseline rows and generate 120 new
+candidate games. Each capability and causal-communication endpoint therefore
+has six independent units, rather than the previous one-case/16-game smoke
+test. The summary exposes legacy, hard, and handoff capability; critical
+normal-minus-dropped; RL-specific communication lift; critical-minus-decoy
+specificity; protocol validity; and an equal-family overall gameplay delta.
+
+The same subset is intentionally repeated at every checkpoint so changes are
+paired rather than confounded by different maps. It is a real development
+signal for checkpoint selection, but remains separate from the untouched
+multi-opponent selection tier and frozen final OOD evaluation.
 
 ## Run it
 

@@ -12,8 +12,10 @@ from scripts.log_live_rl_wandb import (
 )
 from scripts.run_progress_eval_v4 import (
     TIER_PLANS,
+    _digest,
     _distributed_roster,
     _handoff_worlds,
+    _import_cached_baseline,
     _ordinary_cases,
     _validate_frozen_confirmation,
 )
@@ -26,8 +28,10 @@ from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
 
 
 def test_tier_plans_keep_final_large_and_development_small() -> None:
-    assert TIER_PLANS["pulse"].handoff_pairs == 1
-    assert TIER_PLANS["pulse"].sides == ("BLUE",)
+    assert TIER_PLANS["pulse"].legacy_cases == 6
+    assert TIER_PLANS["pulse"].hard_cases == 6
+    assert TIER_PLANS["pulse"].handoff_pairs == 6
+    assert TIER_PLANS["pulse"].sides == ("BLUE", "RED")
     assert TIER_PLANS["online"].handoff_pairs == 4
     assert TIER_PLANS["selection"].handoff_pairs == 12
     assert TIER_PLANS["frozen"].handoff_pairs == 24
@@ -103,6 +107,66 @@ def test_runner_expands_both_handoff_worlds_and_hard_cases() -> None:
     }
 
 
+def test_cached_baseline_copies_only_required_sft_rows_and_raw_records(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    rows = []
+    raw_records = []
+    for index, (suite, case_id, condition) in enumerate(
+        (
+            ("ordinary_legacy", "legacy", "normal"),
+            ("ordinary_hard", "hard", "normal"),
+            ("handoff_critical", "critical-left", "normal"),
+            ("handoff_critical", "critical-left", "dropped"),
+        )
+    ):
+        evaluation_id = f"cached-{index}"
+        raw = {"evaluation_id": evaluation_id, "raw": {"index": index}}
+        raw_records.append(raw)
+        rows.append(
+            {
+                "evaluation_id": evaluation_id,
+                "raw_sha256": _digest(raw),
+                "policy_variant": "sft_init",
+                "policy_revision": "sft-revision",
+                "suite": suite,
+                "case_id": case_id,
+                "condition": condition,
+                "opponent_id": "sft",
+                "side": "BLUE",
+            }
+        )
+    (source / "rows.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    (source / "raw.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in raw_records),
+        encoding="utf-8",
+    )
+    output = tmp_path / "output"
+    output.mkdir()
+    completed: set[str] = set()
+    copied = _import_cached_baseline(
+        baseline_rows_path=source / "rows.jsonl",
+        rows_path=output / "rows.jsonl",
+        raw_path=output / "raw.jsonl",
+        completed=completed,
+        baseline_revision="sft-revision",
+        ordinary_case_ids={"legacy", "hard"},
+        critical_case_ids={"critical-left"},
+        opponent_ids={"sft"},
+        sides={"BLUE"},
+        expected_rows=4,
+    )
+    assert copied == 4
+    assert len(completed) == 4
+    assert len((output / "rows.jsonl").read_text().splitlines()) == 4
+    assert len((output / "raw.jsonl").read_text().splitlines()) == 4
+
+
 def test_rl_specific_summary_requires_gain_over_sft_and_decoy() -> None:
     rows = []
     common = {
@@ -150,8 +214,11 @@ def test_rl_specific_summary_requires_gain_over_sft_and_decoy() -> None:
     assert summary["rl_specific_communication_lift"]["mean_difference"] == pytest.approx(0.3)
     assert summary["rl_specific_communication_lift"]["independent_units"] == 1
     assert summary["critical_minus_decoy_specificity"]["mean_difference"] == pytest.approx(0.3)
+    assert summary["handoff_capability_rl_minus_sft"]["mean_difference"] == pytest.approx(0.3)
+    assert summary["overall_gameplay_rl_minus_sft"]["mean_difference"] == pytest.approx(0.3)
     metrics = summarize_evaluation(summary)
     assert metrics["eval/rl_specific_communication_lift"] == pytest.approx(0.3)
+    assert metrics["eval/overall_gameplay_rl_minus_sft"] == pytest.approx(0.3)
 
 
 def test_wandb_controller_summary_exposes_curriculum_and_opponent_metrics() -> None:

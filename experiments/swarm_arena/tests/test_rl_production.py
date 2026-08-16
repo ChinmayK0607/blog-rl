@@ -208,9 +208,21 @@ def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() ->
     assert trainer["ckpt"]["keep_interval"] == 10
     assert trainer["wandb"]["offline"]
     parity = trainer["rollout_parity_gate"]
-    assert parity["max_mean_logprob_error"] == 0.01
-    assert parity["max_p99_logprob_error"] == 0.15
-    assert parity["max_p99_probability_error"] == 0.07
-    assert parity["max_probability_tail_fraction"] == 0.02
-    assert parity["max_mean_mismatch_kl"] == 0.001
-    assert parity["max_mismatch_kl"] == 100.0
+    assert parity == {
+        "max_mean_logprob_error": 0.05,
+        "probability_tail_threshold": 0.05,
+        "max_mean_mismatch_kl": 0.002,
+    }
+    admission = json.loads(
+        (root / "configs" / "async_admission_minimal_v1.json").read_text()
+    )
+    assert admission == {
+        "max_policy_lag": 1,
+        "max_mean_abs_log_ratio": 0.05,
+        "max_mean_mismatch_kl": 0.002,
+        "max_p99_abs_log_ratio": None,
+        "max_symmetric_importance_ratio": None,
+        "max_p99_probability_error": None,
+        "probability_tail_threshold": 0.05,
+        "max_probability_tail_fraction": None,
+    }

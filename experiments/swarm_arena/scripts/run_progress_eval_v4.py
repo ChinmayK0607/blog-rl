@@ -38,13 +38,13 @@ class TierPlan:
 TIER_PLANS = {
     "pulse": TierPlan(
         "pulse",
-        1,
-        1,
-        1,
+        6,
+        6,
+        6,
         "monitor",
         ("canonical",),
         ("normal", "dropped"),
-        ("BLUE",),
+        ("BLUE", "RED"),
     ),
     "online": TierPlan(
         "online",
@@ -83,6 +83,82 @@ def _digest(value: object) -> str:
     return hashlib.sha256(
         json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _import_cached_baseline(
+    *,
+    baseline_rows_path: Path,
+    rows_path: Path,
+    raw_path: Path,
+    completed: set[str],
+    baseline_revision: str,
+    ordinary_case_ids: set[str],
+    critical_case_ids: set[str],
+    opponent_ids: set[str],
+    sides: set[str],
+    expected_rows: int,
+) -> int:
+    """Copy immutable SFT rows/raw records into a later checkpoint artifact."""
+    source_raw_path = baseline_rows_path.with_name("raw.jsonl")
+    if not source_raw_path.is_file():
+        raise FileNotFoundError(f"cached baseline raw rows are missing: {source_raw_path}")
+    source_raw = {
+        str(record["evaluation_id"]): record
+        for line in source_raw_path.read_text(encoding="utf-8").splitlines()
+        if line
+        for record in (json.loads(line),)
+    }
+    selected = []
+    for line in baseline_rows_path.read_text(encoding="utf-8").splitlines():
+        if not line:
+            continue
+        row = json.loads(line)
+        if row.get("policy_variant") != "sft_init":
+            continue
+        suite = str(row.get("suite"))
+        case_id = str(row.get("case_id"))
+        condition = str(row.get("condition"))
+        allowed = (
+            suite in {"ordinary_legacy", "ordinary_hard"}
+            and case_id in ordinary_case_ids
+            and condition == "normal"
+        ) or (
+            suite == "handoff_critical"
+            and case_id in critical_case_ids
+            and condition in {"normal", "dropped"}
+        )
+        if not allowed:
+            continue
+        if row.get("policy_revision") != baseline_revision:
+            raise ValueError("cached baseline revision does not match the run config")
+        if row.get("opponent_id") not in opponent_ids or row.get("side") not in sides:
+            continue
+        selected.append(row)
+    if len(selected) != expected_rows:
+        raise ValueError(
+            f"cached baseline has {len(selected)} required rows; expected {expected_rows}"
+        )
+    for row in selected:
+        evaluation_id = str(row["evaluation_id"])
+        raw_record = source_raw.get(evaluation_id)
+        if raw_record is None or _digest(raw_record) != row.get("raw_sha256"):
+            raise ValueError(f"cached baseline raw record mismatch: {evaluation_id}")
+        if evaluation_id in completed:
+            continue
+        with raw_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(raw_record, sort_keys=True) + "\n")
+        with rows_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(row, sort_keys=True) + "\n")
+        completed.add(evaluation_id)
+    return len(selected)
 
 
 def _load_manifest(path: Path) -> dict[str, Any]:
@@ -220,6 +296,11 @@ def main() -> None:
     parser.add_argument("--api-key", default="local")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument(
+        "--baseline-rows",
+        type=Path,
+        help="reuse immutable sft_init rows and matching raw records from update 0",
+    )
+    parser.add_argument(
         "--rl-specific-communication",
         action="store_true",
         help=(
@@ -288,10 +369,41 @@ def main() -> None:
         "sides": list(plan.sides),
         "generation": {"temperature": 0.0, "max_tokens": 160, "structured": True},
         "rl_specific_communication": args.rl_specific_communication,
+        "baseline_rows_sha256": (
+            _sha256_file(args.baseline_rows) if args.baseline_rows else None
+        ),
+        "baseline_raw_sha256": (
+            _sha256_file(args.baseline_rows.with_name("raw.jsonl"))
+            if args.baseline_rows
+            else None
+        ),
     }
     completed = _prepare_output(args.output_dir, manifest, args.resume)
     rows_path = args.output_dir / "rows.jsonl"
     raw_path = args.output_dir / "raw.jsonl"
+    if args.baseline_rows is not None:
+        critical_case_ids = {
+            row[0] for row in handoffs if row[2] == "handoff_critical"
+        }
+        expected_baseline_rows = (
+            len(ordinary) * len(opponents) * len(plan.sides)
+            + len(critical_case_ids)
+            * len(opponents)
+            * len(plan.sides)
+            * 2
+        )
+        _import_cached_baseline(
+            baseline_rows_path=args.baseline_rows,
+            rows_path=rows_path,
+            raw_path=raw_path,
+            completed=completed,
+            baseline_revision=str(config["baseline"]["revision"]),
+            ordinary_case_ids={row[0] for row in ordinary},
+            critical_case_ids=critical_case_ids,
+            opponent_ids=set(opponents),
+            sides=set(plan.sides),
+            expected_rows=expected_baseline_rows,
+        )
 
     def run_one(
         *,

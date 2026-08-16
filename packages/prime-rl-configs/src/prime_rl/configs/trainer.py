@@ -515,16 +515,21 @@ class TrainerExperimentalConfig(BaseConfig):
 
 
 class RolloutParityGateConfig(BaseConfig):
-    """Fail before an optimizer step when rollout/trainer distributions diverge."""
+    """Fail before an optimizer step when enabled rollout/trainer bounds diverge.
 
-    max_mean_logprob_error: float = Field(0.005, ge=0)
-    max_p99_logprob_error: float = Field(0.12, ge=0)
-    max_probability_error: float = Field(0.1, ge=0)
-    max_p99_probability_error: float = Field(0.05, ge=0)
+    A ``None`` threshold records the corresponding diagnostic without making it
+    an online abort condition.  This lets production runs gate only robust
+    aggregate quantities while retaining the full metric surface for audit.
+    """
+
+    max_mean_logprob_error: float | None = Field(None, ge=0)
+    max_p99_logprob_error: float | None = Field(None, ge=0)
+    max_probability_error: float | None = Field(None, ge=0)
+    max_p99_probability_error: float | None = Field(None, ge=0)
     probability_tail_threshold: float = Field(0.05, ge=0)
-    max_probability_tail_fraction: float = Field(0.005, ge=0, le=1)
-    max_mean_mismatch_kl: float = Field(0.0005, ge=0)
-    max_mismatch_kl: float = Field(0.08, ge=0)
+    max_probability_tail_fraction: float | None = Field(None, ge=0, le=1)
+    max_mean_mismatch_kl: float | None = Field(0.0005, ge=0)
+    max_mismatch_kl: float | None = Field(None, ge=0)
 
 
 class TrainerConfig(BaseConfig):

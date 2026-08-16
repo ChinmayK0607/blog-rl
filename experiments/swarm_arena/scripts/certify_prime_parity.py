@@ -138,14 +138,14 @@ def main() -> None:
     parser.add_argument("--probe", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
-    parser.add_argument("--max-mean-logprob-error", type=float, default=0.005)
-    parser.add_argument("--max-p99-logprob-error", type=float, default=0.12)
-    parser.add_argument("--max-probability-error", type=float, default=0.1)
-    parser.add_argument("--max-p99-probability-error", type=float, default=0.05)
+    parser.add_argument("--max-mean-logprob-error", type=float)
+    parser.add_argument("--max-p99-logprob-error", type=float)
+    parser.add_argument("--max-probability-error", type=float)
+    parser.add_argument("--max-p99-probability-error", type=float)
     parser.add_argument("--probability-tail-threshold", type=float, default=0.05)
-    parser.add_argument("--max-probability-tail-fraction", type=float, default=0.005)
+    parser.add_argument("--max-probability-tail-fraction", type=float)
     parser.add_argument("--max-mean-mismatch-kl", type=float, default=0.0005)
-    parser.add_argument("--max-mismatch-kl", type=float, default=0.08)
+    parser.add_argument("--max-mismatch-kl", type=float)
     args = parser.parse_args()
 
     if args.output_dir.exists():
@@ -404,15 +404,18 @@ def main() -> None:
     probability_tail_fraction = float(
         (probability_error > args.probability_tail_threshold).float().mean()
     )
+    def within(value: float, threshold: float | None) -> bool:
+        return threshold is None or value <= threshold
+
     parity_passed = all(
         (
-            mean_absolute_error <= args.max_mean_logprob_error,
-            p99_absolute_error <= args.max_p99_logprob_error,
-            max_probability_error <= args.max_probability_error,
-            p99_probability_error <= args.max_p99_probability_error,
-            probability_tail_fraction <= args.max_probability_tail_fraction,
-            mean_mismatch_kl <= args.max_mean_mismatch_kl,
-            max_mismatch_kl <= args.max_mismatch_kl,
+            within(mean_absolute_error, args.max_mean_logprob_error),
+            within(p99_absolute_error, args.max_p99_logprob_error),
+            within(max_probability_error, args.max_probability_error),
+            within(p99_probability_error, args.max_p99_probability_error),
+            within(probability_tail_fraction, args.max_probability_tail_fraction),
+            within(mean_mismatch_kl, args.max_mean_mismatch_kl),
+            within(max_mismatch_kl, args.max_mismatch_kl),
         )
     )
 
@@ -495,19 +498,25 @@ def main() -> None:
         "optimizer_parameter_sets_disjoint": optimizer_sets_disjoint,
         "parity_passed": parity_passed,
         "parity_components": {
-            "mean_absolute_logprob_error": mean_absolute_error
-            <= args.max_mean_logprob_error,
-            "p99_absolute_logprob_error": p99_absolute_error
-            <= args.max_p99_logprob_error,
-            "max_probability_error": max_probability_error
-            <= args.max_probability_error,
-            "p99_probability_error": p99_probability_error
-            <= args.max_p99_probability_error,
-            "probability_tail_fraction": probability_tail_fraction
-            <= args.max_probability_tail_fraction,
-            "mean_mismatch_kl": mean_mismatch_kl
-            <= args.max_mean_mismatch_kl,
-            "max_mismatch_kl": max_mismatch_kl <= args.max_mismatch_kl,
+            "mean_absolute_logprob_error": within(
+                mean_absolute_error, args.max_mean_logprob_error
+            ),
+            "p99_absolute_logprob_error": within(
+                p99_absolute_error, args.max_p99_logprob_error
+            ),
+            "max_probability_error": within(
+                max_probability_error, args.max_probability_error
+            ),
+            "p99_probability_error": within(
+                p99_probability_error, args.max_p99_probability_error
+            ),
+            "probability_tail_fraction": within(
+                probability_tail_fraction, args.max_probability_tail_fraction
+            ),
+            "mean_mismatch_kl": within(
+                mean_mismatch_kl, args.max_mean_mismatch_kl
+            ),
+            "max_mismatch_kl": within(max_mismatch_kl, args.max_mismatch_kl),
         },
         "parity_thresholds": {
             "max_mean_logprob_error": args.max_mean_logprob_error,

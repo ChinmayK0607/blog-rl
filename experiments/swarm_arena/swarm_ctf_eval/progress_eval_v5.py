@@ -66,6 +66,40 @@ def _aggregate_independent_units(
     return [statistics.mean(grouped[key]) for key in sorted(grouped)]
 
 
+def _variant_unit_effects(
+    rows: list[dict[str, Any]],
+    *,
+    suite: str,
+    condition: str = "normal",
+) -> list[float]:
+    grouped: dict[tuple[str, str, str, str], dict[str, list[float]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+    for row in rows:
+        if row["suite"] != suite or row["condition"] != condition:
+            continue
+        key = (
+            str(row["independent_id"]),
+            str(row["opponent_id"]),
+            str(row["opponent_revision"]),
+            str(row["side"]),
+        )
+        grouped[key][str(row["policy_variant"])].append(
+            float(row["terminal_return"])
+        )
+    expected = {"candidate_rl", "sft_init"}
+    incomplete = [key for key, values in grouped.items() if set(values) != expected]
+    if incomplete or not grouped:
+        raise ValueError(f"incomplete {suite} candidate/SFT endpoint: {incomplete[:3]}")
+    return _aggregate_independent_units(
+        {
+            key: statistics.mean(values["candidate_rl"])
+            - statistics.mean(values["sft_init"])
+            for key, values in grouped.items()
+        }
+    )
+
+
 def summarize_rl_specific_progress_eval(
     rows: list[dict[str, Any]],
     *,
@@ -103,6 +137,9 @@ def summarize_rl_specific_progress_eval(
             for key in candidate_critical
         }
     )
+    legacy_capability = _variant_unit_effects(rows, suite="ordinary_legacy")
+    hard_capability = _variant_unit_effects(rows, suite="ordinary_hard")
+    handoff_capability = _variant_unit_effects(rows, suite="handoff_critical")
     summary["version"] = PROGRESS_EVAL_V5_VERSION
     summary["sft_critical_normal_minus_dropped"] = _endpoint(
         baseline_values,
@@ -115,6 +152,14 @@ def summarize_rl_specific_progress_eval(
     summary["critical_minus_decoy_specificity"] = _endpoint(
         specificity,
         "RL critical normal-minus-dropped minus matched-decoy normal-minus-dropped",
+    )
+    summary["handoff_capability_rl_minus_sft"] = _endpoint(
+        handoff_capability,
+        "candidate RL minus SFT return on critical handoffs under normal messaging",
+    )
+    summary["overall_gameplay_rl_minus_sft"] = _endpoint(
+        legacy_capability + hard_capability + handoff_capability,
+        "candidate RL minus SFT return over equally represented legacy, hard, and critical-handoff units",
     )
     summary["claim_checks"]["rl_specific_lift_interval_positive"] = (
         summary["rl_specific_communication_lift"]["mean_difference_95"][0] > 0

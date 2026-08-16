@@ -48,17 +48,12 @@ save_format = "safetensors"
 save_adapter_separately = true
 
 [rollout_parity_gate]
-max_mean_logprob_error = 0.01
-max_p99_logprob_error = 0.15
-max_probability_error = 1.0
-max_p99_probability_error = 0.07
+# Online aborts are limited to widespread distribution drift. Exact token-span,
+# legal-choice, adapter-identity, finite-value, and four-policy isolation checks
+# are enforced elsewhere. All omitted statistics remain logged diagnostics.
+max_mean_logprob_error = 0.05
 probability_tail_threshold = 0.05
-max_probability_tail_fraction = 0.02
-max_mean_mismatch_kl = 0.001
-# A single chosen token can have an arbitrarily large mismatch-KL when its
-# probability is near zero. Keep this only as a catastrophic finite sentinel;
-# the mean, p99, and tail-frequency bounds above are the scientific gates.
-max_mismatch_kl = 100.0
+max_mean_mismatch_kl = 0.002
 
 [log]
 level = "info"

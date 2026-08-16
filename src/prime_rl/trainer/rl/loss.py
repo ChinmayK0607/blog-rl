@@ -209,7 +209,7 @@ def validate_rollout_parity_metrics(metrics: dict[str, float], config: Any) -> N
     exceeded = {
         name: (metrics[name], threshold)
         for name, threshold in thresholds.items()
-        if metrics[name] > threshold
+        if threshold is not None and metrics[name] > threshold
     }
     if exceeded:
         detail = ", ".join(

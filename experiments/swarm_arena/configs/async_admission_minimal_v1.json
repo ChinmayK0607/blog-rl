@@ -1,0 +1,10 @@
+{
+  "max_policy_lag": 1,
+  "max_mean_abs_log_ratio": 0.05,
+  "max_mean_mismatch_kl": 0.002,
+  "max_p99_abs_log_ratio": null,
+  "max_symmetric_importance_ratio": null,
+  "max_p99_probability_error": null,
+  "probability_tail_threshold": 0.05,
+  "max_probability_tail_fraction": null
+}

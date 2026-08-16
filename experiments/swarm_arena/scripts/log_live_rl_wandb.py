@@ -63,6 +63,8 @@ def summarize_evaluation(summary: dict[str, Any]) -> dict[str, int | float]:
         "rl_specific_communication_lift": "eval/rl_specific_communication_lift",
         "critical_minus_decoy_specificity": "eval/critical_minus_decoy_specificity",
         "matched_decoy_normal_minus_dropped": "eval/matched_decoy_normal_minus_dropped",
+        "handoff_capability_rl_minus_sft": "eval/handoff_capability_rl_minus_sft",
+        "overall_gameplay_rl_minus_sft": "eval/overall_gameplay_rl_minus_sft",
     }
     for source, destination in mappings.items():
         endpoint = summary.get(source)

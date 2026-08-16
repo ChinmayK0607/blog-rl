@@ -6,6 +6,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
+from swarm_ctf_eval.async_admission import AsyncAdmissionLimits
 from swarm_ctf_eval.rl_production import (
     STAGED_RL_PRODUCTION_PLAN_VERSION,
     load_production_plan,
@@ -26,6 +27,7 @@ def main() -> None:
     parser.add_argument("--curriculum", type=Path, required=True)
     parser.add_argument("--handoff-manifest", type=Path, required=True)
     parser.add_argument("--runtime-certificate", type=Path, required=True)
+    parser.add_argument("--admission-limits", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
@@ -33,6 +35,9 @@ def main() -> None:
     curriculum = json.loads(args.curriculum.read_text(encoding="utf-8"))
     handoff = json.loads(args.handoff_manifest.read_text(encoding="utf-8"))
     certificate = json.loads(args.runtime_certificate.read_text(encoding="utf-8"))
+    admission_limits = json.loads(args.admission_limits.read_text(encoding="utf-8"))
+    parsed_admission_limits = AsyncAdmissionLimits(**admission_limits)
+    parsed_admission_limits.validate()
     certificate_body = {
         key: value for key, value in certificate.items() if key != "sha256"
     }
@@ -77,6 +82,7 @@ def main() -> None:
         },
         "async_admission": {
             **base["async_admission"],
+            "limits": admission_limits,
             "backend": {
                 "name": certificate["backend"]["name"],
                 "version": certificate["backend"]["version"],
@@ -116,6 +122,7 @@ def main() -> None:
         "maximum_pair_index": maximum_pair_index,
         "handoff_manifest_sha256": handoff["sha256"],
         "runtime_certificate_sha256": certificate["sha256"],
+        "async_admission_limits_sha256": parsed_admission_limits.sha256,
         "unique_ordinary_seeds": len(
             {row.ordinary_seed for row in schedule if row.ordinary_seed is not None}
         ),

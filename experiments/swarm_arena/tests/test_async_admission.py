@@ -64,6 +64,7 @@ def _limits() -> AsyncAdmissionLimits:
     return AsyncAdmissionLimits(
         max_policy_lag=2,
         max_mean_abs_log_ratio=0.05,
+        max_mean_mismatch_kl=0.01,
         max_p99_abs_log_ratio=0.1,
         max_symmetric_importance_ratio=1.2,
         max_p99_probability_error=0.05,
@@ -77,6 +78,7 @@ def _admit(
     current_update: int = 6,
     trainer=(-0.21, -0.29),
     calibration: str = SHA_D,
+    limits: AsyncAdmissionLimits | None = None,
 ):
     behavior = _snapshot("blue-0-policy", "step-4", 4, trainable=True, adapter_sha256=SHA_A)
     opponent = _snapshot("red-policy", "frozen", 0, trainable=False, adapter_sha256=SHA_B)
@@ -109,7 +111,7 @@ def _admit(
         {decisions[0].decision_id: trainer},
         allowed_backend_calibrations=frozenset({("vllm", "0.10.2", SHA_C, SHA_D)}),
         allowed_constraint_sha256s=frozenset({SHA_C}),
-        limits=_limits(),
+        limits=_limits() if limits is None else limits,
     )
 
 
@@ -118,6 +120,7 @@ def test_admits_calibrated_bounded_off_policy_rollout() -> None:
     assert result.accepted
     assert result.reasons == ()
     assert result.metrics["max_policy_lag"] == 2
+    assert result.metrics["mean_mismatch_kl"] >= 0
     assert result.metrics["per_policy"]["blue-0-policy"]["tokens"] == 2
 
 
@@ -130,6 +133,20 @@ def test_rejects_stale_or_divergent_rollout_without_repairing_it() -> None:
     assert not divergent.accepted
     assert any("log ratio" in reason for reason in divergent.reasons)
     assert any("importance ratio" in reason for reason in divergent.reasons)
+
+
+def test_admission_can_keep_tail_statistics_diagnostic_only() -> None:
+    limits = replace(
+        _limits(),
+        max_mean_abs_log_ratio=None,
+        max_mean_mismatch_kl=0.1,
+        max_p99_abs_log_ratio=None,
+        max_symmetric_importance_ratio=None,
+        max_p99_probability_error=None,
+        max_probability_tail_fraction=None,
+    )
+    result = _admit(trainer=(-0.2, -1.0), limits=limits)
+    assert result.accepted
 
 
 def test_rejects_unknown_calibration_and_malformed_constraint_evidence() -> None:

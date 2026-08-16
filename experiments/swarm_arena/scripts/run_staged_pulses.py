@@ -94,8 +94,20 @@ def _validate_summary(path: Path, *, step: int) -> dict:
     summary = json.loads(path.read_text(encoding="utf-8"))
     if summary.get("version") != PROGRESS_EVAL_V5_VERSION:
         raise ValueError(f"update {step} pulse did not use RL-specific evaluation")
-    if summary.get("tier") != "pulse" or summary.get("rows") != 16:
+    if summary.get("tier") != "pulse" or summary.get("rows") != 192:
         raise ValueError(f"update {step} pulse is incomplete or has the wrong scope")
+    endpoints = (
+        summary["capability_rl_minus_sft"]["ordinary_legacy"],
+        summary["capability_rl_minus_sft"]["ordinary_hard"],
+        summary["communication_effects"]["normal_minus_dropped"],
+        summary["matched_decoy_normal_minus_dropped"],
+        summary["rl_specific_communication_lift"],
+        summary["critical_minus_decoy_specificity"],
+        summary["handoff_capability_rl_minus_sft"],
+        summary["overall_gameplay_rl_minus_sft"],
+    )
+    if any(endpoint.get("independent_units", 0) < 6 for endpoint in endpoints):
+        raise ValueError(f"update {step} pulse lacks six independent evaluation units")
     if step == 0:
         protocol = summary.get("candidate_protocol", {})
         required = (
@@ -152,7 +164,7 @@ def _wait_retained_checkpoints(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Run fail-closed 16-game pulses at staged-controller barriers."
+        description="Run paired 192-row progress evaluations at staged-controller barriers."
     )
     parser.add_argument("--repo-root", type=Path, required=True)
     parser.add_argument("--run-dir", type=Path, required=True)
@@ -244,6 +256,13 @@ def main() -> None:
                 "sft",
                 "--rl-specific-communication",
             ]
+            if step:
+                command.extend(
+                    [
+                        "--baseline-rows",
+                        str(args.eval_root / "update-0" / "rows.jsonl"),
+                    ]
+                )
             if output_dir.exists():
                 command.append("--resume")
             completed = subprocess.run(

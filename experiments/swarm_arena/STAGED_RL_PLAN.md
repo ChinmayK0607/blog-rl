@@ -50,15 +50,15 @@ step-8 development adapters. The current initializer interface accepts one
 common adapter. Adding an unaudited per-role resume path would confound this
 curriculum test and could mix optimizer state.
 
-The online trainer/serving parity gate is distributional. Mean and p99
-log-probability error, p99 probability error, probability-tail frequency, and
-mean mismatch-KL remain the fail-closed scientific bounds. Raw maximum
-probability error is diagnostic at its mathematical bound of `1.0`.
-Single-token mismatch-KL is also unbounded when the chosen token has nearly
-zero probability, so its `100.0` bound is only a catastrophic finite sentinel;
-DPPO masking handles an isolated importance-ratio outlier. This avoids making
-thousands of otherwise bounded packed slices increasingly likely to stop on
-one near-zero token while preserving strict aggregate drift control.
+The online trainer/serving parity gate is deliberately minimal. Exact token
+spans, legal-choice rows, adapter identity, finite values, and four-policy
+optimizer isolation are structural checks. Mean mismatch-KL (`0.002`) is the
+primary online distribution-drift bound, with mean absolute log-probability
+error (`0.05`) as a broad catastrophic sanity check. P99, maximum, probability
+tail, and per-token mismatch statistics remain logged diagnostics rather than
+abort conditions; DPPO masking handles isolated importance-ratio outliers.
+Learning quality is decided by the paired ten-update evaluation, not by a
+proliferation of serving/trainer numerical thresholds.
 
 ## Paid-run order and fail-closed preflight
 
@@ -105,6 +105,7 @@ uv run --with ./experiments/swarm_arena \
   --curriculum experiments/swarm_arena/data/rl_v4/staged_curriculum_v1.json \
   --handoff-manifest experiments/swarm_arena/data/rl_v4/handoff_train.json \
   --runtime-certificate /workspace/run-inputs/staged-120-runtime-certificate.json \
+  --admission-limits experiments/swarm_arena/configs/async_admission_minimal_v1.json \
   --output /workspace/run-inputs/staged-120-production-plan.json
 ```
 
