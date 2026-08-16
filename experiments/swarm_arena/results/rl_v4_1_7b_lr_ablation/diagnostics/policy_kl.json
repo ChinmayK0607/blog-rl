@@ -1,0 +1,109 @@
+{
+  "baseline_adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+  "candidate_adapter_sha256": {
+    "blue-0": "9912e5c6faf412d716527fa9828390f1a9c773bedc87f8e6682cffa5bda742ab",
+    "blue-1": "927b7f32ba875aa9ddbafab7c613dc9d1f45853baf876cfda539d33ff6700237",
+    "blue-2": "8a1aa6de257ce25227653ca0cffb2c22c0ef235290954a8303703474c933b8a8",
+    "blue-3": "845d93ae936f483adfb80577b659612009a26d8f142f946e8d3c3282ef7ee270"
+  },
+  "overall": {
+    "baseline_to_candidate_kl": {
+      "max": 0.08518920838832855,
+      "mean": 0.0007327081490926562,
+      "p99": 0.014275964349508286
+    },
+    "branching_tokens": 860,
+    "candidate_to_baseline_kl": {
+      "max": 0.09246781468391418,
+      "mean": 0.0007822317823720966,
+      "p99": 0.016192639246582985
+    },
+    "tokens": 1004,
+    "total_variation": {
+      "max": 0.20531675219535828,
+      "mean": 0.002807789703523126,
+      "p99": 0.052252329885959625
+    }
+  },
+  "per_policy": {
+    "blue-0": {
+      "baseline_to_candidate_kl": {
+        "max": 0.007539179641753435,
+        "mean": 0.00019785770115132915,
+        "p99": 0.007539179641753435
+      },
+      "branching_tokens": 264,
+      "candidate_to_baseline_kl": {
+        "max": 0.009175809100270271,
+        "mean": 0.00022089317446084776,
+        "p99": 0.009175809100270271
+      },
+      "tokens": 310,
+      "total_variation": {
+        "max": 0.03169645369052887,
+        "mean": 0.0014272041600948333,
+        "p99": 0.02761104702949524
+      }
+    },
+    "blue-1": {
+      "baseline_to_candidate_kl": {
+        "max": 0.005831355229020119,
+        "mean": 0.000120837021392455,
+        "p99": 0.0038662729784846306
+      },
+      "branching_tokens": 176,
+      "candidate_to_baseline_kl": {
+        "max": 0.004610186442732811,
+        "mean": 0.00010543220719925133,
+        "p99": 0.0031403861939907074
+      },
+      "tokens": 208,
+      "total_variation": {
+        "max": 0.03262469917535782,
+        "mean": 0.0006968034712689765,
+        "p99": 0.014199979603290558
+      }
+    },
+    "blue-2": {
+      "baseline_to_candidate_kl": {
+        "max": 0.07010193169116974,
+        "mean": 0.0011081832275310483,
+        "p99": 0.02351333759725094
+      },
+      "branching_tokens": 209,
+      "candidate_to_baseline_kl": {
+        "max": 0.09246781468391418,
+        "mean": 0.0013155518233010353,
+        "p99": 0.023640500381588936
+      },
+      "tokens": 244,
+      "total_variation": {
+        "max": 0.13919678330421448,
+        "mean": 0.004026327061337085,
+        "p99": 0.10826115310192108
+      }
+    },
+    "blue-3": {
+      "baseline_to_candidate_kl": {
+        "max": 0.08518920838832855,
+        "mean": 0.001565174737045076,
+        "p99": 0.07486721873283386
+      },
+      "branching_tokens": 211,
+      "candidate_to_baseline_kl": {
+        "max": 0.08723671734333038,
+        "mean": 0.0015452862869248982,
+        "p99": 0.07779202610254288
+      },
+      "tokens": 242,
+      "total_variation": {
+        "max": 0.20531675219535828,
+        "mean": 0.005162101850072826,
+        "p99": 0.19201083481311798
+      }
+    }
+  },
+  "probe_sha256": "54fd04d40f83adbe438a9f0c214fcd377f10c6e24088831aea3bfe4b4f4da3ae",
+  "scope": "reference-state constrained distributions; diagnostic collapse gate only",
+  "version": "arena-constrained-policy-kl-v1"
+}

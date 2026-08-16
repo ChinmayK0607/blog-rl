@@ -2278,6 +2278,95 @@ no more critical-specific than decoy-specific. Therefore:
   longer schedule or a stronger optimization change and compare RL-minus-SFT
   intervention effects directly.
 
+### 2026-08-15/16 — RL v4 learning-rate and curriculum ablation
+
+- Status: completed; compact evidence copied locally; all GPU processes stopped.
+  Verdict: **ordinary-capability positive, communication negative, not
+  admitted**.
+- Hypothesis and decision: the mechanically stable 30-update v4 run was flat
+  against SFT. Test whether stronger optimization alone helps, then whether a
+  communication-heavier curriculum helps. Keep the frozen selection/final
+  suites unopened, terminal team return unchanged, four independently
+  optimized BLUE LoRAs, and the model-controlled opponent pool unchanged.
+- Immutable identity: training source commit
+  `12e0c461a28c3d0311d0353ab1ed45bcffb0b569`; offset evaluator commit
+  `6d6fe88e`; base revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`;
+  SFT revision `534522a8f3ff3489b1dd8318dc8e533e51264cde`; SFT adapter
+  SHA-256 `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`.
+- Hardware/runtime: four NVIDIA L40S 46,068 MiB GPUs. Actor processes were
+  ready from approximately 21:53 UTC. Variant A trained from approximately
+  21:55--22:57 UTC; Variant B ran from approximately 23:00--23:43 UTC; matched
+  evaluation and diagnostics completed by approximately 00:22 UTC. The
+  provider price was not supplied, so cost is not invented.
+- Variant A: learning rate `1e-5`, exact 2 ordinary / 1 critical / 1 matched
+  decoy update mix. All 12 updates completed: 48 groups and 192 replicas. Mean
+  return `+0.00717239`, mean absolute advantage `0.107124`, and mean nonzero
+  advantage rate `0.822917`. All four adapters were distinct, changed every
+  update, and every update had nonzero signal.
+- Variant B: learning rate `1e-5`, exact 2 ordinary / 3 critical / 3 matched
+  decoy mix. Four updates were valid: 32 groups and 128 replicas, mean return
+  `+0.0149210`, mean absolute advantage `0.0861203`, and mean nonzero advantage
+  rate `0.7890625`. All eight update-5 rollout groups were admitted, but one
+  policy hit the unchanged per-token mismatch-KL ceiling
+  (`1.0974264 > 1.0`) before its optimizer step. The other three policies
+  passed that update. The gate was not relaxed; only steps 1--4 are evidence.
+- Matched pulse: identical offset-6, 66-game development windows compared
+  Variant A steps 8 and 12 and Variant B step 4. Ordinary candidate-minus-SFT
+  was respectively `+0.154762`, `+0.0833333`, and `+0.0357143`, so the
+  predeclared capability rule selected Variant A step 8. Every critical
+  intervention effect was `0`; the pulse made no communication claim.
+- Non-overlapping development holdout: offsets 9--11 yielded 198 unique games.
+  Variant A step-8 ordinary candidate-minus-SFT was `+0.0707407` over 18 paired
+  cells. Ordinary-only candidate returns were `+0.28` against base, `+0.06`
+  against SFT, and `+0.0166667` against the historical league. All four
+  candidate message-intervention effects were exactly `0`; SFT dropped-message
+  and matched-decoy effects were also `0`. Protocol and grounding stayed `1.0`.
+- Regression/KL/collapse: both 256-case frozen non-arena suites passed for all
+  four policies with zero arena leakage. V1 deltas ranged from `-0.00390625` to
+  `0`; v2 from `-0.00390625` to `+0.0078125`. Overall constrained
+  candidate-to-SFT KL mean was `0.000782232`, p99 `0.0161926`, and max
+  `0.0924678`. No action, speech, repeated-target, excessive-KL, or
+  single-opponent collapse flag fired. The audit correctly stopped on the sole
+  `return_gain_without_message_gain` flag.
+- Startup and orchestration failures, all before consuming relevant model
+  requests unless stated otherwise: a broad `XDG_CACHE_HOME` rewired UV and
+  caused three CPU-only actor exits; the UV user install/cache was repaired;
+  config tokenization required `inference @ FILE`; shared vLLM and Triton
+  compile caches raced and were split per actor; `/v1` controller URLs produced
+  `/v1/v1/load_lora_adapter` and were changed to server roots; Variant B first
+  lacked its log directory; the first pulse used an evaluator without offset
+  flags; two holdout launches failed on a `set -u` local expansion and a missing
+  background-worker `cd`. The first Variant-A summary repeated the already
+  fixed ordinary-group `pair_index` error and was rerun with the fixed
+  summarizer. No failed launcher was counted as model evidence.
+- Diagnostic wrapper failures: the first KL attempt used an interpreter without
+  PEFT and loaded no model. PEFT `0.20.0` was added only to the cached trainer
+  environment, which also resolved its cuDNN package from `9.22.0.52` to
+  `9.19.0.56`; no training occurred afterward. The first collapse invocation
+  used stale `holdout-blue-*` aliases and failed identity validation; the
+  trajectory-discovered `ablate-a8-blue-*` aliases were then supplied, with no
+  metric/gate change.
+- Checkpoints: Variant A step-8 role SHA-256 values begin `9912e5c6`,
+  `927b7f32`, `8a1aa6de`, and `845d93ae`; Variant B step-4 values begin
+  `126f1904`, `c2a1beaa`, `b8f554db`, and `c81cb370`. No checkpoint was copied
+  to the Mac. Because the selected checkpoint did not improve causal message
+  use, it was not promoted as an admitted Hub model.
+- Compact artifacts: `results/rl_v4_1_7b_lr_ablation/` contains exact configs,
+  progress and training summaries, the matched pulse, 198-game holdout summary,
+  policy KL, all regression comparisons, collapse audit, hashes, launchers, and
+  a human-readable report. Raw trajectories and adapters remain excluded.
+- Interpretation: doubling the learning rate produced a useful ordinary-game
+  gain by step 8 without regression or policy collapse. Simply increasing
+  communication-case density at the same learning rate was unstable, and none
+  of the evaluated policies showed causal message use on the new holdout. The
+  next run should change the communication-critical curriculum so that a
+  private fact must reach a different role to affect the terminal transition,
+  while preserving terminal team return and reporting capability and message
+  effects separately.
+- Instance decommissioned: GPU workloads stopped and all four GPUs reported
+  `0 MiB` at approximately 00:22 UTC. Final Git publication followed from the
+  local compact copy.
+
 ## Artifact index
 
 - Public source branch:

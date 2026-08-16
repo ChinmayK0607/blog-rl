@@ -1,0 +1,10 @@
+{
+  "status": "stopped_by_fixed_gate",
+  "last_valid_step": 4,
+  "attempted_step": 5,
+  "rollout_groups_admitted_at_attempted_step": 8,
+  "optimizer_step_applied": false,
+  "failure": "max_mismatch_kl=1.0974264>1",
+  "gate_relaxed": false,
+  "valid_evidence_scope": "steps 1-4 only"
+}

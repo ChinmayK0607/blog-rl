@@ -1,0 +1,1658 @@
+[
+  {
+    "groups": [
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-0:ordinary:8000001",
+        "replicas": [
+          {
+            "advantage": 0.06666666666666665,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-0:ordinary:8000001:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.28,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-0:ordinary:8000001:replica-1",
+            "return": 0.16000000000000003
+          },
+          {
+            "advantage": -0.36000000000000004,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-0:ordinary:8000001:replica-2",
+            "return": -0.32
+          },
+          {
+            "advantage": 0.013333333333333329,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-0:ordinary:8000001:replica-3",
+            "return": -0.039999999999999994
+          }
+        ],
+        "scenario": {
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "sft",
+            "model_name": "sft-opponent",
+            "opponent_id": "sft-step320",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "schedule_ordinal": 0,
+          "seed": 8000001,
+          "source": "ordinary"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-1:curriculum:10000020",
+        "replicas": [
+          {
+            "advantage": -0.0784313725490196,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-1:curriculum:10000020:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 6.938893903907228e-18,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-1:curriculum:10000020:replica-1",
+            "return": 0.058823529411764705
+          },
+          {
+            "advantage": -0.0784313725490196,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-1:curriculum:10000020:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.15686274509803919,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-1:curriculum:10000020:replica-3",
+            "return": 0.1764705882352941
+          }
+        ],
+        "scenario": {
+          "active_target": "V76",
+          "candidate_targets": [
+            "V58",
+            "V76"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "current",
+            "model_name": "blue-0",
+            "opponent_id": "current-blue0",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "pair_index": 1,
+          "receiver": "blue-2",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:pair-1",
+          "schedule_ordinal": 1,
+          "seed": 10000020,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "50ac07a770146f765abfea64c3b45d5927b200664afc401bb0e78db97a21b9dd",
+          "target": "V76",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-2:curriculum:10000020",
+        "replicas": [
+          {
+            "advantage": 0.019607843137254898,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-2:curriculum:10000020:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.17647058823529413,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-2:curriculum:10000020:replica-1",
+            "return": 0.11764705882352942
+          },
+          {
+            "advantage": -0.13725490196078433,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-2:curriculum:10000020:replica-2",
+            "return": -0.11764705882352941
+          },
+          {
+            "advantage": -0.05882352941176471,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-2:curriculum:10000020:replica-3",
+            "return": -0.058823529411764705
+          }
+        ],
+        "scenario": {
+          "active_target": "V76",
+          "candidate_targets": [
+            "V58",
+            "V76"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.05882352941176471,
+          "opponent": {
+            "adapter_sha256": "1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a",
+            "family": "historical",
+            "model_name": "historical-opponent",
+            "opponent_id": "historical-rl-v1-blue0",
+            "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c",
+            "update_index": 0
+          },
+          "pair_index": 1,
+          "receiver": "blue-2",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:pair-1",
+          "schedule_ordinal": 2,
+          "seed": 10000020,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "5cb5cc354f05c3acf26b14dd0e4aa18a872f91a1644d994d8877d7121b989b8b",
+          "target": "V76",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-3:curriculum:10000019",
+        "replicas": [
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-3:curriculum:10000019:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-3:curriculum:10000019:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-3:curriculum:10000019:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-3:curriculum:10000019:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V43",
+          "candidate_targets": [
+            "V43",
+            "V49"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": null,
+            "family": "base",
+            "model_name": "/workspace/models/qwen3-1.7b-70d244c",
+            "opponent_id": "base-qwen3-1.7b",
+            "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "update_index": 0
+          },
+          "pair_index": 0,
+          "receiver": "blue-1",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:pair-0",
+          "schedule_ordinal": 3,
+          "seed": 10000019,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "f6f23e3d4852a5eab028fc4ca3644f6c559333e742504fd545259c49cd4d538e",
+          "target": "V43",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-4:curriculum:10000021",
+        "replicas": [
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-4:curriculum:10000021:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.17777777777777778,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-4:curriculum:10000021:replica-1",
+            "return": -0.13333333333333333
+          },
+          {
+            "advantage": 0.17777777777777778,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-4:curriculum:10000021:replica-2",
+            "return": 0.13333333333333333
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-4:curriculum:10000021:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V20",
+          "candidate_targets": [
+            "V20",
+            "V89"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "current",
+            "model_name": "blue-0",
+            "opponent_id": "current-blue0",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "pair_index": 2,
+          "receiver": "blue-3",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:pair-2",
+          "schedule_ordinal": 4,
+          "seed": 10000021,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "c628f1fde3e6eb2dca082406fc53f53401d28c4816c7ccdfb78b76407a78ebbf",
+          "target": "V20",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-5:curriculum:10000019",
+        "replicas": [
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-5:curriculum:10000019:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-5:curriculum:10000019:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-5:curriculum:10000019:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-5:curriculum:10000019:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V43",
+          "candidate_targets": [
+            "V43",
+            "V49"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.06451612903225806,
+          "opponent": {
+            "adapter_sha256": null,
+            "family": "base",
+            "model_name": "/workspace/models/qwen3-1.7b-70d244c",
+            "opponent_id": "base-qwen3-1.7b",
+            "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "update_index": 0
+          },
+          "pair_index": 0,
+          "receiver": "blue-1",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:pair-0",
+          "schedule_ordinal": 5,
+          "seed": 10000019,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "b98e7ab126893e2e533863bdf7f7eb7f3cc50a8923d0d3d3e23064f39ea447b4",
+          "target": "V43",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-6:ordinary:8000000",
+        "replicas": [
+          {
+            "advantage": -0.08,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-6:ordinary:8000000:replica-0",
+            "return": -0.2
+          },
+          {
+            "advantage": -0.1866666666666666,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-6:ordinary:8000000:replica-1",
+            "return": -0.27999999999999997
+          },
+          {
+            "advantage": 0.3466666666666667,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-6:ordinary:8000000:replica-2",
+            "return": 0.12
+          },
+          {
+            "advantage": -0.08,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-6:ordinary:8000000:replica-3",
+            "return": -0.2
+          }
+        ],
+        "scenario": {
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "sft",
+            "model_name": "sft-opponent",
+            "opponent_id": "sft-step320",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "schedule_ordinal": 6,
+          "seed": 8000000,
+          "source": "ordinary"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-7:curriculum:10000021",
+        "replicas": [
+          {
+            "advantage": 0.044444444444444446,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-7:curriculum:10000021:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.13333333333333333,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-7:curriculum:10000021:replica-1",
+            "return": -0.13333333333333333
+          },
+          {
+            "advantage": 0.2222222222222222,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-7:curriculum:10000021:replica-2",
+            "return": 0.13333333333333333
+          },
+          {
+            "advantage": -0.13333333333333333,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:group-7:curriculum:10000021:replica-3",
+            "return": -0.13333333333333333
+          }
+        ],
+        "scenario": {
+          "active_target": "V20",
+          "candidate_targets": [
+            "V20",
+            "V89"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.06666666666666667,
+          "opponent": {
+            "adapter_sha256": "1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a",
+            "family": "historical",
+            "model_name": "historical-opponent",
+            "opponent_id": "historical-rl-v1-blue0",
+            "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c",
+            "update_index": 0
+          },
+          "pair_index": 2,
+          "receiver": "blue-3",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-0:pair-2",
+          "schedule_ordinal": 7,
+          "seed": 10000021,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "8485bb1a6399fa6a49c6fa986251c660131e51b7d60dd99830d47a6a922a56bd",
+          "target": "V20",
+          "world": "left_exposed"
+        }
+      }
+    ],
+    "policy_adapter_sha256": {
+      "blue-0": "44756f778ffcc1de4f210fbb6a683b133bf0b5b0a51d90b162da51cb57eb1e26",
+      "blue-1": "d1a3f7c84dc9eba840d2079482899f2f83b588e4cad625c62d7309a8195a8bd9",
+      "blue-2": "505e1f42612bfba3d78dcbc719ce3e4de7800eed299e7a39261871cc27921ac2",
+      "blue-3": "780dfd3b7650d4777ecba0447c6fe94a7b2f3676203028c4c0f1e0b1a6ff3c0e"
+    },
+    "policy_revision": "0ed4b8f487b70e28b29de4839314135dc0406409ba5319c019bfb7100822920a",
+    "step": 0
+  },
+  {
+    "groups": [
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-0:curriculum:10000028",
+        "replicas": [
+          {
+            "advantage": -0.020202020202020193,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-0:curriculum:10000028:replica-0",
+            "return": -0.06060606060606061
+          },
+          {
+            "advantage": -0.020202020202020193,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-0:curriculum:10000028:replica-1",
+            "return": -0.06060606060606061
+          },
+          {
+            "advantage": 0.2222222222222222,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-0:curriculum:10000028:replica-2",
+            "return": 0.12121212121212119
+          },
+          {
+            "advantage": -0.18181818181818182,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-0:curriculum:10000028:replica-3",
+            "return": -0.18181818181818182
+          }
+        ],
+        "scenario": {
+          "active_target": "V87",
+          "candidate_targets": [
+            "V65",
+            "V87"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "sft",
+            "model_name": "sft-opponent",
+            "opponent_id": "sft-step320",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "pair_index": 5,
+          "receiver": "blue-3",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:pair-5",
+          "schedule_ordinal": 8,
+          "seed": 10000028,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "39d499d6e1394cacd7a46ed8f1e6d7f7df3a82623395970f04744ece346f4a13",
+          "target": "V87",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-1:ordinary:8000003",
+        "replicas": [
+          {
+            "advantage": 0.2916666666666667,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-1:ordinary:8000003:replica-0",
+            "return": 0.375
+          },
+          {
+            "advantage": -0.04166666666666666,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-1:ordinary:8000003:replica-1",
+            "return": 0.125
+          },
+          {
+            "advantage": -0.20833333333333334,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-1:ordinary:8000003:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.04166666666666666,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-1:ordinary:8000003:replica-3",
+            "return": 0.125
+          }
+        ],
+        "scenario": {
+          "opponent": {
+            "adapter_sha256": null,
+            "family": "base",
+            "model_name": "/workspace/models/qwen3-1.7b-70d244c",
+            "opponent_id": "base-qwen3-1.7b",
+            "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "update_index": 0
+          },
+          "schedule_ordinal": 9,
+          "seed": 8000003,
+          "source": "ordinary"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-2:curriculum:10000023",
+        "replicas": [
+          {
+            "advantage": 0.020833333333333332,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-2:curriculum:10000023:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.0625,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-2:curriculum:10000023:replica-1",
+            "return": -0.0625
+          },
+          {
+            "advantage": 0.020833333333333332,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-2:curriculum:10000023:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.020833333333333332,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-2:curriculum:10000023:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V98",
+          "candidate_targets": [
+            "V49",
+            "V98"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.0625,
+          "opponent": {
+            "adapter_sha256": "1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a",
+            "family": "historical",
+            "model_name": "historical-opponent",
+            "opponent_id": "historical-rl-v1-blue0",
+            "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c",
+            "update_index": 0
+          },
+          "pair_index": 3,
+          "receiver": "blue-0",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:pair-3",
+          "schedule_ordinal": 10,
+          "seed": 10000023,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "eee1d7343970438c441efae5212f282912acd1e928bc46f53f654c5609f38fe9",
+          "target": "V98",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-3:curriculum:10000024",
+        "replicas": [
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-3:curriculum:10000024:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-3:curriculum:10000024:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-3:curriculum:10000024:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-3:curriculum:10000024:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V19",
+          "candidate_targets": [
+            "V19",
+            "V86"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": "44756f778ffcc1de4f210fbb6a683b133bf0b5b0a51d90b162da51cb57eb1e26",
+            "family": "current",
+            "model_name": "blue-0",
+            "opponent_id": "current-blue0",
+            "revision": "44756f778ffcc1de4f210fbb6a683b133bf0b5b0a51d90b162da51cb57eb1e26",
+            "update_index": 1
+          },
+          "pair_index": 4,
+          "receiver": "blue-2",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:pair-4",
+          "schedule_ordinal": 11,
+          "seed": 10000024,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "48bff7ca0d480107ecd275dedb91b3bbe6ca987f361cd93451689401b15687c6",
+          "target": "V19",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-4:curriculum:10000023",
+        "replicas": [
+          {
+            "advantage": -0.08333333333333333,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-4:curriculum:10000023:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.08333333333333333,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-4:curriculum:10000023:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.08333333333333334,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-4:curriculum:10000023:replica-2",
+            "return": 0.125
+          },
+          {
+            "advantage": 0.08333333333333334,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-4:curriculum:10000023:replica-3",
+            "return": 0.125
+          }
+        ],
+        "scenario": {
+          "active_target": "V98",
+          "candidate_targets": [
+            "V49",
+            "V98"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "sft",
+            "model_name": "sft-opponent",
+            "opponent_id": "sft-step320",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "pair_index": 3,
+          "receiver": "blue-0",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:pair-3",
+          "schedule_ordinal": 12,
+          "seed": 10000023,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "d07357d5825bbebfd95dced9e2ef1bd195661128fa0d2eaaa8e9162203f7901b",
+          "target": "V98",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-5:curriculum:10000028",
+        "replicas": [
+          {
+            "advantage": 0.12121212121212122,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-5:curriculum:10000028:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.12121212121212122,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-5:curriculum:10000028:replica-1",
+            "return": -0.18181818181818182
+          },
+          {
+            "advantage": -0.0404040404040404,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-5:curriculum:10000028:replica-2",
+            "return": -0.12121212121212122
+          },
+          {
+            "advantage": 0.0404040404040404,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-5:curriculum:10000028:replica-3",
+            "return": -0.06060606060606061
+          }
+        ],
+        "scenario": {
+          "active_target": "V87",
+          "candidate_targets": [
+            "V65",
+            "V87"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.060606060606060594,
+          "opponent": {
+            "adapter_sha256": "1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a",
+            "family": "historical",
+            "model_name": "historical-opponent",
+            "opponent_id": "historical-rl-v1-blue0",
+            "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c",
+            "update_index": 0
+          },
+          "pair_index": 5,
+          "receiver": "blue-3",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:pair-5",
+          "schedule_ordinal": 13,
+          "seed": 10000028,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "5789c9e519dd82478013124d24db839716e99c0727dc180fb2198d11e42cca14",
+          "target": "V87",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-6:curriculum:10000024",
+        "replicas": [
+          {
+            "advantage": -0.09876543209876543,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-6:curriculum:10000024:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.09876543209876543,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-6:curriculum:10000024:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.09876543209876543,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-6:curriculum:10000024:replica-2",
+            "return": 0.14814814814814814
+          },
+          {
+            "advantage": 0.09876543209876543,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-6:curriculum:10000024:replica-3",
+            "return": 0.14814814814814814
+          }
+        ],
+        "scenario": {
+          "active_target": "V19",
+          "candidate_targets": [
+            "V19",
+            "V86"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.07407407407407407,
+          "opponent": {
+            "adapter_sha256": null,
+            "family": "base",
+            "model_name": "/workspace/models/qwen3-1.7b-70d244c",
+            "opponent_id": "base-qwen3-1.7b",
+            "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "update_index": 0
+          },
+          "pair_index": 4,
+          "receiver": "blue-2",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:pair-4",
+          "schedule_ordinal": 14,
+          "seed": 10000024,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "c8c90f48514becdd37deaaf38437ccfb72794e001d7b3ed2e85fa17d47eec855",
+          "target": "V19",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-7:ordinary:8000002",
+        "replicas": [
+          {
+            "advantage": -0.32222222222222224,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-7:ordinary:8000002:replica-0",
+            "return": -0.43333333333333335
+          },
+          {
+            "advantage": -0.055555555555555525,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-7:ordinary:8000002:replica-1",
+            "return": -0.23333333333333334
+          },
+          {
+            "advantage": 0.12222222222222223,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-7:ordinary:8000002:replica-2",
+            "return": -0.1
+          },
+          {
+            "advantage": 0.2555555555555556,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-1:group-7:ordinary:8000002:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "opponent": {
+            "adapter_sha256": "44756f778ffcc1de4f210fbb6a683b133bf0b5b0a51d90b162da51cb57eb1e26",
+            "family": "current",
+            "model_name": "blue-0",
+            "opponent_id": "current-blue0",
+            "revision": "44756f778ffcc1de4f210fbb6a683b133bf0b5b0a51d90b162da51cb57eb1e26",
+            "update_index": 1
+          },
+          "schedule_ordinal": 15,
+          "seed": 8000002,
+          "source": "ordinary"
+        }
+      }
+    ],
+    "policy_adapter_sha256": {
+      "blue-0": "5ea27bb7457b588b095ac29c6702e2a1b1a540fdc8fae90b07660b7d4569a3a3",
+      "blue-1": "c01c01cd7fc7b94068f93ae48e9e953e7c87045ae23697803fc71f4908d81b81",
+      "blue-2": "2f6b459d4481e6b9cf87f50751f1094151ab72de92889b04577cca8eb75e3eb1",
+      "blue-3": "f75ea4b01f15a7bd790c7086fdc56e418ec573f9ee072f8bcca0cf28a959d84a"
+    },
+    "policy_revision": "72f3a5cdb5fc47401071e30e23969d8dcf949ff2fb7682467cfb7a33954bcec7",
+    "step": 1
+  },
+  {
+    "groups": [
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-0:curriculum:10000029",
+        "replicas": [
+          {
+            "advantage": 0.05128205128205129,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-0:curriculum:10000029:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.15384615384615385,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-0:curriculum:10000029:replica-1",
+            "return": -0.15384615384615385
+          },
+          {
+            "advantage": 0.05128205128205129,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-0:curriculum:10000029:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.05128205128205129,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-0:curriculum:10000029:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V82",
+          "candidate_targets": [
+            "V82",
+            "V84"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.07692307692307693,
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "sft",
+            "model_name": "sft-opponent",
+            "opponent_id": "sft-step320",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "pair_index": 6,
+          "receiver": "blue-0",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:pair-6",
+          "schedule_ordinal": 16,
+          "seed": 10000029,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "399b46021097bdcc8ea417082f5cebb4be4e4b967ccb0c5a5f92bb408d81e4ea",
+          "target": "V82",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-1:ordinary:8000004",
+        "replicas": [
+          {
+            "advantage": -0.08888888888888888,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-1:ordinary:8000004:replica-0",
+            "return": 0.06666666666666668
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-1:ordinary:8000004:replica-1",
+            "return": 0.13333333333333333
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-1:ordinary:8000004:replica-2",
+            "return": 0.13333333333333333
+          },
+          {
+            "advantage": 0.0888888888888889,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-1:ordinary:8000004:replica-3",
+            "return": 0.2
+          }
+        ],
+        "scenario": {
+          "opponent": {
+            "adapter_sha256": "1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a",
+            "family": "historical",
+            "model_name": "historical-opponent",
+            "opponent_id": "historical-rl-v1-blue0",
+            "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c",
+            "update_index": 0
+          },
+          "schedule_ordinal": 17,
+          "seed": 8000004,
+          "source": "ordinary"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-2:curriculum:10000031",
+        "replicas": [
+          {
+            "advantage": -0.09876543209876543,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-2:curriculum:10000031:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-2:curriculum:10000031:replica-1",
+            "return": 0.07407407407407407
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-2:curriculum:10000031:replica-2",
+            "return": 0.07407407407407407
+          },
+          {
+            "advantage": 0.09876543209876543,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-2:curriculum:10000031:replica-3",
+            "return": 0.14814814814814814
+          }
+        ],
+        "scenario": {
+          "active_target": "V19",
+          "candidate_targets": [
+            "V13",
+            "V19"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.07407407407407407,
+          "opponent": {
+            "adapter_sha256": null,
+            "family": "base",
+            "model_name": "/workspace/models/qwen3-1.7b-70d244c",
+            "opponent_id": "base-qwen3-1.7b",
+            "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "update_index": 0
+          },
+          "pair_index": 7,
+          "receiver": "blue-1",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:pair-7",
+          "schedule_ordinal": 18,
+          "seed": 10000031,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "0704020d9805c121baca4fe2927af2ee21548c898ff8cf1160cd0b2850dd2448",
+          "target": "V19",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-3:curriculum:10000031",
+        "replicas": [
+          {
+            "advantage": 0.07407407407407407,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-3:curriculum:10000031:replica-0",
+            "return": 0.07407407407407407
+          },
+          {
+            "advantage": 0.07407407407407407,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-3:curriculum:10000031:replica-1",
+            "return": 0.07407407407407407
+          },
+          {
+            "advantage": -0.024691358024691357,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-3:curriculum:10000031:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.12345679012345678,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-3:curriculum:10000031:replica-3",
+            "return": -0.07407407407407407
+          }
+        ],
+        "scenario": {
+          "active_target": "V19",
+          "candidate_targets": [
+            "V13",
+            "V19"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": "5ea27bb7457b588b095ac29c6702e2a1b1a540fdc8fae90b07660b7d4569a3a3",
+            "family": "current",
+            "model_name": "blue-0",
+            "opponent_id": "current-blue0",
+            "revision": "5ea27bb7457b588b095ac29c6702e2a1b1a540fdc8fae90b07660b7d4569a3a3",
+            "update_index": 2
+          },
+          "pair_index": 7,
+          "receiver": "blue-1",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:pair-7",
+          "schedule_ordinal": 19,
+          "seed": 10000031,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "5a00cdd2fb290a2d48b9fbdb34f1e63907776ea4b546dc59edcdce44b407ce45",
+          "target": "V19",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-4:ordinary:8000005",
+        "replicas": [
+          {
+            "advantage": -0.10666666666666669,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-4:ordinary:8000005:replica-0",
+            "return": 0.12
+          },
+          {
+            "advantage": -0.21333333333333335,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-4:ordinary:8000005:replica-1",
+            "return": 0.04000000000000001
+          },
+          {
+            "advantage": 0.2133333333333333,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-4:ordinary:8000005:replica-2",
+            "return": 0.36
+          },
+          {
+            "advantage": 0.10666666666666669,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-4:ordinary:8000005:replica-3",
+            "return": 0.28
+          }
+        ],
+        "scenario": {
+          "opponent": {
+            "adapter_sha256": "5ea27bb7457b588b095ac29c6702e2a1b1a540fdc8fae90b07660b7d4569a3a3",
+            "family": "current",
+            "model_name": "blue-0",
+            "opponent_id": "current-blue0",
+            "revision": "5ea27bb7457b588b095ac29c6702e2a1b1a540fdc8fae90b07660b7d4569a3a3",
+            "update_index": 2
+          },
+          "schedule_ordinal": 20,
+          "seed": 8000005,
+          "source": "ordinary"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-5:curriculum:10000029",
+        "replicas": [
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-5:curriculum:10000029:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-5:curriculum:10000029:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-5:curriculum:10000029:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-5:curriculum:10000029:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V82",
+          "candidate_targets": [
+            "V82",
+            "V84"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": null,
+            "family": "base",
+            "model_name": "/workspace/models/qwen3-1.7b-70d244c",
+            "opponent_id": "base-qwen3-1.7b",
+            "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "update_index": 0
+          },
+          "pair_index": 6,
+          "receiver": "blue-0",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:pair-6",
+          "schedule_ordinal": 21,
+          "seed": 10000029,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "24da51f43e3ee8abdf3584fb75eb0e925b65779e9c4212eb9898a87d38ff5819",
+          "target": "V82",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-6:curriculum:10000032",
+        "replicas": [
+          {
+            "advantage": 0.0196078431372549,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-6:curriculum:10000032:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0196078431372549,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-6:curriculum:10000032:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.058823529411764705,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-6:curriculum:10000032:replica-2",
+            "return": -0.058823529411764705
+          },
+          {
+            "advantage": 0.0196078431372549,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-6:curriculum:10000032:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V61",
+          "candidate_targets": [
+            "V61",
+            "V86"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.058823529411764705,
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "sft",
+            "model_name": "sft-opponent",
+            "opponent_id": "sft-step320",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "pair_index": 8,
+          "receiver": "blue-3",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:pair-8",
+          "schedule_ordinal": 22,
+          "seed": 10000032,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "15a92b9299267953d975adeedc3187e1352b9c96826e281585444a3e108f86e5",
+          "target": "V61",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-7:curriculum:10000032",
+        "replicas": [
+          {
+            "advantage": 0.0784313725490196,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-7:curriculum:10000032:replica-0",
+            "return": 0.11764705882352941
+          },
+          {
+            "advantage": 0.0784313725490196,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-7:curriculum:10000032:replica-1",
+            "return": 0.11764705882352941
+          },
+          {
+            "advantage": -0.0784313725490196,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-7:curriculum:10000032:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.0784313725490196,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:group-7:curriculum:10000032:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V61",
+          "candidate_targets": [
+            "V61",
+            "V86"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": "1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a",
+            "family": "historical",
+            "model_name": "historical-opponent",
+            "opponent_id": "historical-rl-v1-blue0",
+            "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c",
+            "update_index": 0
+          },
+          "pair_index": 8,
+          "receiver": "blue-3",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-2:pair-8",
+          "schedule_ordinal": 23,
+          "seed": 10000032,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "6e959995d1519357c02bf8f5e32423ce4bd7ad43e043f989c46b4bdeb068a259",
+          "target": "V61",
+          "world": "left_exposed"
+        }
+      }
+    ],
+    "policy_adapter_sha256": {
+      "blue-0": "6559d0e4a369e50ad0af108aac0a559bb2086ebca3db0d91920dffd8363da18d",
+      "blue-1": "c6643fdff78537708e05e38cd0efc47d6ea77e850ee6f017ffbe552d0307c448",
+      "blue-2": "a528599ab9dc0c0d3b1752f8606f50d25cc4c55333bcbcf1a0c11eddabe1cd72",
+      "blue-3": "54bb6bb2c8ee8f73bc86794810e8c13c35e01e01d1bf175431fe823bf68eb66d"
+    },
+    "policy_revision": "22ab74da47d274b544e475a8872f420d1f0b489b5543100ad27b5f9fd3f3e07c",
+    "step": 2
+  },
+  {
+    "groups": [
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-0:ordinary:8000006",
+        "replicas": [
+          {
+            "advantage": 0.36,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-0:ordinary:8000006:replica-0",
+            "return": 0.28
+          },
+          {
+            "advantage": -0.12,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-0:ordinary:8000006:replica-1",
+            "return": -0.07999999999999999
+          },
+          {
+            "advantage": -0.22666666666666666,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-0:ordinary:8000006:replica-2",
+            "return": -0.15999999999999998
+          },
+          {
+            "advantage": -0.013333333333333355,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-0:ordinary:8000006:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "opponent": {
+            "adapter_sha256": "1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a",
+            "family": "historical",
+            "model_name": "historical-opponent",
+            "opponent_id": "historical-rl-v1-blue0",
+            "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c",
+            "update_index": 0
+          },
+          "schedule_ordinal": 24,
+          "seed": 8000006,
+          "source": "ordinary"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-1:ordinary:8000007",
+        "replicas": [
+          {
+            "advantage": -0.06896551724137931,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-1:ordinary:8000007:replica-0",
+            "return": -0.034482758620689655
+          },
+          {
+            "advantage": 0.06896551724137931,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-1:ordinary:8000007:replica-1",
+            "return": 0.06896551724137931
+          },
+          {
+            "advantage": 0.06896551724137931,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-1:ordinary:8000007:replica-2",
+            "return": 0.06896551724137931
+          },
+          {
+            "advantage": -0.06896551724137931,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-1:ordinary:8000007:replica-3",
+            "return": -0.034482758620689655
+          }
+        ],
+        "scenario": {
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "sft",
+            "model_name": "sft-opponent",
+            "opponent_id": "sft-step320",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "schedule_ordinal": 25,
+          "seed": 8000007,
+          "source": "ordinary"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-2:curriculum:10000037",
+        "replicas": [
+          {
+            "advantage": 0.15053763440860216,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-2:curriculum:10000037:replica-0",
+            "return": 0.12903225806451613
+          },
+          {
+            "advantage": -0.06451612903225806,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-2:curriculum:10000037:replica-1",
+            "return": -0.03225806451612903
+          },
+          {
+            "advantage": 0.06451612903225806,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-2:curriculum:10000037:replica-2",
+            "return": 0.06451612903225806
+          },
+          {
+            "advantage": -0.15053763440860216,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-2:curriculum:10000037:replica-3",
+            "return": -0.0967741935483871
+          }
+        ],
+        "scenario": {
+          "active_target": "V39",
+          "candidate_targets": [
+            "V39",
+            "V90"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": "6559d0e4a369e50ad0af108aac0a559bb2086ebca3db0d91920dffd8363da18d",
+            "family": "current",
+            "model_name": "blue-0",
+            "opponent_id": "current-blue0",
+            "revision": "6559d0e4a369e50ad0af108aac0a559bb2086ebca3db0d91920dffd8363da18d",
+            "update_index": 3
+          },
+          "pair_index": 10,
+          "receiver": "blue-1",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:pair-10",
+          "schedule_ordinal": 26,
+          "seed": 10000037,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "23ddd040065045bf1e5ebe706a221722fe6aa4b3d5af08401f018e0c30cce15d",
+          "target": "V39",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-3:curriculum:10000036",
+        "replicas": [
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-3:curriculum:10000036:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-3:curriculum:10000036:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-3:curriculum:10000036:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.0,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-3:curriculum:10000036:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V80",
+          "candidate_targets": [
+            "V77",
+            "V80"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": null,
+            "family": "base",
+            "model_name": "/workspace/models/qwen3-1.7b-70d244c",
+            "opponent_id": "base-qwen3-1.7b",
+            "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "update_index": 0
+          },
+          "pair_index": 9,
+          "receiver": "blue-0",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:pair-9",
+          "schedule_ordinal": 27,
+          "seed": 10000036,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "1793865e0f019b3b2f540a6595eb3ff17676c67882e1464624f7f3963567702c",
+          "target": "V80",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-4:curriculum:10000038",
+        "replicas": [
+          {
+            "advantage": -0.05714285714285714,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-4:curriculum:10000038:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.2476190476190476,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-4:curriculum:10000038:replica-1",
+            "return": 0.22857142857142856
+          },
+          {
+            "advantage": -0.09523809523809523,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-4:curriculum:10000038:replica-2",
+            "return": -0.028571428571428567
+          },
+          {
+            "advantage": -0.09523809523809523,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-4:curriculum:10000038:replica-3",
+            "return": -0.028571428571428567
+          }
+        ],
+        "scenario": {
+          "active_target": "V61",
+          "candidate_targets": [
+            "V56",
+            "V61"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.05714285714285714,
+          "opponent": {
+            "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+            "family": "sft",
+            "model_name": "sft-opponent",
+            "opponent_id": "sft-step320",
+            "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+            "update_index": 0
+          },
+          "pair_index": 11,
+          "receiver": "blue-2",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:pair-11",
+          "schedule_ordinal": 28,
+          "seed": 10000038,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "3c3b0f4ce9ad600e2d0e5124f56b4f013b547d7b922d98fecd6bf684cbc279a2",
+          "target": "V61",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-5:curriculum:10000037",
+        "replicas": [
+          {
+            "advantage": -0.06451612903225806,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-5:curriculum:10000037:replica-0",
+            "return": -0.0967741935483871
+          },
+          {
+            "advantage": -0.06451612903225806,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-5:curriculum:10000037:replica-1",
+            "return": -0.0967741935483871
+          },
+          {
+            "advantage": 0.06451612903225806,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-5:curriculum:10000037:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.06451612903225806,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-5:curriculum:10000037:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V39",
+          "candidate_targets": [
+            "V39",
+            "V90"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.06451612903225806,
+          "opponent": {
+            "adapter_sha256": null,
+            "family": "base",
+            "model_name": "/workspace/models/qwen3-1.7b-70d244c",
+            "opponent_id": "base-qwen3-1.7b",
+            "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+            "update_index": 0
+          },
+          "pair_index": 10,
+          "receiver": "blue-1",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:pair-10",
+          "schedule_ordinal": 29,
+          "seed": 10000037,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "3a20819ffed21e2d5f31cd9dd71a675dcd48160c079b549f4b586e7ba213123f",
+          "target": "V39",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-6:curriculum:10000038",
+        "replicas": [
+          {
+            "advantage": -0.1333333333333333,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-6:curriculum:10000038:replica-0",
+            "return": 0.17142857142857143
+          },
+          {
+            "advantage": -0.1333333333333333,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-6:curriculum:10000038:replica-1",
+            "return": 0.17142857142857143
+          },
+          {
+            "advantage": -0.057142857142857134,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-6:curriculum:10000038:replica-2",
+            "return": 0.22857142857142856
+          },
+          {
+            "advantage": 0.32380952380952377,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-6:curriculum:10000038:replica-3",
+            "return": 0.5142857142857142
+          }
+        ],
+        "scenario": {
+          "active_target": "V61",
+          "candidate_targets": [
+            "V56",
+            "V61"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "opponent": {
+            "adapter_sha256": "1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a",
+            "family": "historical",
+            "model_name": "historical-opponent",
+            "opponent_id": "historical-rl-v1-blue0",
+            "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c",
+            "update_index": 0
+          },
+          "pair_index": 11,
+          "receiver": "blue-2",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:pair-11",
+          "schedule_ordinal": 30,
+          "seed": 10000038,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "402e8047df0b0883535854dba0afbfb9f6fdd68301f7904f11318e80e4060b10",
+          "target": "V61",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-7:curriculum:10000036",
+        "replicas": [
+          {
+            "advantage": -0.04444444444444445,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-7:curriculum:10000036:replica-0",
+            "return": -0.06666666666666668
+          },
+          {
+            "advantage": 0.04444444444444445,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-7:curriculum:10000036:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.04444444444444445,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-7:curriculum:10000036:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.04444444444444445,
+            "game_id": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:group-7:curriculum:10000036:replica-3",
+            "return": -0.06666666666666668
+          }
+        ],
+        "scenario": {
+          "active_target": "V80",
+          "candidate_targets": [
+            "V77",
+            "V80"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.06666666666666667,
+          "opponent": {
+            "adapter_sha256": "6559d0e4a369e50ad0af108aac0a559bb2086ebca3db0d91920dffd8363da18d",
+            "family": "current",
+            "model_name": "blue-0",
+            "opponent_id": "current-blue0",
+            "revision": "6559d0e4a369e50ad0af108aac0a559bb2086ebca3db0d91920dffd8363da18d",
+            "update_index": 3
+          },
+          "pair_index": 9,
+          "receiver": "blue-0",
+          "sampling_namespace": "rl-v4-ablate-lr1e5-mix233-12e0c461:step-3:pair-9",
+          "schedule_ordinal": 31,
+          "seed": 10000036,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "45590d8ee654b3662a68367c350b9eb962c18d87d8fefa45272ca1759a8f1af0",
+          "target": "V80",
+          "world": "right_exposed"
+        }
+      }
+    ],
+    "policy_adapter_sha256": {
+      "blue-0": "126f1904b416a18ebedcef6890d36d8bec6e01ea6220799751476a0f474eea33",
+      "blue-1": "c2a1beaac7987f5fe9d189064ae4f691e0a26e41fea5a8cca2f36e3dd8ecbeb0",
+      "blue-2": "b8f554dbd5e12578ee1c8fbcd0e8119947c8bb272479f1a641b96fe15f649249",
+      "blue-3": "c81cb370ca97ac833506e629770cf6d35a9609a70b1983313f66c842476f8360"
+    },
+    "policy_revision": "5c3be81b0ead1cd5ac29edf281319efeb9798c5b710bdfc16420c526933729f6",
+    "step": 3
+  }
+]

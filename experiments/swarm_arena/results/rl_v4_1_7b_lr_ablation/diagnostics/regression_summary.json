@@ -1,0 +1,439 @@
+{
+  "baseline": "pinned SFT step320",
+  "comparisons": {
+    "blue-0-v1": {
+      "adapter_arena_leakage": 0.0,
+      "base_arena_leakage": 0.0,
+      "categories": {
+        "arena_trigger_resistance": {
+          "adapter_exact": 0.484375,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.484375,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "arithmetic": {
+          "adapter_exact": 0.15625,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.15625,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "instruction_binding": {
+          "adapter_exact": 0.0,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.0,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "list_transform": {
+          "adapter_exact": 0.078125,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.078125,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        }
+      },
+      "comparison_protocol": "paired-swarm-regression-v1",
+      "gates": {
+        "adapter_arena_leakage_at_most_0_02": true,
+        "arena_leakage_not_increased": true,
+        "every_category_drop_within_0_05": true,
+        "overall_drop_within_0_02": true,
+        "passed": true
+      },
+      "overall": {
+        "adapter_exact": 0.1796875,
+        "adapter_minus_base": 0.0,
+        "base_exact": 0.1796875,
+        "examples": 256,
+        "paired_improvements": 0,
+        "paired_regressions": 0
+      }
+    },
+    "blue-0-v2": {
+      "adapter_arena_leakage": 0.0,
+      "base_arena_leakage": 0.0,
+      "categories": {
+        "arithmetic_update": {
+          "adapter_exact": 0.640625,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.640625,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "conditional_transform": {
+          "adapter_exact": 0.09375,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.09375,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "domain_trigger_resistance": {
+          "adapter_exact": 0.890625,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.890625,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "record_projection": {
+          "adapter_exact": 0.40625,
+          "adapter_minus_base": -0.015625,
+          "base_exact": 0.421875,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 1
+        }
+      },
+      "comparison_protocol": "paired-swarm-regression-v2",
+      "gates": {
+        "adapter_arena_leakage_at_most_0_02": true,
+        "arena_leakage_not_increased": true,
+        "every_category_drop_within_0_05": true,
+        "overall_drop_within_0_02": true,
+        "passed": true
+      },
+      "overall": {
+        "adapter_exact": 0.5078125,
+        "adapter_minus_base": -0.00390625,
+        "base_exact": 0.51171875,
+        "examples": 256,
+        "paired_improvements": 0,
+        "paired_regressions": 1
+      }
+    },
+    "blue-1-v1": {
+      "adapter_arena_leakage": 0.0,
+      "base_arena_leakage": 0.0,
+      "categories": {
+        "arena_trigger_resistance": {
+          "adapter_exact": 0.484375,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.484375,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "arithmetic": {
+          "adapter_exact": 0.140625,
+          "adapter_minus_base": -0.015625,
+          "base_exact": 0.15625,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 1
+        },
+        "instruction_binding": {
+          "adapter_exact": 0.0,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.0,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "list_transform": {
+          "adapter_exact": 0.078125,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.078125,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        }
+      },
+      "comparison_protocol": "paired-swarm-regression-v1",
+      "gates": {
+        "adapter_arena_leakage_at_most_0_02": true,
+        "arena_leakage_not_increased": true,
+        "every_category_drop_within_0_05": true,
+        "overall_drop_within_0_02": true,
+        "passed": true
+      },
+      "overall": {
+        "adapter_exact": 0.17578125,
+        "adapter_minus_base": -0.00390625,
+        "base_exact": 0.1796875,
+        "examples": 256,
+        "paired_improvements": 0,
+        "paired_regressions": 1
+      }
+    },
+    "blue-1-v2": {
+      "adapter_arena_leakage": 0.0,
+      "base_arena_leakage": 0.0,
+      "categories": {
+        "arithmetic_update": {
+          "adapter_exact": 0.65625,
+          "adapter_minus_base": 0.015625,
+          "base_exact": 0.640625,
+          "examples": 64,
+          "paired_improvements": 1,
+          "paired_regressions": 0
+        },
+        "conditional_transform": {
+          "adapter_exact": 0.109375,
+          "adapter_minus_base": 0.015625,
+          "base_exact": 0.09375,
+          "examples": 64,
+          "paired_improvements": 1,
+          "paired_regressions": 0
+        },
+        "domain_trigger_resistance": {
+          "adapter_exact": 0.890625,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.890625,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "record_projection": {
+          "adapter_exact": 0.421875,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.421875,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        }
+      },
+      "comparison_protocol": "paired-swarm-regression-v2",
+      "gates": {
+        "adapter_arena_leakage_at_most_0_02": true,
+        "arena_leakage_not_increased": true,
+        "every_category_drop_within_0_05": true,
+        "overall_drop_within_0_02": true,
+        "passed": true
+      },
+      "overall": {
+        "adapter_exact": 0.51953125,
+        "adapter_minus_base": 0.0078125,
+        "base_exact": 0.51171875,
+        "examples": 256,
+        "paired_improvements": 2,
+        "paired_regressions": 0
+      }
+    },
+    "blue-2-v1": {
+      "adapter_arena_leakage": 0.0,
+      "base_arena_leakage": 0.0,
+      "categories": {
+        "arena_trigger_resistance": {
+          "adapter_exact": 0.484375,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.484375,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "arithmetic": {
+          "adapter_exact": 0.15625,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.15625,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "instruction_binding": {
+          "adapter_exact": 0.0,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.0,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "list_transform": {
+          "adapter_exact": 0.078125,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.078125,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        }
+      },
+      "comparison_protocol": "paired-swarm-regression-v1",
+      "gates": {
+        "adapter_arena_leakage_at_most_0_02": true,
+        "arena_leakage_not_increased": true,
+        "every_category_drop_within_0_05": true,
+        "overall_drop_within_0_02": true,
+        "passed": true
+      },
+      "overall": {
+        "adapter_exact": 0.1796875,
+        "adapter_minus_base": 0.0,
+        "base_exact": 0.1796875,
+        "examples": 256,
+        "paired_improvements": 0,
+        "paired_regressions": 0
+      }
+    },
+    "blue-2-v2": {
+      "adapter_arena_leakage": 0.0,
+      "base_arena_leakage": 0.0,
+      "categories": {
+        "arithmetic_update": {
+          "adapter_exact": 0.65625,
+          "adapter_minus_base": 0.015625,
+          "base_exact": 0.640625,
+          "examples": 64,
+          "paired_improvements": 1,
+          "paired_regressions": 0
+        },
+        "conditional_transform": {
+          "adapter_exact": 0.109375,
+          "adapter_minus_base": 0.015625,
+          "base_exact": 0.09375,
+          "examples": 64,
+          "paired_improvements": 1,
+          "paired_regressions": 0
+        },
+        "domain_trigger_resistance": {
+          "adapter_exact": 0.890625,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.890625,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "record_projection": {
+          "adapter_exact": 0.421875,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.421875,
+          "examples": 64,
+          "paired_improvements": 1,
+          "paired_regressions": 1
+        }
+      },
+      "comparison_protocol": "paired-swarm-regression-v2",
+      "gates": {
+        "adapter_arena_leakage_at_most_0_02": true,
+        "arena_leakage_not_increased": true,
+        "every_category_drop_within_0_05": true,
+        "overall_drop_within_0_02": true,
+        "passed": true
+      },
+      "overall": {
+        "adapter_exact": 0.51953125,
+        "adapter_minus_base": 0.0078125,
+        "base_exact": 0.51171875,
+        "examples": 256,
+        "paired_improvements": 3,
+        "paired_regressions": 1
+      }
+    },
+    "blue-3-v1": {
+      "adapter_arena_leakage": 0.0,
+      "base_arena_leakage": 0.0,
+      "categories": {
+        "arena_trigger_resistance": {
+          "adapter_exact": 0.484375,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.484375,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "arithmetic": {
+          "adapter_exact": 0.15625,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.15625,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "instruction_binding": {
+          "adapter_exact": 0.0,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.0,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "list_transform": {
+          "adapter_exact": 0.078125,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.078125,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        }
+      },
+      "comparison_protocol": "paired-swarm-regression-v1",
+      "gates": {
+        "adapter_arena_leakage_at_most_0_02": true,
+        "arena_leakage_not_increased": true,
+        "every_category_drop_within_0_05": true,
+        "overall_drop_within_0_02": true,
+        "passed": true
+      },
+      "overall": {
+        "adapter_exact": 0.1796875,
+        "adapter_minus_base": 0.0,
+        "base_exact": 0.1796875,
+        "examples": 256,
+        "paired_improvements": 0,
+        "paired_regressions": 0
+      }
+    },
+    "blue-3-v2": {
+      "adapter_arena_leakage": 0.0,
+      "base_arena_leakage": 0.0,
+      "categories": {
+        "arithmetic_update": {
+          "adapter_exact": 0.65625,
+          "adapter_minus_base": 0.015625,
+          "base_exact": 0.640625,
+          "examples": 64,
+          "paired_improvements": 1,
+          "paired_regressions": 0
+        },
+        "conditional_transform": {
+          "adapter_exact": 0.09375,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.09375,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "domain_trigger_resistance": {
+          "adapter_exact": 0.890625,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.890625,
+          "examples": 64,
+          "paired_improvements": 0,
+          "paired_regressions": 0
+        },
+        "record_projection": {
+          "adapter_exact": 0.421875,
+          "adapter_minus_base": 0.0,
+          "base_exact": 0.421875,
+          "examples": 64,
+          "paired_improvements": 1,
+          "paired_regressions": 1
+        }
+      },
+      "comparison_protocol": "paired-swarm-regression-v2",
+      "gates": {
+        "adapter_arena_leakage_at_most_0_02": true,
+        "arena_leakage_not_increased": true,
+        "every_category_drop_within_0_05": true,
+        "overall_drop_within_0_02": true,
+        "passed": true
+      },
+      "overall": {
+        "adapter_exact": 0.515625,
+        "adapter_minus_base": 0.00390625,
+        "base_exact": 0.51171875,
+        "examples": 256,
+        "paired_improvements": 2,
+        "paired_regressions": 1
+      }
+    }
+  },
+  "passed": true,
+  "selected_step": 8
+}

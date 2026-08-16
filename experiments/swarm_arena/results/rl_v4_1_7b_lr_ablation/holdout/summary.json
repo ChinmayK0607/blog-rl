@@ -1,0 +1,66 @@
+{
+  "candidate_normal_protocol": {
+    "action_protocol_rate": 1.0,
+    "broadcast_grounded_rate": 1.0,
+    "broadcast_protocol_rate": 1.0
+  },
+  "candidate_normal_return_by_opponent": {
+    "base": 0.09333333333333334,
+    "historical_league": 0.005555555555555557,
+    "sft": 0.020000000000000004
+  },
+  "critical_normal_minus_intervention": {
+    "delayed": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 18,
+      "positive_rate": 0
+    },
+    "dropped": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 18,
+      "positive_rate": 0
+    },
+    "sender_shuffled": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 18,
+      "positive_rate": 0
+    },
+    "zero_budget": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 18,
+      "positive_rate": 0
+    }
+  },
+  "critical_sft_normal_minus_dropped": {
+    "max": 0.0,
+    "mean_difference": 0.0,
+    "min": 0.0,
+    "paired_cells": 18,
+    "positive_rate": 0
+  },
+  "decoy_candidate_normal_minus_dropped": {
+    "max": 0.0,
+    "mean_difference": 0.0,
+    "min": 0.0,
+    "paired_cells": 18,
+    "positive_rate": 0
+  },
+  "ordinary_candidate_minus_sft": {
+    "max": 0.32,
+    "mean_difference": 0.07074074074074074,
+    "min": -0.30000000000000004,
+    "paired_cells": 18,
+    "positive_rate": 0.6111111111111112
+  },
+  "rows": 198,
+  "scope": "development-only checkpoint selection; frozen OOD remains unopened",
+  "version": "arena-final-eval-development-v2"
+}
