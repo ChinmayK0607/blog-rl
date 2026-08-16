@@ -1,6 +1,7 @@
 # The controller owns the finite 80-update horizon declared by
 # staged_curriculum_v2_focused_80.json.
 max_concurrent_runs = 4
+atomic_multi_run_updates = true
 
 [model]
 name = "/workspace/models/qwen3-1.7b-70d244c"
@@ -48,7 +49,7 @@ save_adapter_separately = true
 [rollout_parity_gate]
 max_mean_logprob_error = 0.05
 probability_tail_threshold = 0.05
-max_mean_mismatch_kl = 0.002
+max_mean_mismatch_kl = 0.005
 
 [log]
 level = "info"

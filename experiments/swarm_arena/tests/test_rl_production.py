@@ -192,6 +192,7 @@ def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() ->
     assert trainer["ckpt"]["interval"] == 10
     assert trainer["ckpt"]["keep_interval"] == 10
     assert trainer["wandb"]["offline"]
+    assert trainer["atomic_multi_run_updates"]
     parity = trainer["rollout_parity_gate"]
     assert parity == {
         "max_mean_logprob_error": 0.05,

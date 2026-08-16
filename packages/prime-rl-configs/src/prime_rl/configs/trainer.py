@@ -598,6 +598,11 @@ class TrainerConfig(BaseConfig):
     max_concurrent_runs: int = Field(1, ge=1)
     """Maximum number of concurrent runs to allow. If 1, only one run may run at a time."""
 
+    atomic_multi_run_updates: bool = False
+    """Wait for every active run to pass its complete-batch gates before any
+    multi-run optimizer is stepped. This prevents a later policy failure from
+    leaving an externally visible partial joint-policy update."""
+
     experimental: TrainerExperimentalConfig = TrainerExperimentalConfig()
 
     @model_validator(mode="after")

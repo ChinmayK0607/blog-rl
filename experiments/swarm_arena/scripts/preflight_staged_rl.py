@@ -173,6 +173,8 @@ def main() -> None:
 
     if trainer["max_concurrent_runs"] != 4:
         raise ValueError("staged run requires exactly four trainer policy slots")
+    if not trainer.get("atomic_multi_run_updates", False):
+        raise ValueError("staged run requires atomic four-policy optimizer updates")
     if trainer.get("max_steps") is not None:
         raise ValueError("trainer max_steps must remain controller-owned")
     if trainer["optim"]["lr"] != 7.5e-6:

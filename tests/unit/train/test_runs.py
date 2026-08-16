@@ -10,8 +10,23 @@ from safetensors.torch import save_file
 
 from prime_rl.configs.trainer import LoRAConfig
 from prime_rl.trainer.models.layers.lora import MultiLoRALinear
-from prime_rl.trainer.runs import MultiRunManager, load_initial_adapter_state
+from prime_rl.trainer.runs import (
+    MultiRunManager,
+    load_initial_adapter_state,
+    multi_run_optimizer_step_ready,
+)
 from prime_rl.trainer.weights import peft_adapter_state_dict
+
+
+def test_atomic_multi_run_update_waits_for_every_active_policy() -> None:
+    ready = [True, True, False, True]
+    used = [0, 1, 2, 3]
+
+    assert multi_run_optimizer_step_ready(ready, used, atomic=False)
+    assert not multi_run_optimizer_step_ready(ready, used, atomic=True)
+
+    ready[2] = True
+    assert multi_run_optimizer_step_ready(ready, used, atomic=True)
 
 
 @pytest.fixture(autouse=True, scope="module")

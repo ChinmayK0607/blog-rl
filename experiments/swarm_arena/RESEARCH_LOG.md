@@ -4,13 +4,10 @@ Last updated: 2026-08-16
 Branch: `exp/swarm-arena-4b`  
 Current public development checkpoint: Hugging Face revision
 `1af877668ee3cdd8dd5ccd4734ce620bbe5e2aa0` (not admitted).
-Status: the fresh 30-update four-policy RL v4 run and development diagnostics
-are complete. The selected step-20 checkpoint is mechanically stable and
-public; capability and RL-specific communication improvement are not
-established, and selection/frozen final remain unopened.
-
-Next run: the CPU-side 120-update staged curriculum and RL-specific progress
-metrics are implemented and awaiting a fresh four-GPU launch preflight.
+Status: the focused-credit run stopped fail-closed after 16 complete updates.
+Its update-10 checkpoint is public; tactical capability improved directionally,
+but RL-specific communication did not. A prospective atomic four-policy trainer
+fix and length-robust KL bound are awaiting Linux validation and recertification.
 
 This is the durable chronological record for the Swarm Arena project. It records
 the hypothesis, design decisions, data, training, evaluations, failures,
@@ -3189,6 +3186,84 @@ no more critical-specific than decoy-specific. Therefore:
   "tactical improvement, no communication improvement yet." The run continues
   unchanged into the handoff-introduction stage; update 20 is the next
   informative communication comparison.
+
+### 2026-08-17 — focused run update-16 parity stop and atomic-update diagnosis
+
+- Status: stopped fail-closed after 16 complete logical updates (`0` through
+  `15`); no update-20 pulse exists.
+- Verdict: valid exploratory update-10 tactical signal; communication
+  improvement rejected at that checkpoint; the run is not resumable as one
+  coherent four-policy optimizer trajectory after the failed update.
+- Hypothesis and decision: determine whether the update-16 failure was a
+  corrupt rollout, stale actor policy, durable serving/trainer divergence, or
+  transient long-lived-runtime drift before changing the next prospective run.
+- Source and immutable inputs: training source
+  `a097bf17594bd5b01158687978b3848b6f94ba79`; production-plan SHA-256
+  `fe055740ed9844fd9655f70976140c02489bfd76b5d17dbab93b334a28cf6e5b`;
+  base revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; initial SFT
+  revision `534522a8f3ff3489b1dd8318dc8e533e51264cde` and adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`.
+- Failure: Prime run index 2, mapped exactly to `blue-3`, failed its complete
+  update-16 ACT batch before its optimizer step because mean mismatch-KL was
+  `0.0044082049 > 0.002`. Runs 0, 3, and 1 (`blue-0`, `blue-2`, and `blue-1`)
+  had already passed and written partial step-17 broadcasts. `blue-3` remained
+  at step 16. The controller correctly did not publish a partial logical
+  update, but the trainer had already changed three of four policies. Those
+  step-17 weights are rejected and will never seed another run.
+- Exact failed-batch replay: the immutable `blue-3` step-16 file contained 60
+  ACT samples, 480 trainable completion tokens, 360 branching tokens, and no
+  broadcast span. Against the coherent `blue-3` step-16 adapter SHA-256
+  `5fa8b102a15658ef198b058d0764b87c0765abc96c0b9b5990093d24a9a7023d`,
+  two clean process replays were identical and passed the same mean gates:
+  mean absolute log-probability error `0.01577488`, p99 `0.31182814`, mean
+  mismatch-KL `0.00192902`, max mismatch-KL `0.11828327`, max probability
+  error `0.09690857`, p99 probability error `0.05427437`, and 1.25% of tokens
+  above probability error 0.05. Replaying against step 15 gave mean
+  mismatch-KL `0.00160602`; this does not support a gross stale-policy error.
+- Interpretation: the batch and checkpoint are not corrupt, and the exact
+  clean replay is deterministic. The live 0.004408 value is a transient
+  long-lived-runtime/backend deviation on a vLLM-to-HF constrained action
+  batch. It is small enough for bounded off-policy DPPO but above the old
+  brittle 0.002 online mean ceiling. This is an infrastructure boundary, not a
+  reward, curriculum, or model-collapse result.
+- Prospective fix: add opt-in `atomic_multi_run_updates` so all active policy
+  batches accumulate, all four complete parity summaries pass, and only then
+  do any of the four optimizers/schedulers step or publish weights. For a new
+  run only, raise the mean mismatch-KL limit to `0.005` while retaining the
+  `0.05` mean absolute log-probability bound, DPPO probability-direction mask,
+  exact token/constraint ownership, lag-zero rescore, and all replay/safety
+  invariants. This is not a retrospective pass for the rejected update.
+- Evaluation result: from update 0 to update 10, overall gameplay improved
+  `+0.03043`, legacy `+0.06427`, hard `+0.01569`, and handoff capability
+  `+0.01133`. Absolute update-10 overall RL-minus-SFT was `+0.01004`, interval
+  `[-0.02184,+0.03955]`. Critical normal-minus-dropped fell `-0.02346`, and
+  RL-specific communication lift moved from `-0.01896` to `-0.04242`.
+- Preservation: trainer W&B run
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/gqv6yifx` and controller
+  runs `rl-v4-focused-80-a097bf17-l40-20260817-controller-v1` and `-v2` were
+  synced. The four update-10 adapters and compact provenance/evaluation files
+  were uploaded publicly and anonymously checksum-verified at
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-focused-step10-development`,
+  revision `a191af71bf622b7a1e4f6bdd47c76d9bf27c838f`. The release is explicitly
+  `not-admitted`; no model artifact was copied to the Mac.
+- Failures and retries: the first publisher command ran from `/root` and failed
+  before upload because the relative script path did not exist. The unchanged
+  publication succeeded from `/workspace/blog-rl`. The first controller-v2
+  W&B sync attempt occurred while its sidecar still held the offline file open;
+  after orderly sidecar shutdown, the sync completed.
+- GPU and storage: after preservation, controller, pulse, rescore, W&B, and all
+  three inference sessions were stopped. All four L40 GPUs reported 0 MiB.
+  Provider price and exact allocation start were not recorded, so no dollar
+  cost is invented. Raw run data remains only on the paid host; compact public
+  artifacts are durable.
+- Next action: Linux-test the atomic trainer path, run a deliberately uneven
+  four-policy integration canary that proves no optimizer changes until all
+  four are ready, recertify the exact new config, and launch a fresh run from
+  the common SFT initializer. Preserve the existing development subset and
+  evaluate every ten updates; do not open selection/frozen tiers during the
+  curve.
+- Instance decommissioned: no; GPUs are idle and the host remains available for
+  validation and the prospective fresh launch.
 
 ## Artifact index
 

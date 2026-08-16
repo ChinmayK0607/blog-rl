@@ -64,7 +64,12 @@ from prime_rl.trainer.utils import (
     flexible_all_gather,
 )
 from prime_rl.trainer.world import get_world
-from prime_rl.trainer.runs import setup_multi_run_manager, Progress, get_multi_run_manager
+from prime_rl.trainer.runs import (
+    Progress,
+    get_multi_run_manager,
+    multi_run_optimizer_step_ready,
+    setup_multi_run_manager,
+)
 from prime_rl.trainer.models.layers.lora import set_lora_num_tokens
 from prime_rl.utils.heartbeat import Heartbeat
 from prime_rl.utils.metrics_server import HealthServer, MetricsServer, RunStats
@@ -260,6 +265,7 @@ def train(config: TrainerConfig):
     multi_run_parity: dict[int, dict[str, list[torch.Tensor]]] = defaultdict(
         lambda: defaultdict(list)
     )
+    optimizer_step_completed = False
     is_first_step = True
     maybe_record_function = nullcontext
     if config.trace_path:
@@ -267,6 +273,8 @@ def train(config: TrainerConfig):
         prof = profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True).__enter__()
         maybe_record_function = record_function
     while True:
+        completed_update_to_publish = optimizer_step_completed
+        optimizer_step_completed = False
         # Reset peak memory stats
         torch.cuda.reset_peak_memory_stats()
         if gc_handler is not None:
@@ -279,7 +287,7 @@ def train(config: TrainerConfig):
         #     uses the trainer's penultimate ckpt, so the trainer's last broadcast has no receiver
         #     (the inference NCCL group has been torn down). Filesystem broadcast still writes the
         #     final step so we can resume from the broadcast directory.
-        if weight_broadcast is None:
+        if weight_broadcast is None or not completed_update_to_publish:
             broadcast_weights_time = 0
         else:
             nccl_broadcast_unused = (
@@ -302,13 +310,16 @@ def train(config: TrainerConfig):
                     multi_run_manager.ready_to_update[idx] = False
 
         if config.max_concurrent_runs > 1:
-            # Multi-run: Save per-run checkpoints using each run's orchestrator config.
-            # Trainer-level ckpt config can be set by the combined rl entrypoint,
-            # but MultiCheckpointManager has a different save signature.
-            save_ckpt_start_time = time.perf_counter()
-            ckpt_manager.save(optimizer, scheduler)
-            save_ckpt_time = time.perf_counter() - save_ckpt_start_time
-            ckpt_manager.maybe_clean()
+            if not config.atomic_multi_run_updates or completed_update_to_publish:
+                # Multi-run: Save per-run checkpoints using each run's orchestrator config.
+                # Trainer-level ckpt config can be set by the combined rl entrypoint,
+                # but MultiCheckpointManager has a different save signature.
+                save_ckpt_start_time = time.perf_counter()
+                ckpt_manager.save(optimizer, scheduler)
+                save_ckpt_time = time.perf_counter() - save_ckpt_start_time
+                ckpt_manager.maybe_clean()
+            else:
+                save_ckpt_time = 0
         elif (
             ckpt_manager is not None
             and (config.ckpt and config.ckpt.interval)
@@ -599,7 +610,12 @@ def train(config: TrainerConfig):
                 micro_step_message += f" | Routing Conf. {tensors['routing_confidence'][-1].mean().item():.4f}"
             logger.debug(micro_step_message)
 
-        if config.rollout_parity_gate is not None:
+        optimizer_step_ready = multi_run_optimizer_step_ready(
+            multi_run_manager.ready_to_update,
+            multi_run_manager.used_idxs,
+            atomic=config.atomic_multi_run_updates,
+        )
+        if config.rollout_parity_gate is not None and optimizer_step_ready:
             def gathered(values: list[torch.Tensor]) -> torch.Tensor:
                 local = (
                     torch.cat(values, dim=0).to("cuda")
@@ -649,34 +665,38 @@ def train(config: TrainerConfig):
                 if run_idx is not None:
                     del multi_run_parity[run_idx]
 
-        # compute_loss already divided by the global token count. Undo FSDP's per-rank averaging
-        # across dp_cp so the final gradient is the true per-token mean over the global batch.
-        for param in model.parameters():
-            if param.grad is not None:
-                param.grad.mul_(parallel_dims.fsdp_gradient_divide_factor)
-
-        # Optionally, clip the gradients
         grad_norm: torch.Tensor | None = None
-        if config.optim.max_norm is not None:
-            grad_norm = clip_grad_norm_(
-                model.parameters(), max_norm=config.optim.max_norm, ep_enabled=parallel_dims.ep_enabled
-            )
-            if grad_norm.device.type == "cpu":
-                grad_norm = grad_norm.to(torch.device("cuda"))
+        if optimizer_step_ready:
+            # compute_loss already divided by the global token count. Undo FSDP's
+            # per-rank averaging once, immediately before the complete update.
+            for param in model.parameters():
+                if param.grad is not None:
+                    param.grad.mul_(parallel_dims.fsdp_gradient_divide_factor)
 
-        zero_grad_ratio = get_zero_gradient_ratio(model.parameters(), parallel_dims.dp_replicate)
+            if config.optim.max_norm is not None:
+                grad_norm = clip_grad_norm_(
+                    model.parameters(), max_norm=config.optim.max_norm, ep_enabled=parallel_dims.ep_enabled
+                )
+                if grad_norm.device.type == "cpu":
+                    grad_norm = grad_norm.to(torch.device("cuda"))
 
-        # Update the model parameters
-        optimizer.step()
-        optimizer.zero_grad()
+            zero_grad_ratio = get_zero_gradient_ratio(model.parameters(), parallel_dims.dp_replicate)
+            optimizer.step()
+            optimizer.zero_grad()
+            scheduler.step()
+            optimizer_step_completed = True
 
-        # Update learning rate scheduler
-        scheduler.step()
-
-        if config.max_concurrent_runs == 1:
-            current_lr = optimizer.param_groups[0]["lr"]
+            if config.max_concurrent_runs == 1:
+                current_lr = optimizer.param_groups[0]["lr"]
+            else:
+                current_lr = optimizer.get_current_lr()
         else:
-            current_lr = optimizer.get_current_lr()
+            zero_grad_ratio = get_zero_gradient_ratio(model.parameters(), parallel_dims.dp_replicate)
+            current_lr = 0.0
+            logger.info(
+                "Deferring atomic multi-run optimizer step until all active runs are ready: "
+                f"ready={multi_run_manager.ready_to_update_idxs}, used={multi_run_manager.used_idxs}"
+            )
         forward_backward_time = time.perf_counter() - forward_backward_start_time
 
         # Optionally, dump memory snapshot

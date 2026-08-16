@@ -117,6 +117,8 @@ def main() -> None:
             "multi-run Swarm trainer max_steps must be omitted: Prime counts packing "
             "slices, while --policy-steps controls logical policy updates"
         )
+    if not config.atomic_multi_run_updates:
+        raise ValueError("multi-policy Swarm training requires atomic trainer updates")
     config.output_dir = args.output_dir
     config.model.name = args.model
     if config.model.lora is None:

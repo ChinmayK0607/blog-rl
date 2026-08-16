@@ -2,7 +2,7 @@ import hashlib
 import pickle
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable, Iterable, Optional
 
 import tomli
 import torch
@@ -25,6 +25,19 @@ class Progress:
     step: int = 0
     total_tokens: int = 0
     total_samples: int = 0
+
+
+def multi_run_optimizer_step_ready(
+    ready_to_update: list[bool],
+    used_idxs: Iterable[int],
+    *,
+    atomic: bool,
+) -> bool:
+    active_idxs = set(used_idxs)
+    ready_idxs = {idx for idx in active_idxs if ready_to_update[idx]}
+    if not ready_idxs:
+        return False
+    return not atomic or ready_idxs == active_idxs
 
 
 def _adapter_weights_path(path: Path) -> Path:

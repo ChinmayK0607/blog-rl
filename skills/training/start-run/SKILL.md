@@ -59,7 +59,10 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   random keys and prompt permutations for every other decision. Compute the
   leave-one-out verified terminal-return advantage and route non-zero credit
   only to the designated policy; keep the other three envelopes at zero so the
-  four-policy update remains atomic. Never send all four agents through one run
+  four-policy update remains atomic. Set `atomic_multi_run_updates = true` so
+  the trainer waits for every active policy's complete batch and parity result
+  before stepping any optimizer; otherwise a late policy failure can leave a
+  partial joint-policy update. Never send all four agents through one run
   or merge their private contexts, gradients, optimizer states, or checkpoints.
 - Seed all four Swarm Arena policy slots from one immutable warm start with
   trainer-side `model.lora.initial_adapter_path` and
