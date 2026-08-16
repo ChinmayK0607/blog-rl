@@ -3265,6 +3265,87 @@ no more critical-specific than decoy-specific. Therefore:
 - Instance decommissioned: no; GPUs are idle and the host remains available for
   validation and the prospective fresh launch.
 
+### 2026-08-17 — atomic four-policy canary and fresh focused-80 restart
+
+- Status: atomic canary completed; fresh 80-update run launched and currently
+  running from update zero.
+- Verdict: the atomic-update implementation passed its deliberately uneven
+  live integration test. This is a mechanical safety result, not evidence of
+  learning. The new RL run is not yet evaluated.
+- Hypothesis and decision: eliminate the partial-joint-policy failure mode,
+  retain bounded off-policy DPPO, and rerun the unchanged focused curriculum
+  from the common SFT initializer. Do not seed from the rejected partial step
+  17 or the non-admitted update-10 development adapters.
+- Source commit: `6c5eea739e6d743957a6132dbb0022ea7eab4895` on public branch
+  `exp/swarm-arena-4b`. Linux Ruff passed, focused tests passed `33/33`, and the
+  complete Swarm plus multi-run selection passed `129/129` before any live
+  `torchrun` process started.
+- Atomic canary: `/workspace/runs/atomic-canary-6c5eea73`, resolved trainer
+  config SHA-256
+  `f8b3c78f38e3aeaa25843bafd750bf534b9e21a37b57de066d73eb5e46cd47bf`
+  and trainer parity-gate SHA-256
+  `671c4631021adcb098941079bca037e4133ca8f34eaef95ef3303ef6b8e0d0b8`.
+  Only one recorded SFT batch was initially exposed. At `23:36:07`, one full
+  policy was ready while the other three were absent; the trainer logged
+  `ready=[2]`, kept learning rate exactly zero, and published no step-1
+  broadcast. After the remaining batches arrived, all four parity summaries
+  passed at `23:38:36`; the first non-zero optimizer step occurred only at
+  `23:38:38`, followed by four step-1 stable broadcasts. There were zero
+  trainer errors. The four output adapter SHA-256 values were distinct:
+  `adaf1c97...`, `87c94445...`, `df8250a5...`, and `b86fb4e0...` for
+  `run_blue_0` through `run_blue_3`. W&B run `x4v19blb` was synced.
+- Fresh immutable inputs: base revision
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; SFT revision
+  `534522a8f3ff3489b1dd8318dc8e533e51264cde`; SFT adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`.
+  Prepared trainer config SHA-256
+  `af13b9466c8f120fa81d345dde52748c12c2838e9875ae5c012696c73f02db01`.
+- Runtime certificate: three isolated Prime inference servers on GPUs 1--3
+  used unique vLLM, Triton, TorchInductor, RPC, and API namespaces. The fresh
+  32-decision probe contained 1,367 completion tokens. Numerical certification
+  passed with mean absolute log-probability error `0.00185143`, p99
+  `0.04923738`, mean mismatch-KL `0.00008623`, and four disjoint optimizer
+  parameter sets; only `run_blue_0` changed in the isolation step. The exact
+  prospective bounds remain `0.05` mean absolute log-probability error and
+  `0.005` mean mismatch-KL. Runtime certificate SHA-256:
+  `44bad49c2c0e9fcdf6e07d5de8b0615236cf25a6ab03867558b39f9544afad86`.
+- Production plan: ACT-only focused-agent credit, 80 updates, four groups per
+  update, 108 ordinary groups, 106 critical groups, and 106 paired decoys.
+  Schedule SHA-256
+  `a1974e645bf5546a3d940a4fa85a5e218a7ceba351f4013666597660daff2e7b`;
+  production-plan SHA-256
+  `b1aea6748ae192953a818bf34d3a6cb21b4010890ba098857659eb780c8b8d3f`.
+  The unchanged development pulse runs at update 0 and every ten updates;
+  selection and final tiers remain unopened during the learning curve.
+- Live run:
+  `/workspace/runs/rl-v4-focused80-atomic-6c5eea73-l40-20260817`, tmux prefix
+  `swarm-focused80-atomic-6c5`, launched at `23:50` on four NVIDIA L40 GPUs.
+  Preflight v2 passed with GPU 0 idle and all three rollout servers healthy.
+  Trainer, controller, rescore worker, pulse worker, and W&B sidecar survived
+  launcher health checks. Controller W&B run ID is
+  `rl-v4-focused80-atomic-6c5eea73-l40-20260817-controller-v1`; trainer W&B is
+  offline and must be synced after completion.
+- Failures and retries: the first prepare command omitted the experiment-local
+  package and failed before creating a run directory with
+  `ModuleNotFoundError: swarm_ctf_eval`; the retry used
+  `uv run --with ./experiments/swarm_arena`. The first certificate invocation
+  used the CLI's diagnostic default `0.0005` instead of the immutable trainer's
+  declared `0.005` threshold and failed before model loading or output. Its
+  work directory was preserved as `parity-work.failed-default-threshold`; the
+  retry explicitly supplied all trainer gate values and passed. Neither failure
+  admitted data or changed policy weights.
+- GPU and storage: no model or rollout artifact was copied to the Mac. Large
+  checkpoints and raw evidence remain on the paid host; compact results will
+  be committed and selected checkpoints published publicly. Provider price and
+  exact allocation start are not recorded here, so no dollar cost is invented.
+- Next action: complete the update-zero invariance pulse, then train. Treat
+  update 10 as an early direction check and update 20 as the first substantive
+  tactical-plus-communication comparison. Continue to update 80 unless a real
+  process failure, non-finite optimization, extreme KL, or clear collapse is
+  observed; do not stop merely because an early confidence interval overlaps
+  zero.
+- Instance decommissioned: no; the substantive run is active.
+
 ## Artifact index
 
 - Public source branch:
