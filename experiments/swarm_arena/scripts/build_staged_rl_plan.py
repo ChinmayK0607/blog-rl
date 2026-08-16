@@ -25,12 +25,24 @@ def main() -> None:
     parser.add_argument("--base-plan", type=Path, required=True)
     parser.add_argument("--curriculum", type=Path, required=True)
     parser.add_argument("--handoff-manifest", type=Path, required=True)
+    parser.add_argument("--runtime-certificate", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
     base = json.loads(args.base_plan.read_text(encoding="utf-8"))
     curriculum = json.loads(args.curriculum.read_text(encoding="utf-8"))
     handoff = json.loads(args.handoff_manifest.read_text(encoding="utf-8"))
+    certificate = json.loads(args.runtime_certificate.read_text(encoding="utf-8"))
+    certificate_body = {
+        key: value for key, value in certificate.items() if key != "sha256"
+    }
+    if certificate.get("sha256") != _digest(certificate_body):
+        raise ValueError("runtime certificate body hash mismatch")
+    if (
+        certificate.get("version") != "swarm-runtime-certificate-v1"
+        or certificate.get("status") != "passed"
+    ):
+        raise ValueError("runtime certificate is not a passed v1 certificate")
     handoff_body = {key: value for key, value in handoff.items() if key != "sha256"}
     if handoff.get("sha256") != _digest(handoff_body):
         raise ValueError("handoff training manifest body hash mismatch")
@@ -63,6 +75,19 @@ def main() -> None:
             "sha256": handoff["sha256"],
             "pair_count": handoff["pair_count"],
         },
+        "async_admission": {
+            **base["async_admission"],
+            "backend": {
+                "name": certificate["backend"]["name"],
+                "version": certificate["backend"]["version"],
+                "kernel_config_sha256": certificate["inference_config_sha256"],
+                "calibration_sha256": certificate["sha256"],
+            },
+        },
+        "runtime_certificate": {
+            "path": str(args.runtime_certificate),
+            "sha256": certificate["sha256"],
+        },
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -90,6 +115,7 @@ def main() -> None:
         "counts_by_stage": {name: dict(rows) for name, rows in per_stage.items()},
         "maximum_pair_index": maximum_pair_index,
         "handoff_manifest_sha256": handoff["sha256"],
+        "runtime_certificate_sha256": certificate["sha256"],
         "unique_ordinary_seeds": len(
             {row.ordinary_seed for row in schedule if row.ordinary_seed is not None}
         ),

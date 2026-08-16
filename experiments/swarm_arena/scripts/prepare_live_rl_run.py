@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import tempfile
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -84,9 +85,19 @@ def main() -> None:
         required=True,
         help="Number of logical per-policy updates; distinct from trainer packing slices.",
     )
+    parser.add_argument(
+        "--checkpoint-interval",
+        type=int,
+        help="preserve resume-capable per-policy checkpoints at this logical interval",
+    )
     args = parser.parse_args()
     if args.policy_steps < 1:
         parser.error("policy-steps must be positive")
+    if args.checkpoint_interval is not None and (
+        args.checkpoint_interval < 1
+        or args.policy_steps % args.checkpoint_interval
+    ):
+        parser.error("checkpoint interval must positively divide policy steps")
 
     actual_sha256 = sha256_file(args.adapter / "adapter_model.safetensors")
     if actual_sha256 != args.adapter_sha256:
@@ -114,6 +125,11 @@ def main() -> None:
     config.model.lora.initial_adapter_sha256 = args.adapter_sha256
     if config.rollout_parity_gate is None:
         raise ValueError("live RL requires a trainer pre-step parity gate")
+    if args.checkpoint_interval is not None:
+        if config.ckpt is None or config.ckpt.interval != args.checkpoint_interval:
+            raise ValueError(
+                "trainer checkpoint interval must exactly match --checkpoint-interval"
+            )
 
     args.output_dir.mkdir(parents=True, exist_ok=False)
     resolved_path = args.output_dir / "trainer.toml"
@@ -137,20 +153,35 @@ def main() -> None:
                 "train": {"env": [{"id": "reverse-text"}]},
                 "renderer": {"name": "qwen3"},
                 "wandb": None,
+                "ckpt": (
+                    None
+                    if args.checkpoint_interval is None
+                    else {
+                        "interval": args.checkpoint_interval,
+                        "keep_last": 2,
+                        "keep_interval": args.checkpoint_interval,
+                    }
+                ),
             }
         )
         with (control_dir / "orch.toml").open("wb") as handle:
             tomli_w.dump(orchestrator.model_dump(exclude_none=True, mode="json"), handle)
-    print(
-        {
-            "output_dir": str(args.output_dir),
-            "trainer_config": str(resolved_path),
-            "trainer_parity_gate_sha256": parity_gate_sha256(config.rollout_parity_gate),
-            "policy_steps": args.policy_steps,
-            "adapter_sha256": actual_sha256,
-            "public_inputs": public_inputs,
-        }
+    report = {
+        "version": "swarm-live-rl-prepare-v2",
+        "output_dir": str(args.output_dir),
+        "trainer_config": str(resolved_path),
+        "trainer_config_sha256": sha256_file(resolved_path),
+        "trainer_parity_gate_sha256": parity_gate_sha256(config.rollout_parity_gate),
+        "policy_steps": args.policy_steps,
+        "checkpoint_interval": args.checkpoint_interval,
+        "adapter_sha256": actual_sha256,
+        "public_inputs": public_inputs,
+    }
+    (args.output_dir / "PREPARE.json").write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
+    print(json.dumps(report, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

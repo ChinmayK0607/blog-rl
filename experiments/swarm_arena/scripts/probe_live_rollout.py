@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 from pathlib import Path
 
@@ -12,6 +13,14 @@ from swarm_ctf_eval.episode_protocol import episode_action_prompt, episode_broad
 from swarm_ctf_eval.live_rl_rollout import PolicyEndpoint, VLLMChoiceGenerator
 from swarm_ctf_eval.rl_v3 import ArenaRLEnv
 from swarm_ctf_eval.structured_protocol import protocol_choices
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 async def replace_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> None:
@@ -59,6 +68,7 @@ async def main() -> None:
     args = parser.parse_args()
 
     base_urls = tuple(args.base_url)
+    adapter_sha256 = sha256_file(args.adapter / "adapter_model.safetensors")
     await replace_adapter(base_urls, args.adapter_name, args.adapter)
     env = ArenaRLEnv(
         seed=7_000_003,
@@ -111,6 +121,8 @@ async def main() -> None:
             {
                 "status": "passed",
                 "servers": len(base_urls),
+                "base_urls": list(base_urls),
+                "adapter_sha256": adapter_sha256,
                 "broadcast": {
                     "text": broadcast.text,
                     "prompt_tokens": len(broadcast.prompt_ids),

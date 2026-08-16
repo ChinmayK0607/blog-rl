@@ -36,6 +36,17 @@ type = "filesystem"
 save_sharded = false
 save_format = "safetensors"
 
+[ckpt]
+interval = 10
+keep_last = 2
+keep_interval = 10
+weights_only = true
+
+[ckpt.weights]
+save_sharded = false
+save_format = "safetensors"
+save_adapter_separately = true
+
 [rollout_parity_gate]
 max_mean_logprob_error = 0.01
 max_p99_logprob_error = 0.15
@@ -55,3 +66,4 @@ project = "swarm-arena-rl"
 name = "qwen3-1.7b-staged-120-trainer"
 group = "qwen3-1.7b-staged-120"
 tags = ["1.7b", "lora", "marl", "staged-curriculum", "four-policy"]
+offline = true

@@ -90,6 +90,17 @@ def _read_json_retry(path: Path) -> Any:
     raise last_error
 
 
+def watcher_complete(
+    logged_steps: set[int],
+    *,
+    expected_updates: int,
+    finish_marker: Path | None,
+) -> bool:
+    training_complete = max(logged_steps, default=0) >= expected_updates
+    evaluation_complete = finish_marker is None or finish_marker.is_file()
+    return training_complete and evaluation_complete
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Failure-isolated W&B logger for Swarm Arena controller and eval metrics."
@@ -102,6 +113,11 @@ def main() -> None:
     parser.add_argument("--group")
     parser.add_argument("--tag", action="append", default=[])
     parser.add_argument("--expected-updates", type=int, required=True)
+    parser.add_argument(
+        "--finish-marker",
+        type=Path,
+        help="when set, keep ingesting evaluations until this explicit marker exists",
+    )
     parser.add_argument("--poll-seconds", type=float, default=30.0)
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--offline", action="store_true")
@@ -131,6 +147,7 @@ def main() -> None:
             "progress_path": str(args.progress),
             "eval_root": None if args.eval_root is None else str(args.eval_root),
             "expected_updates": args.expected_updates,
+            "finish_marker": None if args.finish_marker is None else str(args.finish_marker),
         },
     )
     assert run is not None
@@ -153,7 +170,11 @@ def main() -> None:
                 update = int(summary_path.parent.name.removeprefix("update-"))
                 run.log(summarize_evaluation(_read_json_retry(summary_path)), step=update)
                 logged_evals.add(summary_path)
-        if args.once or max(logged_steps, default=0) >= args.expected_updates:
+        if args.once or watcher_complete(
+            logged_steps,
+            expected_updates=args.expected_updates,
+            finish_marker=args.finish_marker,
+        ):
             break
         time.sleep(args.poll_seconds)
 

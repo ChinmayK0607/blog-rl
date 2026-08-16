@@ -115,9 +115,12 @@ entry point is `scripts/run_progress_eval_v4.py`, with a served-model roster
 template at `configs/progress_eval_v4.example.json`.
 
 `STAGED_RL_PLAN.md` defines the next 120-update 1.7B run. It progressively
-increases matched communication pressure, adds a 32-game ten-update pulse, and
-logs trainer plus controller/evaluation curves to one grouped W&B experiment.
-The frozen v4 manifests and terminal reward remain unchanged.
+increases matched communication pressure, adds a 16-game BLUE-side pulse every
+ten updates, and logs trainer plus controller/evaluation curves to one grouped
+W&B experiment. A fresh host-bound serving/trainer certificate, public-input
+preflight, content-hashed evaluation barriers, and exact retained-checkpoint
+checks fail closed before or during paid execution. The frozen v4 manifests and
+terminal reward remain unchanged.
 
 ## Non-arena regression gate
 

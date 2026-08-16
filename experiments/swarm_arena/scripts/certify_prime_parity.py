@@ -469,6 +469,7 @@ def main() -> None:
 
     report = {
         "adapter_sha256": args.adapter_sha256,
+        "probe_sha256": sha256_file(args.probe),
         "trainer_config_sha256": trainer_config_sha256,
         "trainer_parity_gate_sha256": trainer_parity_gate_sha256,
         "trainer_model_impl": config.model.impl,

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from scripts.run_final_eval_development import _prepare_output, _roster
+from scripts.run_final_eval_development import _prepare_output, _roster, _served_model
 from swarm_ctf_eval.arena_eval import ArenaModel
 from swarm_ctf_eval.crossplay_eval import FROZEN_CROSSPLAY_CASES, development_cases
 from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
@@ -32,6 +32,7 @@ class TierPlan:
     opponent_scope: str
     legacy_option_orders: tuple[str, ...]
     critical_conditions: tuple[str, ...]
+    sides: tuple[str, ...]
 
 
 TIER_PLANS = {
@@ -43,6 +44,7 @@ TIER_PLANS = {
         "monitor",
         ("canonical",),
         ("normal", "dropped"),
+        ("BLUE",),
     ),
     "online": TierPlan(
         "online",
@@ -52,6 +54,7 @@ TIER_PLANS = {
         "monitor",
         ("canonical",),
         ("normal", "dropped"),
+        ("BLUE", "RED"),
     ),
     "selection": TierPlan(
         "selection",
@@ -61,6 +64,7 @@ TIER_PLANS = {
         "all",
         ("canonical",),
         COMMUNICATION_CONDITIONS,
+        ("BLUE", "RED"),
     ),
     "frozen": TierPlan(
         "frozen",
@@ -70,6 +74,7 @@ TIER_PLANS = {
         "all",
         ("canonical", "permuted-1", "permuted-2"),
         COMMUNICATION_CONDITIONS,
+        ("BLUE", "RED"),
     ),
 }
 
@@ -167,14 +172,14 @@ def _handoff_worlds(
 def _opponents(
     config: dict[str, Any],
     plan: TierPlan,
-    base_url: str,
+    base_urls: tuple[str, ...],
     api_key: str,
     monitor_opponent_id: str,
 ) -> dict[str, tuple[str, tuple[ArenaModel, ...]]]:
     configured = {
         str(item["id"]): (
             str(item["revision"]),
-            _roster(base_url, list(item["models"]), api_key),
+            _distributed_roster(base_urls, list(item["models"]), api_key),
         )
         for item in config["opponents"]
     }
@@ -185,6 +190,21 @@ def _opponents(
             raise ValueError("monitor opponent is absent from the configured opponent pool")
         return {monitor_opponent_id: configured[monitor_opponent_id]}
     return configured
+
+
+def _distributed_roster(
+    base_urls: tuple[str, ...], models: list[str], api_key: str
+) -> tuple[ArenaModel, ...]:
+    if not base_urls:
+        raise ValueError("evaluation requires at least one serving URL")
+    if len(base_urls) == 1:
+        return _roster(base_urls[0], models, api_key)
+    if len(models) != 4:
+        raise ValueError("every evaluation roster must contain exactly four model IDs")
+    return tuple(
+        _served_model(base_urls[index % len(base_urls)], model, api_key)
+        for index, model in enumerate(models)
+    )
 
 
 def main() -> None:
@@ -224,13 +244,22 @@ def main() -> None:
         args.data_dir / f"handoff_{split}.json"
     )
 
-    base_url = str(config["base_url"])
-    candidate = _roster(base_url, list(config["candidate"]["models"]), args.api_key)
-    baseline = _roster(base_url, list(config["baseline"]["models"]), args.api_key)
+    configured_urls = config.get("base_urls", [config.get("base_url")])
+    if not isinstance(configured_urls, list) or any(
+        not isinstance(value, str) or not value for value in configured_urls
+    ):
+        raise ValueError("evaluation base_urls must be a non-empty string list")
+    base_urls = tuple(configured_urls)
+    candidate = _distributed_roster(
+        base_urls, list(config["candidate"]["models"]), args.api_key
+    )
+    baseline = _distributed_roster(
+        base_urls, list(config["baseline"]["models"]), args.api_key
+    )
     opponents = _opponents(
         config,
         plan,
-        base_url,
+        base_urls,
         args.api_key,
         args.monitor_opponent_id,
     )
@@ -256,7 +285,7 @@ def main() -> None:
         "handoff_case_ids": [row[0] for row in handoffs],
         "critical_conditions": list(plan.critical_conditions),
         "decoy_conditions": ["normal", "dropped"],
-        "sides": ["BLUE", "RED"],
+        "sides": list(plan.sides),
         "generation": {"temperature": 0.0, "max_tokens": 160, "structured": True},
         "rl_specific_communication": args.rl_specific_communication,
     }
@@ -343,7 +372,7 @@ def main() -> None:
     for case_id, independent_id, case, suite, option_order in ordinary:
         for opponent_id, (opponent_revision, opponent) in opponents.items():
             for variant, revision, focal in variants:
-                for side in ("BLUE", "RED"):
+                for side in plan.sides:
                     run_one(
                         case_id=case_id,
                         independent_id=independent_id,
@@ -368,7 +397,7 @@ def main() -> None:
             else ("normal", "dropped")
         )
         for opponent_id, (opponent_revision, opponent) in opponents.items():
-            for side in ("BLUE", "RED"):
+            for side in plan.sides:
                 for condition in conditions:
                     run_one(
                         case_id=case_id,

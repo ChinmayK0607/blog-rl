@@ -2445,6 +2445,103 @@ no more critical-specific than decoy-specific. Therefore:
   Do not open selection/frozen tiers during the run.
 - Instance decommissioned: not applicable; no rented instance used.
 
+### 2026-08-16 — second-pass audit of the staged 120-update run
+
+- Status: CPU-side implementation and audit completed; GPU certification and
+  training not started. Verdict: the long run now has a fail-closed launch path,
+  but it is not authorized until the exact rented host produces a fresh passed
+  runtime certificate and Linux test result.
+- Audit motivation: the first staged design left several operational failure
+  modes that could waste a long rental. Prime removes ordinary broadcast
+  snapshots aggressively; the W&B sidecar could stop before the last
+  evaluation; online trainer logging could kill training during an outage;
+  later curriculum stages used unnecessarily long episodes; the pulse used one
+  rollout server and 32 rows; and the old backend identity did not bind serving
+  and numerical parity into one host-specific artifact.
+- Curriculum correction before GPU use: all 120 training updates now remain at
+  12/13 nodes and 4/5 turns. Difficulty increases through matched
+  communication density and the adaptive current-policy opponent, while the
+  larger 18/20-node, 8/10-turn cases remain evaluation-only. The immutable
+  schedule still contains 480 groups: 176 ordinary, 152 critical, and 152
+  matched decoys, with 176 unique ordinary seeds and handoff pairs 0--151.
+  Canonical curriculum SHA-256 is
+  `2dd25a990ddae837502dcdbe261dd87e67e5ca6657cb0dc9e775fb211283adcd`;
+  schedule SHA-256 is
+  `73f9e5b888282cdd1a311a1f5d1581ad2fae5868be1c6f1723091ec814a197de`.
+  File SHA-256 is
+  `b69484f10c58b563b3fb6b930a1c496969743f92755f529cae802abb3bcb145c`.
+- Runtime binding: `capture_runtime_parity_probe.py` captures 32 fresh
+  constrained decisions, balanced across all four policy slots and exercised
+  across all three rollout servers. `certify_prime_parity.py` now records the
+  exact probe digest. `bind_runtime_certificate.py` refuses dirty source or a
+  failed/mismatched report and binds source commit, base revision, adapter
+  bytes, resolved trainer config, inference config, vLLM version, driver and
+  four-GPU inventory, the three-server broadcast/action probe, and passing
+  numerical parity plus four-policy optimizer isolation. The production-plan
+  builder replaces inherited backend identity with this certificate; a
+  machine-specific production-plan hash therefore does not exist until the GPU
+  host passes certification.
+- Public fail-closed preflight: `preflight_staged_rl.py` independently checks a
+  clean exact commit, anonymous public base/adapter/source availability, local
+  model and adapter bytes, resolved config and parity-gate hashes, certificate,
+  installed vLLM, exact GPU/driver inventory, three serving registries, at
+  least 20 GiB free disk, 120 updates, four independent trainer slots, LoRA
+  rank 16, `7.5e-6` LR, 2,560-token trainer versus 4,096-token actor context,
+  every reconstructed handoff pair, unique ordinary seeds, the exact
+  base/SFT/historical/current opponent rotation, and all opponent adapter
+  hashes. It writes `swarm-staged-rl-preflight-v2`; the launcher cannot start
+  without a pass.
+- Evaluation/checkpoint synchronization: the controller now blocks before
+  update 0 and after updates 10--120 on content-hashed ready/continue files.
+  The step-zero 16-row BLUE-only pulse must show exact SFT-vs-SFT invariance
+  before any optimizer step. Subsequent pulses measure ordinary capability,
+  candidate critical normal-minus-dropped, RL-minus-SFT communication lift,
+  and critical-minus-decoy specificity. Agent rosters are distributed across
+  all three actor servers. Before a continuation is written, the pulse process
+  requires all four per-policy checkpoints to contain `STABLE`, optimizer
+  state, adapter config, and adapter bytes whose SHA-256 exactly matches the
+  policy evaluated at that barrier. This catches Prime multi-run checkpoint
+  errors that are logged rather than raised.
+- Storage/logging: every tenth per-policy checkpoint is permanently retained;
+  only two intervening checkpoints are kept. The trainer W&B run is offline so
+  network loss cannot affect optimization; the controller/evaluation sidecar
+  remains failure-isolated and waits for the explicit pulse-completion marker.
+  No checkpoint, model, or raw rollout was downloaded to the Mac.
+- Exact checked-in trainer-config SHA-256 is
+  `6cef3afd20df3a15ab34f53d00270bdff66d68cf39fa93db648c5e3f03f95597`;
+  inference-config SHA-256 remains
+  `300f6f5910456fae7aa93c8c7c97c34caf2b5ca2d028433782ef3d8daffe4420`.
+  The generated staged plan before host binding had canonical SHA-256
+  `c82ba8e19d6bff18fb58009ad08b3225b2b71bc35c44347803f1f99245823369`;
+  it is superseded for execution because the final plan must include the fresh
+  host certificate.
+- Verification: changed Python files passed `compileall` and Ruff; the launch
+  shell passed `bash -n`; `git diff --check` passed; CLI help smoke tests passed
+  for the certificate binder, plan builder, preflight, and pulse runner. The
+  focused staged curriculum/progress/checkpoint set passed 15 tests. The wider
+  dependency-light set passed 69 tests; its sole executed failure was the
+  already-recorded Mac environment absence of `prime_rl`, not a behavioral
+  assertion. Six optional-runtime collection files were excluded because the
+  lightweight Mac environment lacks `httpx`, Torch, or Hugging Face packages.
+  A dependency-resolving `uv` attempt also failed before testing because the
+  local clone has intentionally unpopulated workspace submodules; an attempted
+  isolated Ruff resolution could not reach PyPI under the sandbox. Cached
+  tools were used successfully instead. The complete repository Linux suite
+  remains the first paid-host action and must run before `torchrun`.
+- Runtime/cost estimate: the prior 4x L40S run took approximately three hours
+  for 30 updates. With short training horizons and thirteen distributed
+  16-game pulses, budget roughly 12--14 hours for 120 updates on the same class,
+  then measure actual throughput over the first five updates. A materially
+  slower trajectory is a stop-and-debug condition, not permission to continue
+  unattended.
+- GPU, wall time, cost: no GPU allocated; zero GPU cost. Instance
+  decommissioned: not applicable.
+- Next action: on the exact four-GPU host, run the full Linux suite, prepare a
+  fresh run directory, start the three isolated actor servers, create the fresh
+  serving/parity certificate, build the host-bound plan, require preflight v2,
+  then launch. Do not reuse an older certificate or open selection/frozen data
+  during the learning curve.
+
 ## Artifact index
 
 - Public source branch:

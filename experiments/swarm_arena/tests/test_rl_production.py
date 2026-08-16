@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import json
+import tomllib
 from collections import Counter
+from pathlib import Path
 
 import pytest
 from swarm_ctf_eval.rl_production import (
-    CurriculumStage,
     CurriculumMix,
+    CurriculumStage,
     OpponentPool,
     OpponentSnapshot,
     exact_curriculum_schedule,
@@ -180,3 +183,27 @@ def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
         ordinary_seed_base=90_000,
         shuffle_seed=17,
     )
+
+
+def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() -> None:
+    root = Path(__file__).resolve().parents[1]
+    curriculum = json.loads(
+        (root / "data" / "rl_v4" / "staged_curriculum_v1.json").read_text()
+    )
+    with (root / "configs" / "rl_v4_1_7b_staged.toml").open("rb") as handle:
+        trainer = tomllib.load(handle)
+
+    assert curriculum["total_updates"] == 120
+    assert {
+        horizon
+        for stage in curriculum["stages"]
+        for horizon in stage["ordinary_horizons"]
+    } == {4, 5}
+    assert max(
+        size
+        for stage in curriculum["stages"]
+        for size in stage["ordinary_sizes"]
+    ) == 13
+    assert trainer["ckpt"]["interval"] == 10
+    assert trainer["ckpt"]["keep_interval"] == 10
+    assert trainer["wandb"]["offline"]

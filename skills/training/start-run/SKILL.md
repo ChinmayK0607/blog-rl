@@ -111,9 +111,21 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   trainers or rollout actors owned by the same user. Never run pytest beside a
   live training, certification, or rollout process on the same host.
 - For the staged Swarm Arena run, first bind
-  `data/rl_v4/staged_curriculum_v1.json` to the verified opponent/runtime plan
-  with `scripts/build_staged_rl_plan.py`. The staged plan declares its exact
-  update count; never shorten or extend it under the same run identity.
+  the exact host to a fresh `swarm-runtime-certificate-v1`: capture a new
+  32-decision constrained probe across all three rollout servers, certify it
+  against the resolved trainer TOML, pass the live broadcast/action probe, and
+  bind source, model/adapter/config hashes, vLLM version, driver and GPU
+  inventory with `scripts/bind_runtime_certificate.py`. Then pass that
+  certificate to `scripts/build_staged_rl_plan.py` and
+  `scripts/preflight_staged_rl.py`. Never reuse a certificate after any bound
+  component changes or bypass a failed v2 preflight.
+  `data/rl_v4/staged_curriculum_v1.json` and the resulting plan declare their
+  exact update count; never shorten or extend them under the same run identity.
+  The production controller must block on content-hashed evaluation barriers
+  at step 0 and every ten updates, while Prime retains every corresponding
+  checkpoint. Step-zero SFT-vs-SFT invariance must pass before the first
+  optimizer update. Keep trainer W&B offline and sync it after completion so a
+  logging outage cannot kill the optimizer.
   `scripts/log_live_rl_wandb.py` is a failure-isolated sidecar for controller
   return, curriculum, opponent, and causal-evaluation metrics. Keep it in the
   same W&B group as trainer telemetry, but do not make training health depend

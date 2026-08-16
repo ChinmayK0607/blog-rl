@@ -95,6 +95,51 @@ def signing_key(path: Path) -> bytes:
     return key
 
 
+async def checkpoint_barrier(
+    root: Path,
+    *,
+    step: int,
+    run_id: str,
+    plan_sha256: str,
+    policy_adapter_sha256: dict[str, str],
+    policy_revision: str,
+    timeout: float,
+) -> None:
+    root.mkdir(parents=True, exist_ok=True)
+    ready_path = root / f"step_{step}.ready.json"
+    continue_path = root / f"step_{step}.continue.json"
+    if ready_path.exists() or continue_path.exists():
+        raise FileExistsError(f"stale checkpoint barrier files for step {step}")
+    payload = {
+        "version": "swarm-checkpoint-barrier-v1",
+        "step": step,
+        "run_id": run_id,
+        "production_plan_sha256": plan_sha256,
+        "policy_adapter_sha256": policy_adapter_sha256,
+        "policy_revision": policy_revision,
+    }
+    payload["ready_sha256"] = canonical_sha256(payload)
+    temporary = ready_path.with_suffix(ready_path.suffix + f".tmp-{os.getpid()}")
+    temporary.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    os.replace(temporary, ready_path)
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if continue_path.is_file():
+            continuation = json.loads(continue_path.read_text(encoding="utf-8"))
+            if continuation != {
+                "version": "swarm-checkpoint-barrier-v1",
+                "step": step,
+                "ready_sha256": payload["ready_sha256"],
+            }:
+                raise ValueError(f"invalid checkpoint continuation for step {step}")
+            return
+        await asyncio.sleep(1.0)
+    raise TimeoutError(f"checkpoint evaluation barrier timed out at step {step}")
+
+
 async def replace_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> None:
     """Atomically refresh one named LoRA and verify the server's registered path."""
     async with httpx.AsyncClient(timeout=120.0) as client:
@@ -280,6 +325,9 @@ async def main() -> None:
         ),
     )
     parser.add_argument("--update-timeout", type=float, default=600.0)
+    parser.add_argument("--checkpoint-barrier-dir", type=Path)
+    parser.add_argument("--checkpoint-barrier-interval", type=int)
+    parser.add_argument("--checkpoint-barrier-timeout", type=float, default=3600.0)
     args = parser.parse_args()
     if args.steps < 1 or args.groups_per_step < 1:
         parser.error("steps and groups-per-step must be positive")
@@ -295,6 +343,19 @@ async def main() -> None:
         parser.error("horizon must be positive")
     if args.rollout_only and args.steps != 1:
         parser.error("rollout-only diagnostics require exactly one controller step")
+    if (args.checkpoint_barrier_dir is None) != (
+        args.checkpoint_barrier_interval is None
+    ):
+        parser.error("checkpoint barrier directory and interval must be provided together")
+    if args.checkpoint_barrier_interval is not None and (
+        args.checkpoint_barrier_interval < 1
+        or args.steps % args.checkpoint_barrier_interval
+    ):
+        parser.error("checkpoint barrier interval must positively divide controller steps")
+    if args.checkpoint_barrier_timeout <= 0:
+        parser.error("checkpoint barrier timeout must be positive")
+    if args.checkpoint_barrier_dir is not None and args.production_plan is None:
+        parser.error("checkpoint evaluation barriers require an immutable production plan")
     if args.production_plan is None and args.opponent_revision is None:
         parser.error("--opponent-revision is required without --production-plan")
     if args.production_plan is not None:
@@ -510,6 +571,17 @@ async def main() -> None:
         policy_adapter_sha256 = {
             f"blue-{index}": initial_adapter_sha256 for index in range(4)
         }
+        if args.checkpoint_barrier_dir is not None:
+            assert production_plan is not None
+            await checkpoint_barrier(
+                args.checkpoint_barrier_dir,
+                step=0,
+                run_id=args.run_id,
+                plan_sha256=production_plan.sha256,
+                policy_adapter_sha256=policy_adapter_sha256,
+                policy_revision=canonical_sha256(policy_revisions),
+                timeout=args.checkpoint_barrier_timeout,
+            )
         for step in range(args.steps):
             if production_plan is not None:
                 assert args.async_rescore_dir is not None
@@ -1000,6 +1072,21 @@ async def main() -> None:
                 encoding="utf-8",
             )
             print(json.dumps(result_rows[-1], sort_keys=True))
+            completed_step = step + 1
+            if (
+                args.checkpoint_barrier_dir is not None
+                and completed_step % args.checkpoint_barrier_interval == 0
+            ):
+                assert production_plan is not None
+                await checkpoint_barrier(
+                    args.checkpoint_barrier_dir,
+                    step=completed_step,
+                    run_id=args.run_id,
+                    plan_sha256=production_plan.sha256,
+                    policy_adapter_sha256=policy_adapter_sha256,
+                    policy_revision=policy_revision,
+                    timeout=args.checkpoint_barrier_timeout,
+                )
 
 
 if __name__ == "__main__":

@@ -1,26 +1,42 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
 import pytest
+from scripts.log_live_rl_wandb import (
+    summarize_evaluation,
+    summarize_logical_update,
+    watcher_complete,
+)
 from scripts.run_progress_eval_v4 import (
     TIER_PLANS,
+    _distributed_roster,
     _handoff_worlds,
     _ordinary_cases,
     _validate_frozen_confirmation,
 )
-from scripts.log_live_rl_wandb import summarize_evaluation, summarize_logical_update
+from scripts.run_staged_pulses import _wait_retained_checkpoints
 from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
 
 
 def test_tier_plans_keep_final_large_and_development_small() -> None:
     assert TIER_PLANS["pulse"].handoff_pairs == 1
+    assert TIER_PLANS["pulse"].sides == ("BLUE",)
     assert TIER_PLANS["online"].handoff_pairs == 4
     assert TIER_PLANS["selection"].handoff_pairs == 12
     assert TIER_PLANS["frozen"].handoff_pairs == 24
     assert len(TIER_PLANS["frozen"].legacy_option_orders) == 3
     assert TIER_PLANS["online"].critical_conditions == ("normal", "dropped")
+    assert TIER_PLANS["online"].sides == ("BLUE", "RED")
+    distributed = _distributed_roster(
+        ("http://actor-1/v1", "http://actor-2/v1", "http://actor-3/v1"),
+        ["same-adapter"] * 4,
+        "local",
+    )
+    assert len({id(model) for model in distributed}) == 4
+    assert [model.name for model in distributed] == ["same-adapter"] * 4
 
 
 def test_frozen_tier_requires_exact_design_digest() -> None:
@@ -144,3 +160,32 @@ def test_wandb_controller_summary_exposes_curriculum_and_opponent_metrics() -> N
     assert metrics["curriculum/stage"] == "handoff"
     assert metrics["curriculum/critical_fraction"] == 0.5
     assert metrics["return/by_opponent/sft"] == 0.1
+
+
+def test_wandb_sidecar_waits_for_explicit_final_eval_marker(tmp_path) -> None:
+    marker = tmp_path / "COMPLETE"
+    assert not watcher_complete({120}, expected_updates=120, finish_marker=marker)
+    marker.touch()
+    assert watcher_complete({120}, expected_updates=120, finish_marker=marker)
+
+    expected = {}
+    for index in range(4):
+        checkpoint = tmp_path / f"run_blue_{index}" / "checkpoints" / "step_10"
+        for relative in (
+            "STABLE",
+            "trainer/rank_0.pt",
+            "weight/STABLE",
+            "weight/adapter_config.json",
+        ):
+            path = checkpoint / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.touch()
+        adapter = checkpoint / "weight" / "adapter_model.safetensors"
+        adapter.write_bytes(f"adapter-{index}".encode())
+        expected[f"blue-{index}"] = hashlib.sha256(adapter.read_bytes()).hexdigest()
+    _wait_retained_checkpoints(
+        tmp_path,
+        step=10,
+        policy_adapter_sha256=expected,
+        timeout=0.01,
+    )
