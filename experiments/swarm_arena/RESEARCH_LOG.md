@@ -3152,6 +3152,13 @@ no more critical-specific than decoy-specific. Therefore:
   `gqv6yifx`; controller run ID is
   `rl-v4-focused-80-a097bf17-l40-20260817-controller-v1`. Both must be synced
   after completion.
+- Early live status: the update-zero pulse completed and optimization proceeded.
+  The original controller W&B sidecar exited on the first focused-credit record
+  because it expected the legacy scalar `replica.advantage` field rather than
+  the new per-policy `replica.advantages` mapping. Training, evaluation,
+  admission, and trainer W&B remained healthy. The sidecar parser was updated
+  to accept both schemas and to log focused-agent advantage density explicitly;
+  it can replay every completed update and evaluation when restarted.
 
 ## Artifact index
 

@@ -15,6 +15,7 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
         raise ValueError("logical update has no groups")
     returns: list[float] = []
     advantages: list[float] = []
+    focused_advantages: list[float] = []
     kinds: Counter[str] = Counter()
     stage_names: set[str] = set()
     returns_by_kind: dict[str, list[float]] = defaultdict(list)
@@ -27,7 +28,25 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
             stage_names.add(str(stage))
         kinds[kind] += 1
         group_returns = [float(row["return"]) for row in group["replicas"]]
-        group_advantages = [float(row["advantage"]) for row in group["replicas"]]
+        group_advantages = []
+        focused_agent = scenario.get("focused_agent")
+        for replica in group["replicas"]:
+            if "advantages" in replica:
+                policy_advantages = {
+                    str(agent_id): float(value)
+                    for agent_id, value in replica["advantages"].items()
+                }
+                if not policy_advantages:
+                    raise ValueError("focused-credit replica has no policy advantages")
+                group_advantages.extend(policy_advantages.values())
+                if focused_agent is not None:
+                    if focused_agent not in policy_advantages:
+                        raise ValueError("focused agent is absent from replica advantages")
+                    focused_advantages.append(policy_advantages[str(focused_agent)])
+            else:
+                value = float(replica["advantage"])
+                group_advantages.append(value)
+                focused_advantages.append(value)
         returns.extend(group_returns)
         advantages.extend(group_advantages)
         returns_by_kind[kind].extend(group_returns)
@@ -39,6 +58,10 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
         "controller/mean_terminal_return": statistics.mean(returns),
         "controller/mean_abs_advantage": statistics.mean(map(abs, advantages)),
         "controller/nonzero_advantage_rate": statistics.mean(abs(value) > 1e-12 for value in advantages),
+        "controller/mean_abs_focused_advantage": statistics.mean(map(abs, focused_advantages)),
+        "controller/focused_nonzero_advantage_rate": statistics.mean(
+            abs(value) > 1e-12 for value in focused_advantages
+        ),
         "curriculum/stage": ",".join(sorted(stage_names)) or "legacy-fixed",
     }
     for kind, count in sorted(kinds.items()):

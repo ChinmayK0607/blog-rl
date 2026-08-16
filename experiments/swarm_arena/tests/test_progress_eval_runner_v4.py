@@ -225,11 +225,18 @@ def test_wandb_controller_summary_exposes_curriculum_and_opponent_metrics() -> N
                 "scenario": {
                     "kind": "critical",
                     "curriculum_stage": "handoff",
+                    "focused_agent": "blue-1",
                     "opponent": {"family": "sft"},
                 },
                 "replicas": [
-                    {"return": 0.2, "advantage": 0.1},
-                    {"return": 0.0, "advantage": -0.1},
+                    {
+                        "return": 0.2,
+                        "advantages": {"blue-0": 0.0, "blue-1": 0.1},
+                    },
+                    {
+                        "return": 0.0,
+                        "advantages": {"blue-0": 0.0, "blue-1": -0.1},
+                    },
                 ],
             },
             {
@@ -250,6 +257,8 @@ def test_wandb_controller_summary_exposes_curriculum_and_opponent_metrics() -> N
     assert metrics["curriculum/stage"] == "handoff"
     assert metrics["curriculum/critical_fraction"] == 0.5
     assert metrics["return/by_opponent/sft"] == 0.1
+    assert metrics["controller/mean_abs_focused_advantage"] == 0.05
+    assert metrics["controller/focused_nonzero_advantage_rate"] == 0.5
 
 
 def test_wandb_sidecar_waits_for_explicit_final_eval_marker(tmp_path) -> None:
