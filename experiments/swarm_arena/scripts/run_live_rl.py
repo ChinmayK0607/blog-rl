@@ -281,6 +281,18 @@ async def main() -> None:
         choices=("shared_team", "focused_agent"),
         default="shared_team",
     )
+    parser.add_argument(
+        "--shared-return-trainable-phase",
+        action="append",
+        choices=("BROADCAST", "ACT"),
+        default=[],
+        help="select trainable phases for a non-production rollout diagnostic",
+    )
+    parser.add_argument(
+        "--shared-return-all-turns",
+        action="store_true",
+        help="select every turn for a non-production rollout diagnostic",
+    )
     parser.add_argument("--replacement-policy-id", default="sft-replacement")
     parser.add_argument("--replacement-model-name", default="sft-replacement")
     parser.add_argument("--replacement-revision")
@@ -359,6 +371,8 @@ async def main() -> None:
             parser.error("production plans require --async-rescore-dir")
         if args.async_rescore_timeout <= 0:
             parser.error("async rescore timeout must be positive")
+        if args.shared_return_trainable_phase or args.shared_return_all_turns:
+            parser.error("production plans own the immutable trainable span selection")
     repository_root = Path(__file__).resolve().parents[3]
     actual_commit = subprocess.check_output(
         ["git", "-C", str(repository_root), "rev-parse", "HEAD"],
@@ -394,8 +408,18 @@ async def main() -> None:
     if args.credit_estimator == "shared_return":
         shared_return_spec = SharedReturnSpec(
             args.shared_return_replicas,
-            trainable_phases=(production_plan.trainable_phases if production_plan is not None else ("BROADCAST",)),
-            trainable_turn_offsets=(production_plan.trainable_turn_offsets if production_plan is not None else (0,)),
+            trainable_phases=(
+                production_plan.trainable_phases
+                if production_plan is not None
+                else tuple(args.shared_return_trainable_phase) or ("BROADCAST",)
+            ),
+            trainable_turn_offsets=(
+                production_plan.trainable_turn_offsets
+                if production_plan is not None
+                else None
+                if args.shared_return_all_turns
+                else (0,)
+            ),
             credit_assignment=args.shared_return_credit_assignment,
         )
     data_binding = resolve_task_data_binding(args.data_dir, args.task_data_version)

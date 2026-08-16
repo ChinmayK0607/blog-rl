@@ -3104,7 +3104,8 @@ no more critical-specific than decoy-specific. Therefore:
 - Added prospective artifacts:
   `data/rl_v4/staged_curriculum_v2_focused_80.json`,
   `configs/rl_v4_1_7b_focused_80.toml`, a focused-credit supervisor/rollout
-  implementation, and a parameterized staged launcher. These remain
+  implementation, explicit non-production diagnostic span flags, and a
+  parameterized staged launcher. These remain
   prospective until Linux tests, a fresh runtime certificate, and a live
   rollout smoke pass.
 - GPU/cost: the four-L40 instance remains active at the user-reported rental
