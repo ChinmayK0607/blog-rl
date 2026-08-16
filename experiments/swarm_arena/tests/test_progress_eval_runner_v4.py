@@ -86,12 +86,8 @@ def test_frozen_tier_requires_exact_design_digest() -> None:
 
 def test_runner_expands_both_handoff_worlds_and_hard_cases() -> None:
     data_dir = Path(__file__).parents[1] / "data" / "rl_v4"
-    handoff = json.loads(
-        (data_dir / "handoff_development.json").read_text(encoding="utf-8")
-    )
-    ordinary = json.loads(
-        (data_dir / "ordinary_hard_development.json").read_text(encoding="utf-8")
-    )
+    handoff = json.loads((data_dir / "handoff_development.json").read_text(encoding="utf-8"))
+    ordinary = json.loads((data_dir / "ordinary_hard_development.json").read_text(encoding="utf-8"))
     handoff_rows = _handoff_worlds("online", handoff)
     ordinary_rows = _ordinary_cases("online", ordinary)
     assert len(handoff_rows) == 4 * 2 * 2

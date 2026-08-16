@@ -43,9 +43,7 @@ def sha256_file(path: Path) -> str:
 
 
 def canonical_sha256(value: object) -> str:
-    return hashlib.sha256(
-        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def write_run_config(output_dir: Path, run_id: str, model: str) -> None:
@@ -89,9 +87,7 @@ def constrained_logprobs(
         token_position = prompt_length + offset
         prediction = logits[0, token_position - 1].float()
         legal_ids = torch.tensor(allowed, device=prediction.device, dtype=torch.long)
-        selected_rows.append(
-            prediction[input_ids[0, token_position]] - torch.logsumexp(prediction[legal_ids], dim=0)
-        )
+        selected_rows.append(prediction[input_ids[0, token_position]] - torch.logsumexp(prediction[legal_ids], dim=0))
     return torch.stack(selected_rows)
 
 
@@ -104,12 +100,8 @@ def constrained_distribution_logprobs(
     for offset, allowed in enumerate(allowed_rows):
         prediction = logits[0, prompt_length + offset - 1].float()
         legal_ids = torch.tensor(allowed, device=prediction.device, dtype=torch.long)
-        legal_logprobs = prediction[legal_ids] - torch.logsumexp(
-            prediction[legal_ids], dim=0
-        )
-        distributions.append(
-            dict(zip(allowed, legal_logprobs.detach().cpu().tolist(), strict=True))
-        )
+        legal_logprobs = prediction[legal_ids] - torch.logsumexp(prediction[legal_ids], dim=0)
+        distributions.append(dict(zip(allowed, legal_logprobs.detach().cpu().tolist(), strict=True)))
     return distributions
 
 
@@ -184,9 +176,7 @@ def main() -> None:
                     "max_probability_error": args.max_probability_error,
                     "max_p99_probability_error": args.max_p99_probability_error,
                     "probability_tail_threshold": args.probability_tail_threshold,
-                    "max_probability_tail_fraction": (
-                        args.max_probability_tail_fraction
-                    ),
+                    "max_probability_tail_fraction": (args.max_probability_tail_fraction),
                     "max_mean_mismatch_kl": args.max_mean_mismatch_kl,
                     "max_mismatch_kl": args.max_mismatch_kl,
                 },
@@ -253,9 +243,7 @@ def main() -> None:
             raise ValueError(f"parity sample has an invalid policy slot: {policy_slot}")
         run_id = f"run_blue_{policy_slot}"
         slot = manager.id_2_idx[run_id]
-        token_ids, position_ids, inference_logprobs, allowed_rows, prompt_length = prepare_sample(
-            sample, device=device
-        )
+        token_ids, position_ids, inference_logprobs, allowed_rows, prompt_length = prepare_sample(sample, device=device)
         labels = shift_tensor_left(token_ids)
         lora_num_tokens = torch.zeros(4, dtype=torch.int32, device=device)
         lora_num_tokens[slot] = token_ids.shape[1]
@@ -271,12 +259,8 @@ def main() -> None:
             logits = output.get("logits")
             if logits is None:
                 raise RuntimeError("parity requires the unfused trainer LM head logits")
-            trainer_logprobs = constrained_logprobs(
-                logits, token_ids, prompt_length, allowed_rows
-            ).cpu()
-            trainer_distributions = constrained_distribution_logprobs(
-                logits, prompt_length, allowed_rows
-            )
+            trainer_logprobs = constrained_logprobs(logits, token_ids, prompt_length, allowed_rows).cpu()
+            trainer_distributions = constrained_distribution_logprobs(logits, prompt_length, allowed_rows)
         serving_distributions = sample.get("serving_allowed_logprobs")
         if serving_distributions is not None:
             if len(serving_distributions) != len(allowed_rows):
@@ -290,15 +274,11 @@ def main() -> None:
                 )
             ):
                 serving = {int(token_id): float(value) for token_id, value in serving_row}
-                if len(serving) != len(serving_row) or any(
-                    token_id not in allowed for token_id in serving
-                ):
+                if len(serving) != len(serving_row) or any(token_id not in allowed for token_id in serving):
                     raise ValueError("invalid serving constrained distribution row")
                 if set(serving) != set(allowed):
                     continue
-                serving_logprobs = torch.tensor(
-                    [serving[token_id] for token_id in allowed], dtype=torch.float64
-                )
+                serving_logprobs = torch.tensor([serving[token_id] for token_id in allowed], dtype=torch.float64)
                 trainer_row_logprobs = torch.tensor(
                     [trainer_row[token_id] for token_id in allowed], dtype=torch.float64
                 )
@@ -307,12 +287,8 @@ def main() -> None:
                 normalization_error = abs(float(serving_probs.sum()) - 1.0)
                 probability_errors = (trainer_probs - serving_probs).abs()
                 total_variation = 0.5 * float(probability_errors.sum())
-                serving_to_trainer_kl = float(
-                    (serving_probs * (serving_logprobs - trainer_row_logprobs)).sum()
-                )
-                trainer_to_serving_kl = float(
-                    (trainer_probs * (trainer_row_logprobs - serving_logprobs)).sum()
-                )
+                serving_to_trainer_kl = float((serving_probs * (serving_logprobs - trainer_row_logprobs)).sum())
+                trainer_to_serving_kl = float((trainer_probs * (trainer_row_logprobs - serving_logprobs)).sum())
                 distribution_summaries.append(
                     {
                         "decision_id": sample.get("decision_id"),
@@ -331,9 +307,7 @@ def main() -> None:
         all_trainer.append(trainer_logprobs)
         all_branching.append(torch.tensor([len(row) > 1 for row in allowed_rows]))
         sample_absolute_error = (trainer_logprobs - inference_logprobs).abs()
-        sample_probability_error = (
-            trainer_logprobs.exp() - inference_logprobs.exp()
-        ).abs()
+        sample_probability_error = (trainer_logprobs.exp() - inference_logprobs.exp()).abs()
         sample_log_ratio = trainer_logprobs - inference_logprobs
         sample_mismatch_kl = sample_log_ratio.exp() - sample_log_ratio - 1.0
         for token_offset, (
@@ -374,9 +348,7 @@ def main() -> None:
         sample_summaries.append(
             {
                 "agent_id": sample["agent_id"],
-                "max_absolute_logprob_error": float(
-                    (trainer_logprobs - inference_logprobs).abs().max()
-                ),
+                "max_absolute_logprob_error": float((trainer_logprobs - inference_logprobs).abs().max()),
                 "phase": sample["phase"],
                 "decision_id": sample.get("decision_id"),
                 "game_id": sample.get("game_id"),
@@ -401,9 +373,8 @@ def main() -> None:
     mean_mismatch_kl = float(mismatch_kl.mean())
     p99_absolute_error = float(torch.quantile(absolute_error, 0.99))
     p99_probability_error = float(torch.quantile(probability_error, 0.99))
-    probability_tail_fraction = float(
-        (probability_error > args.probability_tail_threshold).float().mean()
-    )
+    probability_tail_fraction = float((probability_error > args.probability_tail_threshold).float().mean())
+
     def within(value: float, threshold: float | None) -> bool:
         return threshold is None or value <= threshold
 
@@ -424,13 +395,9 @@ def main() -> None:
         current = optimizer.optimizers[index]
         if current is None:
             raise RuntimeError(f"optimizer missing for policy slot {index}")
-        optimizer_param_ids.append(
-            {id(parameter) for group in current.param_groups for parameter in group["params"]}
-        )
+        optimizer_param_ids.append({id(parameter) for group in current.param_groups for parameter in group["params"]})
     optimizer_sets_disjoint = all(
-        not optimizer_param_ids[left] & optimizer_param_ids[right]
-        for left in range(4)
-        for right in range(left + 1, 4)
+        not optimizer_param_ids[left] & optimizer_param_ids[right] for left in range(4) for right in range(left + 1, 4)
     )
     if not optimizer_sets_disjoint:
         raise RuntimeError("policy optimizers share parameter objects")
@@ -490,32 +457,18 @@ def main() -> None:
         "mean_mismatch_kl": mean_mismatch_kl,
         "p95_absolute_logprob_error": float(torch.quantile(absolute_error, 0.95)),
         "p99_absolute_logprob_error": p99_absolute_error,
-        "p99_branching_absolute_logprob_error": float(
-            torch.quantile(absolute_error[branching], 0.99)
-        ),
+        "p99_branching_absolute_logprob_error": float(torch.quantile(absolute_error[branching], 0.99)),
         "p99_probability_error": p99_probability_error,
         "probability_error_over_0_05_fraction": probability_tail_fraction,
         "optimizer_parameter_sets_disjoint": optimizer_sets_disjoint,
         "parity_passed": parity_passed,
         "parity_components": {
-            "mean_absolute_logprob_error": within(
-                mean_absolute_error, args.max_mean_logprob_error
-            ),
-            "p99_absolute_logprob_error": within(
-                p99_absolute_error, args.max_p99_logprob_error
-            ),
-            "max_probability_error": within(
-                max_probability_error, args.max_probability_error
-            ),
-            "p99_probability_error": within(
-                p99_probability_error, args.max_p99_probability_error
-            ),
-            "probability_tail_fraction": within(
-                probability_tail_fraction, args.max_probability_tail_fraction
-            ),
-            "mean_mismatch_kl": within(
-                mean_mismatch_kl, args.max_mean_mismatch_kl
-            ),
+            "mean_absolute_logprob_error": within(mean_absolute_error, args.max_mean_logprob_error),
+            "p99_absolute_logprob_error": within(p99_absolute_error, args.max_p99_logprob_error),
+            "max_probability_error": within(max_probability_error, args.max_probability_error),
+            "p99_probability_error": within(p99_probability_error, args.max_p99_probability_error),
+            "probability_tail_fraction": within(probability_tail_fraction, args.max_probability_tail_fraction),
+            "mean_mismatch_kl": within(mean_mismatch_kl, args.max_mean_mismatch_kl),
             "max_mismatch_kl": within(max_mismatch_kl, args.max_mismatch_kl),
         },
         "parity_thresholds": {
@@ -543,37 +496,28 @@ def main() -> None:
                 else None
             ),
             "mean_total_variation": (
-                sum(row["total_variation"] for row in distribution_summaries)
-                / len(distribution_summaries)
+                sum(row["total_variation"] for row in distribution_summaries) / len(distribution_summaries)
                 if distribution_summaries
                 else None
             ),
             "max_total_variation": (
-                max(row["total_variation"] for row in distribution_summaries)
-                if distribution_summaries
-                else None
+                max(row["total_variation"] for row in distribution_summaries) if distribution_summaries else None
             ),
             "mean_serving_to_trainer_kl": (
-                sum(row["serving_to_trainer_kl"] for row in distribution_summaries)
-                / len(distribution_summaries)
+                sum(row["serving_to_trainer_kl"] for row in distribution_summaries) / len(distribution_summaries)
                 if distribution_summaries
                 else None
             ),
             "max_serving_to_trainer_kl": (
-                max(row["serving_to_trainer_kl"] for row in distribution_summaries)
-                if distribution_summaries
-                else None
+                max(row["serving_to_trainer_kl"] for row in distribution_summaries) if distribution_summaries else None
             ),
             "mean_trainer_to_serving_kl": (
-                sum(row["trainer_to_serving_kl"] for row in distribution_summaries)
-                / len(distribution_summaries)
+                sum(row["trainer_to_serving_kl"] for row in distribution_summaries) / len(distribution_summaries)
                 if distribution_summaries
                 else None
             ),
             "max_trainer_to_serving_kl": (
-                max(row["trainer_to_serving_kl"] for row in distribution_summaries)
-                if distribution_summaries
-                else None
+                max(row["trainer_to_serving_kl"] for row in distribution_summaries) if distribution_summaries else None
             ),
             "top_total_variation_rows": sorted(
                 distribution_summaries,

@@ -45,9 +45,7 @@ def test_exact_curriculum_schedule_preserves_mix_and_critical_decoy_pairs() -> N
     assert {row.pair_index for row in schedule if row.kind == "critical"} == {
         row.pair_index for row in schedule if row.kind == "decoy"
     }
-    assert len(
-        {row.ordinary_seed for row in schedule if row.kind == "ordinary"}
-    ) == 12
+    assert len({row.ordinary_seed for row in schedule if row.kind == "ordinary"}) == 12
     assert schedule == exact_curriculum_schedule(
         CurriculumMix(50, 25, 25),
         total_groups=24,
@@ -99,15 +97,16 @@ def test_sampling_namespace_matches_critical_decoy_pair_and_legacy_fallback() ->
     )
     paired = [row for row in schedule if row.kind in {"critical", "decoy"}]
 
-    assert {
-        scenario_sampling_namespace(row, run_id="canary", step=2) for row in paired
-    } == {"canary:step-2:pair-7"}
-    assert scenario_sampling_namespace(
-        None,
-        run_id="legacy",
-        step=3,
-        fallback_pair_index=4,
-    ) == "legacy:step-3:pair-4"
+    assert {scenario_sampling_namespace(row, run_id="canary", step=2) for row in paired} == {"canary:step-2:pair-7"}
+    assert (
+        scenario_sampling_namespace(
+            None,
+            run_id="legacy",
+            step=3,
+            fallback_pair_index=4,
+        )
+        == "legacy:step-3:pair-4"
+    )
 
 
 def test_opponent_pool_rotates_all_model_families_exactly() -> None:
@@ -171,11 +170,7 @@ def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
     }
     assert {row.stage for row in schedule[:8]} == {"warmup"}
     assert {row.stage for row in schedule[8:]} == {"handoff"}
-    assert {
-        (row.ordinary_size, row.ordinary_horizon)
-        for row in schedule[8:]
-        if row.kind == "ordinary"
-    } == {(16, 8)}
+    assert {(row.ordinary_size, row.ordinary_horizon) for row in schedule[8:] if row.kind == "ordinary"} == {(16, 8)}
     assert schedule == exact_staged_curriculum_schedule(
         stages,
         groups_per_update=4,
@@ -187,23 +182,13 @@ def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
 
 def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() -> None:
     root = Path(__file__).resolve().parents[1]
-    curriculum = json.loads(
-        (root / "data" / "rl_v4" / "staged_curriculum_v1.json").read_text()
-    )
+    curriculum = json.loads((root / "data" / "rl_v4" / "staged_curriculum_v1.json").read_text())
     with (root / "configs" / "rl_v4_1_7b_staged.toml").open("rb") as handle:
         trainer = tomllib.load(handle)
 
     assert curriculum["total_updates"] == 120
-    assert {
-        horizon
-        for stage in curriculum["stages"]
-        for horizon in stage["ordinary_horizons"]
-    } == {4, 5}
-    assert max(
-        size
-        for stage in curriculum["stages"]
-        for size in stage["ordinary_sizes"]
-    ) == 13
+    assert {horizon for stage in curriculum["stages"] for horizon in stage["ordinary_horizons"]} == {4, 5}
+    assert max(size for stage in curriculum["stages"] for size in stage["ordinary_sizes"]) == 13
     assert trainer["ckpt"]["interval"] == 10
     assert trainer["ckpt"]["keep_interval"] == 10
     assert trainer["wandb"]["offline"]
@@ -213,9 +198,7 @@ def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() ->
         "probability_tail_threshold": 0.05,
         "max_mean_mismatch_kl": 0.002,
     }
-    admission = json.loads(
-        (root / "configs" / "async_admission_minimal_v1.json").read_text()
-    )
+    admission = json.loads((root / "configs" / "async_admission_minimal_v1.json").read_text())
     assert admission == {
         "max_policy_lag": 1,
         "max_mean_abs_log_ratio": 0.05,

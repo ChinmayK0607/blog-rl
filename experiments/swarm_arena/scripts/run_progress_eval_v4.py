@@ -80,9 +80,7 @@ TIER_PLANS = {
 
 
 def _digest(value: object) -> str:
-    return hashlib.sha256(
-        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def _sha256_file(path: Path) -> str:
@@ -127,14 +125,8 @@ def _import_cached_baseline(
         case_id = str(row.get("case_id"))
         condition = str(row.get("condition"))
         allowed = (
-            suite in {"ordinary_legacy", "ordinary_hard"}
-            and case_id in ordinary_case_ids
-            and condition == "normal"
-        ) or (
-            suite == "handoff_critical"
-            and case_id in critical_case_ids
-            and condition in {"normal", "dropped"}
-        )
+            suite in {"ordinary_legacy", "ordinary_hard"} and case_id in ordinary_case_ids and condition == "normal"
+        ) or (suite == "handoff_critical" and case_id in critical_case_ids and condition in {"normal", "dropped"})
         if not allowed:
             continue
         if row.get("policy_revision") != baseline_revision:
@@ -143,9 +135,7 @@ def _import_cached_baseline(
             continue
         selected.append(row)
     if len(selected) != expected_rows:
-        raise ValueError(
-            f"cached baseline has {len(selected)} required rows; expected {expected_rows}"
-        )
+        raise ValueError(f"cached baseline has {len(selected)} required rows; expected {expected_rows}")
     for row in selected:
         evaluation_id = str(row["evaluation_id"])
         raw_record = source_raw.get(evaluation_id)
@@ -180,9 +170,7 @@ def _validate_frozen_confirmation(
         return
     expected = _digest(design)
     if confirmation != expected:
-        raise ValueError(
-            "frozen evaluation requires --frozen-confirmation " + expected
-        )
+        raise ValueError("frozen evaluation requires --frozen-confirmation " + expected)
 
 
 def _ordinary_cases(
@@ -190,11 +178,7 @@ def _ordinary_cases(
     hard_manifest: dict[str, Any],
 ) -> tuple[tuple[str, str, tuple[int, int, int], str, str], ...]:
     plan = TIER_PLANS[tier]
-    legacy = (
-        FROZEN_CROSSPLAY_CASES
-        if tier == "frozen"
-        else development_cases(plan.legacy_cases)
-    )
+    legacy = FROZEN_CROSSPLAY_CASES if tier == "frozen" else development_cases(plan.legacy_cases)
     rows = []
     for seed, size, horizon in legacy[: plan.legacy_cases]:
         for option_order in plan.legacy_option_orders:
@@ -226,9 +210,7 @@ def _handoff_worlds(
     handoff_manifest: dict[str, Any],
 ) -> tuple[tuple[str, str, str, Any, Any], ...]:
     rows = []
-    for pair_index, pair in enumerate(
-        handoff_manifest["pairs"][: TIER_PLANS[tier].handoff_pairs]
-    ):
+    for pair_index, pair in enumerate(handoff_manifest["pairs"][: TIER_PLANS[tier].handoff_pairs]):
         independent_id = f"handoff-bundle-{pair_index:03d}"
         for kind in ("critical", "decoy"):
             scenario = reconstruct_manifest_scenario(pair[kind])
@@ -268,25 +250,18 @@ def _opponents(
     return configured
 
 
-def _distributed_roster(
-    base_urls: tuple[str, ...], models: list[str], api_key: str
-) -> tuple[ArenaModel, ...]:
+def _distributed_roster(base_urls: tuple[str, ...], models: list[str], api_key: str) -> tuple[ArenaModel, ...]:
     if not base_urls:
         raise ValueError("evaluation requires at least one serving URL")
     if len(base_urls) == 1:
         return _roster(base_urls[0], models, api_key)
     if len(models) != 4:
         raise ValueError("every evaluation roster must contain exactly four model IDs")
-    return tuple(
-        _served_model(base_urls[index % len(base_urls)], model, api_key)
-        for index, model in enumerate(models)
-    )
+    return tuple(_served_model(base_urls[index % len(base_urls)], model, api_key) for index, model in enumerate(models))
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Run the resumable, tiered Swarm Arena RL progress evaluation v4."
-    )
+    parser = argparse.ArgumentParser(description="Run the resumable, tiered Swarm Arena RL progress evaluation v4.")
     parser.add_argument("--tier", choices=tuple(TIER_PLANS), required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--data-dir", type=Path, required=True)
@@ -313,17 +288,11 @@ def main() -> None:
     tier: Tier = args.tier
     plan = TIER_PLANS[tier]
     config = json.loads(args.config.read_text(encoding="utf-8"))
-    design = json.loads(
-        (args.data_dir / "progress_eval_design.json").read_text(encoding="utf-8")
-    )
+    design = json.loads((args.data_dir / "progress_eval_design.json").read_text(encoding="utf-8"))
     _validate_frozen_confirmation(tier, design, args.frozen_confirmation)
     split = "frozen_ood" if tier == "frozen" else "development"
-    hard_manifest = _load_manifest(
-        args.data_dir / f"ordinary_hard_{split}.json"
-    )
-    handoff_manifest = _load_manifest(
-        args.data_dir / f"handoff_{split}.json"
-    )
+    hard_manifest = _load_manifest(args.data_dir / f"ordinary_hard_{split}.json")
+    handoff_manifest = _load_manifest(args.data_dir / f"handoff_{split}.json")
 
     configured_urls = config.get("base_urls", [config.get("base_url")])
     if not isinstance(configured_urls, list) or any(
@@ -331,12 +300,8 @@ def main() -> None:
     ):
         raise ValueError("evaluation base_urls must be a non-empty string list")
     base_urls = tuple(configured_urls)
-    candidate = _distributed_roster(
-        base_urls, list(config["candidate"]["models"]), args.api_key
-    )
-    baseline = _distributed_roster(
-        base_urls, list(config["baseline"]["models"]), args.api_key
-    )
+    candidate = _distributed_roster(base_urls, list(config["candidate"]["models"]), args.api_key)
+    baseline = _distributed_roster(base_urls, list(config["baseline"]["models"]), args.api_key)
     opponents = _opponents(
         config,
         plan,
@@ -346,9 +311,7 @@ def main() -> None:
     )
     ordinary = _ordinary_cases(tier, hard_manifest)
     handoffs = _handoff_worlds(tier, handoff_manifest)
-    source_commit = subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], text=True
-    ).strip()
+    source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     manifest = {
         "version": PROGRESS_EVAL_VERSION,
         "tier": tier,
@@ -358,10 +321,7 @@ def main() -> None:
         "design_sha256": _digest(design),
         "hard_manifest_sha256": hard_manifest["sha256"],
         "handoff_manifest_sha256": handoff_manifest["sha256"],
-        "opponents": {
-            opponent_id: revision
-            for opponent_id, (revision, _) in opponents.items()
-        },
+        "opponents": {opponent_id: revision for opponent_id, (revision, _) in opponents.items()},
         "ordinary_case_ids": [row[0] for row in ordinary],
         "handoff_case_ids": [row[0] for row in handoffs],
         "critical_conditions": list(plan.critical_conditions),
@@ -369,28 +329,19 @@ def main() -> None:
         "sides": list(plan.sides),
         "generation": {"temperature": 0.0, "max_tokens": 160, "structured": True},
         "rl_specific_communication": args.rl_specific_communication,
-        "baseline_rows_sha256": (
-            _sha256_file(args.baseline_rows) if args.baseline_rows else None
-        ),
+        "baseline_rows_sha256": (_sha256_file(args.baseline_rows) if args.baseline_rows else None),
         "baseline_raw_sha256": (
-            _sha256_file(args.baseline_rows.with_name("raw.jsonl"))
-            if args.baseline_rows
-            else None
+            _sha256_file(args.baseline_rows.with_name("raw.jsonl")) if args.baseline_rows else None
         ),
     }
     completed = _prepare_output(args.output_dir, manifest, args.resume)
     rows_path = args.output_dir / "rows.jsonl"
     raw_path = args.output_dir / "raw.jsonl"
     if args.baseline_rows is not None:
-        critical_case_ids = {
-            row[0] for row in handoffs if row[2] == "handoff_critical"
-        }
+        critical_case_ids = {row[0] for row in handoffs if row[2] == "handoff_critical"}
         expected_baseline_rows = (
             len(ordinary) * len(opponents) * len(plan.sides)
-            + len(critical_case_ids)
-            * len(opponents)
-            * len(plan.sides)
-            * 2
+            + len(critical_case_ids) * len(opponents) * len(plan.sides) * 2
         )
         _import_cached_baseline(
             baseline_rows_path=args.baseline_rows,
@@ -503,11 +454,7 @@ def main() -> None:
 
     candidate_revision = str(config["candidate"]["revision"])
     for case_id, independent_id, suite, scenario, world in handoffs:
-        conditions = (
-            plan.critical_conditions
-            if suite == "handoff_critical"
-            else ("normal", "dropped")
-        )
+        conditions = plan.critical_conditions if suite == "handoff_critical" else ("normal", "dropped")
         for opponent_id, (opponent_revision, opponent) in opponents.items():
             for side in plan.sides:
                 for condition in conditions:
@@ -525,11 +472,7 @@ def main() -> None:
                         side=side,
                         condition=condition,
                         initial_state=world.state,
-                        critical_target=(
-                            world.active_target
-                            if suite == "handoff_critical"
-                            else None
-                        ),
+                        critical_target=(world.active_target if suite == "handoff_critical" else None),
                     )
                 if args.rl_specific_communication and suite == "handoff_critical":
                     baseline_revision = str(config["baseline"]["revision"])
@@ -551,29 +494,15 @@ def main() -> None:
                             critical_target=world.active_target,
                         )
 
-    rows = [
-        json.loads(line)
-        for line in rows_path.read_text(encoding="utf-8").splitlines()
-        if line
-    ]
-    summarize = (
-        summarize_rl_specific_progress_eval
-        if args.rl_specific_communication
-        else summarize_progress_eval
-    )
+    rows = [json.loads(line) for line in rows_path.read_text(encoding="utf-8").splitlines() if line]
+    summarize = summarize_rl_specific_progress_eval if args.rl_specific_communication else summarize_progress_eval
     summary = summarize(
         rows,
-        intervention_conditions=tuple(
-            condition
-            for condition in plan.critical_conditions
-            if condition != "normal"
-        ),
+        intervention_conditions=tuple(condition for condition in plan.critical_conditions if condition != "normal"),
     )
     summary["tier"] = tier
     summary["scope"] = (
-        "frozen final; run once"
-        if tier == "frozen"
-        else f"{tier} development evaluation; not a final research claim"
+        "frozen final; run once" if tier == "frozen" else f"{tier} development evaluation; not a final research claim"
     )
     (args.output_dir / "summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n",

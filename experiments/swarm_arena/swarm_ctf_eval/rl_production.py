@@ -18,9 +18,7 @@ STAGED_RL_PRODUCTION_PLAN_VERSION = "arena-rl-v4-staged-production-plan-v1"
 
 
 def _canonical_sha256(value: Any) -> str:
-    return hashlib.sha256(
-        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def _is_sha256(value: str) -> bool:
@@ -35,9 +33,7 @@ class CurriculumMix:
 
     def validate(self) -> None:
         if self.ordinary < 0 or min(self.critical, self.decoy) < 1:
-            raise ValueError(
-                "curriculum mix requires non-negative ordinary and positive critical/decoy groups"
-            )
+            raise ValueError("curriculum mix requires non-negative ordinary and positive critical/decoy groups")
         if self.critical != self.decoy:
             raise ValueError("critical and matched-decoy counts must be equal")
 
@@ -81,10 +77,7 @@ class CurriculumStage:
         for mix in self.update_pattern:
             mix.validate()
             if mix.ordinary + mix.critical + mix.decoy != groups_per_update:
-                raise ValueError(
-                    f"stage {self.name} update mix must contain exactly "
-                    f"{groups_per_update} groups"
-                )
+                raise ValueError(f"stage {self.name} update mix must contain exactly {groups_per_update} groups")
         if not self.ordinary_sizes or min(self.ordinary_sizes) < 4:
             raise ValueError(f"stage {self.name} requires valid ordinary graph sizes")
         if not self.ordinary_horizons or min(self.ordinary_horizons) < 2:
@@ -118,8 +111,7 @@ def exact_staged_curriculum_schedule(
             pair_indices = tuple(pair_cursor + index for index in range(mix.critical))
             block: list[tuple[ScenarioKind, int | None, int | None]] = []
             block.extend(
-                ("ordinary", None, ordinary_seed_base + ordinary_cursor + index)
-                for index in range(mix.ordinary)
+                ("ordinary", None, ordinary_seed_base + ordinary_cursor + index) for index in range(mix.ordinary)
             )
             ordinary_cursor += mix.ordinary
             block.extend(("critical", pair_index, None) for pair_index in pair_indices)
@@ -135,16 +127,12 @@ def exact_staged_curriculum_schedule(
                         ordinary_seed=ordinary_seed,
                         stage=stage.name,
                         ordinary_size=(
-                            stage.ordinary_sizes[
-                                (stage_update + within_update) % len(stage.ordinary_sizes)
-                            ]
+                            stage.ordinary_sizes[(stage_update + within_update) % len(stage.ordinary_sizes)]
                             if kind == "ordinary"
                             else None
                         ),
                         ordinary_horizon=(
-                            stage.ordinary_horizons[
-                                (stage_update + within_update) % len(stage.ordinary_horizons)
-                            ]
+                            stage.ordinary_horizons[(stage_update + within_update) % len(stage.ordinary_horizons)]
                             if kind == "ordinary"
                             else None
                         ),
@@ -166,9 +154,7 @@ def exact_curriculum_schedule(
     ordinary, critical, decoy = mix.reduced_counts
     block_size = ordinary + critical + decoy
     if total_groups < 1 or total_groups % block_size:
-        raise ValueError(
-            f"total groups must be a positive multiple of curriculum block size {block_size}"
-        )
+        raise ValueError(f"total groups must be a positive multiple of curriculum block size {block_size}")
     if min(pair_offset, ordinary_seed_base, shuffle_seed) < 0:
         raise ValueError("curriculum offsets and seeds cannot be negative")
 
@@ -177,10 +163,7 @@ def exact_curriculum_schedule(
     ordinary_cursor = 0
     for block_index in range(total_groups // block_size):
         block: list[tuple[ScenarioKind, int | None, int | None]] = []
-        block.extend(
-            ("ordinary", None, ordinary_seed_base + ordinary_cursor + index)
-            for index in range(ordinary)
-        )
+        block.extend(("ordinary", None, ordinary_seed_base + ordinary_cursor + index) for index in range(ordinary))
         ordinary_cursor += ordinary
         pair_indices = tuple(pair_cursor + index for index in range(critical))
         block.extend(("critical", pair_index, None) for pair_index in pair_indices)
@@ -267,9 +250,7 @@ class OpponentPool:
         families = {snapshot.family for snapshot in self.snapshots}
         required = {"base", "sft", "historical", "current"}
         if families != required:
-            raise ValueError(
-                "opponent pool must contain base, SFT, historical, and current families"
-            )
+            raise ValueError("opponent pool must contain base, SFT, historical, and current families")
 
     @property
     def sha256(self) -> str:
@@ -279,9 +260,7 @@ class OpponentPool:
     def schedule(self, total_groups: int) -> tuple[OpponentSnapshot, ...]:
         self.validate()
         if total_groups < 1 or total_groups % len(self.snapshots):
-            raise ValueError(
-                "total groups must be a positive multiple of the opponent-pool size"
-            )
+            raise ValueError("total groups must be a positive multiple of the opponent-pool size")
         result = []
         for cycle in range(total_groups // len(self.snapshots)):
             block = list(self.snapshots)
@@ -300,9 +279,7 @@ class AsyncBackendIdentity:
     def validate(self) -> None:
         if not self.name or not self.version:
             raise ValueError("async backend identity cannot be empty")
-        if not _is_sha256(self.kernel_config_sha256) or not _is_sha256(
-            self.calibration_sha256
-        ):
+        if not _is_sha256(self.kernel_config_sha256) or not _is_sha256(self.calibration_sha256):
             raise ValueError("async backend identity requires kernel and calibration hashes")
 
 
@@ -331,9 +308,7 @@ class ProductionPlan:
         }:
             raise ValueError(f"unsupported production plan: {self.version}")
         self.mix.validate()
-        if not self.trainable_phases or len(set(self.trainable_phases)) != len(
-            self.trainable_phases
-        ):
+        if not self.trainable_phases or len(set(self.trainable_phases)) != len(self.trainable_phases):
             raise ValueError("trainable phases must be non-empty and unique")
         if any(phase not in {"BROADCAST", "ACT"} for phase in self.trainable_phases):
             raise ValueError("production plan contains an unknown trainable phase")
@@ -361,11 +336,14 @@ class ProductionPlan:
                 stage.validate(groups_per_update=self.groups_per_update)
         if self.groups_per_update % len(self.opponent_pool.snapshots):
             raise ValueError("each logical update must contain one exact opponent-pool rotation")
-        if min(
-            self.curriculum_shuffle_seed,
-            self.pair_offset,
-            self.ordinary_seed_base,
-        ) < 0:
+        if (
+            min(
+                self.curriculum_shuffle_seed,
+                self.pair_offset,
+                self.ordinary_seed_base,
+            )
+            < 0
+        ):
             raise ValueError("production curriculum seeds and offsets cannot be negative")
         if not self.ordinary_sizes or min(self.ordinary_sizes) < 4:
             raise ValueError("production plan requires valid ordinary graph sizes")
@@ -392,9 +370,7 @@ class ProductionPlan:
         if self.stages:
             expected = self.expected_updates
             if steps != expected:
-                raise ValueError(
-                    f"staged plan declares {expected} updates but controller requested {steps}"
-                )
+                raise ValueError(f"staged plan declares {expected} updates but controller requested {steps}")
             return exact_staged_curriculum_schedule(
                 self.stages,
                 groups_per_update=self.groups_per_update,
@@ -420,18 +396,14 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
             family=str(row["family"]),
             model_name=str(row["model_name"]),
             revision=str(row["revision"]),
-            adapter_sha256=(
-                None if row.get("adapter_sha256") is None else str(row["adapter_sha256"])
-            ),
+            adapter_sha256=(None if row.get("adapter_sha256") is None else str(row["adapter_sha256"])),
             update_index=int(row["update_index"]),
         )
         for row in pool_rows
     )
     runtime_paths = {
         str(row["opponent_id"]): (
-            None
-            if row.get("adapter_path") is None
-            else (path.parent / str(row["adapter_path"])).resolve()
+            None if row.get("adapter_path") is None else (path.parent / str(row["adapter_path"])).resolve()
         )
         for row in pool_rows
     }
@@ -447,13 +419,9 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         CurriculumStage(
             name=str(row["name"]),
             updates=int(row["updates"]),
-            update_pattern=tuple(
-                CurriculumMix(**mix) for mix in row["update_pattern"]
-            ),
+            update_pattern=tuple(CurriculumMix(**mix) for mix in row["update_pattern"]),
             ordinary_sizes=tuple(int(value) for value in row["ordinary_sizes"]),
-            ordinary_horizons=tuple(
-                int(value) for value in row["ordinary_horizons"]
-            ),
+            ordinary_horizons=tuple(int(value) for value in row["ordinary_horizons"]),
         )
         for row in stage_rows
     )
@@ -461,9 +429,7 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         version=str(raw["version"]),
         mix=CurriculumMix(**raw["curriculum_mix"]),
         trainable_phases=tuple(raw["trainable_spans"]["phases"]),
-        trainable_turn_offsets=(
-            None if turns == "all" else tuple(int(value) for value in turns)
-        ),
+        trainable_turn_offsets=(None if turns == "all" else tuple(int(value) for value in turns)),
         opponent_pool=OpponentPool(
             snapshots=snapshots,
             rotation_seed=int(raw["opponent_pool"]["rotation_seed"]),
@@ -476,9 +442,7 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         pair_offset=int(raw["schedule"]["pair_offset"]),
         ordinary_seed_base=int(raw["schedule"]["ordinary_seed_base"]),
         ordinary_sizes=tuple(int(value) for value in raw["schedule"]["ordinary_sizes"]),
-        ordinary_horizons=tuple(
-            int(value) for value in raw["schedule"]["ordinary_horizons"]
-        ),
+        ordinary_horizons=tuple(int(value) for value in raw["schedule"]["ordinary_horizons"]),
         stages=stages,
     )
     plan.validate()

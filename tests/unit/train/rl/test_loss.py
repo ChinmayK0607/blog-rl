@@ -72,9 +72,7 @@ def test_constrained_logprobs_and_entropy_renormalize_over_legal_tokens():
     selected = torch.tensor([[2]], device="cuda")
     allowed = torch.tensor([[[1, 2, -1]]], device="cuda")
     logprob = selective_constrained_log_softmax(logits, selected, allowed)
-    expected = torch.tensor(2.0, device="cuda") - torch.logsumexp(
-        torch.tensor([1.0, 2.0], device="cuda"), dim=0
-    )
+    expected = torch.tensor(2.0, device="cuda") - torch.logsumexp(torch.tensor([1.0, 2.0], device="cuda"), dim=0)
     assert torch.allclose(logprob, expected.reshape(1, 1))
     probabilities = torch.softmax(torch.tensor([1.0, 2.0], device="cuda"), dim=0)
     expected_entropy = -(probabilities * probabilities.log()).sum()
@@ -108,9 +106,7 @@ def test_rollout_parity_tail_fraction_is_a_logical_batch_statistic():
     # One legitimate tail token in a short packing slice looks like 1/43 and
     # fails.  Over the complete 300-token logical policy batch it is 1/300 and
     # passes the unchanged certified 0.5% threshold.
-    probability_errors = torch.cat(
-        [torch.tensor([0.051], device="cuda"), torch.zeros(299, device="cuda")]
-    )
+    probability_errors = torch.cat([torch.tensor([0.051], device="cuda"), torch.zeros(299, device="cuda")])
     aggregate = rollout_parity_metrics(
         torch.zeros_like(probability_errors),
         probability_errors,

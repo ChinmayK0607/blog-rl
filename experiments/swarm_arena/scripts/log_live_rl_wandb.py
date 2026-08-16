@@ -38,9 +38,7 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
         "controller/groups": len(groups),
         "controller/mean_terminal_return": statistics.mean(returns),
         "controller/mean_abs_advantage": statistics.mean(map(abs, advantages)),
-        "controller/nonzero_advantage_rate": statistics.mean(
-            abs(value) > 1e-12 for value in advantages
-        ),
+        "controller/nonzero_advantage_rate": statistics.mean(abs(value) > 1e-12 for value in advantages),
         "curriculum/stage": ",".join(sorted(stage_names)) or "legacy-fixed",
     }
     for kind, count in sorted(kinds.items()):

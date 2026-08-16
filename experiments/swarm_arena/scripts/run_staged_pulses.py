@@ -14,9 +14,7 @@ from swarm_ctf_eval.rl_production import load_production_plan
 
 
 def _digest(value: object) -> str:
-    return hashlib.sha256(
-        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def _atomic_json(path: Path, payload: object) -> None:
@@ -145,17 +143,10 @@ def _wait_retained_checkpoints(
             break
         time.sleep(1.0)
     if missing:
-        raise TimeoutError(
-            f"update {step} lacks complete retained checkpoints: {missing}"
-        )
+        raise TimeoutError(f"update {step} lacks complete retained checkpoints: {missing}")
     for index in range(4):
         adapter = (
-            run_dir
-            / f"run_blue_{index}"
-            / "checkpoints"
-            / f"step_{step}"
-            / "weight"
-            / "adapter_model.safetensors"
+            run_dir / f"run_blue_{index}" / "checkpoints" / f"step_{step}" / "weight" / "adapter_model.safetensors"
         )
         expected = policy_adapter_sha256[f"blue-{index}"]
         if _sha256_file(adapter) != expected:

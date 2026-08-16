@@ -246,18 +246,13 @@ def test_atomic_queue_never_routes_a_partial_four_policy_group(tmp_path) -> None
         allowed_constraint_sha256s=frozenset({SHA_C}),
         limits=_limits(),
     )
-    batches = {
-        f"run_blue_{index}": SimpleNamespace(step=0, examples=[index])
-        for index in range(4)
-    }
+    batches = {f"run_blue_{index}": SimpleNamespace(step=0, examples=[index]) for index in range(4)}
     result = queue.admit(
         header=header,
         decisions=(*blue_decisions, red),
         trainable_decision_ids=frozenset(row.decision_id for row in blue_decisions),
         current_snapshots=(*behavior, opponent),
-        current_policy_logprobs={
-            row.decision_id: row.rollout_logprobs for row in blue_decisions
-        },
+        current_policy_logprobs={row.decision_id: row.rollout_logprobs for row in blue_decisions},
         routed_batches=batches,
         trainer_step=0,
     )
@@ -274,9 +269,7 @@ def test_atomic_queue_never_routes_a_partial_four_policy_group(tmp_path) -> None
             decisions=(*blue_decisions, red),
             trainable_decision_ids=frozenset(row.decision_id for row in blue_decisions),
             current_snapshots=(*behavior, opponent),
-            current_policy_logprobs={
-                row.decision_id: row.rollout_logprobs for row in blue_decisions
-            },
+            current_policy_logprobs={row.decision_id: row.rollout_logprobs for row in blue_decisions},
             routed_batches={key: value for key, value in batches.items() if key != "run_blue_3"},
             trainer_step=0,
         )

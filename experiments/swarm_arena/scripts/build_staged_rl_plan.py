@@ -14,9 +14,7 @@ from swarm_ctf_eval.rl_production import (
 
 
 def _digest(value: object) -> str:
-    return hashlib.sha256(
-        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def main() -> None:
@@ -38,15 +36,10 @@ def main() -> None:
     admission_limits = json.loads(args.admission_limits.read_text(encoding="utf-8"))
     parsed_admission_limits = AsyncAdmissionLimits(**admission_limits)
     parsed_admission_limits.validate()
-    certificate_body = {
-        key: value for key, value in certificate.items() if key != "sha256"
-    }
+    certificate_body = {key: value for key, value in certificate.items() if key != "sha256"}
     if certificate.get("sha256") != _digest(certificate_body):
         raise ValueError("runtime certificate body hash mismatch")
-    if (
-        certificate.get("version") != "swarm-runtime-certificate-v1"
-        or certificate.get("status") != "passed"
-    ):
+    if certificate.get("version") != "swarm-runtime-certificate-v1" or certificate.get("status") != "passed":
         raise ValueError("runtime certificate is not a passed v1 certificate")
     handoff_body = {key: value for key, value in handoff.items() if key != "sha256"}
     if handoff.get("sha256") != _digest(handoff_body):
@@ -99,9 +92,7 @@ def main() -> None:
     args.output.write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     loaded, _ = load_production_plan(args.output)
     schedule = loaded.curriculum_schedule(steps=int(curriculum["total_updates"]))
-    maximum_pair_index = max(
-        row.pair_index for row in schedule if row.pair_index is not None
-    )
+    maximum_pair_index = max(row.pair_index for row in schedule if row.pair_index is not None)
     if maximum_pair_index >= int(handoff["pair_count"]):
         raise ValueError(
             f"staged schedule requires pair {maximum_pair_index}, but manifest contains "
@@ -109,8 +100,7 @@ def main() -> None:
         )
     counts = Counter(row.kind for row in schedule)
     per_stage = {
-        stage.name: Counter(row.kind for row in schedule if row.stage == stage.name)
-        for stage in loaded.stages
+        stage.name: Counter(row.kind for row in schedule if row.stage == stage.name) for stage in loaded.stages
     }
     audit = {
         "plan_sha256": loaded.sha256,
@@ -123,9 +113,7 @@ def main() -> None:
         "handoff_manifest_sha256": handoff["sha256"],
         "runtime_certificate_sha256": certificate["sha256"],
         "async_admission_limits_sha256": parsed_admission_limits.sha256,
-        "unique_ordinary_seeds": len(
-            {row.ordinary_seed for row in schedule if row.ordinary_seed is not None}
-        ),
+        "unique_ordinary_seeds": len({row.ordinary_seed for row in schedule if row.ordinary_seed is not None}),
         "schedule_sha256": _digest(
             [
                 {

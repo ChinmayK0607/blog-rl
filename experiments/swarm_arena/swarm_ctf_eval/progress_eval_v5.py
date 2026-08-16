@@ -17,9 +17,7 @@ def _unit_effects(
     left: str = "normal",
     right: str = "dropped",
 ) -> dict[tuple[str, str, str, str], float]:
-    grouped: dict[tuple[str, str, str, str], dict[str, list[float]]] = defaultdict(
-        lambda: defaultdict(list)
-    )
+    grouped: dict[tuple[str, str, str, str], dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
     for row in rows:
         if row["suite"] != suite or row["policy_variant"] != variant:
             continue
@@ -38,10 +36,7 @@ def _unit_effects(
     incomplete = [key for key, values in grouped.items() if set(values) != {left, right}]
     if incomplete:
         raise ValueError(f"incomplete unit-level communication endpoint: {incomplete[:3]}")
-    return {
-        key: statistics.mean(values[left]) - statistics.mean(values[right])
-        for key, values in grouped.items()
-    }
+    return {key: statistics.mean(values[left]) - statistics.mean(values[right]) for key, values in grouped.items()}
 
 
 def _endpoint(values: list[float], definition: str) -> dict[str, Any]:
@@ -72,9 +67,7 @@ def _variant_unit_effects(
     suite: str,
     condition: str = "normal",
 ) -> list[float]:
-    grouped: dict[tuple[str, str, str, str], dict[str, list[float]]] = defaultdict(
-        lambda: defaultdict(list)
-    )
+    grouped: dict[tuple[str, str, str, str], dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
     for row in rows:
         if row["suite"] != suite or row["condition"] != condition:
             continue
@@ -84,17 +77,14 @@ def _variant_unit_effects(
             str(row["opponent_revision"]),
             str(row["side"]),
         )
-        grouped[key][str(row["policy_variant"])].append(
-            float(row["terminal_return"])
-        )
+        grouped[key][str(row["policy_variant"])].append(float(row["terminal_return"]))
     expected = {"candidate_rl", "sft_init"}
     incomplete = [key for key, values in grouped.items() if set(values) != expected]
     if incomplete or not grouped:
         raise ValueError(f"incomplete {suite} candidate/SFT endpoint: {incomplete[:3]}")
     return _aggregate_independent_units(
         {
-            key: statistics.mean(values["candidate_rl"])
-            - statistics.mean(values["sft_init"])
+            key: statistics.mean(values["candidate_rl"]) - statistics.mean(values["sft_init"])
             for key, values in grouped.items()
         }
     )
@@ -110,15 +100,9 @@ def summarize_rl_specific_progress_eval(
         rows,
         intervention_conditions=intervention_conditions,
     )
-    candidate_critical = _unit_effects(
-        rows, suite="handoff_critical", variant="candidate_rl"
-    )
-    baseline_critical = _unit_effects(
-        rows, suite="handoff_critical", variant="sft_init"
-    )
-    candidate_decoy = _unit_effects(
-        rows, suite="handoff_decoy", variant="candidate_rl"
-    )
+    candidate_critical = _unit_effects(rows, suite="handoff_critical", variant="candidate_rl")
+    baseline_critical = _unit_effects(rows, suite="handoff_critical", variant="sft_init")
+    candidate_decoy = _unit_effects(rows, suite="handoff_decoy", variant="candidate_rl")
     if set(candidate_critical) != set(baseline_critical):
         raise ValueError("candidate and SFT critical communication units do not match")
     if set(candidate_critical) != set(candidate_decoy):
@@ -126,16 +110,10 @@ def summarize_rl_specific_progress_eval(
 
     baseline_values = _aggregate_independent_units(baseline_critical)
     rl_specific = _aggregate_independent_units(
-        {
-            key: candidate_critical[key] - baseline_critical[key]
-            for key in candidate_critical
-        }
+        {key: candidate_critical[key] - baseline_critical[key] for key in candidate_critical}
     )
     specificity = _aggregate_independent_units(
-        {
-            key: candidate_critical[key] - candidate_decoy[key]
-            for key in candidate_critical
-        }
+        {key: candidate_critical[key] - candidate_decoy[key] for key in candidate_critical}
     )
     legacy_capability = _variant_unit_effects(rows, suite="ordinary_legacy")
     hard_capability = _variant_unit_effects(rows, suite="ordinary_hard")

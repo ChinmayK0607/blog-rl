@@ -95,35 +95,24 @@ class AsyncAdmissionLimits:
             "max_symmetric_importance_ratio": self.max_symmetric_importance_ratio,
             "max_p99_probability_error": self.max_p99_probability_error,
         }
-        if any(
-            value is not None and (not math.isfinite(value) or value <= 0)
-            for value in optional_positive.values()
-        ) or not math.isfinite(self.probability_tail_threshold) or self.probability_tail_threshold <= 0:
-            raise ValueError("async numerical limits must be finite and positive")
         if (
-            self.max_symmetric_importance_ratio is not None
-            and self.max_symmetric_importance_ratio < 1
+            any(value is not None and (not math.isfinite(value) or value <= 0) for value in optional_positive.values())
+            or not math.isfinite(self.probability_tail_threshold)
+            or self.probability_tail_threshold <= 0
         ):
+            raise ValueError("async numerical limits must be finite and positive")
+        if self.max_symmetric_importance_ratio is not None and self.max_symmetric_importance_ratio < 1:
             raise ValueError("symmetric importance-ratio limit must be at least one")
-        if (
-            self.max_probability_tail_fraction is not None
-            and (
-                not math.isfinite(self.max_probability_tail_fraction)
-                or not 0 <= self.max_probability_tail_fraction <= 1
-            )
+        if self.max_probability_tail_fraction is not None and (
+            not math.isfinite(self.max_probability_tail_fraction) or not 0 <= self.max_probability_tail_fraction <= 1
         ):
             raise ValueError("probability-tail fraction limit must be in [0, 1]")
 
     @property
     def sha256(self) -> str:
         self.validate()
-        payload = {
-            name: getattr(self, name)
-            for name in self.__dataclass_fields__
-        }
-        return hashlib.sha256(
-            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
-        ).hexdigest()
+        payload = {name: getattr(self, name) for name in self.__dataclass_fields__}
+        return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -205,17 +194,11 @@ def admit_async_rollout(
     else:
         if not trainable_decision_ids or not trainable_decision_ids <= eligible_ids:
             raise ValueError("trainable decision selection is empty or contains ineligible spans")
-        selected = tuple(
-            decision for decision in eligible if decision.decision_id in trainable_decision_ids
-        )
+        selected = tuple(decision for decision in eligible if decision.decision_id in trainable_decision_ids)
     if not selected:
         raise ValueError("async admission requires actual decisions from trainable policies")
     selected_policy_ids = {decision.policy_id for decision in selected}
-    trainable_policy_ids = {
-        policy_id
-        for policy_id, snapshot in behavior_by_policy.items()
-        if snapshot.trainable
-    }
+    trainable_policy_ids = {policy_id for policy_id, snapshot in behavior_by_policy.items() if snapshot.trainable}
     if selected_policy_ids != trainable_policy_ids:
         raise ValueError("actual decisions do not cover every trainable policy")
     expected_logprob_ids = {decision.decision_id for decision in selected}
@@ -243,14 +226,11 @@ def admit_async_rollout(
         if behavior.trainable:
             policy_lags[policy_id] = lag
             if lag == 0 and (
-                current.revision != behavior.revision
-                or current.adapter_sha256 != behavior.adapter_sha256
+                current.revision != behavior.revision or current.adapter_sha256 != behavior.adapter_sha256
             ):
                 reasons.append(f"policy {policy_id} changed without an update-index change")
             if lag > limits.max_policy_lag:
-                reasons.append(
-                    f"policy {policy_id} lag {lag} exceeds {limits.max_policy_lag}"
-                )
+                reasons.append(f"policy {policy_id} lag {lag} exceeds {limits.max_policy_lag}")
         elif (
             current.revision != behavior.revision
             or current.adapter_sha256 != behavior.adapter_sha256
@@ -267,27 +247,19 @@ def admit_async_rollout(
         if not all(math.isfinite(value) for value in compared):
             raise ValueError(f"non-finite current-policy log probability: {decision.decision_id}")
         policy_ratios = per_policy_ratios.setdefault(decision.policy_id, [])
-        policy_probability_errors = per_policy_probability_errors.setdefault(
-            decision.policy_id, []
-        )
-        for behavior_logprob, current_logprob in zip(
-            decision.rollout_logprobs, compared, strict=True
-        ):
+        policy_probability_errors = per_policy_probability_errors.setdefault(decision.policy_id, [])
+        for behavior_logprob, current_logprob in zip(decision.rollout_logprobs, compared, strict=True):
             policy_ratios.append(current_logprob - behavior_logprob)
             policy_probability_errors.append(
                 abs(_exp_or_infinity(current_logprob) - _exp_or_infinity(behavior_logprob))
             )
 
     all_ratios = [value for values in per_policy_ratios.values() for value in values]
-    all_probability_errors = [
-        value for values in per_policy_probability_errors.values() for value in values
-    ]
+    all_probability_errors = [value for values in per_policy_probability_errors.values() for value in values]
     abs_ratios = [abs(value) for value in all_ratios]
     symmetric_importance_ratios = [_exp_or_infinity(value) for value in abs_ratios]
     mean_abs_log_ratio = sum(abs_ratios) / len(abs_ratios)
-    mismatch_kls = [
-        _exp_or_infinity(value) - value - 1.0 for value in all_ratios
-    ]
+    mismatch_kls = [_exp_or_infinity(value) - value - 1.0 for value in all_ratios]
     mean_mismatch_kl = sum(mismatch_kls) / len(mismatch_kls)
     p99_abs_log_ratio = _quantile(abs_ratios, 0.99)
     max_symmetric_importance_ratio = max(symmetric_importance_ratios)
@@ -339,9 +311,7 @@ def admit_async_rollout(
             "policy_lag": policy_lags[policy_id],
             "mean_abs_log_ratio": sum(absolute) / len(absolute),
             "p99_abs_log_ratio": _quantile(absolute, 0.99),
-            "max_symmetric_importance_ratio": max(
-                _exp_or_infinity(value) for value in absolute
-            ),
+            "max_symmetric_importance_ratio": max(_exp_or_infinity(value) for value in absolute),
             "p99_probability_error": _quantile(probability_errors, 0.99),
         }
 
