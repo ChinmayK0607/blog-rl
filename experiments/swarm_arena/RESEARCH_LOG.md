@@ -3159,6 +3159,12 @@ no more critical-specific than decoy-specific. Therefore:
   admission, and trainer W&B remained healthy. The sidecar parser was updated
   to accept both schemas and to log focused-agent advantage density explicitly;
   it can replay every completed update and evaluation when restarted.
+- The tested sidecar fix was published at source `c2464ef1` and copied into the
+  immutable run's `sidecars/` directory without changing the training checkout.
+  Controller W&B restarted successfully as
+  `rl-v4-focused-80-a097bf17-l40-20260817-controller-v2` and replayed the
+  existing progress/evaluation records; all five live run processes were
+  healthy afterward.
 
 ## Artifact index
 
