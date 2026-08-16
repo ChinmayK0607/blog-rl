@@ -2675,6 +2675,105 @@ no more critical-specific than decoy-specific. Therefore:
   a certificate bound to the new commit, and require observed update-1 metrics.
 - Instance decommissioned: no; inference servers remain resident, GPU 0 idle.
 
+### 2026-08-16 — admitted 120-update staged L40 run (running)
+
+- Status: running; one of 120 logical updates completed at this checkpoint.
+- Verdict: admitted paid run after end-to-end step-zero and first-update gates.
+- Hypothesis: a four-policy shared-return LoRA curriculum can improve game
+  capability while communication-critical and matched-decoy pulses distinguish
+  information use from generic tactical learning.
+- Decision unlocked: leave the staged run active through the 10-update pulse
+  cadence; do not interpret the first update as a learning result.
+- Source commit: `504f97ceaab21c1a531b52ad42849362ddf4266a`.
+- Base / adapter / opponent revisions: Qwen3-1.7B
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; SFT step 320
+  `534522a8f3ff3489b1dd8318dc8e533e51264cde`, adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`;
+  historical RL-v1
+  `ad51ef261f3e7b7b2d3c6433106bd667ba1da81c`, adapter SHA-256
+  `1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a`.
+- Data split and manifest SHA-256: task version
+  `arena-rl-v4-information-handoff`; train
+  `535c29bd5be475c615554c0fbd4aedab8566f16baf9ee0a2d69a42d92800ec38`;
+  development
+  `e1a46a3b3a54b7410e330f49e59fae6d4ea0a7764d081e9df050fd6f27bd89eb`;
+  frozen OOD
+  `440bc41ef06a755a0174245640fb6a837d31af39372fa4bf90994574feb63dec`;
+  staged curriculum
+  `2dd25a990ddae837502dcdbe261dd87e67e5ca6657cb0dc9e775fb211283adcd`;
+  handoff train
+  `665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681`;
+  480-group schedule
+  `73f9e5b888282cdd1a311a1f5d1581ad2fae5868be1c6f1723091ec814a197de`.
+- GPU, wall time, and estimated cost: host `216.81.248.55:40300`, four NVIDIA
+  L40 46,068 MiB, driver `580.126.09`. Cold setup through admitted update 1
+  took about one hour; the first logical update took about five minutes after
+  the step-zero pulse. Current projection is 12--14 hours plus preservation
+  buffer. Provider price was not supplied, so no dollar total is fabricated.
+- Exact launcher/config: run directory
+  `/workspace/runs/rl-v4-staged-120-504f97ce-l40-20260816`; launcher
+  `scripts/launch_staged_rl.sh`; trainer config SHA-256
+  `9697346463ca18ed9a900aca9896efba36901b2c4a9dff212c783b1583b69250`;
+  inference config SHA-256
+  `300f6f5910456fae7aa93c8c7c97c34caf2b5ca2d028433782ef3d8daffe4420`;
+  runtime certificate body SHA-256
+  `0a84893ebded5e013674924fb74dd21b312526bf3a7e73df3b69b12b956144a7`;
+  production plan body SHA-256
+  `fe7b1f7673135dc467f0f61a1f5a4782cdb0eef0fadecd5f989ef2e937892ee9`.
+- Predeclared gates: all 110 Linux tests passed. Fresh three-server serving
+  probe passed. The 32-sample production parity certificate passed with mean
+  absolute log-probability error `0.00230364`, p99 `0.0743217`, max probability
+  error `0.0939987`, p99 probability error `0.0244452`, probability-tail
+  fraction `0.00219459`, mean mismatch KL `0.000118507`, max mismatch KL
+  `0.0353719`; optimizer parameter sets were disjoint and a single-policy test
+  changed only `run_blue_0`. Public-input preflight passed with 2.27 TiB free.
+- Results: the 16-game step-zero pulse completed with action, broadcast, and
+  grounding protocol rates all `1.0`; the descriptive RL-specific
+  communication difference was `0.0`. The first logical update admitted four
+  groups and 16 stochastic replicas. Mean return was `-0.00183132`, with 50%
+  nonzero returns; means by case kind were decoy `0.0322581`, ordinary
+  `-0.0197917`, and critical `0.0`. These are workload-density diagnostics,
+  not an improvement claim. Immediately before optimization, all four policy
+  parity gates passed. Four optimizer steps reported LR `7.5e-6`, and the
+  resulting adapters had distinct SHA-256 values: blue-0
+  `cb1ad4c0fa9379dfde4df232872b428ff70f58ad3d02bc1c52831bf6a607b49a`,
+  blue-1 `733e87cb94edfe8739b37cfd7c9a1a6f0162cf4210741d2ef8379e07f0082e78`,
+  blue-2 `f7bf95e4651750e5ac80b5e81e39dfd406f2f4de591db3def24e1a86755f2b40`,
+  and blue-3 `3cb57f79fdecacd896cac9e225c296b2b2b6d70ff923880b3c330ffd28010b31`.
+- Failures and retries: fresh preparation initially failed because the wrapper
+  pre-created an output directory that the fail-closed preparer requires to be
+  absent; the empty directory was removed and preparation was rerun unchanged.
+  Certification was then mistakenly invoked first with one visible GPU, which
+  the four-slot isolation matrix rejected, and once with the broader
+  kernel-variant matrix whose thresholds do not bind the production trainer.
+  Both non-binding attempts were preserved; the correct trainer-config-bound
+  certifier then passed. Prime-RL's aggregate step logger often prints LR
+  `0.00e+00` after a packed slice because it queries `ready_to_update_idxs`
+  after that slice is consumed. Source inspection confirmed optimizer creation
+  uses each run's configured LR before `optimizer.step`; the four actual
+  per-policy readiness/parity events at the end of logical update 1 each logged
+  LR `7.50e-06`. Treat aggregate zero-LR lines as a monitor bug, not optimizer
+  evidence.
+- W&B: trainer and controller/evaluation telemetry are captured in explicit
+  offline runs at
+  `wandb/offline-run-20260816_091653-kfbl8uil` under the run directory and
+  `/workspace/blog-rl/wandb/offline-run-20260816_091624-rl-v4-staged-120-504f97ce-l40-20260816-controller-v1`.
+  The controller run logs stage/opponent returns, communication interventions,
+  collapse diagnostics, and the immutable production plan/curriculum as compact
+  artifacts. Cloud sync remains pending because the rented host has no W&B
+  credential; do not auto-delete until these two directories are synced.
+- Artifact paths and hashes: compact evidence remains in the run directory;
+  raw trajectories and checkpoints stay on the paid host and were not copied to
+  the Mac. Public source is the exact commit above.
+- Interpretation: mechanical admission is complete and actual learning has
+  begun. No claim about capability or communication improvement is valid until
+  the predeclared longitudinal pulses and final cross-play/intervention suite.
+- Next action: monitor updates 2--10, inspect the first causal communication
+  pulse and collapse diagnostics, then continue only while all components
+  remain healthy. Sync W&B and publish compact results before decommissioning.
+- Instance decommissioned: no; recommended auto-delete no earlier than
+  `2026-08-17 09:45 IST` (`04:15 UTC`) to leave a preservation buffer.
+
 ## Artifact index
 
 - Public source branch:
