@@ -3068,7 +3068,7 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-17 — stop shared-team run and design focused-credit restart
 
-- Status: implementation and Linux validation in progress.
+- Status: running from update zero.
 - Verdict: the 120-update shared-team trajectory was intentionally stopped
   after 43 complete optimizer updates; it is preserved as rejected development
   evidence and will not be resumed or selected as a checkpoint.
@@ -3115,6 +3115,43 @@ no more critical-specific than decoy-specific. Therefore:
   execute one rollout-only smoke, then launch from update zero only if those
   checks pass.
 - Instance decommissioned: no.
+
+#### Focused-credit validation and launch result
+
+- Public training source: `a097bf17594bd5b01158687978b3848b6f94ba79`.
+  Linux Ruff passed and the complete Swarm Arena suite passed `112/112`.
+- Resolved trainer config SHA-256:
+  `936a2ac52935987682cd523323390db6411a5d550cad8d5c1584d4355cca822a`.
+  The fresh 32-sample certificate passed with mean absolute log-probability
+  error `0.00215958`, p99 absolute error `0.0723795`, mean mismatch-KL
+  `0.000108509`, and disjoint optimizer parameter sets; only `run_blue_0`
+  changed in the single-policy isolation step. Runtime certificate SHA-256:
+  `a7348c2decb36798f489bfbc7270fbafcfa28118b4ebecf8de4e990b13375ad8`.
+- The ACT-only production plan passed preflight v2 and contains 320 groups over
+  80 updates: 108 ordinary, 106 critical, and 106 matched decoy. Production
+  plan SHA-256:
+  `fe055740ed9844fd9655f70976140c02489bfd76b5d17dbab93b334a28cf6e5b`.
+- A one-group diagnostic passed mechanically but had four zero returns. The
+  predeclared four-group follow-up produced return contrast in all four groups.
+  Every non-zero advantage was localized to the designated receiver
+  (`blue-1` or `blue-2` in those cases), while every non-focused policy
+  advantage was exactly zero. This validated the estimator before optimizer
+  admission; it is not a learning result.
+- Failure/retry: the first certificate-bind command supplied an incorrect
+  manually expanded full commit hash and failed before writing a certificate;
+  it was rerun with the exact `git rev-parse HEAD` value. A full pytest process
+  was briefly scheduled alongside certification, contrary to the repository's
+  process-cleanup warning; both jobs had already completed successfully when
+  discovered. The workflow skill was updated and future test runs must occur
+  before any `torchrun` process begins.
+- Live run:
+  `/workspace/runs/rl-v4-focused-80-a097bf17-l40-20260817`, tmux prefix
+  `swarm-focused80-a097`. Trainer and controller started healthy; GPU 0 loaded
+  the trainer and GPUs 1--3 remained healthy rollout servers. The unchanged
+  update-zero pulse is the current barrier. Trainer W&B offline run ID is
+  `gqv6yifx`; controller run ID is
+  `rl-v4-focused-80-a097bf17-l40-20260817-controller-v1`. Both must be synced
+  after completion.
 
 ## Artifact index
 

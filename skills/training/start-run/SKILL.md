@@ -53,13 +53,14 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   `[tool.uv.sources]`, then run `uv sync --all-extras`.
 - Swarm Arena uses Prime-RL multi-run LoRA: create four fixed `run_*`
   directories so `MultiRunManager`, `MultiLoRAOptimizer`, and the packer assign
-  one adapter slice and optimizer route to each agent policy. The admitted
-  candidate samples four independent joint trajectories from one scenario and
-  opponent snapshot, computes the scenario-matched leave-one-out terminal-return
-  advantage, and shares each trajectory's scalar across its four agents while
-  routing every agent's own tokens only to its fixed policy run. Never send all
-  four agents through one run or merge their private contexts, gradients,
-  optimizer states, or checkpoints.
+  one adapter slice and optimizer route to each agent policy. For focused-agent
+  credit, sample four trajectories from one scenario and opponent snapshot,
+  vary only the designated agent's selected sampling stream, and use common
+  random keys and prompt permutations for every other decision. Compute the
+  leave-one-out verified terminal-return advantage and route non-zero credit
+  only to the designated policy; keep the other three envelopes at zero so the
+  four-policy update remains atomic. Never send all four agents through one run
+  or merge their private contexts, gradients, optimizer states, or checkpoints.
 - Seed all four Swarm Arena policy slots from one immutable warm start with
   trainer-side `model.lora.initial_adapter_path` and
   `model.lora.initial_adapter_sha256`. The trainer reads PEFT safetensors only,
@@ -69,10 +70,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
 - Swarm Arena rollout workers never write to the trainer queue. Route complete
   shared-return evidence through `safety_supervisor.py`; require independent
   state replay, terminal-reward recomputation, exact private-context hashes,
-  unique sampling namespaces, immutable run-lock revisions, exact sample-content
-  commitments, constraint allowlisting, four-policy routing, and log-prob
-  parity. Append approvals/rejections to the hash-chained trace. Any mismatch
-  fails closed and blocks optimizer input rather than becoming a reward penalty.
+  unique replica namespaces for independently sampled decisions, the declared
+  common namespace for coupled decisions, immutable run-lock revisions, exact
+  sample-content commitments, constraint allowlisting, four-policy routing,
+  and log-prob parity. Append approvals/rejections to the hash-chained trace.
+  Any mismatch fails closed and blocks optimizer input rather than becoming a
+  reward penalty.
 - Certify constrained-policy parity on the exact serving and trainer stacks
   before admitting a run. Require identical token IDs, allowed-token masks and
   policy routing, then gate the unavoidable vLLM/FSDP kernel drift with the
@@ -119,8 +122,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   certificate to `scripts/build_staged_rl_plan.py` and
   `scripts/preflight_staged_rl.py`. Never reuse a certificate after any bound
   component changes or bypass a failed v2 preflight.
-  `data/rl_v4/staged_curriculum_v1.json` and the resulting plan declare their
-  exact update count; never shorten or extend them under the same run identity.
+  The selected checked-in curriculum and resulting plan declare their exact
+  update count; never shorten or extend them under the same run identity. The
+  staged launcher derives its horizon from that plan. A focused-agent run must
+  bind an ACT-only production plan and pass
+  `--shared-return-credit-assignment focused_agent`; never allow the launcher's
+  shared-team default to silently override a focused plan.
   The production controller must block on content-hashed evaluation barriers
   at step 0 and every ten updates, while Prime retains every corresponding
   checkpoint. Step-zero SFT-vs-SFT invariance must pass before the first
