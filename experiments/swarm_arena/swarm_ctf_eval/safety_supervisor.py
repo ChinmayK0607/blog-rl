@@ -28,9 +28,7 @@ ZERO_HASH = "0" * 64
 
 
 def canonical_sha256(value: Any) -> str:
-    return hashlib.sha256(
-        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -80,13 +78,9 @@ class RunLock:
             raise ValueError("run lock policy IDs must be distinct")
         if any(not revision for _, revision in self.trainable_policy_revisions):
             raise ValueError("run lock policy revisions must be immutable")
-        if self.trainer_parity_gate_sha256 is not None and not _is_sha256(
-            self.trainer_parity_gate_sha256
-        ):
+        if self.trainer_parity_gate_sha256 is not None and not _is_sha256(self.trainer_parity_gate_sha256):
             raise ValueError("run lock trainer parity gate has an invalid SHA-256 digest")
-        if self.production_plan_sha256 is not None and not _is_sha256(
-            self.production_plan_sha256
-        ):
+        if self.production_plan_sha256 is not None and not _is_sha256(self.production_plan_sha256):
             raise ValueError("run lock production plan has an invalid SHA-256 digest")
         frozen = dict(self.frozen_policy_revisions)
         if len(frozen) != len(self.frozen_policy_revisions):
@@ -104,17 +98,11 @@ class RunLock:
         elif self.credit_estimator == "shared_return":
             if self.replacement_policy_id is not None:
                 raise ValueError("shared-return credit cannot bind a replacement policy")
-            if self.credit_estimator_config_sha256 is None or not _is_sha256(
-                self.credit_estimator_config_sha256
-            ):
+            if self.credit_estimator_config_sha256 is None or not _is_sha256(self.credit_estimator_config_sha256):
                 raise ValueError("shared-return credit requires an immutable estimator config")
-            if self.trainer_config_sha256 is None or not _is_sha256(
-                self.trainer_config_sha256
-            ):
+            if self.trainer_config_sha256 is None or not _is_sha256(self.trainer_config_sha256):
                 raise ValueError("shared-return credit requires an immutable trainer config")
-            if self.serving_config_sha256 is None or not _is_sha256(
-                self.serving_config_sha256
-            ):
+            if self.serving_config_sha256 is None or not _is_sha256(self.serving_config_sha256):
                 raise ValueError("shared-return credit requires an immutable serving config")
         else:
             raise ValueError(f"unknown credit estimator: {self.credit_estimator}")
@@ -180,13 +168,12 @@ class SharedReturnSpec:
     trainable_turn_offsets: tuple[int, ...] | None = (0,)
     baseline: Literal["leave_one_out_mean"] = "leave_one_out_mean"
     reward: Literal["verified_terminal_team_return"] = "verified_terminal_team_return"
+    credit_assignment: Literal["shared_team", "focused_agent"] = "shared_team"
 
     def validate(self) -> None:
         if self.replicas < 2 or self.replicas > 32:
             raise ValueError("shared-return replicas must be between 2 and 32")
-        if not self.trainable_phases or len(set(self.trainable_phases)) != len(
-            self.trainable_phases
-        ):
+        if not self.trainable_phases or len(set(self.trainable_phases)) != len(self.trainable_phases):
             raise ValueError("shared-return phases must be non-empty and unique")
         if any(phase not in {"BROADCAST", "ACT"} for phase in self.trainable_phases):
             raise ValueError("shared-return spec contains an unknown phase")
@@ -201,6 +188,10 @@ class SharedReturnSpec:
             raise ValueError("shared-return spec contains an unsupported baseline")
         if self.reward != "verified_terminal_team_return":
             raise ValueError("shared-return spec contains an unsupported reward")
+        if self.credit_assignment not in {"shared_team", "focused_agent"}:
+            raise ValueError("shared-return spec contains an unsupported credit assignment")
+        if self.credit_assignment == "focused_agent" and self.trainable_phases != ("ACT",):
+            raise ValueError("focused-agent credit trains ACT spans only")
 
     @property
     def sha256(self) -> str:
@@ -225,6 +216,8 @@ class SharedReturnGroupEvidence:
     initial_state_sha256: str
     episode_config: EpisodeConfig
     spec: SharedReturnSpec
+    focused_agent: str | None
+    common_sampling_namespace: str | None
     replicas: tuple[SharedReturnReplicaEvidence, ...]
     trainer_logprobs: dict[str, tuple[float, ...]] | None
 
@@ -300,6 +293,8 @@ def shared_return_evidence_payload(evidence: SharedReturnGroupEvidence) -> dict[
         "initial_state": state_to_dict(evidence.initial_state),
         "episode_config": asdict(evidence.episode_config),
         "spec": asdict(evidence.spec),
+        "focused_agent": evidence.focused_agent,
+        "common_sampling_namespace": evidence.common_sampling_namespace,
         "replicas": [
             {
                 "replica_index": row.replica_index,
@@ -322,9 +317,7 @@ def _branch_payload(branch: BranchReplay) -> dict[str, Any]:
             {
                 "turn": row.turn,
                 "broadcasts": [(agent, value.to_dict()) for agent, value in row.broadcasts],
-                "delivered_broadcasts": [
-                    (agent, value.to_dict()) for agent, value in row.delivered_broadcasts
-                ],
+                "delivered_broadcasts": [(agent, value.to_dict()) for agent, value in row.delivered_broadcasts],
                 "actions": [(agent, value.to_dict()) for agent, value in row.actions],
                 "pre_state_sha256": row.pre_state_sha256,
                 "post_state_sha256": row.post_state_sha256,
@@ -361,9 +354,7 @@ def verify_replay(
         )
         accepted = env._phase.accepted if env._phase is not None else {}
         for agent_id, broadcast in accepted.items():
-            outputs[(agent_id, row.turn, "BROADCAST")] = canonical_sha256(
-                broadcast.to_dict()
-            )
+            outputs[(agent_id, row.turn, "BROADCAST")] = canonical_sha256(broadcast.to_dict())
         for agent_id, observation in env.action_observations().items():
             contexts[(agent_id, row.turn, "ACT")] = canonical_sha256(observation)
         final = env.advance(dict(row.actions))
@@ -385,32 +376,21 @@ def _verify_private_contexts(
     *,
     branch: str,
 ) -> None:
-    actual = {
-        (decision.agent_id, decision.turn, decision.phase): decision.context_sha256
-        for decision in decisions
-    }
+    actual = {(decision.agent_id, decision.turn, decision.phase): decision.context_sha256 for decision in decisions}
     if len(actual) != len(decisions):
         raise ValueError(f"duplicate private contexts in {branch} branch")
     if set(actual) != set(verification.context_sha256):
         raise ValueError(f"{branch} decisions do not cover every referee-generated private context")
-    mismatched = [
-        key
-        for key, digest in actual.items()
-        if digest != verification.context_sha256[key]
-    ]
+    mismatched = [key for key, digest in actual.items() if digest != verification.context_sha256[key]]
     if mismatched:
         raise ValueError(f"private observation/inbox leakage or mismatch in {branch}: {mismatched[:3]}")
     output_mismatches = [
         (decision.agent_id, decision.turn, decision.phase)
         for decision in decisions
-        if decision.output_sha256
-        != verification.output_sha256[(decision.agent_id, decision.turn, decision.phase)]
+        if decision.output_sha256 != verification.output_sha256[(decision.agent_id, decision.turn, decision.phase)]
     ]
     if output_mismatches:
-        raise ValueError(
-            f"decoded model output does not match replayed action in {branch}: "
-            f"{output_mismatches[:3]}"
-        )
+        raise ValueError(f"decoded model output does not match replayed action in {branch}: {output_mismatches[:3]}")
 
 
 def _verify_delivery_contract(
@@ -470,8 +450,7 @@ def _verify_common_random_outputs(decisions: tuple[RolloutDecision, ...]) -> Non
         previous = responses.setdefault(decision.request_sha256, response_sha256)
         if previous != response_sha256:
             raise ValueError(
-                "identical inference request produced "
-                f"different outputs or distributions: {decision.decision_id}"
+                f"identical inference request produced different outputs or distributions: {decision.decision_id}"
             )
 
 
@@ -507,8 +486,7 @@ def approve_credit_group(
             raise ValueError(f"decision has an unknown agent: {decision.decision_id}")
         expected_policy = (
             lock.replacement_policy_id
-            if decision.branch == "replacement"
-            and decision.agent_id == decision.replaced_agent
+            if decision.branch == "replacement" and decision.agent_id == decision.replaced_agent
             else binding.policy_id
         )
         if decision.policy_id != expected_policy:
@@ -533,13 +511,12 @@ def approve_credit_group(
     replay_return = actual_verification.terminal_return
     replacement_agents = [row.replaced_agent for row in evidence.replacements]
     expected_replacements = sorted(
-        binding.agent_id
-        for binding in bindings
-        if binding.trainable and binding.team == trainable_team
+        binding.agent_id for binding in bindings if binding.trainable and binding.team == trainable_team
     )
-    if len(replacement_agents) != 4 or sorted(
-        agent for agent in replacement_agents if agent is not None
-    ) != expected_replacements:
+    if (
+        len(replacement_agents) != 4
+        or sorted(agent for agent in replacement_agents if agent is not None) != expected_replacements
+    ):
         raise ValueError("replacement replays do not cover each trainable agent exactly once")
     replacement_returns = {}
     for branch in evidence.replacements:
@@ -553,8 +530,7 @@ def approve_credit_group(
             tuple(
                 row
                 for row in evidence.decisions
-                if row.branch == "replacement"
-                and row.replaced_agent == branch.replaced_agent
+                if row.branch == "replacement" and row.replaced_agent == branch.replaced_agent
             ),
             verification,
             branch=f"replace-{branch.replaced_agent}",
@@ -579,9 +555,7 @@ def approve_credit_group(
     )
     if evidence.trainer_logprobs is None:
         if lock.trainer_parity_gate_sha256 is None:
-            raise ValueError(
-                "deferred parity requires an immutable trainer pre-step gate"
-            )
+            raise ValueError("deferred parity requires an immutable trainer pre-step gate")
         parity_mode = "trainer_pre_step"
         parity: dict[str, float | int | str | None] = {
             "max_abs_error": None,
@@ -600,6 +574,7 @@ def approve_credit_group(
             evidence.trainer_logprobs,
             frozenset(dict(lock.trainable_policy_revisions)),
         )
+
     def optional_float(value: float | int | str | None) -> float | None:
         return None if value is None else float(value)
 
@@ -710,14 +685,13 @@ def approve_message_credit_group(
     )
 
     expected_senders = sorted(
-        binding.agent_id
-        for binding in bindings
-        if binding.trainable and binding.team == trainable_team
+        binding.agent_id for binding in bindings if binding.trainable and binding.team == trainable_team
     )
     dropped_senders = [row.replaced_agent for row in evidence.drops]
-    if len(dropped_senders) != 4 or sorted(
-        sender for sender in dropped_senders if sender is not None
-    ) != expected_senders:
+    if (
+        len(dropped_senders) != 4
+        or sorted(sender for sender in dropped_senders if sender is not None) != expected_senders
+    ):
         raise ValueError("message-drop replays do not cover each trainable sender exactly once")
     if evidence.intervention_turn != evidence.initial_state.turn:
         raise ValueError("bootstrap message credit must intervene on the first episode turn")
@@ -742,9 +716,7 @@ def approve_message_credit_group(
             dropped_turn=evidence.intervention_turn,
         )
         branch_decisions = tuple(
-            row
-            for row in evidence.decisions
-            if row.branch == "message_drop" and row.replaced_agent == sender
+            row for row in evidence.decisions if row.branch == "message_drop" and row.replaced_agent == sender
         )
         _verify_private_contexts(
             branch_decisions,
@@ -760,9 +732,7 @@ def approve_message_credit_group(
             raise ValueError("message-drop branch omits the intervention turn")
         if dict(intervention_row.broadcasts) != dict(actual_intervention_row.broadcasts):
             raise ValueError("emitted broadcasts changed before delivery intervention")
-        actual_sender_message = dict(actual_intervention_row.broadcasts).get(
-            sender, EMPTY_BROADCAST
-        )
+        actual_sender_message = dict(actual_intervention_row.broadcasts).get(sender, EMPTY_BROADCAST)
         if actual_sender_message == EMPTY_BROADCAST:
             if branch.turns != evidence.actual.turns or not math.isclose(
                 branch.terminal_return,
@@ -870,10 +840,7 @@ def leave_one_out_advantages(returns: tuple[float, ...]) -> tuple[float, ...]:
         raise ValueError("leave-one-out returns must be finite")
     total = sum(returns)
     denominator = len(returns) - 1
-    advantages = tuple(
-        value - (total - value) / denominator
-        for value in returns
-    )
+    advantages = tuple(value - (total - value) / denominator for value in returns)
     if not math.isclose(sum(advantages), 0.0, abs_tol=1e-10):
         raise ValueError("leave-one-out advantages failed their zero-sum invariant")
     return advantages
@@ -903,15 +870,12 @@ def approve_shared_return_group(
         raise ValueError("initial state does not match its committed hash")
     if (
         evidence.spec.trainable_turn_offsets is not None
-        and evidence.initial_state.turn + max(evidence.spec.trainable_turn_offsets)
-        >= evidence.episode_config.horizon
+        and evidence.initial_state.turn + max(evidence.spec.trainable_turn_offsets) >= evidence.episode_config.horizon
     ):
         raise ValueError("shared-return trainable turn falls outside the episode horizon")
     if len(evidence.replicas) != evidence.spec.replicas:
         raise ValueError("shared-return evidence has the wrong replica count")
-    if {row.replica_index for row in evidence.replicas} != set(
-        range(evidence.spec.replicas)
-    ):
+    if {row.replica_index for row in evidence.replicas} != set(range(evidence.spec.replicas)):
         raise ValueError("shared-return replica indices must be contiguous and unique")
     game_ids = [row.game_id for row in evidence.replicas]
     namespaces = [row.sampling_namespace for row in evidence.replicas]
@@ -919,6 +883,17 @@ def approve_shared_return_group(
         raise ValueError("shared-return replica identifiers cannot be empty")
     if len(set(game_ids)) != len(game_ids) or len(set(namespaces)) != len(namespaces):
         raise ValueError("shared-return replicas require unique games and sampling namespaces")
+
+    if evidence.spec.credit_assignment == "focused_agent":
+        trainable_agents = {
+            binding.agent_id for binding in bindings if binding.trainable and binding.team == trainable_team
+        }
+        if evidence.focused_agent not in trainable_agents:
+            raise ValueError("focused-agent evidence names a non-trainable agent")
+        if not evidence.common_sampling_namespace:
+            raise ValueError("focused-agent evidence requires a common sampling namespace")
+    elif evidence.focused_agent is not None or evidence.common_sampling_namespace is not None:
+        raise ValueError("shared-team evidence cannot name focused sampling fields")
 
     policy_revisions = {
         **dict(lock.trainable_policy_revisions),
@@ -931,28 +906,42 @@ def approve_shared_return_group(
     absolute_turns = (
         None
         if evidence.spec.trainable_turn_offsets is None
-        else frozenset(
-            evidence.initial_state.turn + offset
-            for offset in evidence.spec.trainable_turn_offsets
-        )
+        else frozenset(evidence.initial_state.turn + offset for offset in evidence.spec.trainable_turn_offsets)
     )
     phases = frozenset(evidence.spec.trainable_phases)
 
     for replica in sorted(evidence.replicas, key=lambda row: row.replica_index):
         if replica.replay.replaced_agent is not None:
             raise ValueError("shared-return replay cannot name an intervention")
-        if not replica.decisions or {row.game_id for row in replica.decisions} != {
-            replica.game_id
-        }:
+        if not replica.decisions or {row.game_id for row in replica.decisions} != {replica.game_id}:
             raise ValueError("shared-return replica mixes or omits game IDs")
         replica_keys = {row.sampling_key for row in replica.decisions}
         if len(replica_keys) != len(replica.decisions):
             raise ValueError("shared-return replica contains duplicate sampling keys")
-        if any(not key.startswith(f"{replica.sampling_namespace}:") for key in replica_keys):
-            raise ValueError("shared-return decision escaped its sampling namespace")
-        if seen_sampling_keys & replica_keys:
-            raise ValueError("shared-return replicas do not have independent sampling keys")
-        seen_sampling_keys.update(replica_keys)
+        if evidence.spec.credit_assignment == "shared_team":
+            if any(not key.startswith(f"{replica.sampling_namespace}:") for key in replica_keys):
+                raise ValueError("shared-return decision escaped its sampling namespace")
+            if seen_sampling_keys & replica_keys:
+                raise ValueError("shared-return replicas do not have independent sampling keys")
+            seen_sampling_keys.update(replica_keys)
+        else:
+            assert evidence.focused_agent is not None
+            assert evidence.common_sampling_namespace is not None
+            for decision in replica.decisions:
+                independently_sampled = (
+                    decision.agent_id == evidence.focused_agent
+                    and decision.phase in phases
+                    and (absolute_turns is None or decision.turn in absolute_turns)
+                )
+                expected_namespace = (
+                    replica.sampling_namespace if independently_sampled else evidence.common_sampling_namespace
+                )
+                if not decision.sampling_key.startswith(f"{expected_namespace}:"):
+                    raise ValueError("focused-agent decision escaped its declared sampling namespace")
+                if independently_sampled:
+                    if decision.sampling_key in seen_sampling_keys:
+                        raise ValueError("focused-agent replicas reused an independent sampling key")
+                    seen_sampling_keys.add(decision.sampling_key)
 
         for decision in replica.decisions:
             if decision.branch != "actual" or decision.replaced_agent is not None:
@@ -985,13 +974,9 @@ def approve_shared_return_group(
             branch=f"replica-{replica.replica_index}",
         )
         verifications.append(verification)
-    _verify_common_random_outputs(
-        tuple(decision for row in evidence.replicas for decision in row.decisions)
-    )
+    _verify_common_random_outputs(tuple(decision for row in evidence.replicas for decision in row.decisions))
 
-    advantages = leave_one_out_advantages(
-        tuple(row.terminal_return for row in verifications)
-    )
+    advantages = leave_one_out_advantages(tuple(row.terminal_return for row in verifications))
     envelopes = tuple(
         build_shared_return_training_envelopes(
             replica.decisions,
@@ -1000,6 +985,7 @@ def approve_shared_return_group(
             advantage,
             trainable_phases=phases,
             trainable_turns=absolute_turns,
+            focused_agent=evidence.focused_agent,
         )
         for replica, advantage in zip(
             sorted(evidence.replicas, key=lambda row: row.replica_index),

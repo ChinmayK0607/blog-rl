@@ -68,9 +68,7 @@ class PolicyTrainingEnvelope:
 
 
 def _sample_payload_sha256(payload: dict[str, object]) -> str:
-    return hashlib.sha256(
-        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def rollout_training_sample_sha256(decision: RolloutDecision) -> str:
@@ -108,12 +106,7 @@ def runtime_training_sample_sha256(sample: object) -> str:
     missing = [field for field in fields if not hasattr(sample, field)]
     if missing:
         raise ValueError(f"training sample is missing committed fields: {missing}")
-    return _sample_payload_sha256(
-        {
-            field: getattr(sample, field)
-            for field in fields
-        }
-    )
+    return _sample_payload_sha256({field: getattr(sample, field) for field in fields})
 
 
 def _validate_decision(decision: RolloutDecision) -> None:
@@ -147,9 +140,7 @@ def _validate_decision(decision: RolloutDecision) -> None:
         raise ValueError(f"invalid transport-attempt count: {decision.decision_id}")
     if decision.serving_allowed_logprobs:
         if len(decision.serving_allowed_logprobs) != len(decision.completion_ids):
-            raise ValueError(
-                f"serving distribution rows do not match completion: {decision.decision_id}"
-            )
+            raise ValueError(f"serving distribution rows do not match completion: {decision.decision_id}")
         for token_id, allowed, distribution in zip(
             decision.completion_ids,
             decision.allowed_token_ids,
@@ -164,9 +155,7 @@ def _validate_decision(decision: RolloutDecision) -> None:
                 or token_id not in observed_ids
                 or not all(math.isfinite(value) for value in observed_values)
             ):
-                raise ValueError(
-                    f"invalid serving constrained distribution: {decision.decision_id}"
-                )
+                raise ValueError(f"invalid serving constrained distribution: {decision.decision_id}")
     if decision.branch == "actual" and decision.replaced_agent is not None:
         raise ValueError("actual branches cannot name a replaced agent")
     if decision.branch == "replacement" and decision.replaced_agent is None:
@@ -176,9 +165,7 @@ def _validate_decision(decision: RolloutDecision) -> None:
     if decision.allowed_token_ids:
         if len(decision.allowed_token_ids) != len(decision.completion_ids):
             raise ValueError(f"completion/constraint-row length mismatch: {decision.decision_id}")
-        for token_id, allowed in zip(
-            decision.completion_ids, decision.allowed_token_ids, strict=True
-        ):
+        for token_id, allowed in zip(decision.completion_ids, decision.allowed_token_ids, strict=True):
             if not allowed or token_id not in allowed:
                 raise ValueError(f"sampled token is absent from its constraint row: {decision.decision_id}")
 
@@ -193,10 +180,7 @@ def _decision_schedule(
     *,
     branch: str,
 ) -> dict[tuple[str, int, str], str]:
-    schedule = {
-        (decision.agent_id, decision.turn, decision.phase): decision.sampling_key
-        for decision in decisions
-    }
+    schedule = {(decision.agent_id, decision.turn, decision.phase): decision.sampling_key for decision in decisions}
     if len(schedule) != len(decisions):
         raise ValueError(f"{branch} branch contains duplicate agent/turn/phase decisions")
     return schedule
@@ -221,11 +205,7 @@ def build_message_training_envelopes(
         raise ValueError("a training envelope cannot mix games")
 
     binding_by_agent = {binding.agent_id: binding for binding in bindings}
-    expected_agents = {
-        binding.agent_id
-        for binding in bindings
-        if binding.trainable and binding.team == trainable_team
-    }
+    expected_agents = {binding.agent_id for binding in bindings if binding.trainable and binding.team == trainable_team}
     credit_by_agent = {credit.agent_id: credit for credit in credits}
     if set(credit_by_agent) != expected_agents:
         raise ValueError("message credits do not cover the four trainable senders")
@@ -235,29 +215,20 @@ def build_message_training_envelopes(
 
     actual = tuple(decision for decision in decisions if decision.branch == "actual")
     actual_schedule = _decision_schedule(actual, branch="actual")
-    drop_agents = {
-        decision.replaced_agent
-        for decision in decisions
-        if decision.branch == "message_drop"
-    }
+    drop_agents = {decision.replaced_agent for decision in decisions if decision.branch == "message_drop"}
     if drop_agents != expected_agents:
         raise ValueError("an atomic message-credit group requires one drop branch per sender")
     for dropped_agent in sorted(expected_agents):
         branch = [
             decision
             for decision in decisions
-            if decision.branch == "message_drop"
-            and decision.replaced_agent == dropped_agent
+            if decision.branch == "message_drop" and decision.replaced_agent == dropped_agent
         ]
         if _decision_schedule(branch, branch=f"drop-message-{dropped_agent}") != actual_schedule:
-            raise ValueError(
-                f"message-drop branch does not share the complete random-key schedule: {dropped_agent}"
-            )
+            raise ValueError(f"message-drop branch does not share the complete random-key schedule: {dropped_agent}")
 
     broadcast_decisions = tuple(
-        decision
-        for decision in actual
-        if decision.phase == "BROADCAST" and decision.turn == credit_turn
+        decision for decision in actual if decision.phase == "BROADCAST" and decision.turn == credit_turn
     )
     spans = tuple(
         AgentTokenSpan(
@@ -313,8 +284,9 @@ def build_shared_return_training_envelopes(
     *,
     trainable_phases: frozenset[Phase],
     trainable_turns: frozenset[int] | None,
+    focused_agent: str | None = None,
 ) -> tuple[PolicyTrainingEnvelope, ...]:
-    """Route selected actual spans to four policies with one joint-trajectory advantage."""
+    """Route selected spans, optionally assigning credit only to one causal actor."""
     validate_policy_roster(bindings, trainable_team)
     if not math.isfinite(advantage):
         raise ValueError("shared-return advantage must be finite")
@@ -332,11 +304,7 @@ def build_shared_return_training_envelopes(
     _decision_schedule(decisions, branch="shared-return actual")
 
     binding_by_agent = {binding.agent_id: binding for binding in bindings}
-    expected_agents = {
-        binding.agent_id
-        for binding in bindings
-        if binding.trainable and binding.team == trainable_team
-    }
+    expected_agents = {binding.agent_id for binding in bindings if binding.trainable and binding.team == trainable_team}
     selected = tuple(
         decision
         for decision in decisions
@@ -369,6 +337,8 @@ def build_shared_return_training_envelopes(
         owned[decision.agent_id].append(decision)
     if missing := [agent_id for agent_id, rows in owned.items() if not rows]:
         raise ValueError(f"shared-return replica has no selected decisions for: {missing}")
+    if focused_agent is not None and focused_agent not in expected_agents:
+        raise ValueError("focused shared-return credit names an unknown trainable agent")
 
     envelopes = []
     for agent_id in sorted(owned):
@@ -382,7 +352,7 @@ def build_shared_return_training_envelopes(
                 agent_id,
                 binding_by_agent[agent_id].policy_id,
                 next(iter(revisions)),
-                advantage,
+                advantage if focused_agent is None or agent_id == focused_agent else 0.0,
                 tuple(row.decision_id for row in rows),
                 sum(len(row.completion_ids) for row in rows),
                 tuple(rollout_training_sample_sha256(row) for row in rows),
@@ -409,50 +379,33 @@ def build_training_envelopes(
 
     binding_by_agent = {binding.agent_id: binding for binding in bindings}
     credit_by_agent = {credit.agent_id: credit for credit in credits}
-    expected_agents = {
-        binding.agent_id
-        for binding in bindings
-        if binding.trainable and binding.team == trainable_team
-    }
+    expected_agents = {binding.agent_id for binding in bindings if binding.trainable and binding.team == trainable_team}
     if set(credit_by_agent) != expected_agents:
         raise ValueError("replacement credits do not cover the four trainable agents")
     for agent_id, credit in credit_by_agent.items():
         if credit.policy_id != binding_by_agent[agent_id].policy_id:
             raise ValueError(f"replacement credit is routed to the wrong policy: {agent_id}")
-    replacement_agents = {
-        decision.replaced_agent
-        for decision in decisions
-        if decision.branch == "replacement"
-    }
+    replacement_agents = {decision.replaced_agent for decision in decisions if decision.branch == "replacement"}
     if replacement_agents != expected_agents:
-        raise ValueError(
-            "an atomic credit group requires one replacement branch for each trainable agent"
-        )
+        raise ValueError("an atomic credit group requires one replacement branch for each trainable agent")
 
     actual = tuple(decision for decision in decisions if decision.branch == "actual")
-    actual_schedule = {
-        (decision.agent_id, decision.turn, decision.phase): decision.sampling_key
-        for decision in actual
-    }
+    actual_schedule = {(decision.agent_id, decision.turn, decision.phase): decision.sampling_key for decision in actual}
     if len(actual_schedule) != len(actual):
         raise ValueError("actual branch contains duplicate agent/turn/phase decisions")
     for replaced_agent in sorted(expected_agents):
         branch = [
             decision
             for decision in decisions
-            if decision.branch == "replacement"
-            and decision.replaced_agent == replaced_agent
+            if decision.branch == "replacement" and decision.replaced_agent == replaced_agent
         ]
         branch_schedule = {
-            (decision.agent_id, decision.turn, decision.phase): decision.sampling_key
-            for decision in branch
+            (decision.agent_id, decision.turn, decision.phase): decision.sampling_key for decision in branch
         }
         if len(branch_schedule) != len(branch):
             raise ValueError(f"replacement branch has duplicate decisions: {replaced_agent}")
         if branch_schedule != actual_schedule:
-            raise ValueError(
-                f"replacement branch does not share the complete random-key schedule: {replaced_agent}"
-            )
+            raise ValueError(f"replacement branch does not share the complete random-key schedule: {replaced_agent}")
     spans = tuple(
         AgentTokenSpan(
             decision.game_id,
@@ -542,10 +495,9 @@ def verify_trainer_logprob_parity(
         token_count += len(compared)
         errors.extend(
             abs(rollout_value - trainer_value)
-            for rollout_value, trainer_value in zip(
-                decision.rollout_logprobs, compared, strict=True
-            )
+            for rollout_value, trainer_value in zip(decision.rollout_logprobs, compared, strict=True)
         )
+
     def quantile(values: list[float], q: float) -> float:
         ordered = sorted(values)
         if not ordered:
@@ -575,9 +527,9 @@ def verify_trainer_logprob_parity(
     p99 = quantile(errors, 0.99)
     probability_maximum = max(probability_errors, default=0.0)
     probability_p99 = quantile(probability_errors, 0.99)
-    probability_tail_fraction = sum(
-        value > probability_tail_threshold for value in probability_errors
-    ) / max(len(probability_errors), 1)
+    probability_tail_fraction = sum(value > probability_tail_threshold for value in probability_errors) / max(
+        len(probability_errors), 1
+    )
     mismatch_kl_mean = sum(mismatch_kls) / max(len(mismatch_kls), 1)
     mismatch_kl_maximum = max(mismatch_kls, default=0.0)
     failures = {
@@ -596,10 +548,7 @@ def verify_trainer_logprob_parity(
     if exceeded:
         raise ValueError(
             "rollout/trainer numerical-parity envelope exceeded: "
-            + ", ".join(
-                f"{name}={value:.8g}>{tolerance:.8g}"
-                for name, (value, tolerance) in exceeded.items()
-            )
+            + ", ".join(f"{name}={value:.8g}>{tolerance:.8g}" for name, (value, tolerance) in exceeded.items())
         )
     return {
         "status": "passed",

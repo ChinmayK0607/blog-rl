@@ -1,0 +1,66 @@
+{
+  "version": "arena-rl-v4-focused-curriculum-v2",
+  "total_updates": 80,
+  "groups_per_update": 4,
+  "reward": "verified_terminal_control_delta_only",
+  "credit_assignment": "focused_agent_common_random_leave_one_out",
+  "message_reward": null,
+  "principles": [
+    "vary one designated BLUE agent while coupling every other sampling stream across replicas",
+    "assign terminal-return advantage only to the designated agent",
+    "train ACT spans so improvement must come from using available observations and messages",
+    "keep critical and matched-decoy cases balanced within every update",
+    "run the unchanged frozen development pulse every ten updates"
+  ],
+  "stages": [
+    {
+      "name": "focused_tactical_stabilization",
+      "updates": 10,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "purpose": "establish whether focused terminal credit improves ordinary legal tactics"
+    },
+    {
+      "name": "focused_handoff_introduction",
+      "updates": 20,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "purpose": "increase receiver-action learning without removing ordinary play"
+    },
+    {
+      "name": "focused_communication_heavy",
+      "updates": 30,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "purpose": "apply sustained pressure to exploit teammate information under terminal reward"
+    },
+    {
+      "name": "focused_consolidation",
+      "updates": 20,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "purpose": "test retention across tactical and communication-critical play"
+    }
+  ],
+  "online_eval_updates": [0, 10, 20, 30, 40, 50, 60, 70, 80],
+  "checkpoint_selection": "select once from development metrics after update 80",
+  "frozen_policy": "the existing rl_v4 frozen OOD evaluation remains unopened and byte-identical"
+}

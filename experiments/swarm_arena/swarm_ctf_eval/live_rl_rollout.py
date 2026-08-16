@@ -56,9 +56,7 @@ def _verify_serving_constraint_rows(
     """Prove the server and trainer normalize over the same small masks."""
     if not (len(completion_ids) == len(allowed_rows) == len(logprob_rows)):
         raise ValueError("serving completion/constraint/logprob lengths differ")
-    for offset, (expected, row) in enumerate(
-        zip(allowed_rows, logprob_rows, strict=True)
-    ):
+    for offset, (expected, row) in enumerate(zip(allowed_rows, logprob_rows, strict=True)):
         if len(expected) > STRUCTURED_LOGPROB_TOP_K:
             continue
         observed = set()
@@ -144,14 +142,10 @@ class XGrammarChoiceMask:
             xgr.reset_token_bitmask(bitmask)
             matcher.fill_next_token_bitmask(bitmask)
             words = bitmask[0].to(torch.int64)
-            accepted = (
-                (words[self._word_indices] >> self._bit_indices) & 1
-            ).to(torch.bool)
+            accepted = ((words[self._word_indices] >> self._bit_indices) & 1).to(torch.bool)
             allowed = self._token_ids[accepted].tolist()
             if token_id not in allowed or not matcher.accept_token(token_id):
-                raise ValueError(
-                    f"completion token {token_id} is rejected by the serving choice grammar"
-                )
+                raise ValueError(f"completion token {token_id} is rejected by the serving choice grammar")
             rows.append(allowed)
         if not matcher.is_terminated():
             raise ValueError("structured completion ended before its choice grammar terminated")
@@ -168,10 +162,7 @@ class PolicyEndpoint:
     def validate(self, *, require_base_urls: bool = True) -> None:
         if not self.policy_id or not self.revision or not self.model_name:
             raise ValueError("policy endpoint fields cannot be empty")
-        if require_base_urls and (
-            not self.base_urls
-            or any(not value.startswith("http") for value in self.base_urls)
-        ):
+        if require_base_urls and (not self.base_urls or any(not value.startswith("http") for value in self.base_urls)):
             raise ValueError("policy endpoint requires HTTP inference URLs")
 
 
@@ -298,16 +289,13 @@ class VLLMChoiceGenerator:
                 if transport_attempts == TRANSPORT_MAX_ATTEMPTS:
                     raise
                 LOGGER.warning(
-                    "retrying identical inference request %s after transport error "
-                    "(%d/%d): %s",
+                    "retrying identical inference request %s after transport error (%d/%d): %s",
                     request_sha256,
                     transport_attempts,
                     TRANSPORT_MAX_ATTEMPTS,
                     type(error).__name__,
                 )
-                await asyncio.sleep(
-                    TRANSPORT_RETRY_BASE_SECONDS * (2 ** (transport_attempts - 1))
-                )
+                await asyncio.sleep(TRANSPORT_RETRY_BASE_SECONDS * (2 ** (transport_attempts - 1)))
         if response is None:
             raise RuntimeError("inference transport loop returned no response")
         response.raise_for_status()
@@ -321,9 +309,7 @@ class VLLMChoiceGenerator:
         try:
             allowed = self.choice_mask.allowed_token_ids(choices, completion_ids)
         except ValueError as error:
-            matching_choices = [
-                index for index, value in enumerate(choices) if value == decoded
-            ]
+            matching_choices = [index for index, value in enumerate(choices) if value == decoded]
             raise ValueError(
                 "structured completion/trie mismatch: "
                 + json.dumps(
@@ -335,9 +321,7 @@ class VLLMChoiceGenerator:
                         "matching_choice_indices": matching_choices,
                         "matching_choice_token_ids": [
                             [
-                                *self.tokenizer.encode(
-                                    choices[index], add_special_tokens=False
-                                ),
+                                *self.tokenizer.encode(choices[index], add_special_tokens=False),
                                 eos_token_id,
                             ]
                             for index in matching_choices
@@ -479,11 +463,27 @@ async def rollout_branch(
     message_drop_turn: int | None = None,
     sample_phases: frozenset[Phase] = frozenset({"BROADCAST", "ACT"}),
     sample_turns: frozenset[int] | None = None,
+    common_sampling_namespace: str | None = None,
+    independently_sampled_agent: str | None = None,
+    prompt_namespace: str | None = None,
 ) -> BranchRollout:
     if replaced_agent is not None and message_drop_agent is not None:
         raise ValueError("a branch cannot replace a policy and drop a message simultaneously")
     if (message_drop_agent is None) != (message_drop_turn is None):
         raise ValueError("message drop requires both a sender and an intervention turn")
+    if (common_sampling_namespace is None) != (independently_sampled_agent is None):
+        raise ValueError("focused sampling requires a common namespace and one independent agent")
+
+    def decision_namespace(agent_id: str, turn: int, phase: Phase) -> str:
+        independently_sampled = (
+            independently_sampled_agent == agent_id
+            and phase in sample_phases
+            and (sample_turns is None or turn in sample_turns)
+        )
+        if common_sampling_namespace is not None and not independently_sampled:
+            return common_sampling_namespace
+        return sampling_namespace
+
     env = ArenaRLEnv(size=len(initial_state.nodes), config=config)
     env.reset_from_state(initial_state)
     binding_by_agent = {row.agent_id: row for row in bindings}
@@ -492,6 +492,7 @@ async def rollout_branch(
     turns: list[ReplayTurn] = []
     trajectory_index = 0
     final = None
+    resolved_prompt_namespace = prompt_namespace or game_id
 
     for turn in range(initial_state.turn, initial_state.turn + config.horizon):
         pre_state_sha256 = _state_sha256(env._require_state())
@@ -502,7 +503,10 @@ async def rollout_branch(
             messages, _ = episode_broadcast_prompt(
                 env,
                 agent_id,
-                permutation=int(hashlib.sha256(f"{game_id}:broadcast:{turn}:{index}".encode()).hexdigest()[:8], 16),
+                permutation=int(
+                    hashlib.sha256(f"{resolved_prompt_namespace}:broadcast:{turn}:{index}".encode()).hexdigest()[:8],
+                    16,
+                ),
             )
             endpoint = _policy_for_agent(
                 agent_id,
@@ -511,14 +515,12 @@ async def rollout_branch(
                 replaced_agent=replaced_agent,
                 replacement_policy_id=replacement_policy_id,
             )
-            key = _sampling_key(sampling_namespace, agent_id, turn, "BROADCAST")
+            key = _sampling_key(decision_namespace(agent_id, turn, "BROADCAST"), agent_id, turn, "BROADCAST")
             broadcast_jobs.append(generator.generate(endpoint, messages, sampling_key=key))
             broadcast_metadata.append((agent_id, endpoint, key))
         broadcast_completions = await asyncio.gather(*broadcast_jobs)
         broadcasts: dict[str, Broadcast] = {}
-        for (agent_id, endpoint, key), completion in zip(
-            broadcast_metadata, broadcast_completions, strict=True
-        ):
+        for (agent_id, endpoint, key), completion in zip(broadcast_metadata, broadcast_completions, strict=True):
             parsed = parse_broadcast(completion.text, env._require_state(), agent_id)
             if not parsed.valid or not isinstance(parsed.value, Broadcast):
                 raise RuntimeError(f"structured broadcast failed for {agent_id}: {parsed.errors}")
@@ -579,7 +581,10 @@ async def rollout_branch(
             messages, displayed = episode_action_prompt(
                 env,
                 agent_id,
-                permutation=int(hashlib.sha256(f"{game_id}:action:{turn}:{index}".encode()).hexdigest()[:8], 16),
+                permutation=int(
+                    hashlib.sha256(f"{resolved_prompt_namespace}:action:{turn}:{index}".encode()).hexdigest()[:8],
+                    16,
+                ),
             )
             endpoint = _policy_for_agent(
                 agent_id,
@@ -588,14 +593,12 @@ async def rollout_branch(
                 replaced_agent=replaced_agent,
                 replacement_policy_id=replacement_policy_id,
             )
-            key = _sampling_key(sampling_namespace, agent_id, turn, "ACT")
+            key = _sampling_key(decision_namespace(agent_id, turn, "ACT"), agent_id, turn, "ACT")
             action_jobs.append(generator.generate(endpoint, messages, sampling_key=key))
             action_metadata.append((agent_id, endpoint, key, displayed))
         action_completions = await asyncio.gather(*action_jobs)
         actions: dict[str, Action] = {}
-        for (agent_id, endpoint, key, displayed), completion in zip(
-            action_metadata, action_completions, strict=True
-        ):
+        for (agent_id, endpoint, key, displayed), completion in zip(action_metadata, action_completions, strict=True):
             parsed = parse_action(completion.text, displayed)
             if not parsed.valid or not isinstance(parsed.value, Action):
                 raise RuntimeError(f"structured action failed for {agent_id}: {parsed.errors}")
@@ -691,9 +694,7 @@ async def build_live_credit_group(
     policy_by_id = {row.policy_id: row for row in policies}
     if len(policy_by_id) != len(policies):
         raise ValueError("policy endpoint IDs must be unique")
-    trainable_agents = sorted(
-        row.agent_id for row in bindings if row.trainable and row.team == "BLUE"
-    )
+    trainable_agents = sorted(row.agent_id for row in bindings if row.trainable and row.team == "BLUE")
     if len(trainable_agents) != 4:
         raise ValueError("live credit group requires four trainable BLUE agents")
     resolved_sampling_namespace = sampling_namespace or game_id
@@ -730,11 +731,7 @@ async def build_live_credit_group(
     for agent_id, sample in actual.samples:
         by_agent[agent_id].append(sample)
     actual_decisions_by_agent = {
-        agent_id: tuple(
-            row.decision_id
-            for row in actual.decisions
-            if row.agent_id == agent_id
-        )
+        agent_id: tuple(row.decision_id for row in actual.decisions if row.agent_id == agent_id)
         for agent_id in trainable_agents
     }
     binding_by_agent = {row.agent_id: row for row in bindings}
@@ -756,9 +753,7 @@ async def build_live_credit_group(
         config,
         actual.replay,
         tuple(row.replay for row in replacements),
-        actual.decisions + tuple(
-            decision for branch in replacements for decision in branch.decisions
-        ),
+        actual.decisions + tuple(decision for branch in replacements for decision in branch.decisions),
         None,
     )
     return LiveCreditGroup(evidence, bindings, owned)
@@ -790,15 +785,11 @@ async def build_live_message_credit_group(
     policy_by_id = {row.policy_id: row for row in policies}
     if len(policy_by_id) != len(policies):
         raise ValueError("policy endpoint IDs must be unique")
-    trainable_agents = sorted(
-        row.agent_id for row in bindings if row.trainable and row.team == "BLUE"
-    )
+    trainable_agents = sorted(row.agent_id for row in bindings if row.trainable and row.team == "BLUE")
     if len(trainable_agents) != 4:
         raise ValueError("live message-credit group requires four trainable BLUE senders")
     resolved_sampling_namespace = sampling_namespace or game_id
-    resolved_intervention_turn = (
-        initial_state.turn if intervention_turn is None else intervention_turn
-    )
+    resolved_intervention_turn = initial_state.turn if intervention_turn is None else intervention_turn
     if resolved_intervention_turn != initial_state.turn:
         raise ValueError("bootstrap message credit currently supports the first turn only")
     async with _coalesced_request_group(generator):
@@ -842,9 +833,7 @@ async def build_live_message_credit_group(
         agent_id: tuple(
             row.decision_id
             for row in actual.decisions
-            if row.agent_id == agent_id
-            and row.phase == "BROADCAST"
-            and row.turn == resolved_intervention_turn
+            if row.agent_id == agent_id and row.phase == "BROADCAST" and row.turn == resolved_intervention_turn
         )
         for agent_id in trainable_agents
     }
@@ -868,9 +857,7 @@ async def build_live_message_credit_group(
         resolved_intervention_turn,
         actual.replay,
         tuple(row.replay for row in drops),
-        actual.decisions + tuple(
-            decision for branch in drops for decision in branch.decisions
-        ),
+        actual.decisions + tuple(decision for branch in drops for decision in branch.decisions),
         None,
     )
     return LiveMessageCreditGroup(evidence, bindings, owned)
@@ -889,8 +876,9 @@ async def build_live_shared_return_group(
     run_lock_sha256: str,
     initial_state: GameState | None = None,
     sampling_namespace: str | None = None,
+    focused_agent: str | None = None,
 ) -> LiveSharedReturnGroup:
-    """Sample independent joint trajectories from one state for LOO team-return credit."""
+    """Sample joint trajectories for shared or focused LOO terminal-return credit."""
     spec.validate()
     if initial_state is None:
         bootstrap = ArenaRLEnv(seed=seed, size=size, config=config)
@@ -903,26 +891,24 @@ async def build_live_shared_return_group(
     policy_by_id = {row.policy_id: row for row in policies}
     if len(policy_by_id) != len(policies):
         raise ValueError("policy endpoint IDs must be unique")
-    trainable_agents = sorted(
-        row.agent_id for row in bindings if row.trainable and row.team == "BLUE"
-    )
+    trainable_agents = sorted(row.agent_id for row in bindings if row.trainable and row.team == "BLUE")
     if len(trainable_agents) != 4:
         raise ValueError("live shared-return group requires four trainable BLUE agents")
+    if spec.credit_assignment == "focused_agent":
+        if focused_agent not in trainable_agents:
+            raise ValueError("focused-agent credit requires one trainable BLUE agent")
+    elif focused_agent is not None:
+        raise ValueError("shared-team credit cannot name a focused agent")
     base_namespace = sampling_namespace or group_id
+    common_sampling_namespace = f"{base_namespace}:common" if spec.credit_assignment == "focused_agent" else None
     absolute_turns = (
         None
         if spec.trainable_turn_offsets is None
-        else frozenset(
-            initial_state.turn + offset for offset in spec.trainable_turn_offsets
-        )
+        else frozenset(initial_state.turn + offset for offset in spec.trainable_turn_offsets)
     )
     phases = frozenset(spec.trainable_phases)
-    replica_game_ids = tuple(
-        f"{group_id}:replica-{index}" for index in range(spec.replicas)
-    )
-    replica_namespaces = tuple(
-        f"{base_namespace}:replica-{index}" for index in range(spec.replicas)
-    )
+    replica_game_ids = tuple(f"{group_id}:replica-{index}" for index in range(spec.replicas))
+    replica_namespaces = tuple(f"{base_namespace}:replica-{index}" for index in range(spec.replicas))
     async with _coalesced_request_group(generator):
         branches = await asyncio.gather(
             *(
@@ -938,6 +924,9 @@ async def build_live_shared_return_group(
                     sampling_namespace=replica_namespaces[index],
                     sample_phases=phases,
                     sample_turns=absolute_turns,
+                    common_sampling_namespace=common_sampling_namespace,
+                    independently_sampled_agent=focused_agent,
+                    prompt_namespace=common_sampling_namespace,
                 )
                 for index in range(spec.replicas)
             )
@@ -947,9 +936,7 @@ async def build_live_shared_return_group(
     owned_by_replica = []
     replicas = []
     for index, branch in enumerate(branches):
-        by_agent: dict[str, list[TrainingSample]] = {
-            agent_id: [] for agent_id in trainable_agents
-        }
+        by_agent: dict[str, list[TrainingSample]] = {agent_id: [] for agent_id in trainable_agents}
         for agent_id, sample in branch.samples:
             by_agent[agent_id].append(sample)
         decision_ids_by_agent = {
@@ -990,6 +977,8 @@ async def build_live_shared_return_group(
         _state_sha256(initial_state),
         config,
         spec,
+        focused_agent,
+        common_sampling_namespace,
         tuple(replicas),
         None,
     )

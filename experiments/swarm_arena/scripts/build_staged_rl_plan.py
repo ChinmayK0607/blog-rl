@@ -26,6 +26,13 @@ def main() -> None:
     parser.add_argument("--handoff-manifest", type=Path, required=True)
     parser.add_argument("--runtime-certificate", type=Path, required=True)
     parser.add_argument("--admission-limits", type=Path, required=True)
+    parser.add_argument(
+        "--trainable-phase",
+        action="append",
+        choices=("BROADCAST", "ACT"),
+        default=[],
+        help="override the base plan's trainable phases while retaining its turn schedule",
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
@@ -88,6 +95,13 @@ def main() -> None:
             "sha256": certificate["sha256"],
         },
     }
+    if args.trainable_phase:
+        if len(set(args.trainable_phase)) != len(args.trainable_phase):
+            raise ValueError("trainable phase overrides must be unique")
+        plan["trainable_spans"] = {
+            **base["trainable_spans"],
+            "phases": args.trainable_phase,
+        }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     loaded, _ = load_production_plan(args.output)
@@ -113,6 +127,7 @@ def main() -> None:
         "handoff_manifest_sha256": handoff["sha256"],
         "runtime_certificate_sha256": certificate["sha256"],
         "async_admission_limits_sha256": parsed_admission_limits.sha256,
+        "trainable_phases": list(loaded.trainable_phases),
         "unique_ordinary_seeds": len({row.ordinary_seed for row in schedule if row.ordinary_seed is not None}),
         "schedule_sha256": _digest(
             [

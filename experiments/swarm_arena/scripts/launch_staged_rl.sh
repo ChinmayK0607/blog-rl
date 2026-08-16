@@ -19,6 +19,11 @@ swarm_barrier_dir=$SWARM_RUN_DIR/control/checkpoint_barriers
 swarm_rescore_dir=$SWARM_RUN_DIR/control/rescore
 swarm_session_prefix=${SWARM_SESSION_PREFIX:-swarm-staged}
 swarm_source_commit=$(git -C "$SWARM_REPO_ROOT" rev-parse HEAD)
+swarm_expected_updates=${SWARM_EXPECTED_UPDATES:-$(jq '[.curriculum_stages[].updates] | add' "$SWARM_PRODUCTION_PLAN")}
+swarm_checkpoint_interval=${SWARM_CHECKPOINT_INTERVAL:-10}
+swarm_credit_assignment=${SWARM_SHARED_RETURN_CREDIT_ASSIGNMENT:-shared_team}
+swarm_curriculum_artifact=${SWARM_CURRICULUM_ARTIFACT:-$SWARM_REPO_ROOT/experiments/swarm_arena/data/rl_v4/staged_curriculum_v1.json}
+swarm_wandb_group=${SWARM_WANDB_GROUP:-qwen3-1.7b-staged-$swarm_expected_updates}
 
 for swarm_port in 8001 8002 8003; do
   curl -fsS "http://127.0.0.1:$swarm_port/health" >/dev/null
@@ -39,8 +44,9 @@ export PYTHONPATH=$SWARM_REPO_ROOT/experiments/swarm_arena
   --base-url http://127.0.0.1:8001 \
   --base-url http://127.0.0.1:8002 \
   --base-url http://127.0.0.1:8003 \
-  --expected-updates 120 \
-  --checkpoint-interval 10
+  --expected-updates "$swarm_expected_updates" \
+  --checkpoint-interval "$swarm_checkpoint_interval" \
+  --shared-return-credit-assignment "$swarm_credit_assignment"
 
 swarm_plan_sha=$(jq -r .production_plan_sha256 "$SWARM_RUN_DIR/PREFLIGHT.json")
 mkdir -p "$SWARM_RUN_DIR/logs" "$swarm_eval_root" "$swarm_rescore_dir"
@@ -59,10 +65,10 @@ tmux new-session -d -s "$swarm_session_prefix-rescore" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_lag_zero_rescore_worker.py --root $swarm_rescore_dir --snapshot-manifest $swarm_rescore_dir/current_snapshots.json --production-plan-sha256 $swarm_plan_sha > $SWARM_RUN_DIR/logs/rescore.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-pulses" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_staged_pulses.py --repo-root $SWARM_REPO_ROOT --run-dir $SWARM_RUN_DIR --production-plan $SWARM_PRODUCTION_PLAN --barrier-dir $swarm_barrier_dir --eval-root $swarm_eval_root --data-dir $swarm_data_dir --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --baseline-revision $SWARM_INITIAL_POLICY_REVISION --expected-updates 120 --interval 10 > $SWARM_RUN_DIR/logs/pulses.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_staged_pulses.py --repo-root $SWARM_REPO_ROOT --run-dir $SWARM_RUN_DIR --production-plan $SWARM_PRODUCTION_PLAN --barrier-dir $swarm_barrier_dir --eval-root $swarm_eval_root --data-dir $swarm_data_dir --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --baseline-revision $SWARM_INITIAL_POLICY_REVISION --expected-updates $swarm_expected_updates --interval $swarm_checkpoint_interval > $SWARM_RUN_DIR/logs/pulses.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-wandb" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/log_live_rl_wandb.py --progress $SWARM_RUN_DIR/live_rl_progress.json --eval-root $swarm_eval_root --expected-updates 120 --finish-marker $swarm_eval_root/COMPLETE --project swarm-arena-rl --group qwen3-1.7b-staged-120 --run-name $SWARM_RUN_ID-controller --run-id $SWARM_RUN_ID-controller-v1 --tag 1.7b --tag causal-communication --tag development --offline --compact-artifact $SWARM_PRODUCTION_PLAN --compact-artifact $SWARM_REPO_ROOT/experiments/swarm_arena/data/rl_v4/staged_curriculum_v1.json > $SWARM_RUN_DIR/logs/wandb.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/log_live_rl_wandb.py --progress $SWARM_RUN_DIR/live_rl_progress.json --eval-root $swarm_eval_root --expected-updates $swarm_expected_updates --finish-marker $swarm_eval_root/COMPLETE --project swarm-arena-rl --group $swarm_wandb_group --run-name $SWARM_RUN_ID-controller --run-id $SWARM_RUN_ID-controller-v1 --tag 1.7b --tag causal-communication --tag development --offline --compact-artifact $SWARM_PRODUCTION_PLAN --compact-artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/wandb.log 2>&1"
 
 sleep 15
 if ! tmux has-session -t "$swarm_session_prefix-trainer" 2>/dev/null; then
@@ -71,7 +77,7 @@ if ! tmux has-session -t "$swarm_session_prefix-trainer" 2>/dev/null; then
 fi
 
 tmux new-session -d -s "$swarm_session_prefix-controller" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_rl.py --output-dir $SWARM_RUN_DIR --trainer-config $SWARM_RUN_DIR/trainer.toml --inference-config $swarm_inference_config --data-dir $swarm_data_dir --task-data-version v4 --tokenizer $SWARM_MODEL --initial-adapter $SWARM_INITIAL_ADAPTER --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --actor vllm --run-id $SWARM_RUN_ID --source-commit $swarm_source_commit --base-revision $SWARM_BASE_REVISION --initial-policy-revision $SWARM_INITIAL_POLICY_REVISION --credit-estimator shared_return --shared-return-replicas 4 --production-plan $SWARM_PRODUCTION_PLAN --async-rescore-dir $swarm_rescore_dir --async-rescore-timeout 600 --steps 120 --groups-per-step 4 --scenario-source curriculum --curriculum-split train --update-timeout 1200 --checkpoint-barrier-dir $swarm_barrier_dir --checkpoint-barrier-interval 10 --checkpoint-barrier-timeout 7200 > $SWARM_RUN_DIR/logs/controller.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_rl.py --output-dir $SWARM_RUN_DIR --trainer-config $SWARM_RUN_DIR/trainer.toml --inference-config $swarm_inference_config --data-dir $swarm_data_dir --task-data-version v4 --tokenizer $SWARM_MODEL --initial-adapter $SWARM_INITIAL_ADAPTER --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --actor vllm --run-id $SWARM_RUN_ID --source-commit $swarm_source_commit --base-revision $SWARM_BASE_REVISION --initial-policy-revision $SWARM_INITIAL_POLICY_REVISION --credit-estimator shared_return --shared-return-replicas 4 --shared-return-credit-assignment $swarm_credit_assignment --production-plan $SWARM_PRODUCTION_PLAN --async-rescore-dir $swarm_rescore_dir --async-rescore-timeout 600 --steps $swarm_expected_updates --groups-per-step 4 --scenario-source curriculum --curriculum-split train --update-timeout 1200 --checkpoint-barrier-dir $swarm_barrier_dir --checkpoint-barrier-interval $swarm_checkpoint_interval --checkpoint-barrier-timeout 7200 > $SWARM_RUN_DIR/logs/controller.log 2>&1"
 
 sleep 10
 for swarm_role in trainer rescore pulses controller; do

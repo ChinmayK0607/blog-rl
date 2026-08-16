@@ -166,9 +166,7 @@ async def replace_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> 
         )
         for response in loads:
             response.raise_for_status()
-        registries = await asyncio.gather(
-            *(client.get(f"{base_url.rstrip('/')}/v1/models") for base_url in base_urls)
-        )
+        registries = await asyncio.gather(*(client.get(f"{base_url.rstrip('/')}/v1/models") for base_url in base_urls))
     expected_path = str(path.resolve())
     for response in registries:
         response.raise_for_status()
@@ -186,9 +184,7 @@ async def wait_for_policy_updates(
     hf_generator: HFChoiceGenerator | None = None,
 ) -> dict[str, str]:
     paths = {
-        f"blue-{index}": get_step_path(
-            get_broadcast_dir(output_dir / f"run_blue_{index}"), expected_step
-        )
+        f"blue-{index}": get_step_path(get_broadcast_dir(output_dir / f"run_blue_{index}"), expected_step)
         for index in range(4)
     }
     deadline = time.monotonic() + timeout
@@ -219,9 +215,7 @@ def run_lock(
 ) -> RunLock:
     if config.rollout_parity_gate is None:
         raise ValueError("trainer config is missing the pre-step parity gate")
-    opponent_revision = (
-        opponent.revision if opponent is not None else args.opponent_revision
-    )
+    opponent_revision = opponent.revision if opponent is not None else args.opponent_revision
     if opponent_revision is None:
         raise ValueError("run lock requires an immutable opponent revision")
     frozen_revisions = [("red-opponent", opponent_revision)]
@@ -239,10 +233,7 @@ def run_lock(
         data_binding.development_sha256,
         data_binding.final_sha256,
         args.base_revision,
-        tuple(
-            (f"blue-policy-{index}", policy_revisions[f"blue-{index}"])
-            for index in range(4)
-        ),
+        tuple((f"blue-policy-{index}", policy_revisions[f"blue-{index}"]) for index in range(4)),
         tuple(frozen_revisions),
         replacement_policy_id,
         opponent.opponent_id if opponent is not None else "sft-opponent",
@@ -285,6 +276,11 @@ async def main() -> None:
         default="shared_return",
     )
     parser.add_argument("--shared-return-replicas", type=int, default=4)
+    parser.add_argument(
+        "--shared-return-credit-assignment",
+        choices=("shared_team", "focused_agent"),
+        default="shared_team",
+    )
     parser.add_argument("--replacement-policy-id", default="sft-replacement")
     parser.add_argument("--replacement-model-name", default="sft-replacement")
     parser.add_argument("--replacement-revision")
@@ -292,10 +288,7 @@ async def main() -> None:
     parser.add_argument(
         "--production-plan",
         type=Path,
-        help=(
-            "immutable v4 plan for all-turn spans, exact curriculum, opponent pool, "
-            "and bounded async admission"
-        ),
+        help=("immutable v4 plan for all-turn spans, exact curriculum, opponent pool, and bounded async admission"),
     )
     parser.add_argument("--async-rescore-dir", type=Path)
     parser.add_argument("--async-rescore-timeout", type=float, default=600.0)
@@ -343,13 +336,10 @@ async def main() -> None:
         parser.error("horizon must be positive")
     if args.rollout_only and args.steps != 1:
         parser.error("rollout-only diagnostics require exactly one controller step")
-    if (args.checkpoint_barrier_dir is None) != (
-        args.checkpoint_barrier_interval is None
-    ):
+    if (args.checkpoint_barrier_dir is None) != (args.checkpoint_barrier_interval is None):
         parser.error("checkpoint barrier directory and interval must be provided together")
     if args.checkpoint_barrier_interval is not None and (
-        args.checkpoint_barrier_interval < 1
-        or args.steps % args.checkpoint_barrier_interval
+        args.checkpoint_barrier_interval < 1 or args.steps % args.checkpoint_barrier_interval
     ):
         parser.error("checkpoint barrier interval must positively divide controller steps")
     if args.checkpoint_barrier_timeout <= 0:
@@ -375,9 +365,7 @@ async def main() -> None:
         text=True,
     ).strip()
     if args.source_commit != actual_commit:
-        parser.error(
-            f"source commit {args.source_commit} does not match checked-out {actual_commit}"
-        )
+        parser.error(f"source commit {args.source_commit} does not match checked-out {actual_commit}")
 
     with args.trainer_config.open("rb") as handle:
         config = TrainerConfig.model_validate(tomli.load(handle))
@@ -393,9 +381,7 @@ async def main() -> None:
     scenario_schedule = None
     opponent_schedule = None
     if args.production_plan is not None:
-        production_plan, opponent_runtime_paths = load_production_plan(
-            args.production_plan
-        )
+        production_plan, opponent_runtime_paths = load_production_plan(args.production_plan)
         if args.groups_per_step != production_plan.groups_per_update:
             parser.error("groups-per-step must match the immutable production plan")
         total_groups = args.steps * args.groups_per_step
@@ -408,27 +394,16 @@ async def main() -> None:
     if args.credit_estimator == "shared_return":
         shared_return_spec = SharedReturnSpec(
             args.shared_return_replicas,
-            trainable_phases=(
-                production_plan.trainable_phases
-                if production_plan is not None
-                else ("BROADCAST",)
-            ),
-            trainable_turn_offsets=(
-                production_plan.trainable_turn_offsets
-                if production_plan is not None
-                else (0,)
-            ),
+            trainable_phases=(production_plan.trainable_phases if production_plan is not None else ("BROADCAST",)),
+            trainable_turn_offsets=(production_plan.trainable_turn_offsets if production_plan is not None else (0,)),
+            credit_assignment=args.shared_return_credit_assignment,
         )
     data_binding = resolve_task_data_binding(args.data_dir, args.task_data_version)
     base_urls = tuple(args.base_url)
     key = signing_key(args.output_dir / "control" / "supervisor.key")
     initial_revision = args.initial_policy_revision
-    initial_adapter_sha256 = sha256_file(
-        args.initial_adapter / "adapter_model.safetensors"
-    )
-    adapter_names = tuple(f"blue-{index}" for index in range(4)) + (
-        "sft-opponent",
-    )
+    initial_adapter_sha256 = sha256_file(args.initial_adapter / "adapter_model.safetensors")
+    adapter_names = tuple(f"blue-{index}" for index in range(4)) + ("sft-opponent",)
     if production_plan is not None:
         adapter_names = tuple(f"blue-{index}" for index in range(4)) + tuple(
             snapshot.model_name
@@ -449,15 +424,10 @@ async def main() -> None:
                     continue
                 adapter_file = path / "adapter_model.safetensors"
                 if not adapter_file.is_file():
-                    raise FileNotFoundError(
-                        f"missing opponent adapter for {snapshot.opponent_id}: {adapter_file}"
-                    )
+                    raise FileNotFoundError(f"missing opponent adapter for {snapshot.opponent_id}: {adapter_file}")
                 actual_sha256 = sha256_file(adapter_file)
                 if actual_sha256 != snapshot.adapter_sha256:
-                    raise ValueError(
-                        f"opponent adapter checksum mismatch for {snapshot.opponent_id}: "
-                        f"{actual_sha256}"
-                    )
+                    raise ValueError(f"opponent adapter checksum mismatch for {snapshot.opponent_id}: {actual_sha256}")
                 await replace_adapter(base_urls, snapshot.model_name, path)
         generator_context = VLLMChoiceGenerator(args.tokenizer)
     else:
@@ -466,11 +436,7 @@ async def main() -> None:
         with args.inference_config.open("rb") as handle:
             actor_config = tomli.load(handle)
         expected_actor = {
-            "version": (
-                "arena-prime-choice-actor-v1"
-                if args.actor == "prime"
-                else "arena-hf-choice-actor-v1"
-            ),
+            "version": ("arena-prime-choice-actor-v1" if args.actor == "prime" else "arena-hf-choice-actor-v1"),
             "model": args.tokenizer,
             "dtype": "bfloat16",
             "device": "cuda",
@@ -480,10 +446,14 @@ async def main() -> None:
         }
         attention = actor_config.pop("attention", None)
         use_kv_cache = actor_config.pop("use_kv_cache", None)
-        allowed_attention = {"sdpa"} if args.actor == "prime" else {
-            "flash_attention_2",
-            "sdpa",
-        }
+        allowed_attention = (
+            {"sdpa"}
+            if args.actor == "prime"
+            else {
+                "flash_attention_2",
+                "sdpa",
+            }
+        )
         if attention not in allowed_attention:
             raise ValueError("HF actor attention must be an audited FA2 or SDPA path")
         if not isinstance(use_kv_cache, bool):
@@ -501,9 +471,7 @@ async def main() -> None:
             max_tokens=actor_config["max_tokens"],
             use_kv_cache=use_kv_cache,
             prime_model_config=(config.model if args.actor == "prime" else None),
-            prime_actor_state_dir=(
-                args.output_dir / "actor_state" if args.actor == "prime" else None
-            ),
+            prime_actor_state_dir=(args.output_dir / "actor_state" if args.actor == "prime" else None),
             prime_matmul_precision=config.matmul_precision,
         )
 
@@ -517,17 +485,10 @@ async def main() -> None:
         for team in ("BLUE", "RED")
         for index in range(4)
     )
-    routes = tuple(
-        PolicyRunRoute(f"blue-policy-{index}", f"run_blue_{index}")
-        for index in range(4)
-    )
+    routes = tuple(PolicyRunRoute(f"blue-policy-{index}", f"run_blue_{index}") for index in range(4))
     trace = args.output_dir / "audit" / "admission.jsonl"
-    message_evidence_trace = (
-        args.output_dir / "audit" / "message_credit_evidence.jsonl"
-    )
-    shared_return_evidence_trace = (
-        args.output_dir / "audit" / "shared_return_evidence.jsonl"
-    )
+    message_evidence_trace = args.output_dir / "audit" / "message_credit_evidence.jsonl"
+    shared_return_evidence_trace = args.output_dir / "audit" / "shared_return_evidence.jsonl"
     async_queue = None
     async_rescorer = None
     if production_plan is not None:
@@ -560,17 +521,13 @@ async def main() -> None:
     result_rows = []
     curriculum = None
     if args.scenario_source == "curriculum" or production_plan is not None:
-        manifest_path = args.data_dir / data_binding.curriculum_manifest(
-            args.curriculum_split
-        )
+        manifest_path = args.data_dir / data_binding.curriculum_manifest(args.curriculum_split)
         curriculum = json.loads(manifest_path.read_text(encoding="utf-8"))
         if not curriculum.get("pairs"):
             raise ValueError(f"empty curriculum manifest: {manifest_path}")
     async with generator_context as generator:
         policy_revisions = {f"blue-{index}": initial_revision for index in range(4)}
-        policy_adapter_sha256 = {
-            f"blue-{index}": initial_adapter_sha256 for index in range(4)
-        }
+        policy_adapter_sha256 = {f"blue-{index}": initial_adapter_sha256 for index in range(4)}
         if args.checkpoint_barrier_dir is not None:
             assert production_plan is not None
             await checkpoint_barrier(
@@ -612,15 +569,8 @@ async def main() -> None:
             step_groups = []
             for group_index in range(args.groups_per_step):
                 ordinal = step * args.groups_per_step + group_index
-                scheduled_opponent = (
-                    opponent_schedule[ordinal]
-                    if opponent_schedule is not None
-                    else None
-                )
-                if (
-                    scheduled_opponent is not None
-                    and scheduled_opponent.family == "current"
-                ):
+                scheduled_opponent = opponent_schedule[ordinal] if opponent_schedule is not None else None
+                if scheduled_opponent is not None and scheduled_opponent.family == "current":
                     scheduled_opponent = replace(
                         scheduled_opponent,
                         model_name="blue-0",
@@ -629,15 +579,11 @@ async def main() -> None:
                         update_index=step,
                     )
                 opponent_revision = (
-                    scheduled_opponent.revision
-                    if scheduled_opponent is not None
-                    else args.opponent_revision
+                    scheduled_opponent.revision if scheduled_opponent is not None else args.opponent_revision
                 )
                 assert opponent_revision is not None
                 opponent_model_name = (
-                    scheduled_opponent.model_name
-                    if scheduled_opponent is not None
-                    else "sft-opponent"
+                    scheduled_opponent.model_name if scheduled_opponent is not None else "sft-opponent"
                 )
                 policies = blue_policies + (
                     PolicyEndpoint(
@@ -672,21 +618,19 @@ async def main() -> None:
                 seed = args.seed_base + step * 10_000 + group_index
                 size = args.size
                 horizon = args.horizon or 2
-                assignment = (
-                    scenario_schedule[ordinal]
-                    if scenario_schedule is not None
-                    else None
-                )
+                assignment = scenario_schedule[ordinal] if scenario_schedule is not None else None
                 if assignment is not None and assignment.kind == "ordinary":
                     assert production_plan is not None
                     assert assignment.ordinary_seed is not None
                     seed = assignment.ordinary_seed
-                    size = assignment.ordinary_size or production_plan.ordinary_sizes[
-                        ordinal % len(production_plan.ordinary_sizes)
-                    ]
-                    horizon = assignment.ordinary_horizon or production_plan.ordinary_horizons[
-                        ordinal % len(production_plan.ordinary_horizons)
-                    ]
+                    size = (
+                        assignment.ordinary_size
+                        or production_plan.ordinary_sizes[ordinal % len(production_plan.ordinary_sizes)]
+                    )
+                    horizon = (
+                        assignment.ordinary_horizon
+                        or production_plan.ordinary_horizons[ordinal % len(production_plan.ordinary_horizons)]
+                    )
                     scenario_metadata = {
                         "source": "ordinary",
                         "schedule_ordinal": ordinal,
@@ -707,9 +651,7 @@ async def main() -> None:
                         pair_index = args.curriculum_offset + ordinal
                     pair = curriculum["pairs"][pair_index % len(curriculum["pairs"])]
                     reconstruct_scenario = (
-                        reconstruct_v4_scenario
-                        if args.task_data_version == "v4"
-                        else reconstruct_v3_scenario
+                        reconstruct_v4_scenario if args.task_data_version == "v4" else reconstruct_v3_scenario
                     )
                     scenario = reconstruct_scenario(pair[kind])
                     seed = scenario.seed
@@ -725,9 +667,7 @@ async def main() -> None:
                             "active_target": world.active_target,
                             "target": world.active_target,
                             "candidate_targets": list(scenario.candidate_targets),
-                            "state_sha256": pair[kind]["worlds"][world_index][
-                                "state_sha256"
-                            ],
+                            "state_sha256": pair[kind]["worlds"][world_index]["state_sha256"],
                         }
                     else:
                         initial_state = scenario.state
@@ -748,15 +688,10 @@ async def main() -> None:
                         "curriculum_stage": assignment.stage if assignment is not None else None,
                         **world_metadata,
                     }
-                game_id = (
-                    f"{args.run_id}:step-{step}:group-{group_index}:"
-                    f"{scenario_metadata['source']}:{seed}"
-                )
+                game_id = f"{args.run_id}:step-{step}:group-{group_index}:{scenario_metadata['source']}:{seed}"
                 fallback_pair_index = (
                     int(scenario_metadata["pair_index"])
-                    if assignment is None
-                    and curriculum is not None
-                    and args.curriculum_kind == "alternating"
+                    if assignment is None and curriculum is not None and args.curriculum_kind == "alternating"
                     else None
                 )
                 sampling_namespace = scenario_sampling_namespace(
@@ -785,6 +720,14 @@ async def main() -> None:
                 )
                 if args.credit_estimator == "shared_return":
                     assert shared_return_spec is not None
+                    focused_agent = None
+                    if shared_return_spec.credit_assignment == "focused_agent":
+                        focused_agent = (
+                            str(scenario_metadata["receiver"])
+                            if scenario_metadata["source"] == "curriculum"
+                            else f"blue-{group_index % 4}"
+                        )
+                        scenario_metadata["focused_agent"] = focused_agent
                     group = await build_live_shared_return_group(
                         generator,
                         group_id=game_id,
@@ -797,10 +740,9 @@ async def main() -> None:
                         run_lock_sha256=lock.sha256,
                         initial_state=initial_state,
                         sampling_namespace=sampling_namespace,
+                        focused_agent=focused_agent,
                     )
-                    approvals = approve_shared_return_group(
-                        lock, group.evidence, bindings, "BLUE", key
-                    )
+                    approvals = approve_shared_return_group(lock, group.evidence, bindings, "BLUE", key)
                     replica_routes = tuple(
                         route_approved_samples(
                             approval,
@@ -825,13 +767,8 @@ async def main() -> None:
                     else:
                         assert scheduled_opponent is not None
                         assert async_queue is not None and async_rescorer is not None
-                        opponent_artifact_sha256 = (
-                            scheduled_opponent.adapter_sha256
-                            or canonical_sha256(
-                                {
-                                    "base_model_revision": scheduled_opponent.revision
-                                }
-                            )
+                        opponent_artifact_sha256 = scheduled_opponent.adapter_sha256 or canonical_sha256(
+                            {"base_model_revision": scheduled_opponent.revision}
                         )
                         behavior_snapshots = tuple(
                             PolicySnapshot(
@@ -852,9 +789,7 @@ async def main() -> None:
                             ),
                         )
                         all_decisions = tuple(
-                            decision
-                            for replica in group.evidence.replicas
-                            for decision in replica.decisions
+                            decision for replica in group.evidence.replicas for decision in replica.decisions
                         )
                         trainable_decision_ids = frozenset(
                             decision_id
@@ -863,20 +798,14 @@ async def main() -> None:
                             for decision_id in envelope.decision_ids
                         )
                         selected_decisions = tuple(
-                            decision
-                            for decision in all_decisions
-                            if decision.decision_id in trainable_decision_ids
+                            decision for decision in all_decisions if decision.decision_id in trainable_decision_ids
                         )
                         header = AsyncRolloutHeader(
                             rollout_id=game_id,
                             backend_name=production_plan.backend.name,
                             backend_version=production_plan.backend.version,
-                            kernel_config_sha256=(
-                                production_plan.backend.kernel_config_sha256
-                            ),
-                            calibration_sha256=(
-                                production_plan.backend.calibration_sha256
-                            ),
+                            kernel_config_sha256=(production_plan.backend.kernel_config_sha256),
+                            calibration_sha256=(production_plan.backend.calibration_sha256),
                             policy_snapshots=behavior_snapshots,
                         )
                         current_snapshots, current_logprobs = await async_rescorer.rescore(
@@ -896,8 +825,7 @@ async def main() -> None:
                         )
                         if not admission.accepted:
                             raise RuntimeError(
-                                "bounded async admission rejected the logical group: "
-                                + "; ".join(admission.reasons)
+                                "bounded async admission rejected the logical group: " + "; ".join(admission.reasons)
                             )
                     append_hash_chained_record(
                         shared_return_evidence_trace,
@@ -911,10 +839,8 @@ async def main() -> None:
                             "group_id": group.evidence.group_id,
                             "initial_state_sha256": group.evidence.initial_state_sha256,
                             "spec": asdict(group.evidence.spec),
-                            "replica_returns": [
-                                row.replay.terminal_return
-                                for row in group.evidence.replicas
-                            ],
+                            "focused_agent": group.evidence.focused_agent,
+                            "replica_returns": [row.replay.terminal_return for row in group.evidence.replicas],
                         },
                     )
                     step_groups.append(
@@ -925,11 +851,11 @@ async def main() -> None:
                                 {
                                     "game_id": replica.game_id,
                                     "return": replica.replay.terminal_return,
-                                    "advantage": approval.envelopes[0].advantage,
+                                    "advantages": {
+                                        envelope.agent_id: envelope.advantage for envelope in approval.envelopes
+                                    },
                                 }
-                                for replica, approval in zip(
-                                    group.evidence.replicas, approvals, strict=True
-                                )
+                                for replica, approval in zip(group.evidence.replicas, approvals, strict=True)
                             ],
                             "scenario": scenario_metadata,
                         }
@@ -948,9 +874,7 @@ async def main() -> None:
                         initial_state=initial_state,
                         sampling_namespace=sampling_namespace,
                     )
-                    approval = approve_message_credit_group(
-                        lock, group.evidence, bindings, "BLUE", key
-                    )
+                    approval = approve_message_credit_group(lock, group.evidence, bindings, "BLUE", key)
                     append_hash_chained_record(
                         message_evidence_trace,
                         message_credit_audit_record(
@@ -959,10 +883,7 @@ async def main() -> None:
                             scenario_metadata,
                         ),
                     )
-                    counterfactual_returns = {
-                        row.replaced_agent: row.terminal_return
-                        for row in group.evidence.drops
-                    }
+                    counterfactual_returns = {row.replaced_agent: row.terminal_return for row in group.evidence.drops}
                 else:
                     group = await build_live_credit_group(
                         generator,
@@ -977,12 +898,9 @@ async def main() -> None:
                         initial_state=initial_state,
                         sampling_namespace=sampling_namespace,
                     )
-                    approval = approve_credit_group(
-                        lock, group.evidence, bindings, "BLUE", key
-                    )
+                    approval = approve_credit_group(lock, group.evidence, bindings, "BLUE", key)
                     counterfactual_returns = {
-                        row.replaced_agent: row.terminal_return
-                        for row in group.evidence.replacements
+                        row.replaced_agent: row.terminal_return for row in group.evidence.replacements
                     }
                 append_hash_chained_record(
                     trace,
@@ -1009,13 +927,9 @@ async def main() -> None:
                         "actual_return": group.evidence.actual.terminal_return,
                         "credit_estimator": args.credit_estimator,
                         "intervention_turn": (
-                            group.evidence.intervention_turn
-                            if args.credit_estimator == "message_drop"
-                            else None
+                            group.evidence.intervention_turn if args.credit_estimator == "message_drop" else None
                         ),
-                        "advantages": {
-                            row.agent_id: row.advantage for row in approval.envelopes
-                        },
+                        "advantages": {row.agent_id: row.advantage for row in approval.envelopes},
                         "scenario": scenario_metadata,
                     }
                 )
@@ -1052,9 +966,7 @@ async def main() -> None:
                 base_urls,
                 expected_step=step + 1,
                 timeout=args.update_timeout,
-                hf_generator=(
-                    generator if isinstance(generator, HFChoiceGenerator) else None
-                ),
+                hf_generator=(generator if isinstance(generator, HFChoiceGenerator) else None),
             )
             policy_revisions = digests
             policy_adapter_sha256 = dict(digests)
@@ -1073,10 +985,7 @@ async def main() -> None:
             )
             print(json.dumps(result_rows[-1], sort_keys=True))
             completed_step = step + 1
-            if (
-                args.checkpoint_barrier_dir is not None
-                and completed_step % args.checkpoint_barrier_interval == 0
-            ):
+            if args.checkpoint_barrier_dir is not None and completed_step % args.checkpoint_barrier_interval == 0:
                 assert production_plan is not None
                 await checkpoint_barrier(
                     args.checkpoint_barrier_dir,

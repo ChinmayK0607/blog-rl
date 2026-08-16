@@ -83,9 +83,7 @@ def _endpoints() -> tuple[PolicyEndpoint, ...]:
             ("http://unused",),
         )
         for index in range(4)
-    ) + (
-        PolicyEndpoint("red-opponent", "opponent-r0", "red", ("http://unused",)),
-    )
+    ) + (PolicyEndpoint("red-opponent", "opponent-r0", "red", ("http://unused",)),)
 
 
 def _lock(spec: SharedReturnSpec) -> RunLock:
@@ -97,9 +95,7 @@ def _lock(spec: SharedReturnSpec) -> RunLock:
         development_manifest_sha256="2" * 64,
         final_eval_manifest_sha256="3" * 64,
         base_model_revision="base-r0",
-        trainable_policy_revisions=tuple(
-            (f"blue-policy-{index}", "trainable-r0") for index in range(4)
-        ),
+        trainable_policy_revisions=tuple((f"blue-policy-{index}", "trainable-r0") for index in range(4)),
         frozen_policy_revisions=(("red-opponent", "opponent-r0"),),
         replacement_policy_id=None,
         opponent_id="sft-opponent",
@@ -171,10 +167,7 @@ def test_shared_return_group_is_replayed_signed_and_routed_fail_closed() -> None
             for decision_id in envelope.decision_ids
         )
 
-    routes = tuple(
-        PolicyRunRoute(f"blue-policy-{index}", f"run_blue_{index}")
-        for index in range(4)
-    )
+    routes = tuple(PolicyRunRoute(f"blue-policy-{index}", f"run_blue_{index}") for index in range(4))
     routed = tuple(
         route_approved_samples(
             approval,
@@ -259,11 +252,12 @@ def test_shared_return_group_is_replayed_signed_and_routed_fail_closed() -> None
         raise AssertionError("unbound shared-return serving config must fail closed")
 
 
-def test_shared_return_can_train_each_agents_actions_and_messages_on_all_turns() -> None:
+def test_focused_shared_return_couples_other_agents_and_credits_only_focus() -> None:
     spec = SharedReturnSpec(
         replicas=2,
-        trainable_phases=("BROADCAST", "ACT"),
+        trainable_phases=("ACT",),
         trainable_turn_offsets=None,
+        credit_assignment="focused_agent",
     )
     lock = _lock(spec)
     group = asyncio.run(
@@ -282,6 +276,7 @@ def test_shared_return_can_train_each_agents_actions_and_messages_on_all_turns()
             bindings=_bindings(),
             policies=_endpoints(),
             run_lock_sha256=lock.sha256,
+            focused_agent="blue-2",
         )
     )
     approvals = approve_shared_return_group(
@@ -298,13 +293,22 @@ def test_shared_return_can_train_each_agents_actions_and_messages_on_all_turns()
         group.owned_samples_by_replica,
         strict=True,
     ):
-        assert all(len(envelope.decision_ids) == 4 for envelope in approval.envelopes)
-        assert all(len(agent.samples) == 4 for agent in owned)
-        assert {
-            decision_id.rsplit(":", 2)[-1]
-            for envelope in approval.envelopes
-            for decision_id in envelope.decision_ids
-        } == {"BROADCAST", "ACT"}
+        assert all(len(envelope.decision_ids) == 2 for envelope in approval.envelopes)
+        assert all(len(agent.samples) == 2 for agent in owned)
+        assert all(
+            decision_id.endswith(":ACT") for envelope in approval.envelopes for decision_id in envelope.decision_ids
+        )
+        assert {envelope.agent_id for envelope in approval.envelopes if envelope.advantage != 0.0} <= {"blue-2"}
+
+    decisions = [decision for replica in group.evidence.replicas for decision in replica.decisions]
+    focus_keys = {
+        decision.sampling_key for decision in decisions if decision.agent_id == "blue-2" and decision.phase == "ACT"
+    }
+    assert len(focus_keys) == 4
+    blue_zero_action_keys = [
+        decision.sampling_key for decision in decisions if decision.agent_id == "blue-0" and decision.phase == "ACT"
+    ]
+    assert len(set(blue_zero_action_keys)) == 2
 
 
 def test_published_v4_evidence_builds_policy_bound_parity_probe() -> None:
@@ -318,9 +322,7 @@ def test_published_v4_evidence_builds_policy_bound_parity_probe() -> None:
     assert {row["policy_slot"] for row in probe["samples"]} == set(range(4))
     assert all(
         row["completion_ids"]
-        and len(row["completion_ids"])
-        == len(row["completion_logprobs"])
-        == len(row["allowed_token_ids"])
+        and len(row["completion_ids"]) == len(row["completion_logprobs"]) == len(row["allowed_token_ids"])
         for row in probe["samples"]
     )
 

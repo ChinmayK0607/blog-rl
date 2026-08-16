@@ -3066,6 +3066,55 @@ no more critical-specific than decoy-specific. Therefore:
 - W&B/artifacts/decommission: offline logging and automatic completion sync are
   still armed; the paid four-L40 host remains active.
 
+### 2026-08-17 — stop shared-team run and design focused-credit restart
+
+- Status: implementation and Linux validation in progress.
+- Verdict: the 120-update shared-team trajectory was intentionally stopped
+  after 43 complete optimizer updates; it is preserved as rejected development
+  evidence and will not be resumed or selected as a checkpoint.
+- Stop state: trainer/controller/pulse/rescore/health processes for
+  `/workspace/runs/rl-v4-staged-120-07edbb90-l40-progress-v2-20260816`
+  were stopped cleanly. GPU 0 is free. The three healthy rollout servers on
+  GPUs 1--3 remain resident for reuse. The trainer W&B offline run
+  `us14yca6` is synced; controller sync remains to be verified.
+- Root cause carried forward: terminal return was valid and dense, but all
+  four independently changing BLUE policies received the same replica-level
+  advantage. The estimator therefore could not localize a return difference
+  to a particular action-taking policy. The observed approximately 55% metric
+  was intent/action agreement, not task success, so it is not itself an RL
+  difficulty target or readiness certificate.
+- Prospective estimator: for each four-replica group, designate one trainable
+  BLUE agent, vary only that agent's selected ACT sampling stream, and couple
+  all other stochastic decisions with common random keys and identical prompt
+  permutations. Compute the same verified terminal-control leave-one-out
+  advantage, but route non-zero policy-gradient credit only to the designated
+  agent. Curriculum cases designate the information receiver; ordinary cases
+  rotate `blue-0` through `blue-3`. Non-designated policies retain zero
+  advantage in that group so four-policy routing remains atomic.
+- Reward decision: no direct speaking bonus, supervised message reward, or
+  intermediate action bonus in the first focused run. Exact terminal control
+  remains the only reward. This is deliberately stricter than arbitrary reward
+  shaping and avoids creating a new incentive to spam messages or captures.
+- Prospective schedule: 80 updates with four groups per update and unchanged
+  frozen development pulses at updates 0, 10, ..., 80. The curriculum stages
+  are 10 updates of focused tactical stabilization, 20 of handoff
+  introduction, 30 communication-heavy, and 20 consolidation. Critical and
+  matched-decoy counts remain equal within every update; the existing frozen
+  OOD evaluation is unchanged.
+- Added prospective artifacts:
+  `data/rl_v4/staged_curriculum_v2_focused_80.json`,
+  `configs/rl_v4_1_7b_focused_80.toml`, a focused-credit supervisor/rollout
+  implementation, and a parameterized staged launcher. These remain
+  prospective until Linux tests, a fresh runtime certificate, and a live
+  rollout smoke pass.
+- GPU/cost: the four-L40 instance remains active at the user-reported rental
+  rate; no new training GPU work had begun at this entry.
+- Next action: run the focused-credit unit/integration tests on Linux, build an
+  ACT-only immutable 80-update production plan and fresh runtime certificate,
+  execute one rollout-only smoke, then launch from update zero only if those
+  checks pass.
+- Instance decommissioned: no.
+
 ## Artifact index
 
 - Public source branch:

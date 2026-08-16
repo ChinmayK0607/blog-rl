@@ -90,7 +90,7 @@ def _gpu_inventory() -> list[dict[str, int | str]]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Fail-closed preflight for the 120-update staged Swarm Arena run."
+        description="Fail-closed preflight for a staged Swarm Arena run."
     )
     parser.add_argument("--repo-root", type=Path, required=True)
     parser.add_argument("--source-commit", required=True)
@@ -104,6 +104,11 @@ def main() -> None:
     parser.add_argument("--base-url", action="append", default=[])
     parser.add_argument("--expected-updates", type=int, default=120)
     parser.add_argument("--checkpoint-interval", type=int, default=10)
+    parser.add_argument(
+        "--shared-return-credit-assignment",
+        choices=("shared_team", "focused_agent"),
+        default="shared_team",
+    )
     parser.add_argument("--minimum-free-gib", type=float, default=20.0)
     parser.add_argument("--skip-hardware", action="store_true")
     parser.add_argument("--skip-serving", action="store_true")
@@ -205,6 +210,11 @@ def main() -> None:
         raise FileNotFoundError(f"local pinned model is missing: {args.model}")
 
     plan, opponent_paths = load_production_plan(args.production_plan)
+    if (
+        args.shared_return_credit_assignment == "focused_agent"
+        and plan.trainable_phases != ("ACT",)
+    ):
+        raise ValueError("focused-agent credit requires an ACT-only production plan")
     raw_plan = json.loads(args.production_plan.read_text(encoding="utf-8"))
     if raw_plan.get("runtime_certificate", {}).get("sha256") != certificate_sha256:
         raise ValueError("production plan does not bind the supplied runtime certificate")
