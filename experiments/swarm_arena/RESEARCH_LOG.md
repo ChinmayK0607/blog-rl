@@ -2349,8 +2349,11 @@ no more critical-specific than decoy-specific. Therefore:
 - Checkpoints: Variant A step-8 role SHA-256 values begin `9912e5c6`,
   `927b7f32`, `8a1aa6de`, and `845d93ae`; Variant B step-4 values begin
   `126f1904`, `c2a1beaa`, `b8f554db`, and `c81cb370`. No checkpoint was copied
-  to the Mac. Because the selected checkpoint did not improve causal message
-  use, it was not promoted as an admitted Hub model.
+  to the Mac. Variant A step 8 was published as an explicitly non-admitted
+  development model at
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-lr1e5-step8-development`,
+  revision `395f933ea16185c0f18087269cc8cc850e55257d`. An anonymous download
+  checksum-verified all four adapters; Hub metadata reported `private=false`.
 - Compact artifacts: `results/rl_v4_1_7b_lr_ablation/` contains exact configs,
   progress and training summaries, the matched pulse, 198-game holdout summary,
   policy KL, all regression comparisons, collapse audit, hashes, launchers, and
@@ -2393,6 +2396,9 @@ no more critical-specific than decoy-specific. Therefore:
 - RL v4 30-update development result:
   `results/rl_v4_1_7b_long/` and
   `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-long-development`
+- RL v4 stronger-learning-rate development result:
+  `results/rl_v4_1_7b_lr_ablation/` and
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-lr1e5-step8-development`
 - Frozen message-credit admission plan:
   `MESSAGE_CREDIT_AUDIT_PLAN.md`
 - Public, non-admitted mechanical RL artifact:

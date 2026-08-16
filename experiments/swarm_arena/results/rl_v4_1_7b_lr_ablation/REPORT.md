@@ -107,5 +107,7 @@ and causal message-intervention deltas separately.
 
 The directory contains only compact configs, progress summaries, evaluation
 summaries, hashes, diagnostics, and launchers. Raw trajectories and LoRA
-checkpoints were not copied to the Mac. Variant A step 8 is development-only
-and is not promoted as an admitted model.
+checkpoints were not copied to the Mac. Variant A step 8 is preserved publicly
+as a development-only, non-admitted Hub model at
+`CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-lr1e5-step8-development`; all four adapter
+files were anonymously downloaded and checksum-verified after publication.

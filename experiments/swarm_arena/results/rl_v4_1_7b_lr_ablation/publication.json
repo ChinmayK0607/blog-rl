@@ -1,0 +1,10 @@
+{
+  "repo_id": "CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-lr1e5-step8-development",
+  "repo_type": "model",
+  "revision": "395f933ea16185c0f18087269cc8cc850e55257d",
+  "private": false,
+  "files": 15,
+  "anonymous_download_verified": true,
+  "all_adapter_sha256_verified": true,
+  "status": "development-only; non-admitted"
+}
