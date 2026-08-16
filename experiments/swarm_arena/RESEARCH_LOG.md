@@ -2542,6 +2542,84 @@ no more critical-specific than decoy-specific. Therefore:
   then launch. Do not reuse an older certificate or open selection/frozen data
   during the learning curve.
 
+### 2026-08-16 — staged 120-update L40 launch-control failure and fix
+
+- Status: stopped before update 1; corrected restart pending.
+- Verdict: rejected as training evidence; useful launch-harness finding.
+- Hypothesis: the fresh 4x L40 runtime can execute the predeclared staged
+  120-update, four-policy LoRA run with causal communication pulses every ten
+  updates.
+- Decision unlocked: keep the runtime/parity configuration, but correct the
+  step-zero evaluator control and make the failure-isolated W&B sidecar
+  explicitly offline before restarting from a new immutable source commit and
+  run directory.
+- Source commit: `ff2cf86417a3a12c819eb6015196eeb16e217c68`.
+- Base / adapter / opponent revisions: Qwen3-1.7B
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; SFT step 320
+  `534522a8f3ff3489b1dd8318dc8e533e51264cde`, adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`;
+  historical RL-v1 `ad51ef261f3e7b7b2d3c6433106bd667ba1da81c`, blue-0
+  adapter SHA-256
+  `1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a`.
+- Data split and manifest SHA-256: staged curriculum
+  `2dd25a990ddae837502dcdbe261dd87e67e5ca6657cb0dc9e775fb211283adcd`;
+  handoff training manifest
+  `665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681`;
+  generated 480-group schedule
+  `73f9e5b888282cdd1a311a1f5d1581ad2fae5868be1c6f1723091ec814a197de`.
+- GPU, wall time, and estimated cost: host `216.81.248.55:40300`, four NVIDIA
+  L40 46,068 MiB, driver `580.126.09`; setup/certification and the stopped
+  zero-step launch consumed about 30 minutes. Exact provider price was not
+  supplied, so no fabricated dollar total is reported.
+- Exact launcher/config: `scripts/launch_staged_rl.sh`, prepared trainer SHA-256
+  `8cc214002599cb6f557205f7b7fb02f8cebed21c268500f38abada13f26fb05d`,
+  inference config SHA-256
+  `300f6f5910456fae7aa93c8c7c97c34caf2b5ca2d028433782ef3d8daffe4420`,
+  generated plan SHA-256
+  `249282737a727e49e726c0a101fcb19e604fa89b843c6220f3bdc73ab64064be`.
+- Predeclared gates: all 108 Linux tests passed. The exact three-server serving
+  probe passed. A fresh 32-sample parity corpus contained 16 BROADCAST and 16
+  ACT decisions. Runtime certificate
+  `9455b13f9ac6008a3cf5985ead436e63329410108f7cdd608a45f185355407ae`
+  passed: mean absolute log-probability error `0.00228549`, p99 `0.0749279`,
+  probability-tail fraction `0.00219459`, mean mismatch KL `0.000121251`, max
+  mismatch KL `0.0353732`; optimizer parameter sets were disjoint and a test
+  update changed only `run_blue_0`.
+- Results: public-input verification, preflight v2, serving, parity, and
+  four-policy isolation all passed. The controller reached only the step-zero
+  checkpoint barrier. Trainer logs show `Starting from step 0` and no optimizer
+  metric or progress record was written; therefore there were zero optimizer
+  steps and no model result to retain.
+- Failures and retries: the first parity command omitted `torchrun` and failed
+  before model load because `RANK` was unset; its directory/log was preserved,
+  and the unchanged command passed under single-rank `torchrun`. The update-0
+  pulse then rejected ordinary-hard SFT-vs-SFT behavioral invariance
+  (`-0.1388889`) while legacy and RL-specific communication differences were
+  exactly zero. Root cause: the candidate arm used four byte-identical LoRA
+  aliases while the baseline used one shared alias. vLLM may batch those paths
+  differently, so a greedy choice near a numerical tie can diverge even though
+  no weights changed. This tested alias-kernel equivalence rather than the
+  intended evaluator invariant. The fix routes both step-zero arms through the
+  same registered SFT alias; adapter checksums, controller registration checks,
+  and fresh trainer/serving parity continue to cover the four trainable aliases.
+  All post-zero pulses still use `blue-0` through `blue-3`. The W&B sidecar also
+  attempted online login because a tmux server did not inherit `WANDB_MODE`;
+  the launcher now passes its explicit `--offline` flag.
+- Artifact paths and hashes: failed run remained only on the paid host at
+  `/workspace/runs/rl-v4-staged-120-ff2cf864-l40-20260816`; no checkpoint or raw
+  trajectory was copied to the Mac. Compact certificate/config evidence will
+  be copied only after the corrected run establishes progress.
+- Interpretation: fail-closed synchronization worked as intended and prevented
+  the first optimizer step. Exact model-behavior equality is a valid harness
+  control only when both arms use the same serving alias; numerical alias-path
+  equality belongs in the separately bound parity/registration evidence.
+- Next action: test and publish the two-line launch behavior fix, update the
+  remote exact commit, create a new run directory, recapture/rebind parity to
+  that commit, and require a passing step-zero pulse plus observed update-1
+  progress before leaving the long run unattended.
+- Instance decommissioned: no; inference GPUs remain live for the corrected
+  restart, trainer GPU is idle.
+
 ## Artifact index
 
 - Public source branch:

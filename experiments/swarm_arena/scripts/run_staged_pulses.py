@@ -51,6 +51,26 @@ def _wait_ready(path: Path, timeout: float) -> dict:
     raise TimeoutError(f"checkpoint did not become ready: {path}")
 
 
+def _candidate_models(step: int, sft_model: str) -> list[str]:
+    """Use one registered alias for the exact step-zero harness control.
+
+    The four trainable aliases contain byte-identical SFT adapters at step zero,
+    but vLLM may execute a four-alias LoRA batch through a different floating-
+    point path than a one-alias batch.  Greedy choices near a tie can therefore
+    differ even though no optimizer step occurred.  The step-zero pulse is an
+    evaluator-invariance control, not a test of alias-kernel equivalence, so it
+    must route both arms through the same registered SFT alias.  Fresh runtime
+    parity and the controller's adapter checksum checks cover the trainable
+    aliases separately.  Every post-zero pulse evaluates the four real policy
+    aliases.
+    """
+    if step < 0:
+        raise ValueError("pulse step cannot be negative")
+    if step == 0:
+        return [sft_model] * 4
+    return [f"blue-{index}" for index in range(4)]
+
+
 def _validate_summary(path: Path, *, step: int) -> dict:
     summary = json.loads(path.read_text(encoding="utf-8"))
     if summary.get("version") != PROGRESS_EVAL_V5_VERSION:
@@ -161,7 +181,7 @@ def main() -> None:
                 "base_urls": [value.rstrip("/") + "/v1" for value in args.base_url],
                 "candidate": {
                     "revision": ready["policy_revision"],
-                    "models": [f"blue-{index}" for index in range(4)],
+                    "models": _candidate_models(step, by_family["sft"].model_name),
                 },
                 "baseline": {
                     "revision": args.baseline_revision,

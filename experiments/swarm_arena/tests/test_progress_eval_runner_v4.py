@@ -17,7 +17,7 @@ from scripts.run_progress_eval_v4 import (
     _ordinary_cases,
     _validate_frozen_confirmation,
 )
-from scripts.run_staged_pulses import _wait_retained_checkpoints
+from scripts.run_staged_pulses import _candidate_models, _wait_retained_checkpoints
 from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
 
 
@@ -37,6 +37,18 @@ def test_tier_plans_keep_final_large_and_development_small() -> None:
     )
     assert len({id(model) for model in distributed}) == 4
     assert [model.name for model in distributed] == ["same-adapter"] * 4
+
+
+def test_step_zero_pulse_uses_one_alias_for_exact_harness_control() -> None:
+    assert _candidate_models(0, "sft-opponent") == ["sft-opponent"] * 4
+    assert _candidate_models(10, "sft-opponent") == [
+        "blue-0",
+        "blue-1",
+        "blue-2",
+        "blue-3",
+    ]
+    with pytest.raises(ValueError, match="cannot be negative"):
+        _candidate_models(-1, "sft-opponent")
 
 
 def test_frozen_tier_requires_exact_design_digest() -> None:
