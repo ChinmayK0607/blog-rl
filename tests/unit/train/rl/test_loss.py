@@ -119,6 +119,15 @@ def test_rollout_parity_tail_fraction_is_a_logical_batch_statistic():
     )
     validate_rollout_parity_metrics(aggregate, gate)
 
+    short_slice = rollout_parity_metrics(
+        torch.zeros(43, device="cuda"),
+        probability_errors[:43],
+        torch.zeros(43, device="cuda"),
+        probability_tail_threshold=0.05,
+    )
+    with pytest.raises(RuntimeError, match="probability_tail_fraction"):
+        validate_rollout_parity_metrics(short_slice, gate)
+
 
 def test_rollout_parity_gate_can_log_a_diagnostic_without_gating_on_it():
     metrics = rollout_parity_metrics(
@@ -137,15 +146,6 @@ def test_rollout_parity_gate_can_log_a_diagnostic_without_gating_on_it():
         max_mismatch_kl=None,
     )
     validate_rollout_parity_metrics(metrics, gate)
-
-    short_slice = rollout_parity_metrics(
-        torch.zeros(43, device="cuda"),
-        probability_errors[:43],
-        torch.zeros(43, device="cuda"),
-        probability_tail_threshold=0.05,
-    )
-    with pytest.raises(RuntimeError, match="probability_tail_fraction"):
-        validate_rollout_parity_metrics(short_slice, gate)
 
 
 def test_setup_loss_fns_with_custom_config():
