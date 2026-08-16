@@ -2931,6 +2931,85 @@ no more critical-specific than decoy-specific. Therefore:
   resume the update-20 trajectory unchanged.
 - Instance decommissioned: no.
 
+### 2026-08-16 — meaningful progress pulse and minimal stability checks
+
+- Status: validation completed; a new RL trajectory is running from logical
+  update zero and no previous optimizer state was resumed.
+- Verdict: the previous 16-game pulse is retired as a learning-progress
+  measure. Its one independent unit per endpoint was useful only as an
+  end-to-end smoke test and could not distinguish a trend from map noise.
+- Hypothesis: a fixed, repeated development subset with multiple independent
+  cases can show whether RL changes gameplay and causal message use, while
+  mean-distribution stability checks protect the run without aborting on a
+  single harmless tail token.
+- Decision unlocked: a fresh run may start from the pinned SFT adapter only
+  after the expanded update-zero pulse completes and passes its structural
+  validation. No step-20 optimizer or model state will be resumed.
+- Source commit: `07edbb90` on public branch `exp/swarm-arena-4b`.
+- Progress subset: six legacy ordinary maps, six harder 18/20-node maps, and
+  six two-world information-handoff bundles. Every case is played from both
+  BLUE and RED against the immutable SFT opponent. Critical and matched-decoy
+  cases each use normal and dropped messages. Update zero therefore executes
+  192 complete games and stores 72 exact SFT baseline rows; later checkpoints
+  generate 120 candidate games and reuse those content-verified baseline rows.
+  Each core capability and communication endpoint has six independent units.
+- Reported progress signals: candidate-minus-SFT return on legacy maps, hard
+  maps, and handoff games; an equal-family overall gameplay delta; critical
+  normal-minus-dropped message value; RL-specific message lift above the SFT
+  initializer; critical-minus-decoy specificity; and protocol/grounding rates.
+  This repeated subset is a development curve, not the frozen final claim set.
+- Stability checks: finite tensors, exact sampled-token spans, legal constrained
+  choices, adapter identity, four-policy roster, and disjoint optimizer state
+  remain mandatory structural invariants. Online numerical admission now
+  aborts only on widespread mean absolute log-probability error above `0.05`
+  or mean mismatch-KL above `0.002`; p99, maximum, and tail-fraction metrics
+  remain logged diagnostics and DPPO still masks ratio outliers. The admission
+  plan permits at most one update of policy lag and uses the same two mean
+  distribution bounds, but the current lightweight rescore worker only emits
+  lag-zero batches; this run is therefore on-policy in practice rather than a
+  claim of fully pipelined async RL. This deliberately removes the p99 `0.15`
+  hard stop that rejected the previous run over one localized tail event.
+- Validation: Linux lint passes and the combined Swarm Arena plus trainer-loss
+  suite passes `122/122` tests. A three-replica serving probe bound the pinned
+  SFT adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`
+  and produced valid constrained broadcast and action JSON. The full 192-game
+  SFT-vs-SFT null pulse completed in 10 minutes 56 seconds. Overall gameplay
+  was `+0.002962` with bootstrap interval `[-0.017927, +0.020076]`;
+  RL-specific communication lift was `+0.012120` with interval
+  `[-0.006170, +0.029683]`; and both legacy and hard capability intervals
+  contained zero. Critical normal-minus-dropped message value was `+0.071094`
+  for the candidate arm and `+0.058974` for the SFT arm, while the matched
+  decoy interval contained zero. Action protocol, broadcast protocol, and
+  grounded-broadcast rates were all `1.0`. A handoff-only capability
+  diagnostic showed a small `+0.016431` serving-path null offset, so that raw
+  endpoint is interpreted only as change from the run's own update-zero point;
+  it is not an absolute learning claim.
+- Failures and retries: the first simultaneous three-server startup exposed a
+  shared Triton/AOT cache race: two replicas attempted to import temporary
+  compiled objects removed by another process. The two failed replicas were
+  restarted with isolated vLLM, Triton, and TorchInductor cache directories;
+  all three then passed health and adapter-binding checks. The first detached
+  eval wrapper also exited before any request because `/usr/bin/time` is absent
+  from the image; the untouched eval was relaunched without that optional
+  wrapper.
+- Fresh launch: run
+  `/workspace/runs/rl-v4-staged-120-07edbb90-l40-progress-v2-20260816`
+  started from the pinned SFT adapter at source `07edbb90`, LR `7.5e-6`, with
+  four independent LoRA policy slots. Runtime certificate SHA-256 is
+  `d2cc16333380136da760961ce77fb6597a4aaa69eaa79c0332f951dbe1dbdff4`;
+  its mean absolute serving/trainer log-probability mismatch was `0.0021003`,
+  mean mismatch-KL was `0.000108122`, and the single-slot optimizer isolation
+  probe passed. Production plan SHA-256 is
+  `ae69f834b5dc7e5ff06465be49fc93b42dc131af574a126ec48aa35bf52986c7`.
+  The run has a fixed 192-game update-zero pulse and 120-new-game cached pulses
+  every ten updates, run-scoped health logging, completion-only sidecar cleanup,
+  and automatic sync of the exact trainer/controller W&B offline runs.
+- Next action: require the fresh update-zero pulse, first complete optimizer
+  update, and update-10 learning pulse; use the new curves rather than the
+  retired one-unit pulse to make curriculum/LR decisions.
+- Instance decommissioned: no.
+
 ## Artifact index
 
 - Public source branch:
