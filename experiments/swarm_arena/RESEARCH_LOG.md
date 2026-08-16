@@ -2877,6 +2877,17 @@ no more critical-specific than decoy-specific. Therefore:
   `0.0304603495`, 8/16 returns were nonzero, and the range was
   `[-0.0416666667, 0.2]`. The resulting joint policy revision is
   `acf2f97d95b0e0a2855c854a2630db9c94b3bfa4e8df768357d5d7b43b8483cb`.
+  At the eight-update checkpoint, per-update mean training returns were
+  `0.030460`, `0.092689`, `0.041667`, `0.012842`, `0.039352`, `0.023250`,
+  `-0.019835`, and `0.035278`; 8--13 of 16 replicas per update had nonzero
+  return. This establishes reward density and optimizer activity, not a
+  learning trend, because the scheduled cases and opponents change by update.
+  Each of the four policy slots had a distinct adapter hash after every update.
+  The frozen update-0 pulse confirmed the initializer's protocol and grounded
+  broadcast rates were both `1.0`; critical normal-minus-dropped return was
+  `0.151515`, while the matched-decoy effect was `0.0`. RL-specific lift was
+  correctly `0.0` at initialization. This one-independent-unit pulse validates
+  the causal evaluation wiring but is not a communication-learning claim.
 - Failures and retries: the first public-source preflight attempt used an
   incorrectly expanded commit URL and failed with HTTP 404 before creating a
   run directory or starting a trainer. The exact full commit URL passed on the
