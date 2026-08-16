@@ -207,3 +207,10 @@ def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() ->
     assert trainer["ckpt"]["interval"] == 10
     assert trainer["ckpt"]["keep_interval"] == 10
     assert trainer["wandb"]["offline"]
+    parity = trainer["rollout_parity_gate"]
+    assert parity["max_mean_logprob_error"] == 0.01
+    assert parity["max_p99_logprob_error"] == 0.15
+    assert parity["max_p99_probability_error"] == 0.07
+    assert parity["max_probability_tail_fraction"] == 0.02
+    assert parity["max_mean_mismatch_kl"] == 0.001
+    assert parity["max_mismatch_kl"] == 100.0

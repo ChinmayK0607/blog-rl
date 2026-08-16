@@ -50,6 +50,16 @@ step-8 development adapters. The current initializer interface accepts one
 common adapter. Adding an unaudited per-role resume path would confound this
 curriculum test and could mix optimizer state.
 
+The online trainer/serving parity gate is distributional. Mean and p99
+log-probability error, p99 probability error, probability-tail frequency, and
+mean mismatch-KL remain the fail-closed scientific bounds. Raw maximum
+probability error is diagnostic at its mathematical bound of `1.0`.
+Single-token mismatch-KL is also unbounded when the chosen token has nearly
+zero probability, so its `100.0` bound is only a catastrophic finite sentinel;
+DPPO masking handles an isolated importance-ratio outlier. This avoids making
+thousands of otherwise bounded packed slices increasingly likely to stop on
+one near-zero token while preserving strict aggregate drift control.
+
 ## Paid-run order and fail-closed preflight
 
 Do not launch the 120-update controller from an old plan or parity report. The

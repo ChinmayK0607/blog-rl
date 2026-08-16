@@ -2774,6 +2774,64 @@ no more critical-specific than decoy-specific. Therefore:
 - Instance decommissioned: no; recommended auto-delete no earlier than
   `2026-08-17 09:45 IST` (`04:15 UTC`) to leave a preservation buffer.
 
+### 2026-08-16 — staged run stopped at update 8 by unbounded max statistic
+
+- Status: failed closed after eight complete logical updates; fresh restart
+  pending.
+- Verdict: rejected as a final learning result; valid systems and throughput
+  evidence through update 8.
+- Hypothesis: the `max_mismatch_kl = 1.0` catastrophic-outlier ceiling would
+  catch genuine serving/trainer divergence without vetoing an otherwise
+  bounded logical policy batch.
+- Decision unlocked: make raw single-token mismatch-KL a finite catastrophic
+  sentinel (`100.0`) rather than a scientific quality threshold. Keep the
+  strict mean, p99, and tail-frequency gates unchanged and start a fresh run;
+  do not retroactively admit the stopped batch.
+- Source commit: `504f97ceaab21c1a531b52ad42849362ddf4266a`.
+- Base / adapter / opponent revisions: unchanged from the admitted launch entry
+  above.
+- Data split and manifest SHA-256: unchanged from the admitted launch entry;
+  only schedule ordinals 0--31 produced complete logical updates.
+- GPU, wall time, and estimated cost: four L40s on
+  `216.81.248.55:40300`; about 57 minutes from admitted update 1 to the trainer
+  stop. Provider price was not supplied.
+- Exact launcher/config: run directory
+  `/workspace/runs/rl-v4-staged-120-504f97ce-l40-20260816`; runtime certificate
+  `0a84893ebded5e013674924fb74dd21b312526bf3a7e73df3b69b12b956144a7`;
+  production plan
+  `fe7b1f7673135dc467f0f61a1f5a4782cdb0eef0fadecd5f989ef2e937892ee9`.
+- Predeclared gates: all aggregate gates remained under their limits at the
+  rejected batch. The only reported violation was raw single-token
+  `max_mismatch_kl = 1.4104266 > 1.0`; therefore the trainer rejected before
+  that policy optimizer step and the controller timed out rather than
+  publishing a partial logical update.
+- Results: eight complete logical updates were recorded (steps 0--7). Mean
+  returns by update were `-0.001831`, `0.059769`, `0.063333`, `0.013136`,
+  `0.064815`, `-0.019692`, `0.025107`, and `0.114834`. The last update had 15
+  of 16 nonzero returns. This short, changing-case sequence is promising reward
+  density but is not a comparable evaluation curve and makes no communication
+  claim. No update-10 pulse or retained checkpoint was reached.
+- Failures and retries: after about 1,976 packed trainer slices, one near-zero
+  chosen token exceeded the unbounded maximum mismatch statistic. Mean
+  mismatch-KL, p99 errors, and tail fraction did not fail. With DPPO masking,
+  the isolated token is not evidence that the batch distribution is unsafe.
+  Leaving `1.0` as a hard maximum would make longer runs more likely to fail
+  solely as a function of token count. The new prospective config changes only
+  this maximum to `100.0`; aggregate thresholds and LR remain locked.
+- W&B: the trainer and controller records were finalized and synced to
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/kfbl8uil` and
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v4-staged-120-504f97ce-l40-20260816-controller-v1`.
+- Artifact paths and hashes: the failed run occupies 579 MiB on the host. Raw
+  data was not copied to the Mac. Compact evidence remains in the public log
+  and the synced W&B runs.
+- Interpretation: fail-closed behavior was mechanically correct, but the
+  maximum statistic was not length-robust. This is a parity-gate design failure,
+  not evidence of reward collapse or a failed curriculum.
+- Next action: publish/test the prospective gate semantics, recertify a new
+  immutable source/config hash, restart from the common SFT initializer, and
+  require update 10 plus its first communication pulse before judging promise.
+- Instance decommissioned: no; inference remains resident for a cheap restart.
+
 ## Artifact index
 
 - Public source branch:
