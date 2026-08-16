@@ -2834,8 +2834,9 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-16 — fresh certified staged 120-update restart
 
-- Status: running; first logical four-policy update verified.
-- Verdict: mechanically admitted; no learning or communication verdict yet.
+- Status: stopped fail-closed after 25 complete logical updates.
+- Verdict: valid exploratory systems/curriculum evidence through update 25;
+  rejected as a completed learning run.
 - Hypothesis: a length-robust distributional parity gate permits the staged
   shared-return run to continue while still rejecting systematic
   serving/trainer drift.
@@ -2888,25 +2889,46 @@ no more critical-specific than decoy-specific. Therefore:
   `0.151515`, while the matched-decoy effect was `0.0`. RL-specific lift was
   correctly `0.0` at initialization. This one-independent-unit pulse validates
   the causal evaluation wiring but is not a communication-learning claim.
+  At update 10, protocol and grounded-broadcast rates remained `1.0`; legacy
+  capability versus SFT was `+0.214286`, hard capability was unchanged, and
+  critical normal-minus-dropped remained `+0.151515`. Because the SFT baseline
+  had the same critical effect, RL-specific communication lift was `0.0`; the
+  decoy effect also rose to `+0.060606`, so the communication claim did not
+  pass. At update 20, legacy capability remained `+0.214286`, but hard
+  capability was `-0.166667`, critical normal-minus-dropped was `-0.030303`,
+  and RL-specific communication lift was `-0.181818`. These pulse cells each
+  contain only one independent unit and are directional diagnostics, not final
+  estimates. They nevertheless argue against blindly resuming the identical
+  optimization configuration.
 - Failures and retries: the first public-source preflight attempt used an
   incorrectly expanded commit URL and failed with HTTP 404 before creating a
   run directory or starting a trainer. The exact full commit URL passed on the
-  immediate retry. Linux tests passed `110/110` before certification.
+  immediate retry. Linux tests passed `110/110` before certification. During
+  the attempted 26th logical update, the trainer rejected a batch because
+  p99 absolute rollout/trainer log-probability error was `0.15295246`, narrowly
+  above the predeclared `0.15` distributional bound. No partial logical update
+  was published; the controller later timed out waiting for all four policies.
+  Unlike the previously rejected raw-maximum gate, p99 is a robust aggregate
+  statistic, so this stop must not be waved through without diagnosing whether
+  drift is localized to a policy/phase/token regime.
 - W&B: credentials were forwarded through netrc without printing the token.
   Trainer telemetry is in
   `wandb/offline-run-20260816_114828-ingmc3tn` under the run directory;
   controller/evaluation telemetry is in
   `/workspace/blog-rl/wandb/offline-run-20260816_114755-rl-v4-staged-120-683a1921-l40-20260816-controller-v1`.
-  A run-scoped finalizer will close sidecars and sync both records when the
-  controller completes or fails.
+  The run-scoped finalizer closed the sidecars and synced both records to
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/ingmc3tn` and
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v4-staged-120-683a1921-l40-20260816-controller-v1`.
 - Artifact paths and hashes: raw checkpoints/trajectories remain only on the
   paid host; compact source and protocol evidence are public. Nothing was
   copied to the Mac.
 - Interpretation: this is a clean prospective restart, not a continuation of
   or retrospective repair to the rejected eight-update run.
-- Next action: verify update 1, then inspect update 10 checkpoint, causal
-  interventions, regressions, collapse diagnostics, and cross-play while the
-  predeclared 120-update schedule proceeds.
+- Next action: preserve the compact update-10/update-20 evidence and retained
+  four-policy checkpoints; diagnose the failed batch by policy, phase, and
+  token regime. Decide whether the update-10 checkpoint merits a larger frozen
+  evaluation before changing optimization or parity configuration. Do not
+  resume the update-20 trajectory unchanged.
 - Instance decommissioned: no.
 
 ## Artifact index
