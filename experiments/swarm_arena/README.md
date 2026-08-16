@@ -114,6 +114,11 @@ selection; cheap development subsets are used during training. The resumable
 entry point is `scripts/run_progress_eval_v4.py`, with a served-model roster
 template at `configs/progress_eval_v4.example.json`.
 
+`STAGED_RL_PLAN.md` defines the next 120-update 1.7B run. It progressively
+increases matched communication pressure, adds a 32-game ten-update pulse, and
+logs trainer plus controller/evaluation curves to one grouped W&B experiment.
+The frozen v4 manifests and terminal reward remain unchanged.
+
 ## Non-arena regression gate
 
 `REGRESSION_PLAN.md` defines a frozen 256-case overspecialization suite and the

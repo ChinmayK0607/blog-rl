@@ -110,6 +110,16 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   module setup, so even a read-only test invocation can terminate unrelated
   trainers or rollout actors owned by the same user. Never run pytest beside a
   live training, certification, or rollout process on the same host.
+- For the staged Swarm Arena run, first bind
+  `data/rl_v4/staged_curriculum_v1.json` to the verified opponent/runtime plan
+  with `scripts/build_staged_rl_plan.py`. The staged plan declares its exact
+  update count; never shorten or extend it under the same run identity.
+  `scripts/log_live_rl_wandb.py` is a failure-isolated sidecar for controller
+  return, curriculum, opponent, and causal-evaluation metrics. Keep it in the
+  same W&B group as trainer telemetry, but do not make training health depend
+  on W&B availability. Store only compact summaries/artifacts there; publish a
+  selected adapter separately to Hugging Face and never copy checkpoints to the
+  local Mac.
 
 ## `sft` — SFT training
 

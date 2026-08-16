@@ -48,7 +48,6 @@ from swarm_ctf_eval.prime_multi_run_router import (
 from swarm_ctf_eval.rl_production import (
     OpponentSnapshot,
     ProductionPlan,
-    exact_curriculum_schedule,
     load_production_plan,
     scenario_sampling_namespace,
 )
@@ -339,13 +338,10 @@ async def main() -> None:
         if args.groups_per_step != production_plan.groups_per_update:
             parser.error("groups-per-step must match the immutable production plan")
         total_groups = args.steps * args.groups_per_step
-        scenario_schedule = exact_curriculum_schedule(
-            production_plan.mix,
-            total_groups=total_groups,
-            pair_offset=production_plan.pair_offset,
-            ordinary_seed_base=production_plan.ordinary_seed_base,
-            shuffle_seed=production_plan.curriculum_shuffle_seed,
-        )
+        try:
+            scenario_schedule = production_plan.curriculum_schedule(steps=args.steps)
+        except ValueError as error:
+            parser.error(str(error))
         opponent_schedule = production_plan.opponent_pool.schedule(total_groups)
     shared_return_spec = None
     if args.credit_estimator == "shared_return":
@@ -613,16 +609,17 @@ async def main() -> None:
                     assert production_plan is not None
                     assert assignment.ordinary_seed is not None
                     seed = assignment.ordinary_seed
-                    size = production_plan.ordinary_sizes[
+                    size = assignment.ordinary_size or production_plan.ordinary_sizes[
                         ordinal % len(production_plan.ordinary_sizes)
                     ]
-                    horizon = production_plan.ordinary_horizons[
+                    horizon = assignment.ordinary_horizon or production_plan.ordinary_horizons[
                         ordinal % len(production_plan.ordinary_horizons)
                     ]
                     scenario_metadata = {
                         "source": "ordinary",
                         "schedule_ordinal": ordinal,
                         "seed": seed,
+                        "curriculum_stage": assignment.stage,
                     }
                 elif curriculum is not None:
                     if assignment is not None:
@@ -676,6 +673,7 @@ async def main() -> None:
                         "receiver": scenario.receiver,
                         "minimum_certified_advantage": scenario.minimum_advantage,
                         "schedule_ordinal": ordinal,
+                        "curriculum_stage": assignment.stage if assignment is not None else None,
                         **world_metadata,
                     }
                 game_id = (

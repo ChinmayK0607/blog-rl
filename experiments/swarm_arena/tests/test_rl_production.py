@@ -4,10 +4,12 @@ from collections import Counter
 
 import pytest
 from swarm_ctf_eval.rl_production import (
+    CurriculumStage,
     CurriculumMix,
     OpponentPool,
     OpponentSnapshot,
     exact_curriculum_schedule,
+    exact_staged_curriculum_schedule,
     scenario_sampling_namespace,
 )
 
@@ -124,3 +126,57 @@ def test_opponent_pool_rotates_all_model_families_exactly() -> None:
         "current": 3,
     }
     assert len(pool.sha256) == 64
+
+
+def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
+    tactical = CurriculumMix(ordinary=2, critical=1, decoy=1)
+    communication = CurriculumMix(ordinary=0, critical=2, decoy=2)
+    stages = (
+        CurriculumStage(
+            name="warmup",
+            updates=2,
+            update_pattern=(tactical,),
+            ordinary_sizes=(12, 13),
+            ordinary_horizons=(4, 5),
+        ),
+        CurriculumStage(
+            name="handoff",
+            updates=2,
+            update_pattern=(tactical, communication),
+            ordinary_sizes=(16,),
+            ordinary_horizons=(8,),
+        ),
+    )
+    schedule = exact_staged_curriculum_schedule(
+        stages,
+        groups_per_update=4,
+        pair_offset=9,
+        ordinary_seed_base=90_000,
+        shuffle_seed=17,
+    )
+
+    assert len(schedule) == 16
+    for update in range(4):
+        block = schedule[update * 4 : (update + 1) * 4]
+        assert {row.pair_index for row in block if row.kind == "critical"} == {
+            row.pair_index for row in block if row.kind == "decoy"
+        }
+    assert Counter(row.kind for row in schedule) == {
+        "ordinary": 6,
+        "critical": 5,
+        "decoy": 5,
+    }
+    assert {row.stage for row in schedule[:8]} == {"warmup"}
+    assert {row.stage for row in schedule[8:]} == {"handoff"}
+    assert {
+        (row.ordinary_size, row.ordinary_horizon)
+        for row in schedule[8:]
+        if row.kind == "ordinary"
+    } == {(16, 8)}
+    assert schedule == exact_staged_curriculum_schedule(
+        stages,
+        groups_per_update=4,
+        pair_offset=9,
+        ordinary_seed_base=90_000,
+        shuffle_seed=17,
+    )

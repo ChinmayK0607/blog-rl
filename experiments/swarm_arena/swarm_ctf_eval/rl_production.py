@@ -14,6 +14,7 @@ ScenarioKind = Literal["ordinary", "critical", "decoy"]
 OpponentFamily = Literal["base", "sft", "historical", "current"]
 
 RL_PRODUCTION_PLAN_VERSION = "arena-rl-v4-production-plan-v1"
+STAGED_RL_PRODUCTION_PLAN_VERSION = "arena-rl-v4-staged-production-plan-v1"
 
 
 def _canonical_sha256(value: Any) -> str:
@@ -33,8 +34,10 @@ class CurriculumMix:
     decoy: int
 
     def validate(self) -> None:
-        if min(self.ordinary, self.critical, self.decoy) < 1:
-            raise ValueError("curriculum mix requires ordinary, critical, and decoy groups")
+        if self.ordinary < 0 or min(self.critical, self.decoy) < 1:
+            raise ValueError(
+                "curriculum mix requires non-negative ordinary and positive critical/decoy groups"
+            )
         if self.critical != self.decoy:
             raise ValueError("critical and matched-decoy counts must be equal")
 
@@ -59,6 +62,96 @@ class ScenarioAssignment:
     kind: ScenarioKind
     pair_index: int | None
     ordinary_seed: int | None
+    stage: str | None = None
+    ordinary_size: int | None = None
+    ordinary_horizon: int | None = None
+
+
+@dataclass(frozen=True)
+class CurriculumStage:
+    name: str
+    updates: int
+    update_pattern: tuple[CurriculumMix, ...]
+    ordinary_sizes: tuple[int, ...]
+    ordinary_horizons: tuple[int, ...]
+
+    def validate(self, *, groups_per_update: int) -> None:
+        if not self.name or self.updates < 1 or not self.update_pattern:
+            raise ValueError("curriculum stages require a name, updates, and an update pattern")
+        for mix in self.update_pattern:
+            mix.validate()
+            if mix.ordinary + mix.critical + mix.decoy != groups_per_update:
+                raise ValueError(
+                    f"stage {self.name} update mix must contain exactly "
+                    f"{groups_per_update} groups"
+                )
+        if not self.ordinary_sizes or min(self.ordinary_sizes) < 4:
+            raise ValueError(f"stage {self.name} requires valid ordinary graph sizes")
+        if not self.ordinary_horizons or min(self.ordinary_horizons) < 2:
+            raise ValueError(f"stage {self.name} requires valid ordinary horizons")
+
+
+def exact_staged_curriculum_schedule(
+    stages: tuple[CurriculumStage, ...],
+    *,
+    groups_per_update: int,
+    pair_offset: int,
+    ordinary_seed_base: int,
+    shuffle_seed: int,
+) -> tuple[ScenarioAssignment, ...]:
+    """Build a predeclared staged schedule with matched critical/decoy pairs per update."""
+    if not stages:
+        raise ValueError("staged curriculum requires at least one stage")
+    if min(groups_per_update, pair_offset, ordinary_seed_base, shuffle_seed) < 0:
+        raise ValueError("staged curriculum counts, offsets, and seeds cannot be negative")
+    if groups_per_update < 1:
+        raise ValueError("groups per update must be positive")
+
+    assignments: list[ScenarioAssignment] = []
+    pair_cursor = pair_offset
+    ordinary_cursor = 0
+    update_cursor = 0
+    for stage in stages:
+        stage.validate(groups_per_update=groups_per_update)
+        for stage_update in range(stage.updates):
+            mix = stage.update_pattern[stage_update % len(stage.update_pattern)]
+            pair_indices = tuple(pair_cursor + index for index in range(mix.critical))
+            block: list[tuple[ScenarioKind, int | None, int | None]] = []
+            block.extend(
+                ("ordinary", None, ordinary_seed_base + ordinary_cursor + index)
+                for index in range(mix.ordinary)
+            )
+            ordinary_cursor += mix.ordinary
+            block.extend(("critical", pair_index, None) for pair_index in pair_indices)
+            block.extend(("decoy", pair_index, None) for pair_index in pair_indices)
+            pair_cursor += mix.critical
+            random.Random(f"{shuffle_seed}:{update_cursor}").shuffle(block)
+            for within_update, (kind, pair_index, ordinary_seed) in enumerate(block):
+                assignments.append(
+                    ScenarioAssignment(
+                        ordinal=len(assignments),
+                        kind=kind,
+                        pair_index=pair_index,
+                        ordinary_seed=ordinary_seed,
+                        stage=stage.name,
+                        ordinary_size=(
+                            stage.ordinary_sizes[
+                                (stage_update + within_update) % len(stage.ordinary_sizes)
+                            ]
+                            if kind == "ordinary"
+                            else None
+                        ),
+                        ordinary_horizon=(
+                            stage.ordinary_horizons[
+                                (stage_update + within_update) % len(stage.ordinary_horizons)
+                            ]
+                            if kind == "ordinary"
+                            else None
+                        ),
+                    )
+                )
+            update_cursor += 1
+    return tuple(assignments)
 
 
 def exact_curriculum_schedule(
@@ -229,9 +322,13 @@ class ProductionPlan:
     ordinary_seed_base: int
     ordinary_sizes: tuple[int, ...]
     ordinary_horizons: tuple[int, ...]
+    stages: tuple[CurriculumStage, ...] = ()
 
     def validate(self) -> None:
-        if self.version != RL_PRODUCTION_PLAN_VERSION:
+        if self.version not in {
+            RL_PRODUCTION_PLAN_VERSION,
+            STAGED_RL_PRODUCTION_PLAN_VERSION,
+        }:
             raise ValueError(f"unsupported production plan: {self.version}")
         self.mix.validate()
         if not self.trainable_phases or len(set(self.trainable_phases)) != len(
@@ -252,8 +349,16 @@ class ProductionPlan:
         self.admission_limits.validate()
         if self.groups_per_update < 1 or self.rollout_queue_capacity < self.groups_per_update:
             raise ValueError("rollout queue must hold at least one complete logical update")
-        if self.groups_per_update % self.mix.block_size:
-            raise ValueError("each logical update must contain an exact curriculum block")
+        if self.version == RL_PRODUCTION_PLAN_VERSION:
+            if self.stages:
+                raise ValueError("legacy production plans cannot contain staged curricula")
+            if self.groups_per_update % self.mix.block_size:
+                raise ValueError("each logical update must contain an exact curriculum block")
+        else:
+            if not self.stages:
+                raise ValueError("staged production plans require curriculum stages")
+            for stage in self.stages:
+                stage.validate(groups_per_update=self.groups_per_update)
         if self.groups_per_update % len(self.opponent_pool.snapshots):
             raise ValueError("each logical update must contain one exact opponent-pool rotation")
         if min(
@@ -270,7 +375,40 @@ class ProductionPlan:
     @property
     def sha256(self) -> str:
         self.validate()
-        return _canonical_sha256(asdict(self))
+        payload = asdict(self)
+        if self.version == RL_PRODUCTION_PLAN_VERSION:
+            # Preserve byte-for-byte run-lock identity for every completed v4 run.
+            payload.pop("stages")
+        return _canonical_sha256(payload)
+
+    @property
+    def expected_updates(self) -> int | None:
+        if not self.stages:
+            return None
+        return sum(stage.updates for stage in self.stages)
+
+    def curriculum_schedule(self, *, steps: int) -> tuple[ScenarioAssignment, ...]:
+        self.validate()
+        if self.stages:
+            expected = self.expected_updates
+            if steps != expected:
+                raise ValueError(
+                    f"staged plan declares {expected} updates but controller requested {steps}"
+                )
+            return exact_staged_curriculum_schedule(
+                self.stages,
+                groups_per_update=self.groups_per_update,
+                pair_offset=self.pair_offset,
+                ordinary_seed_base=self.ordinary_seed_base,
+                shuffle_seed=self.curriculum_shuffle_seed,
+            )
+        return exact_curriculum_schedule(
+            self.mix,
+            total_groups=steps * self.groups_per_update,
+            pair_offset=self.pair_offset,
+            ordinary_seed_base=self.ordinary_seed_base,
+            shuffle_seed=self.curriculum_shuffle_seed,
+        )
 
 
 def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | None]]:
@@ -300,6 +438,21 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
     limits = AsyncAdmissionLimits(**raw["async_admission"]["limits"])
     backend = AsyncBackendIdentity(**raw["async_admission"]["backend"])
     turns = raw["trainable_spans"]["turn_offsets"]
+    stage_rows = raw.get("curriculum_stages", [])
+    stages = tuple(
+        CurriculumStage(
+            name=str(row["name"]),
+            updates=int(row["updates"]),
+            update_pattern=tuple(
+                CurriculumMix(**mix) for mix in row["update_pattern"]
+            ),
+            ordinary_sizes=tuple(int(value) for value in row["ordinary_sizes"]),
+            ordinary_horizons=tuple(
+                int(value) for value in row["ordinary_horizons"]
+            ),
+        )
+        for row in stage_rows
+    )
     plan = ProductionPlan(
         version=str(raw["version"]),
         mix=CurriculumMix(**raw["curriculum_mix"]),
@@ -322,6 +475,7 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         ordinary_horizons=tuple(
             int(value) for value in raw["schedule"]["ordinary_horizons"]
         ),
+        stages=stages,
     )
     plan.validate()
     if set(runtime_paths) != {snapshot.opponent_id for snapshot in snapshots}:

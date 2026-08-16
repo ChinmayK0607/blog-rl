@@ -18,8 +18,9 @@ from swarm_ctf_eval.progress_eval_v4 import (
     PROGRESS_EVAL_VERSION,
     summarize_progress_eval,
 )
+from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
 
-Tier = Literal["online", "selection", "frozen"]
+Tier = Literal["pulse", "online", "selection", "frozen"]
 
 
 @dataclass(frozen=True)
@@ -34,6 +35,15 @@ class TierPlan:
 
 
 TIER_PLANS = {
+    "pulse": TierPlan(
+        "pulse",
+        1,
+        1,
+        1,
+        "monitor",
+        ("canonical",),
+        ("normal", "dropped"),
+    ),
     "online": TierPlan(
         "online",
         4,
@@ -189,6 +199,14 @@ def main() -> None:
     parser.add_argument("--frozen-confirmation")
     parser.add_argument("--api-key", default="local")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument(
+        "--rl-specific-communication",
+        action="store_true",
+        help=(
+            "also evaluate the SFT initializer on critical normal/dropped cases and "
+            "report RL-minus-SFT communication lift"
+        ),
+    )
     args = parser.parse_args()
 
     tier: Tier = args.tier
@@ -240,6 +258,7 @@ def main() -> None:
         "decoy_conditions": ["normal", "dropped"],
         "sides": ["BLUE", "RED"],
         "generation": {"temperature": 0.0, "max_tokens": 160, "structured": True},
+        "rl_specific_communication": args.rl_specific_communication,
     }
     completed = _prepare_output(args.output_dir, manifest, args.resume)
     rows_path = args.output_dir / "rows.jsonl"
@@ -371,13 +390,37 @@ def main() -> None:
                             else None
                         ),
                     )
+                if args.rl_specific_communication and suite == "handoff_critical":
+                    baseline_revision = str(config["baseline"]["revision"])
+                    for condition in ("normal", "dropped"):
+                        run_one(
+                            case_id=case_id,
+                            independent_id=independent_id,
+                            suite=suite,
+                            case=(scenario.seed, scenario.size, scenario.horizon),
+                            variant="sft_init",
+                            revision=baseline_revision,
+                            focal=baseline,
+                            opponent_id=opponent_id,
+                            opponent_revision=opponent_revision,
+                            opponent=opponent,
+                            side=side,
+                            condition=condition,
+                            initial_state=world.state,
+                            critical_target=world.active_target,
+                        )
 
     rows = [
         json.loads(line)
         for line in rows_path.read_text(encoding="utf-8").splitlines()
         if line
     ]
-    summary = summarize_progress_eval(
+    summarize = (
+        summarize_rl_specific_progress_eval
+        if args.rl_specific_communication
+        else summarize_progress_eval
+    )
+    summary = summarize(
         rows,
         intervention_conditions=tuple(
             condition

@@ -1,0 +1,70 @@
+{
+  "version": "arena-rl-v4-staged-curriculum-v1",
+  "total_updates": 120,
+  "groups_per_update": 4,
+  "reward": "terminal_control_delta_only",
+  "message_reward": null,
+  "principles": [
+    "critical and matched-decoy cases occur in equal counts within every update",
+    "no supervised message target or additive communication bonus",
+    "ordinary play remains present throughout training",
+    "difficulty and communication density increase without changing the frozen evaluation"
+  ],
+  "stages": [
+    {
+      "name": "tactical_stabilization",
+      "updates": 20,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "purpose": "learn legal tactical play before increasing communication pressure"
+    },
+    {
+      "name": "communication_introduction",
+      "updates": 40,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [14, 16],
+      "ordinary_horizons": [6, 8],
+      "purpose": "raise aggregate critical/decoy density to 30/30 without a discontinuous jump"
+    },
+    {
+      "name": "communication_heavy",
+      "updates": 40,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 0, "critical": 2, "decoy": 2},
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [16, 18],
+      "ordinary_horizons": [8, 10],
+      "purpose": "apply sustained information-handoff pressure while retaining 30 percent ordinary play"
+    },
+    {
+      "name": "adaptive_self_play",
+      "updates": 20,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 0, "critical": 2, "decoy": 2},
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [18, 20],
+      "ordinary_horizons": [10, 12],
+      "purpose": "test retention under harder play and the model-controlled opponent rotation"
+    }
+  ],
+  "online_eval_updates": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120],
+  "checkpoint_selection": "select once from development metrics after update 120",
+  "frozen_policy": "the existing rl_v4 frozen OOD evaluation remains unopened and byte-identical"
+}

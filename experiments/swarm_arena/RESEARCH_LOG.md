@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-16 02:58 IST
+Last updated: 2026-08-16
 Branch: `exp/swarm-arena-4b`  
 Current public development checkpoint: Hugging Face revision
 `1af877668ee3cdd8dd5ccd4734ce620bbe5e2aa0` (not admitted).
@@ -8,6 +8,9 @@ Status: the fresh 30-update four-policy RL v4 run and development diagnostics
 are complete. The selected step-20 checkpoint is mechanically stable and
 public; capability and RL-specific communication improvement are not
 established, and selection/frozen final remain unopened.
+
+Next run: the CPU-side 120-update staged curriculum and RL-specific progress
+metrics are implemented and awaiting a fresh four-GPU launch preflight.
 
 This is the durable chronological record for the Swarm Arena project. It records
 the hypothesis, design decisions, data, training, evaluations, failures,
@@ -2369,6 +2372,78 @@ no more critical-specific than decoy-specific. Therefore:
 - Instance decommissioned: GPU workloads stopped and all four GPUs reported
   `0 MiB` at approximately 00:22 UTC. Final Git publication followed from the
   local compact copy.
+
+### 2026-08-16 — staged 120-update curriculum and publishable metric logging
+
+- Status: CPU implementation completed; GPU run not started.
+- Verdict: implementation evidence only; no new model or scientific result.
+- Hypothesis: gradually increasing matched information-handoff density can
+  produce RL-specific message use without the instability seen in the abrupt
+  `2/3/3` run and without sacrificing ordinary game capability.
+- Decision unlocked: one predeclared 1.7B run can now test the curriculum before
+  deciding whether to move to 4B.
+- Source commit: pending at entry creation; record the final commit after push.
+- Data: reuses oracle-certified `data/rl_v4/handoff_train.json` pairs 0--151.
+  Development and frozen v4 manifests were not edited or regenerated.
+- Reward and policy structure: unchanged terminal control-delta team return,
+  no additive message/action bonus, four independent LoRA policy routes and
+  optimizers, exact base/SFT/historical/current opponent rotation.
+- Curriculum: 120 updates x 4 groups. Stage counts are 20 tactical updates at
+  `2/1/1`; 40 introduction updates using four `2/1/1` updates then one `0/2/2`;
+  40 communication-heavy updates using three `2/1/1` then two `0/2/2`; and 20
+  harder self-play updates with the same latter pattern. Aggregate schedule:
+  176 ordinary, 152 critical, 152 matched-decoy groups. Every update has equal
+  critical/decoy counts. Generated audit: plan SHA-256
+  `56cda2e8c193905c1cb05b551409877aaa134dffc61c3379b36994bd12ef7f34`,
+  schedule SHA-256
+  `462c4ff6fcbabbd715de290f125f603d9f25939b076c9ddcdfc1e05079f5fb66`,
+  curriculum SHA-256
+  `02f3a2308c71bef45fdddd665655d338473f0d685378bbf985f82cf4e481aa14`,
+  handoff manifest SHA-256
+  `665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681`.
+  These audit hashes used the existing Variant-A runtime plan as a local
+  fixture; rebuild and record fresh hashes after binding paths/revisions on the
+  next GPU host.
+- Optimization: LoRA rank 16, constant `7.5e-6` learning rate. This is between
+  the stable/weak `5e-6` run and fast but abrupt `1e-5` communication-heavy
+  failure. No fictitious within-run LR changes are declared.
+- Evaluation change: optional `--rl-specific-communication` adds SFT
+  normal/dropped critical rollouts and reports both
+  `(RL critical effect - SFT critical effect)` and
+  `(RL critical effect - RL matched-decoy effect)`. Default v4 evaluation
+  behavior is unchanged.
+- W&B change: trainer config now logs Prime trainer telemetry to
+  `swarm-arena-rl`. A separate failure-isolated sidecar logs logical update,
+  terminal return, nonzero/absolute advantage, exact mix, curriculum stage,
+  return by scenario/opponent, protocol, capability, RL-specific communication
+  lift, and critical-minus-decoy specificity. It uploads only compact progress
+  and summary JSON; credentials remain environment-only.
+- Verification: all edited Python files passed `compileall`; the focused
+  curriculum/progress/W&B pytest set passed `11/11`. The dependency-light wider
+  suite passed `69` tests; its sole executed failure was an environment import
+  error for `prime_rl`, while five collection files could not import optional
+  Mac-absent `httpx`, `torch`, or `huggingface_hub` dependencies. No behavioral
+  assertion failed. Deterministic staged-schedule, plan-builder, and
+  W&B-metric smoke assertions also passed. The generated schedule has 480
+  groups, maximum handoff pair index 151, and 176 unique ordinary seeds.
+- Local tooling failure: the first dependency-resolving pytest invocation did
+  not run tests because local Homebrew `uv 0.9.2` cannot parse the repository's
+  newer `exclude-newer = "7 days"` setting and crashed during macOS system
+  configuration discovery. Offline `uv` has no cached pytest. This is recorded
+  as an environment failure; the complete Linux pytest gate remains mandatory
+  before any `torchrun` or paid rollout.
+- GPU, wall time, cost: no GPU allocated; zero GPU cost. No checkpoint or model
+  cache was downloaded to the Mac.
+- Artifacts: `STAGED_RL_PLAN.md`,
+  `data/rl_v4/staged_curriculum_v1.json`,
+  `configs/rl_v4_1_7b_staged.toml`,
+  `scripts/build_staged_rl_plan.py`, `scripts/log_live_rl_wandb.py`, and
+  `swarm_ctf_eval/progress_eval_v5.py`.
+- Next action: on 4x4090 or 4xL40S, run the full Linux tests, public-input
+  preflight, staged-plan binding/audit, a four-update mechanical smoke, and then
+  the 120-update run with online development measurements every ten updates.
+  Do not open selection/frozen tiers during the run.
+- Instance decommissioned: not applicable; no rented instance used.
 
 ## Artifact index
 
