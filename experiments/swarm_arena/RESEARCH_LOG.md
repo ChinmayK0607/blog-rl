@@ -2382,7 +2382,7 @@ no more critical-specific than decoy-specific. Therefore:
   `2/3/3` run and without sacrificing ordinary game capability.
 - Decision unlocked: one predeclared 1.7B run can now test the curriculum before
   deciding whether to move to 4B.
-- Source commit: pending at entry creation; record the final commit after push.
+- Implementation commit: `88a5fc34f1fa6f5d471f8badeae44498a5291062`.
 - Data: reuses oracle-certified `data/rl_v4/handoff_train.json` pairs 0--151.
   Development and frozen v4 manifests were not edited or regenerated.
 - Reward and policy structure: unchanged terminal control-delta team return,
