@@ -3010,6 +3010,62 @@ no more critical-specific than decoy-specific. Therefore:
   retired one-unit pulse to make curriculum/LR decisions.
 - Instance decommissioned: no.
 
+### 2026-08-17 — live update-40 trajectory diagnosis
+
+- Status: running; 41 complete logical updates were recorded when this audit
+  finished, and the unchanged run was proceeding toward update 50.
+- Verdict: mechanically stable with a negative development signal through
+  update 40. This is not evidence of capability or communication improvement.
+- Source/config: unchanged from the fresh certified staged restart at source
+  `07edbb90`, production-plan SHA-256
+  `ae69f834b5dc7e5ff06465be49fc93b42dc131af574a126ec48aa35bf52986c7`,
+  four independent rank-preserving policy slots, and LR `7.5e-6`.
+- Frozen development curve: relative to the run's update-zero point, overall
+  gameplay changed by `-0.005334`, `+0.011319`, `-0.009312`, and `-0.029865`
+  at updates 10, 20, 30, and 40. RL-specific communication changed by
+  `-0.054583`, `-0.002504`, `+0.001197`, and `-0.005288`. Update-40 protocol,
+  grounded-broadcast, and legal-action rates remained `1.0`; the regression is
+  behavioral rather than a parser failure.
+- Reward-density audit: across the four ten-update blocks through update 39,
+  `90.0%`, `92.5%`, `95.0%`, and `95.0%` of four-replica groups had distinct
+  terminal returns. Mean absolute leave-one-out advantage was `0.0754`,
+  `0.0704`, `0.0754`, and `0.0822`. The reward is therefore neither mostly
+  zero nor incapable of separating sampled joint trajectories.
+- Communication/action audit: the designated sender included the privileged
+  target fact in `100%` of critical training replicas in every completed
+  block. The receiver targeted that node in roughly `58--65%` of replicas but
+  captured it in only `14.6--25.0%`; there was no monotonic improvement.
+  Intent/action agreement rose only from `47.0%` to `54.8%`. Action decisions
+  retained exploration: only about `17--18%` of identical action slots emitted
+  the same output in all four replicas. Broadcast decisions were more
+  deterministic (`40--47%` identical), consistent with the already-saturated
+  canonical sender report.
+- Matched step-0/step-40 behavior: on the 120 candidate games, raw mean return
+  changed from `-0.02633` to `-0.03373`. CAPTURE frequency rose from `13.23%`
+  to `18.71%` while PROBE fell from `24.38%` to `19.02%`; WAIT remained flat
+  near `38.3%`. Duplicate-target turns improved from `16.20%` to `13.43%`,
+  intent following improved slightly from `69.01%` to `70.05%`, and message
+  frequency barely changed. The policy is changing primarily toward more
+  aggressive actions, not learning a stronger communication mechanism.
+- Interpretation: this is not a corrupt-label or pure capability failure. The
+  1.7B policy can sometimes exploit the handoff and produces useful wins, but
+  the current estimator gives every independently changing agent the same team
+  advantage. Because the critical sender fact is already constant across
+  replicas, it supplies no within-group contrast for learning whether to send
+  it; receiver-action variation is mixed with the other three agents' action
+  variation. Exact terminal reward remains correct, but per-policy credit is
+  noisy. The present trajectory is consequently learning an inconsistent
+  capture bias rather than a general communication-dependent strategy.
+- Next action: inspect the unchanged update-50 and update-60 development pulses
+  before spending the remaining trajectory. If neither shows a reproducible
+  upward shift, stop and preserve the run. The next prospective run should use
+  matched, common-random-number counterfactuals that vary one sender message or
+  receiver action at a time and assign the exact terminal-return difference to
+  that policy span. This changes credit estimation, not the environment reward,
+  and adds no hackable shaping term.
+- W&B/artifacts/decommission: offline logging and automatic completion sync are
+  still armed; the paid four-L40 host remains active.
+
 ## Artifact index
 
 - Public source branch:
