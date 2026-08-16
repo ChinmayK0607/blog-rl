@@ -3166,6 +3166,30 @@ no more critical-specific than decoy-specific. Therefore:
   existing progress/evaluation records; all five live run processes were
   healthy afterward.
 
+#### Update-10 pulse and update-13 live checkpoint
+
+- Status: 14 logical updates completed (`0` through `13`); all trainer,
+  controller, rescore, pulse, and W&B-v2 processes remained healthy.
+- Credit density: 46/56 groups had distinct replica returns and 179/224
+  focused-agent replica opportunities had non-zero advantage. Mean training
+  return over the changing scheduled scenarios was `0.04112`; this is a
+  density/health statistic, not a learning curve because maps and opponents
+  differ across updates.
+- Frozen pulse delta from update 0 to update 10: overall gameplay improved by
+  `+0.03043`; ordinary legacy by `+0.06427`; ordinary hard by `+0.01569`; and
+  critical-handoff capability by `+0.01133`. The update-10 absolute overall
+  RL-minus-SFT estimate was `+0.01004` with 95% interval
+  `[-0.02184, +0.03955]`, so this is an encouraging direction, not a resolved
+  improvement claim.
+- Communication result: critical normal-minus-dropped fell from `+0.06750` at
+  update 0 to `+0.04403` at update 10 (`-0.02346`); RL-specific communication
+  lift likewise moved from `-0.01896` to `-0.04242`. Critical-minus-decoy
+  specificity was nearly unchanged (`+0.00154` delta). The first ten updates
+  were the predeclared tactical-stabilization stage, so the current evidence is
+  "tactical improvement, no communication improvement yet." The run continues
+  unchanged into the handoff-introduction stage; update 20 is the next
+  informative communication comparison.
+
 ## Artifact index
 
 - Public source branch:
