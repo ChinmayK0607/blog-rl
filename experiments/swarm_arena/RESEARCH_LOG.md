@@ -3671,6 +3671,67 @@ no more critical-specific than decoy-specific. Therefore:
   sender updates excluded and keep every selected critical world paired with
   its exact matched decoy.
 
+### 2026-08-17 — receiver-first terminal curriculum live launch
+
+- Status: planned; fresh four-L40S host provisioned and Linux validation in
+  progress. No optimizer or inference process has started at this entry.
+- Verdict: pending. This run may establish receiver-side use of teammate
+  information; it cannot by itself establish learned sender communication or
+  broad emergent swarm intelligence.
+- Hypothesis: concentrating exact terminal control-delta credit on receiver
+  `ACT` spans, first at two remaining turns and then at the original horizon,
+  will improve information-handoff play without a communication bonus or
+  supervised action target.
+- Decision unlocked: if development pulses improve handoff and overall return
+  while generated messages outperform dropped messages more in critical than
+  matched-decoy cases, retain this initializer/curriculum for the next
+  end-to-end communication experiment. If only generic return improves, treat
+  the result as tactical capability learning. If neither improves, revise
+  case diversity or credit localization rather than simply extending steps.
+- Source commit: launch commit pending this log entry; parent
+  `6efd401b711e4245153abad7d83f097e4ee843f8`.
+- Base / adapter / opponent revisions: pinned Qwen3-1.7B base
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; public SFT step 320
+  `534522a8f3ff3489b1dd8318dc8e533e51264cde`, adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`;
+  public historical RL-v1 `ad51ef261f3e7b7b2d3c6433106bd667ba1da81c`,
+  blue-0 adapter SHA-256
+  `1004e012cd96a6377006c334d997825e3ebb25828b482a4644b7149a823d873a`.
+- Data: `data/rl_v4/staged_curriculum_v4_receiver_terminal_40.json`;
+  40 logical updates and four groups per update: 40 ordinary, 60 critical,
+  and 60 exactly paired decoys. Updates 0--19 retain two handoff turns;
+  updates 20--39 restore the original handoff horizon, with ordinary games
+  reintroduced for the final ten updates. The twelve selected pair/world
+  cases are fixed from the training-only pass@k screen. Development pulses
+  occur at updates 0, 10, 20, 30, and 40; selection and frozen OOD remain
+  unopened.
+- Reward and optimization: unchanged verified terminal control delta only;
+  focused receiver `ACT` credit; four separate rank-16 LoRA policies and
+  optimizers; constant learning rate `7.5e-6`; atomic four-policy updates;
+  lag-zero bounded asynchronous admission.
+- GPU, wall time, and estimated cost: fresh user-provided host
+  `64.247.196.196:40301`, four NVIDIA L40S 46,068 MiB, initially idle. Price
+  was not supplied for this allocation, so no dollar cost is inferred.
+- Exact launcher/config: `scripts/launch_staged_rl.sh` with
+  `configs/rl_v4_1_7b_receiver_terminal_40.toml`, expected updates 40,
+  checkpoint/evaluation interval 10, curriculum artifact v4, and
+  `SWARM_SHARED_RETURN_CREDIT_ASSIGNMENT=focused_agent`. The host-bound
+  certificate and production-plan hashes will be recorded after validation.
+- Predeclared measurements: real development return and handoff return;
+  generated-minus-dropped effect in critical cases; critical-minus-decoy
+  specificity; protocol validity; action/speaking/target collapse; policy KL;
+  and opponent cross-play. Structural preflight, fresh runtime parity, and
+  update-zero are integrity checks, not scientific outcomes.
+- Failures and retries: none yet.
+- Artifacts: compact evidence will be committed publicly; models, raw
+  trajectories, and checkpoints remain on the GPU host or public model hub,
+  never on the Mac.
+- Next action: complete the Linux test suite before any live process, download
+  the pinned public model/adapters anonymously, start three isolated rollout
+  servers, bind a fresh runtime certificate and ACT-only production plan, then
+  launch the 40-update run.
+- Instance decommissioned: no.
+
 ## Artifact index
 
 - Public source branch:
