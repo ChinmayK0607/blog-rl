@@ -51,6 +51,7 @@ def summarize_passk(rows: list[dict[str, Any]]) -> dict[str, Any]:
         returns = [float(row["terminal_return"]) for row in values]
         captures = sum(bool(row["target_captured"]) for row in values)
         turn_zero_captures = sum(bool(row["target_captured_turn_zero"]) for row in values)
+        receiver_actions = sum(bool(row["receiver_target_action"]) for row in values)
         cell = {
             "pair_index": pair_index,
             "kind": kind,
@@ -76,6 +77,9 @@ def summarize_passk(rows: list[dict[str, Any]]) -> dict[str, Any]:
             cell[f"capture_pass_at_{k}"] = pass_at_k(captures, len(values), k)
             cell[f"turn_zero_capture_pass_at_{k}"] = pass_at_k(
                 turn_zero_captures, len(values), k
+            )
+            cell[f"receiver_target_action_pass_at_{k}"] = pass_at_k(
+                receiver_actions, len(values), k
             )
             cell[f"best_return_at_{k}"] = expected_best_at_k(returns, k)
             cell[f"return_contrast_at_{k}"] = contrast_at_k(returns, k)
@@ -106,6 +110,24 @@ def summarize_passk(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 "generated_capture_rate": generated["capture_pass_at_1"],
                 "dropped_capture_rate": dropped["capture_pass_at_1"],
                 "reference_capture_rate": reference["capture_pass_at_1"],
+                "generated_turn_zero_capture_rate": generated[
+                    "turn_zero_capture_pass_at_1"
+                ],
+                "dropped_turn_zero_capture_rate": dropped[
+                    "turn_zero_capture_pass_at_1"
+                ],
+                "reference_turn_zero_capture_rate": reference[
+                    "turn_zero_capture_pass_at_1"
+                ],
+                "generated_receiver_target_action_rate": generated[
+                    "receiver_target_action_rate"
+                ],
+                "dropped_receiver_target_action_rate": dropped[
+                    "receiver_target_action_rate"
+                ],
+                "reference_receiver_target_action_rate": reference[
+                    "receiver_target_action_rate"
+                ],
                 "generated_minus_dropped_capture": (
                     generated["capture_pass_at_1"] - dropped["capture_pass_at_1"]
                 ),
@@ -114,6 +136,30 @@ def summarize_passk(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 ),
                 "reference_minus_dropped_capture": (
                     reference["capture_pass_at_1"] - dropped["capture_pass_at_1"]
+                ),
+                "generated_minus_dropped_turn_zero_capture": (
+                    generated["turn_zero_capture_pass_at_1"]
+                    - dropped["turn_zero_capture_pass_at_1"]
+                ),
+                "reference_minus_generated_turn_zero_capture": (
+                    reference["turn_zero_capture_pass_at_1"]
+                    - generated["turn_zero_capture_pass_at_1"]
+                ),
+                "reference_minus_dropped_turn_zero_capture": (
+                    reference["turn_zero_capture_pass_at_1"]
+                    - dropped["turn_zero_capture_pass_at_1"]
+                ),
+                "generated_minus_dropped_receiver_action": (
+                    generated["receiver_target_action_rate"]
+                    - dropped["receiver_target_action_rate"]
+                ),
+                "reference_minus_generated_receiver_action": (
+                    reference["receiver_target_action_rate"]
+                    - generated["receiver_target_action_rate"]
+                ),
+                "reference_minus_dropped_receiver_action": (
+                    reference["receiver_target_action_rate"]
+                    - dropped["receiver_target_action_rate"]
                 ),
                 "generated_sender_target_fact_rate": generated["sender_target_fact_rate"],
                 "generated_capture_pass_at_4": generated["capture_pass_at_4"],
@@ -148,6 +194,24 @@ def summarize_passk(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "critical_reference_minus_dropped_capture": mean(
                 critical, "reference_minus_dropped_capture"
             ),
+            "critical_generated_minus_dropped_turn_zero_capture": mean(
+                critical, "generated_minus_dropped_turn_zero_capture"
+            ),
+            "critical_reference_minus_generated_turn_zero_capture": mean(
+                critical, "reference_minus_generated_turn_zero_capture"
+            ),
+            "critical_reference_minus_dropped_turn_zero_capture": mean(
+                critical, "reference_minus_dropped_turn_zero_capture"
+            ),
+            "critical_generated_minus_dropped_receiver_action": mean(
+                critical, "generated_minus_dropped_receiver_action"
+            ),
+            "critical_reference_minus_generated_receiver_action": mean(
+                critical, "reference_minus_generated_receiver_action"
+            ),
+            "critical_reference_minus_dropped_receiver_action": mean(
+                critical, "reference_minus_dropped_receiver_action"
+            ),
             "critical_sender_target_fact_rate": mean(
                 critical, "generated_sender_target_fact_rate"
             ),
@@ -159,6 +223,12 @@ def summarize_passk(rows: list[dict[str, Any]]) -> dict[str, Any]:
             ),
             "decoy_reference_minus_dropped_capture": mean(
                 decoy, "reference_minus_dropped_capture"
+            ),
+            "decoy_reference_minus_dropped_turn_zero_capture": mean(
+                decoy, "reference_minus_dropped_turn_zero_capture"
+            ),
+            "decoy_reference_minus_dropped_receiver_action": mean(
+                decoy, "reference_minus_dropped_receiver_action"
             ),
         },
     }
