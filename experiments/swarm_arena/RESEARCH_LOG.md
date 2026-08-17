@@ -3673,12 +3673,13 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-17 — receiver-first terminal curriculum live launch
 
-- Status: running; fresh four-L40S host provisioned, certified, and launched.
-  The 192-game update-zero development pulse is in progress; no optimizer
-  update had occurred at this checkpoint.
-- Verdict: pending. This run may establish receiver-side use of teammate
-  information; it cannot by itself establish learned sender communication or
-  broad emergent swarm intelligence.
+- Status: stopped atomically after completing updates 0--14. The trainer
+  rejected the next four-policy update on its pre-optimizer mean mismatch-KL
+  check; trainer, controller, and pulse processes then exited. Inference,
+  rescore, and offline-W&B sidecars remain alive pending preservation.
+- Verdict: useful but incomplete capability signal; no communication-learning
+  result. Update 10 modestly improved gameplay, while both RL-specific
+  communication lift and critical-minus-decoy specificity remained unresolved.
 - Hypothesis: concentrating exact terminal control-delta credit on receiver
   `ACT` spans, first at two remaining turns and then at the original horizon,
   will improve information-handoff play without a communication bonus or
@@ -3738,20 +3739,43 @@ no more critical-specific than decoy-specific. Therefore:
   parameter sets were disjoint, and a test update changed only `run_blue_0`.
   Public-input preflight v2 passed with exactly 40 updates, 160 groups, four
   L40S GPUs, all three serving registries, and 2.30 TiB free disk.
+- Results: update 10 completed the full 192-game development pulse with exact
+  action, broadcast, and grounding protocol rates of `1.0`. Overall gameplay
+  RL-minus-SFT was `+0.018045`, 95% interval
+  `[-0.024934,+0.058953]`; legacy capability was `+0.048567`, hard capability
+  `-0.007099`, and handoff capability `+0.012667`, all with intervals crossing
+  zero. Critical normal-minus-dropped return was positive at `+0.058750`, but
+  the SFT baseline already had `+0.058819`, leaving RL-specific communication
+  lift `-0.000069`, interval `[-0.032760,+0.030823]`. Matched-decoy
+  normal-minus-dropped was also `+0.056392`, so critical-minus-decoy
+  specificity was only `+0.002358`, interval `[-0.026435,+0.030159]`.
+  Therefore the ten-update checkpoint shows a tentative generic gameplay gain,
+  not learned information-specific coordination.
 - Failures and retries: the first certifier invocation used its narrower CLI
   defaults and rejected the already-declared trainer gate before model loading.
   Its directory is preserved. The unchanged probe was rerun with the exact
   config-bound `0.05` mean log-probability and `0.005` mean mismatch-KL values;
   no threshold changed and that binding passed. A repository-wide Ruff check
   reported ten pre-existing import/unused-variable findings in untouched
-  legacy files; the complete behavioral suite passed.
-- Artifacts: compact evidence will be committed publicly; models, raw
-  trajectories, and checkpoints remain on the GPU host or public model hub,
-  never on the Mac.
-- Next action: complete the update-zero baseline, then execute updates 1--40
-  with fixed development pulses at 10, 20, 30, and 40. Preserve compact
-  evidence and W&B telemetry, run the declared post-training comparison, and
-  publish before decommissioning.
+  legacy files; the complete behavioral suite passed. After update 14, the
+  next atomic update reached per-policy parity checks. Runs 0--2 passed, but
+  one policy batch had mean mismatch KL `0.0053858049`, slightly above the
+  declared `0.005`; Prime aborted before optimizer application. This was not
+  an OOM, NaN, NCCL, simulator, protocol, or partial-update failure. The
+  controller subsequently timed out waiting for all four rejected policy
+  publications, and the pulse sidecar later timed out waiting for update 20.
+- Artifacts: complete retained per-policy checkpoints and evaluation evidence
+  exist at update 10. Fifteen progress entries cover updates 0--14. Broadcast
+  adapters labelled step 15 exist, but update 15 was not atomically admitted
+  and those files are invalid as a scientific checkpoint. The remote run is
+  1.2 GB; no model/checkpoint was copied to the Mac.
+- Next action: preserve/sync the update-10 compact evidence and W&B runs before
+  decommissioning. Any continuation must be a newly certified run, either from
+  the valid update-10 four-policy checkpoint or from the original initializer.
+  Do not silently relabel step-15 broadcasts or restart the failed run in
+  place. Decide separately whether to retain the `0.005` mean-KL bound and
+  diagnose the outlier or predeclare a slightly wider bounded-off-policy
+  envelope; no threshold may be altered retroactively for this evidence.
 - Instance decommissioned: no.
 
 ## Artifact index
