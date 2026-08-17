@@ -1,13 +1,13 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-16
+Last updated: 2026-08-17
 Branch: `exp/swarm-arena-4b`  
-Current public development checkpoint: Hugging Face revision
-`1af877668ee3cdd8dd5ccd4734ce620bbe5e2aa0` (not admitted).
-Status: the focused-credit run stopped fail-closed after 16 complete updates.
-Its update-10 checkpoint is public; tactical capability improved directionally,
-but RL-specific communication did not. A prospective atomic four-policy trainer
-fix and length-robust KL bound are awaiting Linux validation and recertification.
+Current public development checkpoint: focused atomic update 50, Hugging Face
+revision `049e95062903501a8a50efac09d1b2caab393364` (not admitted).
+Status: the immutable 80-update focused-credit run was prospectively capped at
+update 60. It produced a directional capability gain but degraded the causal
+communication measures, so it is useful negative evidence rather than a swarm-
+communication result.
 
 This is the durable chronological record for the Swarm Arena project. It records
 the hypothesis, design decisions, data, training, evaluations, failures,
@@ -3411,6 +3411,68 @@ no more critical-specific than decoy-specific. Therefore:
   truncated run must not be reported as completing that full horizon.
 - Instance decommissioned: no; the live run is active on the four-L40 host.
 
+### 2026-08-17 — focused atomic RL capped at update 60
+
+- Status: completed at the prospectively requested cap. The one-shot watcher
+  observed the content-bound `step_60.ready.json` at
+  `2026-08-17T03:51:12Z`, stopped the controller before update 61, and allowed
+  the complete update-60 frozen pulse to finish. The original immutable plan
+  still declares 80 updates; this result must be described as truncated at 60,
+  not as completing the planned horizon.
+- Verdict: exploratory capability signal; not admitted for communication.
+- Source and pins: commit
+  `6c5eea739e6d743957a6132dbb0022ea7eab4895`; base
+  `Qwen/Qwen3-1.7B@70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`;
+  initializer
+  `CK0607/Qwen3-1.7B-Swarm-Arena-SFT-v2-step320-noneligible@534522a8f3ff3489b1dd8318dc8e533e51264cde`.
+- Immutable evidence hashes: production plan
+  `d67718f2685006916e43de32353f2877c3f7dff0bcbeed799454295a9a09fb7b`;
+  plan audit
+  `797358d2837131086c80b1f16db5baeb5920823e1b10addea4c1e734ec8f3453`;
+  runtime certificate
+  `6c9cde513beee986bf427e59f1e62f25096c5deafc0c286c320dac448b1e53be`.
+- Capability result: overall RL-minus-SFT moved from `-0.009648` at the
+  exact same-weight update-zero anchor to `+0.019663` at update 60, a
+  `+0.029311` change. Legacy changed `+0.081167`, hard `-0.009878`, and
+  critical-handoff capability `+0.016645`. Update 50 had the highest observed
+  overall development mean, `+0.025233` with 95% interval
+  `[-0.022926,+0.080502]`; it is retained retrospectively as a capability-only
+  development checkpoint, not a confirmatory result.
+- Communication result: RL-specific message lift moved from `+0.018417` at
+  update zero to `-0.045288` at update 60, a `-0.063705` change.
+  Critical-minus-decoy specificity moved from `+0.022899` to `-0.015273`, a
+  `-0.038171` change. The communication claim failed at all seven pulses. The
+  apparent positive update-zero lift came from stochastic sampling between
+  same-weight policies and is only a baseline anchor; only change from it is
+  interpretable.
+- Optimization and stability: updates 40--59 had mean scheduled return
+  `0.032386`; 64 of 80 rollout groups had return contrast and 255 of 1280
+  policy-replica slots received nonzero focused advantages. Action protocol,
+  broadcast protocol, and grounded-broadcast rates remained `1.0` at every
+  pulse. No partial four-policy update, non-finite value, collapse flag, or
+  process error occurred.
+- Public preservation: the four update-50 adapters and compact reports are at
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-focused-step50-development`
+  revision `049e95062903501a8a50efac09d1b2caab393364`. The four update-60
+  adapters and reports are at
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-focused-step60-truncated-development`
+  revision `a64eb9278f88cd1a31528be1460e22a7fd311945`. Both repositories are
+  public and were anonymously downloaded and checksum-verified after upload.
+  Trainer W&B run: `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/220pn93o`.
+  Controller/evaluation W&B run:
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v4-focused80-atomic-6c5eea73-l40-20260817-controller-v1`.
+- Storage and cost: no checkpoint or raw rollout was copied to the Mac. Compact
+  evidence is in `results/rl_v4_focused_atomic_60/`. Provider price and exact
+  allocation start were not recorded, so no dollar cost is invented.
+- Interpretation: the reward/curriculum can teach game tactics, but this run
+  did not teach agents to rely on private teammate information. A subsequent
+  run should change the training distribution or objective so successful play
+  actually requires message-conditioned action; merely training longer on this
+  mixture is not supported by these results.
+- Instance decommissioned: all trainer, controller, evaluator, rescore,
+  inference, and W&B processes were stopped; all four L40 GPUs reported
+  `0 MiB` and `0%` utilization. The instance is safe to decommission.
+
 ## Artifact index
 
 - Public source branch:
@@ -3440,6 +3502,11 @@ no more critical-specific than decoy-specific. Therefore:
 - RL v4 stronger-learning-rate development result:
   `results/rl_v4_1_7b_lr_ablation/` and
   `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-lr1e5-step8-development`
+- Focused atomic RL run through the prospective update-60 cap:
+  `results/rl_v4_focused_atomic_60/`,
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-focused-step50-development`,
+  and
+  `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-focused-step60-truncated-development`
 - Frozen message-credit admission plan:
   `MESSAGE_CREDIT_AUDIT_PLAN.md`
 - Public, non-admitted mechanical RL artifact:
