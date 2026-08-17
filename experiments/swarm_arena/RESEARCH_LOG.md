@@ -3546,10 +3546,11 @@ no more critical-specific than decoy-specific. Therefore:
   generated, dropped, and reference-message repetitions. Critical generated
   play uses K=8; critical controls and all decoy conditions use K=4. Total:
   672 complete model-vs-model games.
-- Reference condition: only the certified sender's grounded active-target fact
-  is substituted at turn zero. Every action and every later decision remains
-  model-generated. This distinguishes sender omission from receiver/game
-  incapability without supervising an action.
+- Reference condition: the certified sender's grounded active-target fact is
+  required at turn zero while preserving its generated intent, resource
+  request, and other facts up to the existing three-fact budget. Every action
+  and every later decision remains model-generated. This distinguishes sender
+  omission from receiver/game incapability without supervising an action.
 - Measurements: pass@1/2/4/8 target capture, turn-zero capture, expected
   best-return@k, return contrast@4, target-fact emission, receiver target
   action, protocol validity, generated-minus-dropped capture, reference-minus-
@@ -3561,6 +3562,15 @@ no more critical-specific than decoy-specific. Therefore:
   run a small live smoke, then the resumable 672-game screen. Preserve compact
   JSON only, analyze the empirical band, commit/push, and stop inference.
 - Instance decommissioned: no; paid diagnostic is in progress.
+- Rejected engineering partial: the first reference implementation replaced
+  the sender's entire generated message with a one-fact message. Inspection of
+  the first completed bundle showed this could delete a useful intent or
+  unrelated grounded facts, so reference-minus-generated would not isolate the
+  missing target fact. The run was stopped after 96/672 games; its compact rows
+  remain on the host under `sweep.rejected-replace-reference` and will never be
+  combined with the corrected result. No model weights were changed. The
+  corrected prospective run inserts the target fact only when absent and
+  otherwise leaves the generated message unchanged.
 
 ## Artifact index
 

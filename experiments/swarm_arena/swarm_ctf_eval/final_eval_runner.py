@@ -3,10 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from .arena import GameState, Team
+from .arena import GameState, NodeObservation, Team
 from .arena_eval import ArenaModel
 from .arena_generation import generate_state
-from .arena_protocol import Broadcast
 from .communication_curriculum import permute_agent_labels, swap_team_labels
 from .crossplay_eval import evaluate_crossplay
 from .episode import EMPTY_BROADCAST, EpisodeConfig
@@ -78,7 +77,7 @@ def evaluate_final_case(
     condition: str,
     initial_state: GameState | None = None,
     critical_target: str | None = None,
-    turn_zero_broadcast_overrides: dict[str, Broadcast] | None = None,
+    turn_zero_required_facts: dict[str, NodeObservation] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if condition not in COMMUNICATION_CONDITIONS:
         raise ValueError(f"unknown final-eval condition: {condition}")
@@ -130,7 +129,7 @@ def evaluate_final_case(
         initial_state=resolved_state,
         env=env,
         action_permutation_offset=_option_offset(identity.option_order),
-        turn_zero_broadcast_overrides=turn_zero_broadcast_overrides,
+        turn_zero_required_facts=turn_zero_required_facts,
     )
     nonempty = 0
     for turn in raw["turns"]:

@@ -10,7 +10,6 @@ from typing import Any
 
 from swarm_ctf_eval.arena import NodeObservation, observation_for
 from swarm_ctf_eval.arena_eval import ArenaModel, OpenAIArenaModel
-from swarm_ctf_eval.arena_protocol import Broadcast
 from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
 from swarm_ctf_eval.handoff_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.passk_screen import PASSK_SCREEN_VERSION, summarize_passk
@@ -55,14 +54,14 @@ def _roster(model: ArenaModel) -> tuple[ArenaModel, ...]:
     return (model, model, model, model)
 
 
-def _reference_broadcast(state: Any, sender: str, target: str) -> Broadcast:
+def _reference_fact(state: Any, sender: str, target: str) -> NodeObservation:
     known = {
         row["node"]: row for row in observation_for(state, sender)["known_nodes"]
     }
     row = known.get(target)
     if row is None:
         raise ValueError(f"certified sender {sender} does not observe target {target}")
-    fact = NodeObservation(
+    return NodeObservation(
         row["node"],
         row["owner"],
         row["status"],
@@ -70,7 +69,6 @@ def _reference_broadcast(state: Any, sender: str, target: str) -> Broadcast:
         row["critical"],
         row["observed_turn"],
     )
-    return Broadcast((fact,), None, 0)
 
 
 def _stratified_pair_indices(pairs: list[dict[str, Any]], count: int) -> list[int]:
@@ -173,7 +171,7 @@ def main() -> None:
             scenario = reconstruct_manifest_scenario(pair[kind])
             for world in scenario.worlds:
                 case = (scenario.seed, scenario.size, scenario.horizon)
-                reference = _reference_broadcast(
+                reference = _reference_fact(
                     world.state, scenario.sender, world.active_target
                 )
                 for condition in ("generated", "dropped", "reference"):
@@ -226,7 +224,7 @@ def main() -> None:
                             condition="dropped" if condition == "dropped" else "normal",
                             initial_state=world.state,
                             critical_target=world.active_target if kind == "critical" else None,
-                            turn_zero_broadcast_overrides=(
+                            turn_zero_required_facts=(
                                 {scenario.sender: reference} if condition == "reference" else None
                             ),
                         )

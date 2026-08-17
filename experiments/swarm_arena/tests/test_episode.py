@@ -9,7 +9,7 @@ from pathlib import Path
 
 import httpx
 import pytest
-from swarm_ctf_eval.arena import WAIT, Action, legal_actions, state_to_dict
+from swarm_ctf_eval.arena import WAIT, Action, NodeObservation, legal_actions, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
 from swarm_ctf_eval.collapse_audit import audit_training_collapse
 from swarm_ctf_eval.communication_curriculum import (
@@ -21,6 +21,7 @@ from swarm_ctf_eval.communication_curriculum import (
 )
 from swarm_ctf_eval.crossplay_eval import (
     FROZEN_CROSSPLAY_CASES,
+    _with_required_fact,
     development_cases,
     evaluate_crossplay,
     parse_conditions,
@@ -211,6 +212,20 @@ def test_crossplay_controls_all_eight_agents_and_preserves_private_history() -> 
     assert len(FROZEN_CROSSPLAY_CASES) == 24
     assert {size for _, size, _ in FROZEN_CROSSPLAY_CASES} == {14, 16}
     assert {horizon for _, _, horizon in FROZEN_CROSSPLAY_CASES} == {6, 8}
+
+
+def test_reference_fact_preserves_generated_message_content() -> None:
+    required = NodeObservation("target", "NEUTRAL", "EXPOSED", 3, True, 0)
+    other = tuple(
+        NodeObservation(f"other-{index}", "RED", "SECURE", 1, False, 0)
+        for index in range(3)
+    )
+    message = Broadcast(other, Action("WAIT"), 1)
+    merged = _with_required_fact(message, required)
+    assert merged.facts == (required, *other[:2])
+    assert merged.intent == message.intent
+    assert merged.request_resource == message.request_resource
+    assert _with_required_fact(merged, required) is merged
 
 
 def test_side_swapped_summary_removes_map_side_bias() -> None:

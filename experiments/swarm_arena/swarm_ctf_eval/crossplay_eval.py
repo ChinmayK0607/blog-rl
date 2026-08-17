@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from .arena import TEAMS, WAIT, Action, GameState, Team
+from .arena import TEAMS, WAIT, Action, GameState, NodeObservation, Team
 from .arena_eval import ArenaModel, OpenAIArenaModel, _respond_many
 from .arena_protocol import Broadcast, parse_action, parse_broadcast
 from .episode import (
@@ -214,6 +214,17 @@ def _delivered_for_team(
     raise ValueError(f"unknown condition: {condition}")
 
 
+def _with_required_fact(message: Broadcast, required: NodeObservation) -> Broadcast:
+    if any(fact.node == required.node for fact in message.facts):
+        return message
+    remaining = tuple(fact for fact in message.facts if fact.node != required.node)
+    return Broadcast(
+        (required, *remaining)[:3],
+        message.intent,
+        message.request_resource,
+    )
+
+
 def evaluate_crossplay(
     blue_model: ModelRoster,
     red_model: ModelRoster,
@@ -226,7 +237,7 @@ def evaluate_crossplay(
     initial_state: GameState | None = None,
     env: ArenaEpisodeEnv | None = None,
     action_permutation_offset: int = 0,
-    turn_zero_broadcast_overrides: dict[str, Broadcast] | None = None,
+    turn_zero_required_facts: dict[str, NodeObservation] | None = None,
 ) -> dict[str, Any]:
     if blue_condition not in CONDITIONS or red_condition not in CONDITIONS:
         raise ValueError("unknown communication condition")
@@ -326,14 +337,28 @@ def evaluate_crossplay(
                 }
             )
 
-        if turn == 0 and turn_zero_broadcast_overrides:
-            unknown = set(turn_zero_broadcast_overrides) - set(parsed_messages)
+        if turn == 0 and turn_zero_required_facts:
+            unknown = set(turn_zero_required_facts) - set(parsed_messages)
             if unknown:
-                raise ValueError(f"turn-zero broadcast overrides name unknown agents: {sorted(unknown)}")
-            parsed_messages.update(turn_zero_broadcast_overrides)
+                raise ValueError(f"turn-zero required facts name unknown agents: {sorted(unknown)}")
+            for agent_id, required in turn_zero_required_facts.items():
+                parsed_messages[agent_id] = _with_required_fact(
+                    parsed_messages[agent_id], required
+                )
             for row in broadcast_rows:
-                override = turn_zero_broadcast_overrides.get(row["agent_id"])
-                row["broadcast_override"] = override.to_dict() if override is not None else None
+                required = turn_zero_required_facts.get(row["agent_id"])
+                row["required_fact"] = (
+                    {
+                        "node": required.node,
+                        "owner": required.owner,
+                        "status": required.status,
+                        "value": required.value,
+                        "critical": required.critical,
+                        "observed_turn": required.observed_turn,
+                    }
+                    if required is not None
+                    else None
+                )
 
         preview = _preview_accepted(env, parsed_messages)
         delivered: dict[str, Broadcast] = {}
