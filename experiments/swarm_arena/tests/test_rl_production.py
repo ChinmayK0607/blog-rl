@@ -298,6 +298,65 @@ def test_receiver_terminal_curriculum_binds_screened_worlds_and_horizons() -> No
         assert critical == decoy
 
 
+def test_communication_overfit_curriculum_requires_the_message_to_select_the_world() -> None:
+    root = Path(__file__).resolve().parents[1]
+    curriculum = json.loads(
+        (
+            root
+            / "data"
+            / "rl_v4"
+            / "staged_curriculum_v5_communication_overfit_60.json"
+        ).read_text()
+    )
+    handoffs = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    stage = curriculum["stages"][0]
+    selected_cases = {(case["pair_index"], case["world"]) for case in stage["handoff_cases"]}
+
+    assert curriculum["total_updates"] == 60
+    assert selected_cases == {(7, "left_exposed"), (7, "right_exposed")}
+    pair = handoffs["pairs"][7]
+    assert pair["critical"]["receiver"] == "blue-1"
+    assert pair["critical"]["sender"] == "blue-2"
+    assert pair["matched_pair_audit"]["critical_receiver_worlds_indistinguishable_without_message"]
+    assert pair["matched_pair_audit"]["receiver_action_sets_match_across_worlds"]
+    assert pair["matched_pair_audit"]["message_does_not_change_receiver_legal_actions"]
+
+    stages = (
+        CurriculumStage(
+            name=stage["name"],
+            updates=stage["updates"],
+            update_pattern=tuple(CurriculumMix(**mix) for mix in stage["update_pattern"]),
+            ordinary_sizes=tuple(stage["ordinary_sizes"]),
+            ordinary_horizons=tuple(stage["ordinary_horizons"]),
+            handoff_focus_roles=tuple(stage["handoff_focus_roles"]),
+            handoff_cases=tuple(
+                (case["pair_index"], case["world"]) for case in stage["handoff_cases"]
+            ),
+            handoff_remaining_turns=stage["handoff_remaining_turns"],
+        ),
+    )
+    schedule = exact_staged_curriculum_schedule(
+        stages,
+        groups_per_update=4,
+        pair_offset=0,
+        ordinary_seed_base=8_000_000,
+        shuffle_seed=17,
+    )
+
+    assert len(schedule) == 240
+    assert Counter(row.kind for row in schedule) == {"critical": 120, "decoy": 120}
+    for update in range(60):
+        block = schedule[update * 4 : (update + 1) * 4]
+        for kind in ("critical", "decoy"):
+            assert {
+                (row.pair_index, row.handoff_world)
+                for row in block
+                if row.kind == kind
+            } == selected_cases
+        assert {row.handoff_focus_role for row in block} == {"receiver"}
+        assert {row.handoff_remaining_turns for row in block} == {2}
+
+
 def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() -> None:
     root = Path(__file__).resolve().parents[1]
     curriculum = json.loads((root / "data" / "rl_v4" / "staged_curriculum_v1.json").read_text())

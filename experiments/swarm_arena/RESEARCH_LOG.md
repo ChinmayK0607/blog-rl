@@ -3778,6 +3778,49 @@ no more critical-specific than decoy-specific. Therefore:
   envelope; no threshold may be altered retroactively for this evidence.
 - Instance decommissioned: no.
 
+### 2026-08-17 — pair-7 two-world communication overfit run
+
+- Status: planned for the live four-L40S allocation; no result is claimed at
+  this entry.
+- Question: can terminal-return RL teach even one small-model receiver to use
+  a teammate's private fact? This is intentionally a learnability/overfit
+  experiment, not a generalization or emergent-swarm claim.
+- Curriculum: 60 updates of exactly two critical and two matched-decoy groups.
+  Every update repeats both latent worlds of handoff pair 7 with two remaining
+  turns. In the critical pair, blue-1 has the same private observation and the
+  same legal actions in both worlds; blue-2's broadcast is the only input that
+  identifies whether `V13` or `V19` is exposed. Training only one world would
+  permit pair-identity memorization, so both worlds are mandatory in every
+  update. The decoys retain world information in blue-1's own observation and
+  expose generic tactical learning as a control.
+- Credit and reward: train receiver `ACT` spans only with the unchanged,
+  verified terminal control-delta return and common-random-number leave-one-out
+  credit. There is no message, target-action, capture, or intermediate shaping
+  reward. Sender target-fact emission was already 100% in the training-only
+  screen, so this run does not update sender broadcasts.
+- Initialization and optimization: restart from the pinned public SFT step-320
+  adapter, not the invalid post-failure step-15 files and not the prior RL
+  update-10 checkpoint. Retain four separate role-policy slots, rank-16 LoRA,
+  constant LR `7.5e-6`, atomic updates, and model-controlled opponents. Only
+  blue-1 is expected to receive nonzero focused credit in this deliberately
+  single-pair experiment.
+- Measurement: development pulses at updates 0, 10, 20, 30, 40, 50, and 60.
+  The primary result is critical generated-minus-dropped receiver target-action
+  and terminal-return lift; critical-minus-matched-decoy intervention lift is
+  the information-specific control. Raw training return alone is not success.
+  The frozen selection and OOD suites remain unopened.
+- Runtime policy: retain the `0.05` mean absolute log-ratio check and predeclare
+  a `0.01` mean mismatch-KL ceiling. The prior run's sole failure was
+  `0.0053858` against `0.005`, before optimizer application, with no NaN, OOM,
+  NCCL, protocol, or partial-update fault. The wider ceiling applies only to
+  this new run and is not a reinterpretation of the rejected update. All other
+  dynamic-constraint and atomicity checks remain intact.
+- Inputs: curriculum
+  `data/rl_v4/staged_curriculum_v5_communication_overfit_60.json` and trainer
+  `configs/rl_v4_1_7b_communication_overfit_60.toml`. Exact source, plan,
+  schedule, runtime-certificate, W&B, wall-time, and outcome identities will be
+  appended after launch/completion.
+
 ## Artifact index
 
 - Public source branch:
