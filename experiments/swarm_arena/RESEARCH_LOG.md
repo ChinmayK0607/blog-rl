@@ -3529,8 +3529,10 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-17 — training-only pass@k curriculum screen
 
-- Status: running; implementation and local syntax checks complete, Linux/full
-  validation and model rollouts pending.
+- Status: completed; compact results preserved locally and GPU stopped.
+- Verdict: receiver/tactical RL has a useful stochastic learning band; sender
+  learning and terminal-return communication specificity are rejected for this
+  slice.
 - Verdict scope: training-data selection diagnostic only. It cannot promote a
   checkpoint or establish communication on development/frozen evaluation.
 - Hypothesis: stochastic pass@k separates handoff cases that are already
@@ -3558,10 +3560,48 @@ no more critical-specific than decoy-specific. Therefore:
 - GPU: one NVIDIA L40S 46,068 MiB on a fresh user-provided host; 554 GB free at
   inspection and no stale process. Provider rate is unknown, so no cost is
   inferred. Large trajectories/checkpoints will not be copied to the Mac.
-- Next action: pass the complete Linux suite, start one SFT LoRA vLLM server,
-  run a small live smoke, then the resumable 672-game screen. Preserve compact
-  JSON only, analyze the empirical band, commit/push, and stop inference.
-- Instance decommissioned: no; paid diagnostic is in progress.
+- Source: rollout commit `69fe74ff5ca6954310dd22848de77ba5293cb538`;
+  pinned base revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`;
+  pinned SFT revision `534522a8f3ff3489b1dd8318dc8e533e51264cde`;
+  adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`.
+- Validation and throughput: the complete Linux suite passed 114/114 before
+  inference; Ruff and the reference-merge focused assertion passed. The
+  corrected run completed 672 games, 26,880 independent agent requests, and
+  1,008,519 completion tokens in 1,952.76 seconds. Protocol validity was 1.0.
+- Pass@k result: critical target capture was 0.1510 at pass@1, 0.4161 at
+  pass@4, and 0.5833 at pass@8. Critical return contrast@4 was 0.7655. Of 24
+  critical worlds, the exploratory selector found 12 primary receiver-band,
+  three hard-reserve, one easy-stabilizer, and eight low-signal worlds.
+- Sender result: generated target-fact coverage was exactly 1.0. The reference
+  insertion was therefore semantically an identity intervention, not a source
+  of missing information. These pairs should not receive sender-BROADCAST
+  updates; later training pairs require a cheap sender-only omission screen if
+  sender learning remains in scope.
+- Paired causal result, bootstrapped over 12 complete bundles: critical
+  generated-minus-dropped terminal return was `+0.00696`, 95% interval
+  `[-0.01190,+0.02428]`; critical-minus-decoy terminal specificity was
+  `-0.00192`, interval `[-0.02354,+0.01652]`. Turn-zero capture specificity was
+  directionally `+0.07292`, interval `[0,+0.16667]`, but only four of 12 bundle
+  effects were positive. The immediate hint does not survive into terminal
+  reward and is not an admitted communication result.
+- Interpretation: terminal shared return is dense enough for tactical RL, but
+  the current turn-zero handoff is washed out over later turns. The next
+  communication curriculum should start with handoffs near the terminal
+  boundary (or a short-horizon stage), emphasize receiver ACT learning, retain
+  the matched decoy for every selected critical world, and only later extend
+  to 4/5-turn play. This changes the curriculum rather than the game, reward,
+  or frozen evaluation.
+- Compact artifact hashes: manifest `a4b2c896...ae0`; rows
+  `c7e4268f...d36`; summary `780a3f5e...b1b`; analysis
+  `874dec87...129`. The complete directory is 552 KB under
+  `results/rl_v4_passk_screen_1_7b/`; no model artifact or raw trajectory was
+  copied to the Mac.
+- Next action: revise the joint curriculum from sender/receiver 50/50 to a
+  terminal-proximal receiver-first stage, add a cheap sender-omission screen
+  for later pairs, then launch a small RL pilot before a long run.
+- Instance decommissioned: no; inference is stopped and the L40S reports 0 MiB
+  and 0% utilization. The host is safe to decommission after Git publication.
 - Rejected engineering partial: the first reference implementation replaced
   the sender's entire generated message with a one-fact message. Inspection of
   the first completed bundle showed this could delete a useful intent or
@@ -3595,6 +3635,8 @@ no more critical-specific than decoy-specific. Therefore:
   `RL_TASK_V4.md`, `PROGRESS_EVAL_V4.md`, and `data/rl_v4/`
 - RL v4 pre-training baseline and stage-1 reward-density evidence:
   `results/rl_v4_pretrain_1_7b/`
+- Training-only pass@k curriculum screen:
+  `results/rl_v4_passk_screen_1_7b/`
 - RL v4 30-update development result:
   `results/rl_v4_1_7b_long/` and
   `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-long-development`
