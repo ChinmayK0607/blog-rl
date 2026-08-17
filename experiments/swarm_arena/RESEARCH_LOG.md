@@ -3655,9 +3655,9 @@ no more critical-specific than decoy-specific. Therefore:
   `handoff_remaining_turns`, the empty failed directory was preserved, and no
   result from that invocation will be scored.
 - Results: both corrected screens completed with 192/192 games and exact
-  protocol validity. One remaining turn took 201.29 seconds but reduced
+  protocol validity. One remaining turn took 202.44 seconds but reduced
   critical generated return-contrast to `0.50`, so it is rejected as too
-  sparse for the first RL stage. Two remaining turns took 500.18 seconds and
+  sparse for the first RL stage. Two remaining turns took 501.33 seconds and
   retained critical return contrast `0.8333`, receiver-action contrast
   `0.8333`, and nonzero-return cells `0.9167`.
 - Communication diagnostic: at two remaining turns, critical-minus-decoy
@@ -3696,6 +3696,8 @@ no more critical-specific than decoy-specific. Therefore:
   `results/rl_v4_pretrain_1_7b/`
 - Training-only pass@k curriculum screen:
   `results/rl_v4_passk_screen_1_7b/`
+- Receiver terminal-proximal curriculum screen:
+  `results/rl_v4_terminal_proximal_screen_1_7b/`
 - RL v4 30-update development result:
   `results/rl_v4_1_7b_long/` and
   `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-long-development`
