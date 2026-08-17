@@ -3673,8 +3673,9 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-17 — receiver-first terminal curriculum live launch
 
-- Status: planned; fresh four-L40S host provisioned and Linux validation in
-  progress. No optimizer or inference process has started at this entry.
+- Status: running; fresh four-L40S host provisioned, certified, and launched.
+  The 192-game update-zero development pulse is in progress; no optimizer
+  update had occurred at this checkpoint.
 - Verdict: pending. This run may establish receiver-side use of teammate
   information; it cannot by itself establish learned sender communication or
   broad emergent swarm intelligence.
@@ -3688,8 +3689,7 @@ no more critical-specific than decoy-specific. Therefore:
   end-to-end communication experiment. If only generic return improves, treat
   the result as tactical capability learning. If neither improves, revise
   case diversity or credit localization rather than simply extending steps.
-- Source commit: launch commit pending this log entry; parent
-  `6efd401b711e4245153abad7d83f097e4ee843f8`.
+- Source commit: `4bf3fcb32a36ed7aaab2fde31ec2770469609946`.
 - Base / adapter / opponent revisions: pinned Qwen3-1.7B base
   `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; public SFT step 320
   `534522a8f3ff3489b1dd8318dc8e533e51264cde`, adapter SHA-256
@@ -3715,21 +3715,43 @@ no more critical-specific than decoy-specific. Therefore:
 - Exact launcher/config: `scripts/launch_staged_rl.sh` with
   `configs/rl_v4_1_7b_receiver_terminal_40.toml`, expected updates 40,
   checkpoint/evaluation interval 10, curriculum artifact v4, and
-  `SWARM_SHARED_RETURN_CREDIT_ASSIGNMENT=focused_agent`. The host-bound
-  certificate and production-plan hashes will be recorded after validation.
+  `SWARM_SHARED_RETURN_CREDIT_ASSIGNMENT=focused_agent`. Resolved trainer
+  config SHA-256 is
+  `d9ba25cc9de38f9a6bdd8012e559d362a45a5d2b44920ae9c2a9b9f83df424e3`;
+  runtime certificate SHA-256 is
+  `57ad8f3920bb7b833a6c25ad4c3341b6eb64f8b90eae0948090b14e1d12e24b0`;
+  ACT-only production-plan SHA-256 is
+  `93112d85c9fd03014de251dd61610dcc2199009c0327f4105f6bee45e2f221cc`;
+  exact schedule SHA-256 is
+  `ef7fea19c908cbc6de6ff410c285377cc96850513d5a67fd6198501b58658e05`.
 - Predeclared measurements: real development return and handoff return;
   generated-minus-dropped effect in critical cases; critical-minus-decoy
   specificity; protocol validity; action/speaking/target collapse; policy KL;
   and opponent cross-play. Structural preflight, fresh runtime parity, and
   update-zero are integrity checks, not scientific outcomes.
-- Failures and retries: none yet.
+- Validation: all 116 Linux Swarm tests passed before any live GPU process,
+  with only the two known third-party SWIG deprecation warnings. Anonymous
+  downloads reproduced the exact SFT and historical-adapter hashes. The fresh
+  32-decision, three-server certificate passed with mean absolute log-probability
+  error `0.00197840`, p99 `0.0633736`, mean mismatch KL `0.0000834760`, and
+  maximum mismatch KL `0.0135564`; the configured mean gates passed, optimizer
+  parameter sets were disjoint, and a test update changed only `run_blue_0`.
+  Public-input preflight v2 passed with exactly 40 updates, 160 groups, four
+  L40S GPUs, all three serving registries, and 2.30 TiB free disk.
+- Failures and retries: the first certifier invocation used its narrower CLI
+  defaults and rejected the already-declared trainer gate before model loading.
+  Its directory is preserved. The unchanged probe was rerun with the exact
+  config-bound `0.05` mean log-probability and `0.005` mean mismatch-KL values;
+  no threshold changed and that binding passed. A repository-wide Ruff check
+  reported ten pre-existing import/unused-variable findings in untouched
+  legacy files; the complete behavioral suite passed.
 - Artifacts: compact evidence will be committed publicly; models, raw
   trajectories, and checkpoints remain on the GPU host or public model hub,
   never on the Mac.
-- Next action: complete the Linux test suite before any live process, download
-  the pinned public model/adapters anonymously, start three isolated rollout
-  servers, bind a fresh runtime certificate and ACT-only production plan, then
-  launch the 40-update run.
+- Next action: complete the update-zero baseline, then execute updates 1--40
+  with fixed development pulses at 10, 20, 30, and 40. Preserve compact
+  evidence and W&B telemetry, run the declared post-training comparison, and
+  publish before decommissioning.
 - Instance decommissioned: no.
 
 ## Artifact index
