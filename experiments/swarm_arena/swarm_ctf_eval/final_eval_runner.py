@@ -6,10 +6,10 @@ from typing import Any
 from .arena import GameState, Team
 from .arena_eval import ArenaModel
 from .arena_generation import generate_state
+from .arena_protocol import Broadcast
 from .communication_curriculum import permute_agent_labels, swap_team_labels
 from .crossplay_eval import evaluate_crossplay
 from .episode import EMPTY_BROADCAST, EpisodeConfig
-from .arena_protocol import Broadcast
 from .final_eval_v3 import COMMUNICATION_CONDITIONS
 from .rl_v3 import ArenaRLEnv
 

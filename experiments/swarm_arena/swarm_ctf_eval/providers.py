@@ -4,8 +4,8 @@ import json
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any, Protocol
 
 from .schema import Scenario
