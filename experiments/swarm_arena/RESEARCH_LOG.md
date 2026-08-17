@@ -3366,6 +3366,43 @@ no more critical-specific than decoy-specific. Therefore:
   zero.
 - Instance decommissioned: no; the substantive run is active.
 
+#### Update-40 live checkpoint
+
+- Status: 40 logical optimizer updates completed (`0` through `39`); frozen
+  development pulses at updates 0, 10, 20, 30, and 40 all completed and
+  released their barriers. Trainer, controller, rescore, pulse, W&B, and all
+  three inference sessions remained healthy with zero logged failures.
+- Capability curve: overall candidate-minus-SFT return was `-0.009648` at
+  update 0, `-0.035842` at 10, `-0.034174` at 20, `+0.005944` at 30, and
+  `+0.022621` at 40. Update 40 therefore improved `+0.032270` from its exact
+  update-zero anchor, although its absolute 95% interval
+  `[-0.030138,+0.073127]` still includes zero. From update 0 to 40, legacy,
+  hard, and critical-handoff deltas improved by approximately `+0.048296`,
+  `+0.025338`, and `+0.023175`, respectively. The delayed reversal after the
+  update-10/20 dip is evidence against selecting runs from very early pulses.
+- Communication curve: critical normal-minus-dropped moved from `+0.058958`
+  at update 0 to `+0.035081` at update 40, and RL-specific communication lift
+  moved from `+0.018417` to `-0.005460`; both are a `-0.023877` change from the
+  same-weight anchor. Critical-minus-decoy specificity changed only
+  `-0.003937`, from `+0.022899` to `+0.018961`, and its update-40 interval
+  `[-0.001014,+0.038937]` crosses zero. The evaluator correctly retains
+  `communication_claim_passed=false`. Current evidence is capability learning,
+  not communication learning.
+- Stability and credit: action protocol, broadcast protocol, and grounded
+  broadcast rates remained exactly `1.0` at every pulse. Across successive
+  ten-update training windows, 30, 33, 31, and 32 of 40 groups had replica
+  return contrast; non-zero focused-agent advantages were 117, 132, 123, and
+  128 of 640 policy-replica slots. Non-designated slots remained zero by
+  construction. Recent run-level parity means remained below the prospective
+  bounds; no partial joint-policy update, non-finite value, or process failure
+  occurred.
+- Decision: continue unchanged. Updates 40--59 are the remaining
+  communication-heavy stage and updates 50/60 are the decisive tests for
+  whether the emerging capability gain becomes message-specific. Do not call
+  the update-40 result swarm cooperation, and do not stop solely because the
+  communication metric has not yet turned.
+- Instance decommissioned: no; the live run is active on the four-L40 host.
+
 ## Artifact index
 
 - Public source branch:
