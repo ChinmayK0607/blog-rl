@@ -3629,14 +3629,14 @@ no more critical-specific than decoy-specific. Therefore:
 - Proposed curriculum: 40 updates, four groups per update, receiver `ACT`
   focus only, 40 ordinary / 60 critical / 60 matched-decoy groups. The exact
   12 primary pass@k worlds are bound by pair and latent-world label. Handoff
-  horizons retain one remaining turn for updates 0--19, two remaining turns
-  for 20--29, and the original scenario horizon for 30--39. Sender `BROADCAST` updates are excluded
+  horizons retain two remaining turns for updates 0--19 and use the original
+  scenario horizon for updates 20--39. Sender `BROADCAST` updates are excluded
   because target-fact emission was 100% on this screened slice.
 - Reward and model: unchanged verified terminal control delta, no shaping;
   pinned Qwen3-1.7B SFT initializer against a model-controlled copy of itself.
 - Live screen: rerun the same 12 selected worlds, their matched decoys,
-  generated/dropped communication, and four common-seed repetitions at horizon
-  one remaining turn (192 complete 4v4 games). Compare with the same repetitions from the
+  generated/dropped communication, and four common-seed repetitions with one
+  and two remaining turns (192 complete 4v4 games per horizon). Compare with the same repetitions from the
   already-completed original-horizon screen, clustering uncertainty by handoff
   pair rather than treating games or agents as independent.
 - Decision rule: adopt the terminal-proximal first stage only if protocol stays
@@ -3654,6 +3654,22 @@ no more critical-specific than decoy-specific. Therefore:
   state before any model request. The contract was renamed to explicit
   `handoff_remaining_turns`, the empty failed directory was preserved, and no
   result from that invocation will be scored.
+- Results: both corrected screens completed with 192/192 games and exact
+  protocol validity. One remaining turn took 201.29 seconds but reduced
+  critical generated return-contrast to `0.50`, so it is rejected as too
+  sparse for the first RL stage. Two remaining turns took 500.18 seconds and
+  retained critical return contrast `0.8333`, receiver-action contrast
+  `0.8333`, and nonzero-return cells `0.9167`.
+- Communication diagnostic: at two remaining turns, critical-minus-decoy
+  generated/dropped terminal-return specificity was `+0.01213`, clustered
+  bootstrap interval `[-0.00410,+0.02962]`. The change from the original mixed
+  horizon was `+0.03411`, interval `[-0.01696,+0.07902]`. This is modest,
+  unresolved communication sensitivity—not a learned communication result—but
+  it combines the correct sign with useful stochastic reward density.
+- Decision: adopt two remaining turns for receiver warmup/density, then transfer
+  directly to original scenario horizons. Do not use the one-turn stage. Keep
+  sender updates excluded and keep every selected critical world paired with
+  its exact matched decoy.
 
 ## Artifact index
 

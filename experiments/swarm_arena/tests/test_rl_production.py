@@ -287,12 +287,9 @@ def test_receiver_terminal_curriculum_binds_screened_worlds_and_horizons() -> No
     assert all(row.handoff_world is not None for row in handoffs)
     assert {
         row.handoff_remaining_turns for row in schedule[:80] if row.kind != "ordinary"
-    } == {1}
-    assert {
-        row.handoff_remaining_turns for row in schedule[80:120] if row.kind != "ordinary"
     } == {2}
     assert {
-        row.handoff_remaining_turns for row in schedule[120:] if row.kind != "ordinary"
+        row.handoff_remaining_turns for row in schedule[80:] if row.kind != "ordinary"
     } == {None}
     for update in range(40):
         block = schedule[update * 4 : (update + 1) * 4]

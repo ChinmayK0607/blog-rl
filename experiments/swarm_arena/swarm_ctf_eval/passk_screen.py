@@ -340,21 +340,57 @@ def summarize_terminal_proximal(
             "bootstrap_95": _bootstrap_mean_interval(values, seed=20260818),
         }
 
+    generated_critical_cells: dict[tuple[int, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in fresh_rows:
+        if row["kind"] == "critical" and row["condition"] == "generated":
+            generated_critical_cells[(row["pair_index"], row["world"])].append(row)
+    density = {
+        "critical_generated_return_contrast_rate": statistics.fmean(
+            len({float(row["terminal_return"]) for row in cell}) > 1
+            for cell in generated_critical_cells.values()
+        ),
+        "critical_generated_receiver_action_contrast_rate": statistics.fmean(
+            len({bool(row["receiver_target_action"]) for row in cell}) > 1
+            for cell in generated_critical_cells.values()
+        ),
+        "critical_generated_nonzero_return_cell_rate": statistics.fmean(
+            any(abs(float(row["terminal_return"])) > 1e-12 for row in cell)
+            for cell in generated_critical_cells.values()
+        ),
+    }
+    old_aggregate = aggregate(old)
+    fresh_aggregate = aggregate(fresh)
+    terminal_specificity = fresh_aggregate["specificity_terminal_return"]
+    reward_contrast_sufficient = density["critical_generated_return_contrast_rate"] >= 0.75
+    action_contrast_sufficient = (
+        density["critical_generated_receiver_action_contrast_rate"] >= 0.75
+    )
+
     return {
         "version": TERMINAL_PROXIMAL_SCREEN_VERSION,
         "games": len(fresh_rows),
         "selected_worlds": len(selected),
         "independent_pair_clusters": len(fresh),
-        "old_horizon": aggregate(old),
-        "terminal_proximal": aggregate(fresh),
+        "old_horizon": old_aggregate,
+        "terminal_proximal": fresh_aggregate,
         "terminal_proximal_minus_old": change,
+        "reward_density": density,
         "decision": {
             "protocol_valid": all(bool(row["protocol_valid"]) for row in fresh_rows),
+            "terminal_specificity_positive": terminal_specificity["mean"] > 0,
             "terminal_specificity_improved": (
                 change["specificity_terminal_return"]["mean"] > 0
             ),
             "terminal_capture_specificity_improved": (
                 change["specificity_target_captured"]["mean"] > 0
+            ),
+            "reward_contrast_sufficient": reward_contrast_sufficient,
+            "receiver_action_contrast_sufficient": action_contrast_sufficient,
+            "adopt_for_receiver_curriculum": (
+                terminal_specificity["mean"] > 0
+                and reward_contrast_sufficient
+                and action_contrast_sufficient
+                and all(bool(row["protocol_valid"]) for row in fresh_rows)
             ),
         },
     }

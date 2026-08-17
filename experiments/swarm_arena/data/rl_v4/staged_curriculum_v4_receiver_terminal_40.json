@@ -10,7 +10,7 @@
   "principles": [
     "train only receiver ACT spans because target-fact emission is already saturated on the screened sender slice",
     "bind every selected pair to its exact pass-at-k-screened latent world",
-    "start with one remaining handoff turn, expand to two remaining turns, then restore the original scenario horizon",
+    "start with two remaining handoff turns, then restore the original scenario horizon",
     "retain one matched decoy for every critical handoff and never add message, capture, or action shaping",
     "retain ordinary games at the beginning and end so the pilot measures tactics and communication separately"
   ],
@@ -24,7 +24,7 @@
       "ordinary_sizes": [12, 13],
       "ordinary_horizons": [4, 5],
       "handoff_focus_roles": ["receiver"],
-      "handoff_remaining_turns": 1,
+      "handoff_remaining_turns": 2,
       "handoff_cases": [
         {"pair_index": 1, "world": "left_exposed"},
         {"pair_index": 2, "world": "left_exposed"},
@@ -39,36 +39,10 @@
         {"pair_index": 10, "world": "right_exposed"},
         {"pair_index": 11, "world": "right_exposed"}
       ],
-      "purpose": "make the receiver's first action close enough to terminal return to survive credit assignment"
+      "purpose": "shorten only the longest handoffs while retaining high terminal-return contrast"
     },
     {
       "name": "terminal_receiver_density",
-      "updates": 10,
-      "update_pattern": [
-        {"ordinary": 0, "critical": 2, "decoy": 2}
-      ],
-      "ordinary_sizes": [12, 13],
-      "ordinary_horizons": [4, 5],
-      "handoff_focus_roles": ["receiver"],
-      "handoff_remaining_turns": 1,
-      "handoff_cases": [
-        {"pair_index": 1, "world": "left_exposed"},
-        {"pair_index": 2, "world": "left_exposed"},
-        {"pair_index": 5, "world": "right_exposed"},
-        {"pair_index": 6, "world": "right_exposed"},
-        {"pair_index": 7, "world": "left_exposed"},
-        {"pair_index": 7, "world": "right_exposed"},
-        {"pair_index": 8, "world": "left_exposed"},
-        {"pair_index": 9, "world": "left_exposed"},
-        {"pair_index": 9, "world": "right_exposed"},
-        {"pair_index": 10, "world": "left_exposed"},
-        {"pair_index": 10, "world": "right_exposed"},
-        {"pair_index": 11, "world": "right_exposed"}
-      ],
-      "purpose": "increase matched receiver learning density only after the short-horizon warmup"
-    },
-    {
-      "name": "receiver_horizon_transfer",
       "updates": 10,
       "update_pattern": [
         {"ordinary": 0, "critical": 2, "decoy": 2}
@@ -91,7 +65,32 @@
         {"pair_index": 10, "world": "right_exposed"},
         {"pair_index": 11, "world": "right_exposed"}
       ],
-      "purpose": "test whether the learned receiver behavior survives one extra transition"
+      "purpose": "increase matched receiver learning density only after the short-horizon warmup"
+    },
+    {
+      "name": "full_horizon_receiver_density",
+      "updates": 10,
+      "update_pattern": [
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["receiver"],
+      "handoff_cases": [
+        {"pair_index": 1, "world": "left_exposed"},
+        {"pair_index": 2, "world": "left_exposed"},
+        {"pair_index": 5, "world": "right_exposed"},
+        {"pair_index": 6, "world": "right_exposed"},
+        {"pair_index": 7, "world": "left_exposed"},
+        {"pair_index": 7, "world": "right_exposed"},
+        {"pair_index": 8, "world": "left_exposed"},
+        {"pair_index": 9, "world": "left_exposed"},
+        {"pair_index": 9, "world": "right_exposed"},
+        {"pair_index": 10, "world": "left_exposed"},
+        {"pair_index": 10, "world": "right_exposed"},
+        {"pair_index": 11, "world": "right_exposed"}
+      ],
+      "purpose": "transfer the receiver policy to each scenario's original two-or-three-turn remainder"
     },
     {
       "name": "full_game_consolidation",
