@@ -3401,6 +3401,14 @@ no more critical-specific than decoy-specific. Therefore:
   whether the emerging capability gain becomes message-specific. Do not call
   the update-40 result swarm cooperation, and do not stop solely because the
   communication metric has not yet turned.
+- Subsequent runtime decision: the user capped this exploratory run at the
+  update-60 checkpoint to avoid spending through the originally declared 80
+  updates. A one-shot `swarm-focused80-atomic-6c5-stop60` watcher waits for the
+  content-bound `step_60.ready.json`, then stops only the controller while the
+  independent pulse worker finishes the complete update-60 evaluation. This is
+  a prospective stop made at update 41, before seeing update-50 or update-60
+  results. The original 80-update production plan remains immutable; the
+  truncated run must not be reported as completing that full horizon.
 - Instance decommissioned: no; the live run is active on the four-L40 host.
 
 ## Artifact index
