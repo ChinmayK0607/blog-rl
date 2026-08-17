@@ -409,7 +409,10 @@ async def main() -> None:
         shared_return_spec = SharedReturnSpec(
             args.shared_return_replicas,
             trainable_phases=(
-                production_plan.trainable_phases
+                ("ACT",)
+                if production_plan is not None
+                and args.shared_return_credit_assignment == "focused_agent"
+                else production_plan.trainable_phases
                 if production_plan is not None
                 else tuple(args.shared_return_trainable_phase) or ("BROADCAST",)
             ),
@@ -627,15 +630,6 @@ async def main() -> None:
                             base_urls,
                         ),
                     )
-                lock = run_lock(
-                    args,
-                    config,
-                    data_binding=data_binding,
-                    policy_revisions=policy_revisions,
-                    shared_return_spec=shared_return_spec,
-                    opponent=scheduled_opponent,
-                    production_plan=production_plan,
-                )
                 initial_state = None
                 scenario_metadata = {"source": "ordinary"}
                 sampling_namespace = None
@@ -710,6 +704,9 @@ async def main() -> None:
                         "minimum_certified_advantage": scenario.minimum_advantage,
                         "schedule_ordinal": ordinal,
                         "curriculum_stage": assignment.stage if assignment is not None else None,
+                        "handoff_focus_role": (
+                            assignment.handoff_focus_role if assignment is not None else "receiver"
+                        ),
                         **world_metadata,
                     }
                 game_id = f"{args.run_id}:step-{step}:group-{group_index}:{scenario_metadata['source']}:{seed}"
@@ -742,23 +739,52 @@ async def main() -> None:
                     invalid_broadcast_cost=0.0,
                     invalid_action_cost=0.0,
                 )
-                if args.credit_estimator == "shared_return":
-                    assert shared_return_spec is not None
-                    focused_agent = None
-                    if shared_return_spec.credit_assignment == "focused_agent":
-                        focused_agent = (
-                            str(scenario_metadata["receiver"])
-                            if scenario_metadata["source"] == "curriculum"
-                            else f"blue-{group_index % 4}"
+                group_shared_return_spec = shared_return_spec
+                focused_agent = None
+                if (
+                    shared_return_spec is not None
+                    and shared_return_spec.credit_assignment == "focused_agent"
+                ):
+                    if scenario_metadata["source"] == "curriculum":
+                        focus_role = str(scenario_metadata["handoff_focus_role"])
+                        if focus_role not in {"sender", "receiver"}:
+                            raise ValueError(f"unknown handoff focus role: {focus_role}")
+                        focused_agent = str(scenario_metadata[focus_role])
+                        focused_phase = "BROADCAST" if focus_role == "sender" else "ACT"
+                        focused_turn_offsets = (0,)
+                    else:
+                        focused_agent = f"blue-{group_index % 4}"
+                        focused_phase = "ACT"
+                        focused_turn_offsets = shared_return_spec.trainable_turn_offsets
+                    if production_plan is not None and focused_phase not in production_plan.trainable_phases:
+                        raise ValueError(
+                            f"production plan does not allow scheduled focused phase {focused_phase}"
                         )
-                        scenario_metadata["focused_agent"] = focused_agent
+                    group_shared_return_spec = replace(
+                        shared_return_spec,
+                        trainable_phases=(focused_phase,),
+                        trainable_turn_offsets=focused_turn_offsets,
+                    )
+                    scenario_metadata["focused_agent"] = focused_agent
+                    scenario_metadata["focused_phase"] = focused_phase
+                lock = run_lock(
+                    args,
+                    config,
+                    data_binding=data_binding,
+                    policy_revisions=policy_revisions,
+                    shared_return_spec=group_shared_return_spec,
+                    opponent=scheduled_opponent,
+                    production_plan=production_plan,
+                )
+                if args.credit_estimator == "shared_return":
+                    assert group_shared_return_spec is not None
                     group = await build_live_shared_return_group(
                         generator,
                         group_id=game_id,
                         seed=seed,
                         size=size,
                         config=episode_config,
-                        spec=shared_return_spec,
+                        spec=group_shared_return_spec,
                         bindings=bindings,
                         policies=policies,
                         run_lock_sha256=lock.sha256,

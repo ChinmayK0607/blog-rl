@@ -62,6 +62,11 @@ has six independent units, rather than the previous one-case/16-game smoke
 test. The summary exposes legacy, hard, and handoff capability; critical
 normal-minus-dropped; RL-specific communication lift; critical-minus-decoy
 specificity; protocol validity; and an equal-family overall gameplay delta.
+From the same rollouts it also reports active-target fact coverage by the
+certified sender, critical capture-rate sensitivity to dropped messages, and
+the RL-minus-SFT change in that capture sensitivity. These mechanism metrics
+diagnose sender failure versus receiver failure; they do not add reward or
+replace the causal return endpoints.
 
 The same subset is intentionally repeated at every checkpoint so changes are
 paired rather than confounded by different maps. It is a real development

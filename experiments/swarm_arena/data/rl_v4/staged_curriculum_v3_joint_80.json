@@ -1,0 +1,68 @@
+{
+  "version": "arena-rl-v4-joint-communication-curriculum-v3",
+  "total_updates": 80,
+  "groups_per_update": 4,
+  "reward": "verified_terminal_control_delta_only",
+  "credit_assignment": "phase_specific_focused_agent_common_random_leave_one_out",
+  "message_reward": null,
+  "initializer": "pinned_sft_not_prior_rl",
+  "principles": [
+    "vary one designated BLUE agent and one causal phase while coupling every other sampling stream across replicas",
+    "train sender BROADCAST spans on sender-focused handoffs and receiver ACT spans on receiver-focused handoffs",
+    "assign verified terminal-return advantage only to the designated agent; never reward speaking or matching a target directly",
+    "retain matched decoys so irrelevant or misleading broadcasts can receive ordinary game consequences",
+    "retain ordinary games so communication learning cannot replace basic tactical competence",
+    "reuse the unchanged frozen 192-game development pulse every ten updates"
+  ],
+  "stages": [
+    {
+      "name": "joint_channel_warmup",
+      "updates": 10,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["receiver", "sender"],
+      "purpose": "introduce clean receiver-action and sender-broadcast credit while preserving tactical density"
+    },
+    {
+      "name": "joint_channel_acquisition",
+      "updates": 20,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["sender", "receiver"],
+      "purpose": "give both halves of the information handoff repeated terminal-return learning signal"
+    },
+    {
+      "name": "joint_communication_reliance",
+      "updates": 30,
+      "update_pattern": [
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["sender", "receiver"],
+      "purpose": "make private-information handoffs the dominant source of policy updates without adding a message bonus"
+    },
+    {
+      "name": "joint_consolidation",
+      "updates": 20,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1},
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["receiver", "sender"],
+      "purpose": "retain ordinary tactics while testing whether the learned sender-receiver channel survives mixed play"
+    }
+  ],
+  "online_eval_updates": [0, 10, 20, 30, 40, 50, 60, 70, 80],
+  "checkpoint_selection": "select once from development metrics after update 80",
+  "frozen_policy": "the existing rl_v4 frozen OOD evaluation remains unopened and byte-identical"
+}

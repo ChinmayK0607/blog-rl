@@ -22,7 +22,7 @@ swarm_source_commit=$(git -C "$SWARM_REPO_ROOT" rev-parse HEAD)
 swarm_expected_updates=${SWARM_EXPECTED_UPDATES:-$(jq '[.curriculum_stages[].updates] | add' "$SWARM_PRODUCTION_PLAN")}
 swarm_checkpoint_interval=${SWARM_CHECKPOINT_INTERVAL:-10}
 swarm_credit_assignment=${SWARM_SHARED_RETURN_CREDIT_ASSIGNMENT:-shared_team}
-swarm_curriculum_artifact=${SWARM_CURRICULUM_ARTIFACT:-$SWARM_REPO_ROOT/experiments/swarm_arena/data/rl_v4/staged_curriculum_v1.json}
+swarm_curriculum_artifact=${SWARM_CURRICULUM_ARTIFACT:-$SWARM_REPO_ROOT/experiments/swarm_arena/data/rl_v4/staged_curriculum_v3_joint_80.json}
 swarm_wandb_group=${SWARM_WANDB_GROUP:-qwen3-1.7b-staged-$swarm_expected_updates}
 
 for swarm_port in 8001 8002 8003; do

@@ -311,6 +311,52 @@ def test_focused_shared_return_couples_other_agents_and_credits_only_focus() -> 
     assert len(set(blue_zero_action_keys)) == 2
 
 
+def test_focused_shared_return_can_isolate_sender_broadcast_credit() -> None:
+    spec = SharedReturnSpec(
+        replicas=2,
+        trainable_phases=("BROADCAST",),
+        trainable_turn_offsets=(0,),
+        credit_assignment="focused_agent",
+    )
+    lock = _lock(spec)
+    group = asyncio.run(
+        build_live_shared_return_group(
+            FirstChoiceGenerator(),  # type: ignore[arg-type]
+            group_id="focused-sender-broadcast",
+            seed=304,
+            size=12,
+            config=EpisodeConfig(
+                horizon=2,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            ),
+            spec=spec,
+            bindings=_bindings(),
+            policies=_endpoints(),
+            run_lock_sha256=lock.sha256,
+            focused_agent="blue-1",
+        )
+    )
+    approvals = approve_shared_return_group(
+        lock,
+        group.evidence,
+        _bindings(),
+        "BLUE",
+        b"shared-return-test-signing-key-32-bytes",
+    )
+
+    for approval in approvals:
+        assert all(
+            decision_id.endswith(":0:BROADCAST")
+            for envelope in approval.envelopes
+            for decision_id in envelope.decision_ids
+        )
+        assert {
+            envelope.agent_id for envelope in approval.envelopes if envelope.advantage != 0.0
+        } <= {"blue-1"}
+
+
 def test_published_v4_evidence_builds_policy_bound_parity_probe() -> None:
     evidence = (
         Path(__file__).resolve().parents[1]

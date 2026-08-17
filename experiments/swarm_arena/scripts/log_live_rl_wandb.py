@@ -20,6 +20,8 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
     stage_names: set[str] = set()
     returns_by_kind: dict[str, list[float]] = defaultdict(list)
     returns_by_opponent: dict[str, list[float]] = defaultdict(list)
+    focused_advantages_by_phase: dict[str, list[float]] = defaultdict(list)
+    focused_phase_counts: Counter[str] = Counter()
     for group in groups:
         scenario = group["scenario"]
         kind = str(scenario.get("kind", "ordinary"))
@@ -30,6 +32,9 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
         group_returns = [float(row["return"]) for row in group["replicas"]]
         group_advantages = []
         focused_agent = scenario.get("focused_agent")
+        focused_phase = scenario.get("focused_phase")
+        if focused_phase is not None:
+            focused_phase_counts[str(focused_phase)] += 1
         for replica in group["replicas"]:
             if "advantages" in replica:
                 policy_advantages = {
@@ -43,6 +48,10 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
                     if focused_agent not in policy_advantages:
                         raise ValueError("focused agent is absent from replica advantages")
                     focused_advantages.append(policy_advantages[str(focused_agent)])
+                    if focused_phase is not None:
+                        focused_advantages_by_phase[str(focused_phase)].append(
+                            policy_advantages[str(focused_agent)]
+                        )
             else:
                 value = float(replica["advantage"])
                 group_advantages.append(value)
@@ -69,6 +78,11 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
         metrics[f"return/by_kind/{kind}"] = statistics.mean(returns_by_kind[kind])
     for opponent, values in sorted(returns_by_opponent.items()):
         metrics[f"return/by_opponent/{opponent}"] = statistics.mean(values)
+    for phase, count in sorted(focused_phase_counts.items()):
+        metrics[f"curriculum/focused_{phase.lower()}_fraction"] = count / len(groups)
+        metrics[f"controller/mean_abs_focused_advantage/{phase.lower()}"] = statistics.mean(
+            map(abs, focused_advantages_by_phase[phase])
+        )
     return metrics
 
 
@@ -93,6 +107,8 @@ def summarize_evaluation(summary: dict[str, Any]) -> dict[str, int | float]:
             endpoint = endpoint.get("normal_minus_dropped")
         if endpoint:
             metrics[destination] = float(endpoint["mean_difference"])
+    for source, endpoint in summary.get("communication_mechanism", {}).items():
+        metrics[f"eval/mechanism/{source}"] = float(endpoint["mean_difference"])
     for key, value in summary.get("candidate_protocol", {}).items():
         metrics[f"eval/protocol/{key}"] = float(value)
     for key, value in summary.get("claim_checks", {}).items():

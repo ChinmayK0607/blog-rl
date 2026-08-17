@@ -16,6 +16,7 @@ def _unit_effects(
     variant: str,
     left: str = "normal",
     right: str = "dropped",
+    value_field: str = "terminal_return",
 ) -> dict[tuple[str, str, str, str], float]:
     grouped: dict[tuple[str, str, str, str], dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
     for row in rows:
@@ -30,7 +31,7 @@ def _unit_effects(
             str(row["opponent_revision"]),
             str(row["side"]),
         )
-        grouped[key][condition].append(float(row["terminal_return"]))
+        grouped[key][condition].append(float(row[value_field]))
     if not grouped:
         raise ValueError(f"no {suite}/{variant} rows for {left} minus {right}")
     incomplete = [key for key, values in grouped.items() if set(values) != {left, right}]
@@ -90,6 +91,30 @@ def _variant_unit_effects(
     )
 
 
+def _field_rate_endpoint(
+    rows: list[dict[str, Any]],
+    *,
+    suite: str,
+    variant: str,
+    field: str,
+    condition: str = "normal",
+) -> dict[str, Any]:
+    grouped: dict[str, list[float]] = defaultdict(list)
+    for row in rows:
+        if (
+            row["suite"] == suite
+            and row["policy_variant"] == variant
+            and row["condition"] == condition
+        ):
+            grouped[str(row["independent_id"])].append(float(row[field]))
+    if not grouped:
+        raise ValueError(f"no {suite}/{variant}/{condition} rows for {field}")
+    return _endpoint(
+        [statistics.mean(grouped[key]) for key in sorted(grouped)],
+        f"{variant} {suite} {condition} {field} rate",
+    )
+
+
 def summarize_rl_specific_progress_eval(
     rows: list[dict[str, Any]],
     *,
@@ -103,6 +128,18 @@ def summarize_rl_specific_progress_eval(
     candidate_critical = _unit_effects(rows, suite="handoff_critical", variant="candidate_rl")
     baseline_critical = _unit_effects(rows, suite="handoff_critical", variant="sft_init")
     candidate_decoy = _unit_effects(rows, suite="handoff_decoy", variant="candidate_rl")
+    candidate_capture = _unit_effects(
+        rows,
+        suite="handoff_critical",
+        variant="candidate_rl",
+        value_field="critical_capture",
+    )
+    baseline_capture = _unit_effects(
+        rows,
+        suite="handoff_critical",
+        variant="sft_init",
+        value_field="critical_capture",
+    )
     if set(candidate_critical) != set(baseline_critical):
         raise ValueError("candidate and SFT critical communication units do not match")
     if set(candidate_critical) != set(candidate_decoy):
@@ -131,6 +168,34 @@ def summarize_rl_specific_progress_eval(
         specificity,
         "RL critical normal-minus-dropped minus matched-decoy normal-minus-dropped",
     )
+    summary["communication_mechanism"] = {
+        "candidate_sender_target_fact_rate": _field_rate_endpoint(
+            rows,
+            suite="handoff_critical",
+            variant="candidate_rl",
+            field="sender_target_fact",
+        ),
+        "sft_sender_target_fact_rate": _field_rate_endpoint(
+            rows,
+            suite="handoff_critical",
+            variant="sft_init",
+            field="sender_target_fact",
+        ),
+        "candidate_capture_normal_minus_dropped": _endpoint(
+            _aggregate_independent_units(candidate_capture),
+            "candidate critical capture rate under normal minus dropped messaging",
+        ),
+        "sft_capture_normal_minus_dropped": _endpoint(
+            _aggregate_independent_units(baseline_capture),
+            "SFT critical capture rate under normal minus dropped messaging",
+        ),
+        "rl_specific_capture_lift": _endpoint(
+            _aggregate_independent_units(
+                {key: candidate_capture[key] - baseline_capture[key] for key in candidate_capture}
+            ),
+            "candidate-minus-SFT lift in critical capture dependence on messages",
+        ),
+    }
     summary["handoff_capability_rl_minus_sft"] = _endpoint(
         handoff_capability,
         "candidate RL minus SFT return on critical handoffs under normal messaging",

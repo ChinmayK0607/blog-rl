@@ -212,11 +212,6 @@ def main() -> None:
         raise FileNotFoundError(f"local pinned model is missing: {args.model}")
 
     plan, opponent_paths = load_production_plan(args.production_plan)
-    if (
-        args.shared_return_credit_assignment == "focused_agent"
-        and plan.trainable_phases != ("ACT",)
-    ):
-        raise ValueError("focused-agent credit requires an ACT-only production plan")
     raw_plan = json.loads(args.production_plan.read_text(encoding="utf-8"))
     if raw_plan.get("runtime_certificate", {}).get("sha256") != certificate_sha256:
         raise ValueError("production plan does not bind the supplied runtime certificate")
@@ -236,6 +231,15 @@ def main() -> None:
     schedule = plan.curriculum_schedule(steps=args.expected_updates)
     if len(schedule) != args.expected_updates * plan.groups_per_update:
         raise ValueError("staged schedule length mismatch")
+    if args.shared_return_credit_assignment == "focused_agent":
+        scheduled_phases = {"ACT"}
+        if any(row.handoff_focus_role == "sender" for row in schedule):
+            scheduled_phases.add("BROADCAST")
+        missing_phases = scheduled_phases - set(plan.trainable_phases)
+        if missing_phases:
+            raise ValueError(
+                f"focused-agent schedule uses phases absent from the production plan: {sorted(missing_phases)}"
+            )
     handoff = json.loads((args.data_dir / "handoff_train.json").read_text(encoding="utf-8"))
     pair_indices = {row.pair_index for row in schedule if row.pair_index is not None}
     if max(pair_indices) >= int(handoff["pair_count"]):

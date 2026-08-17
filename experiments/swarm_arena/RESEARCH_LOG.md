@@ -3473,6 +3473,60 @@ no more critical-specific than decoy-specific. Therefore:
   inference, and W&B processes were stopped; all four L40 GPUs reported
   `0 MiB` and `0%` utilization. The instance is safe to decommission.
 
+### 2026-08-17 — joint sender-receiver curriculum implementation
+
+- Status: CPU implementation and audit completed; no GPU run started.
+- Verdict: implementation ready for Linux validation, not an RL result.
+- Triggering evidence: the focused update-60 run improved overall gameplay by
+  `+0.029311` from update zero but changed RL-specific communication lift by
+  `-0.063705`. Inspection of the immutable training contract found that every
+  handoff focused the receiver and `SharedReturnSpec` rejected every focused
+  phase except `ACT`. The optimizer therefore had no direct sender-broadcast
+  credit path. Shared LoRA weights also allowed action-only gradients to alter
+  broadcast behavior indirectly. This is the concrete design defect addressed
+  here; the game reward itself was not changed.
+- Implementation: `ScenarioAssignment` now binds each handoff pair to either a
+  `sender` or `receiver` focus role. Sender groups vary only the designated
+  sender's turn-zero `BROADCAST`; receiver groups vary only the receiver's
+  turn-zero `ACT`; ordinary groups retain rotating focused `ACT` updates. The
+  supervisor permits exactly one causal phase for focused credit, hashes that
+  per-group spec into the run lock, and continues routing four distinct policy
+  envelopes atomically. The only scalar remains verified terminal control
+  delta with a leave-one-out replica baseline.
+- Curriculum: `staged_curriculum_v3_joint_80.json` declares 80 updates / 320
+  groups: 60 ordinary, 130 critical, and 130 matched decoy. Critical focus is
+  exactly 65 sender and 65 receiver groups; every critical pair has a decoy
+  with the same role. Communication-heavy groups occupy the middle stage, and
+  ordinary games return during consolidation. The next run starts from the
+  pinned SFT initializer rather than the tactically stronger but communication-
+  degraded update-50 adapters.
+- Evaluation: the frozen 192-game ten-update pulse keeps the same cases and
+  causal return endpoints. It now additionally records active-target fact
+  coverage by the certified sender, normal-minus-dropped critical capture
+  rate, and the RL-minus-SFT change in capture dependence. W&B separates
+  focused `BROADCAST` and `ACT` advantage density. These are diagnostics, not
+  shaped rewards or new success shortcuts; the selection/final OOD data remain
+  unchanged and unopened.
+- Validation: `py_compile` passed for all changed modules and tests; Ruff
+  passed; 17 curriculum/evaluation tests passed in `0.51s`; direct validation
+  confirmed that sender-`BROADCAST` and receiver-`ACT` focused specs are valid
+  and hash-distinct. The full shared-return rollout test imports the Linux GPU
+  dependency stack (`torch`, xgrammar, transformers, vLLM) and is intentionally
+  deferred to the fresh host rather than downloading that stack to the Mac.
+- Local tooling note: `/opt/homebrew/bin/uv` was version `0.9.2` and rejected
+  the repository's declared `uv>=0.11.1` plus relative `exclude-newer`. The
+  repository-compliant `/Users/chinmay/.local/bin/uv` version `0.12.5` was used
+  instead. Its isolated test environment initially lacked `pytest`, `httpx`,
+  and then the GPU-only `torch` import; lightweight dependencies were installed
+  in `/private/tmp`, and no model/checkpoint artifact was stored on the Mac.
+- GPU time and cost: none; CPU-only preparation.
+- Next action: commit/push, then provision four L40-class GPUs. On Linux, run
+  the complete focused-return and controller tests, build and audit a fresh
+  immutable production plan/runtime certificate, execute update-zero, and only
+  then launch the declared 80 updates with ten-update pulses.
+- Instance decommissioned: previous four-L40 host was safe to decommission and
+  is not required for this implementation.
+
 ## Artifact index
 
 - Public source branch:
@@ -3507,6 +3561,10 @@ no more critical-specific than decoy-specific. Therefore:
   `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-focused-step50-development`,
   and
   `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-focused-step60-truncated-development`
+- Joint sender-receiver RL launch contract:
+  `JOINT_COMMUNICATION_RL_PLAN.md`,
+  `data/rl_v4/staged_curriculum_v3_joint_80.json`, and
+  `configs/rl_v4_1_7b_joint_80.toml`
 - Frozen message-credit admission plan:
   `MESSAGE_CREDIT_AUDIT_PLAN.md`
 - Public, non-admitted mechanical RL artifact:

@@ -190,8 +190,11 @@ class SharedReturnSpec:
             raise ValueError("shared-return spec contains an unsupported reward")
         if self.credit_assignment not in {"shared_team", "focused_agent"}:
             raise ValueError("shared-return spec contains an unsupported credit assignment")
-        if self.credit_assignment == "focused_agent" and self.trainable_phases != ("ACT",):
-            raise ValueError("focused-agent credit trains ACT spans only")
+        if self.credit_assignment == "focused_agent" and (
+            len(self.trainable_phases) != 1
+            or self.trainable_phases[0] not in {"BROADCAST", "ACT"}
+        ):
+            raise ValueError("focused-agent credit requires exactly one causal decision phase")
 
     @property
     def sha256(self) -> str:

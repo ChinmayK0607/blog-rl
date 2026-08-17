@@ -140,6 +140,7 @@ def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
             update_pattern=(tactical,),
             ordinary_sizes=(12, 13),
             ordinary_horizons=(4, 5),
+            handoff_focus_roles=("receiver", "sender"),
         ),
         CurriculumStage(
             name="handoff",
@@ -147,6 +148,7 @@ def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
             update_pattern=(tactical, communication),
             ordinary_sizes=(16,),
             ordinary_horizons=(8,),
+            handoff_focus_roles=("sender", "receiver"),
         ),
     )
     schedule = exact_staged_curriculum_schedule(
@@ -163,6 +165,16 @@ def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
         assert {row.pair_index for row in block if row.kind == "critical"} == {
             row.pair_index for row in block if row.kind == "decoy"
         }
+        roles_by_pair = {
+            row.pair_index: row.handoff_focus_role
+            for row in block
+            if row.kind == "critical"
+        }
+        assert roles_by_pair == {
+            row.pair_index: row.handoff_focus_role
+            for row in block
+            if row.kind == "decoy"
+        }
     assert Counter(row.kind for row in schedule) == {
         "ordinary": 6,
         "critical": 5,
@@ -171,6 +183,9 @@ def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
     assert {row.stage for row in schedule[:8]} == {"warmup"}
     assert {row.stage for row in schedule[8:]} == {"handoff"}
     assert {(row.ordinary_size, row.ordinary_horizon) for row in schedule[8:] if row.kind == "ordinary"} == {(16, 8)}
+    assert Counter(
+        row.handoff_focus_role for row in schedule if row.handoff_focus_role is not None
+    ) == {"sender": 6, "receiver": 4}
     assert schedule == exact_staged_curriculum_schedule(
         stages,
         groups_per_update=4,
@@ -178,6 +193,47 @@ def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
         ordinary_seed_base=90_000,
         shuffle_seed=17,
     )
+
+
+def test_joint_curriculum_balances_sender_receiver_focus_and_retains_ordinary_play() -> None:
+    root = Path(__file__).resolve().parents[1]
+    curriculum = json.loads(
+        (root / "data" / "rl_v4" / "staged_curriculum_v3_joint_80.json").read_text()
+    )
+    stages = tuple(
+        CurriculumStage(
+            name=stage["name"],
+            updates=stage["updates"],
+            update_pattern=tuple(CurriculumMix(**mix) for mix in stage["update_pattern"]),
+            ordinary_sizes=tuple(stage["ordinary_sizes"]),
+            ordinary_horizons=tuple(stage["ordinary_horizons"]),
+            handoff_focus_roles=tuple(stage["handoff_focus_roles"]),
+        )
+        for stage in curriculum["stages"]
+    )
+    schedule = exact_staged_curriculum_schedule(
+        stages,
+        groups_per_update=4,
+        pair_offset=0,
+        ordinary_seed_base=8_000_000,
+        shuffle_seed=17,
+    )
+
+    assert len(schedule) == 320
+    assert Counter(row.kind for row in schedule) == {
+        "ordinary": 60,
+        "critical": 130,
+        "decoy": 130,
+    }
+    assert Counter(
+        row.handoff_focus_role for row in schedule if row.kind == "critical"
+    ) == {"sender": 65, "receiver": 65}
+    assert all(row.handoff_focus_role is None for row in schedule if row.kind == "ordinary")
+    for update in range(80):
+        block = schedule[update * 4 : (update + 1) * 4]
+        assert {row.pair_index for row in block if row.kind == "critical"} == {
+            row.pair_index for row in block if row.kind == "decoy"
+        }
 
 
 def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() -> None:

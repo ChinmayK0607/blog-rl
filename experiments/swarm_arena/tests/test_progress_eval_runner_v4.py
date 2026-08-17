@@ -204,6 +204,14 @@ def test_rl_specific_summary_requires_gain_over_sft_and_decoy() -> None:
                         "policy_revision": variant,
                         "condition": condition,
                         "terminal_return": effect if condition == "normal" else 0.0,
+                        "critical_capture": (
+                            suite == "handoff_critical"
+                            and variant == "candidate_rl"
+                            and condition == "normal"
+                        ),
+                        "sender_target_fact": (
+                            suite == "handoff_critical" and condition == "normal"
+                        ),
                     }
                 )
     summary = summarize_rl_specific_progress_eval(rows)
@@ -212,6 +220,12 @@ def test_rl_specific_summary_requires_gain_over_sft_and_decoy() -> None:
     assert summary["critical_minus_decoy_specificity"]["mean_difference"] == pytest.approx(0.3)
     assert summary["handoff_capability_rl_minus_sft"]["mean_difference"] == pytest.approx(0.3)
     assert summary["overall_gameplay_rl_minus_sft"]["mean_difference"] == pytest.approx(0.3)
+    assert summary["communication_mechanism"]["candidate_sender_target_fact_rate"][
+        "mean_difference"
+    ] == pytest.approx(1.0)
+    assert summary["communication_mechanism"]["rl_specific_capture_lift"][
+        "mean_difference"
+    ] == pytest.approx(1.0)
     metrics = summarize_evaluation(summary)
     assert metrics["eval/rl_specific_communication_lift"] == pytest.approx(0.3)
     assert metrics["eval/overall_gameplay_rl_minus_sft"] == pytest.approx(0.3)
@@ -226,6 +240,7 @@ def test_wandb_controller_summary_exposes_curriculum_and_opponent_metrics() -> N
                     "kind": "critical",
                     "curriculum_stage": "handoff",
                     "focused_agent": "blue-1",
+                    "focused_phase": "BROADCAST",
                     "opponent": {"family": "sft"},
                 },
                 "replicas": [
@@ -259,6 +274,8 @@ def test_wandb_controller_summary_exposes_curriculum_and_opponent_metrics() -> N
     assert metrics["return/by_opponent/sft"] == 0.1
     assert metrics["controller/mean_abs_focused_advantage"] == 0.05
     assert metrics["controller/focused_nonzero_advantage_rate"] == 0.5
+    assert metrics["curriculum/focused_broadcast_fraction"] == 0.5
+    assert metrics["controller/mean_abs_focused_advantage/broadcast"] == 0.1
 
 
 def test_wandb_sidecar_waits_for_explicit_final_eval_marker(tmp_path) -> None:

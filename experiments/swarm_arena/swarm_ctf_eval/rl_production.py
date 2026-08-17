@@ -11,6 +11,7 @@ from typing import Any, Literal
 from .async_admission import AsyncAdmissionLimits
 
 ScenarioKind = Literal["ordinary", "critical", "decoy"]
+HandoffFocusRole = Literal["sender", "receiver"]
 OpponentFamily = Literal["base", "sft", "historical", "current"]
 
 RL_PRODUCTION_PLAN_VERSION = "arena-rl-v4-production-plan-v1"
@@ -61,6 +62,7 @@ class ScenarioAssignment:
     stage: str | None = None
     ordinary_size: int | None = None
     ordinary_horizon: int | None = None
+    handoff_focus_role: HandoffFocusRole | None = None
 
 
 @dataclass(frozen=True)
@@ -70,6 +72,7 @@ class CurriculumStage:
     update_pattern: tuple[CurriculumMix, ...]
     ordinary_sizes: tuple[int, ...]
     ordinary_horizons: tuple[int, ...]
+    handoff_focus_roles: tuple[HandoffFocusRole, ...] = ("receiver",)
 
     def validate(self, *, groups_per_update: int) -> None:
         if not self.name or self.updates < 1 or not self.update_pattern:
@@ -82,6 +85,10 @@ class CurriculumStage:
             raise ValueError(f"stage {self.name} requires valid ordinary graph sizes")
         if not self.ordinary_horizons or min(self.ordinary_horizons) < 2:
             raise ValueError(f"stage {self.name} requires valid ordinary horizons")
+        if not self.handoff_focus_roles or any(
+            role not in {"sender", "receiver"} for role in self.handoff_focus_roles
+        ):
+            raise ValueError(f"stage {self.name} requires sender/receiver handoff focus roles")
 
 
 def exact_staged_curriculum_schedule(
@@ -104,21 +111,38 @@ def exact_staged_curriculum_schedule(
     pair_cursor = pair_offset
     ordinary_cursor = 0
     update_cursor = 0
+    handoff_focus_cursor = 0
     for stage in stages:
         stage.validate(groups_per_update=groups_per_update)
         for stage_update in range(stage.updates):
             mix = stage.update_pattern[stage_update % len(stage.update_pattern)]
             pair_indices = tuple(pair_cursor + index for index in range(mix.critical))
-            block: list[tuple[ScenarioKind, int | None, int | None]] = []
+            pair_roles = tuple(
+                stage.handoff_focus_roles[
+                    (handoff_focus_cursor + index) % len(stage.handoff_focus_roles)
+                ]
+                for index in range(mix.critical)
+            )
+            block: list[
+                tuple[ScenarioKind, int | None, int | None, HandoffFocusRole | None]
+            ] = []
             block.extend(
-                ("ordinary", None, ordinary_seed_base + ordinary_cursor + index) for index in range(mix.ordinary)
+                ("ordinary", None, ordinary_seed_base + ordinary_cursor + index, None)
+                for index in range(mix.ordinary)
             )
             ordinary_cursor += mix.ordinary
-            block.extend(("critical", pair_index, None) for pair_index in pair_indices)
-            block.extend(("decoy", pair_index, None) for pair_index in pair_indices)
+            block.extend(
+                ("critical", pair_index, None, focus_role)
+                for pair_index, focus_role in zip(pair_indices, pair_roles, strict=True)
+            )
+            block.extend(
+                ("decoy", pair_index, None, focus_role)
+                for pair_index, focus_role in zip(pair_indices, pair_roles, strict=True)
+            )
             pair_cursor += mix.critical
+            handoff_focus_cursor += mix.critical
             random.Random(f"{shuffle_seed}:{update_cursor}").shuffle(block)
-            for within_update, (kind, pair_index, ordinary_seed) in enumerate(block):
+            for within_update, (kind, pair_index, ordinary_seed, focus_role) in enumerate(block):
                 assignments.append(
                     ScenarioAssignment(
                         ordinal=len(assignments),
@@ -136,6 +160,7 @@ def exact_staged_curriculum_schedule(
                             if kind == "ordinary"
                             else None
                         ),
+                        handoff_focus_role=focus_role,
                     )
                 )
             update_cursor += 1
@@ -422,6 +447,9 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
             update_pattern=tuple(CurriculumMix(**mix) for mix in row["update_pattern"]),
             ordinary_sizes=tuple(int(value) for value in row["ordinary_sizes"]),
             ordinary_horizons=tuple(int(value) for value in row["ordinary_horizons"]),
+            handoff_focus_roles=tuple(
+                str(value) for value in row.get("handoff_focus_roles", ["receiver"])
+            ),
         )
         for row in stage_rows
     )

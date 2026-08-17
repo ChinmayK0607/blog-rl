@@ -128,9 +128,13 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   The selected checked-in curriculum and resulting plan declare their exact
   update count; never shorten or extend them under the same run identity. The
   staged launcher derives its horizon from that plan. A focused-agent run must
-  bind an ACT-only production plan and pass
-  `--shared-return-credit-assignment focused_agent`; never allow the launcher's
-  shared-team default to silently override a focused plan.
+  pass `--shared-return-credit-assignment focused_agent`; never allow the
+  launcher's shared-team default to silently override a focused plan. For the
+  joint sender-receiver curriculum, the production plan must allow both
+  `BROADCAST` and `ACT`. Each scheduled handoff then binds exactly one causal
+  phase into its group-specific run lock: sender focus uses turn-zero
+  `BROADCAST`, receiver focus uses turn-zero `ACT`, and ordinary focus uses
+  `ACT`. Older receiver-only curricula may still bind an ACT-only plan.
   The production controller must block on content-hashed evaluation barriers
   at step 0 and every ten updates, while Prime retains every corresponding
   checkpoint. Step-zero SFT-vs-SFT invariance must pass before the first

@@ -67,7 +67,9 @@ def main() -> None:
                     "update_pattern",
                     "ordinary_sizes",
                     "ordinary_horizons",
+                    "handoff_focus_roles",
                 )
+                if key in stage
             }
             for stage in curriculum["stages"]
         ],
@@ -139,9 +141,17 @@ def main() -> None:
                     "stage": row.stage,
                     "ordinary_size": row.ordinary_size,
                     "ordinary_horizon": row.ordinary_horizon,
+                    "handoff_focus_role": row.handoff_focus_role,
                 }
                 for row in schedule
             ]
+        ),
+        "handoff_focus_counts": dict(
+            Counter(
+                row.handoff_focus_role
+                for row in schedule
+                if row.handoff_focus_role is not None
+            )
         ),
     }
     audit_path = args.output.with_suffix(".audit.json")

@@ -373,6 +373,7 @@ def main() -> None:
         option_order: str = "canonical",
         initial_state: Any | None = None,
         critical_target: str | None = None,
+        handoff_sender: str | None = None,
     ) -> None:
         evaluation_id = ":".join(
             (
@@ -415,6 +416,28 @@ def main() -> None:
             "independent_id": independent_id,
             "evaluation_id": evaluation_id,
         }
+        if handoff_sender is not None and critical_target is not None:
+            sender = (
+                handoff_sender
+                if side == "BLUE"
+                else handoff_sender.replace("blue-", "red-", 1)
+            )
+            sender_broadcasts = [
+                broadcast
+                for broadcast in raw["turns"][0]["broadcasts"]
+                if broadcast["agent_id"] == sender
+            ]
+            if len(sender_broadcasts) != 1:
+                raise ValueError(f"missing unique handoff sender broadcast: {sender}")
+            accepted = sender_broadcasts[0]["accepted_message"]
+            row["sender_target_fact"] = any(
+                fact["node"] == critical_target for fact in accepted["facts"]
+            )
+            row["sender_nonempty"] = accepted != {
+                "facts": [],
+                "intent": None,
+                "request_resource": 0,
+            }
         raw_record = {"evaluation_id": evaluation_id, "raw": raw}
         row["raw_sha256"] = _digest(raw_record)
         with raw_path.open("a", encoding="utf-8") as handle:
@@ -472,7 +495,8 @@ def main() -> None:
                         side=side,
                         condition=condition,
                         initial_state=world.state,
-                        critical_target=(world.active_target if suite == "handoff_critical" else None),
+                        critical_target=world.active_target,
+                        handoff_sender=scenario.sender,
                     )
                 if args.rl_specific_communication and suite == "handoff_critical":
                     baseline_revision = str(config["baseline"]["revision"])
@@ -492,6 +516,7 @@ def main() -> None:
                             condition=condition,
                             initial_state=world.state,
                             critical_target=world.active_target,
+                            handoff_sender=scenario.sender,
                         )
 
     rows = [json.loads(line) for line in rows_path.read_text(encoding="utf-8").splitlines() if line]

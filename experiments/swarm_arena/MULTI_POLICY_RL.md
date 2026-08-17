@@ -129,6 +129,23 @@ opponent-specific return, and return gains that disappear under message
 interventions. A raised flag pauses promotion for inspection; it does not add a
 shaping penalty to the objective.
 
+## Current joint-channel refinement
+
+The first focused production run used receiver-focused `ACT` spans only. It
+improved task return but reduced message-intervention sensitivity through
+update 60. The next plan therefore keeps focused common-random-number credit
+but makes the causal unit phase-specific. Certified sender groups independently
+sample and train only the sender's first `BROADCAST`; receiver groups
+independently sample and train only the receiver's first `ACT`. Both use the
+same verified terminal team return and leave-one-out baseline. No message
+content, speaking, target matching, or oracle action is rewarded directly.
+
+The production schedule binds each critical/decoy pair to the same sender or
+receiver focus role. The supervisor binds the one-phase spec into each group's
+run lock, and the evaluator separately reports sender target-fact coverage and
+receiver capture dependence. `JOINT_COMMUNICATION_RL_PLAN.md` is the launch
+contract.
+
 `safety_supervisor.py` is the only admission path into training. It binds the
 source, manifests, base, adapters, opponent and allowed dynamic constraints in
 an immutable run lock; independently reconstructs every agent's private

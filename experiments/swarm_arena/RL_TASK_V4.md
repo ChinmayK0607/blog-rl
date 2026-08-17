@@ -43,6 +43,11 @@ advantage is exactly zero.
 - There is no message, capture, sender, silence, curriculum, or learned-judge
   bonus.
 
-Ordinary procedural maps remain the majority of the curriculum. Handoff
-critical and matched-decoy states together occupy 30–50% depending on stage;
-roles rotate evenly across every ordered sender/receiver pair.
+The current joint curriculum deliberately makes handoffs dominant after a
+short warmup. It alternates phase-specific focused updates: the sender's
+turn-zero `BROADCAST` or the receiver's turn-zero `ACT` is varied across
+common-random-number replicas and receives only the resulting terminal-return
+advantage. Ordinary procedural maps remain in warmup, acquisition, and
+consolidation stages to detect tactical regression. Sender and receiver focus
+are exactly balanced, and critical assignments retain matched structural
+decoys. See `JOINT_COMMUNICATION_RL_PLAN.md`.
