@@ -3616,6 +3616,40 @@ no more critical-specific than decoy-specific. Therefore:
   corrected prospective run inserts the target fact only when absent and
   otherwise leaves the generated message unchanged.
 
+### 2026-08-17 — receiver-first terminal-proximal curriculum screen
+
+- Status: planned; implementation and live training-split screen in progress.
+- Verdict scope: curriculum-selection evidence only; no optimizer, development,
+  selection, or frozen OOD evaluation is authorized by this screen.
+- Hypothesis: the pass@k-selected receiver worlds contain useful action
+  variation at turn zero, but their message effect is washed out by later
+  transitions. Ending the handoff after two turns should preserve more of that
+  information-specific effect in verified terminal return without changing the
+  reward or mechanically unlocking an action.
+- Proposed curriculum: 40 updates, four groups per update, receiver `ACT`
+  focus only, 40 ordinary / 60 critical / 60 matched-decoy groups. The exact
+  12 primary pass@k worlds are bound by pair and latent-world label. Handoff
+  horizons are two turns for updates 0--19, three turns for 20--29, and the
+  original scenario horizon for 30--39. Sender `BROADCAST` updates are excluded
+  because target-fact emission was 100% on this screened slice.
+- Reward and model: unchanged verified terminal control delta, no shaping;
+  pinned Qwen3-1.7B SFT initializer against a model-controlled copy of itself.
+- Live screen: rerun the same 12 selected worlds, their matched decoys,
+  generated/dropped communication, and four common-seed repetitions at horizon
+  two (192 complete 4v4 games). Compare with the same repetitions from the
+  already-completed original-horizon screen, clustering uncertainty by handoff
+  pair rather than treating games or agents as independent.
+- Decision rule: adopt the terminal-proximal first stage only if protocol stays
+  exact, terminal critical-minus-decoy communication specificity improves over
+  the original horizon, and capture/action behavior remains non-degenerate.
+  A negative screen changes the curriculum before any RL compute; it does not
+  trigger reward shaping or access to frozen evaluation.
+- GPU: one user-provided NVIDIA L40S 46 GB host. Provider price is unknown, so
+  cost will not be invented. Models and raw rollouts remain remote; only compact
+  rows, summaries, hashes, code, and documentation may return to the Mac.
+- Instance decommissioned: no; the user is keeping the host active for this
+  bounded screen.
+
 ## Artifact index
 
 - Public source branch:

@@ -674,10 +674,22 @@ async def main() -> None:
                     scenario = reconstruct_scenario(pair[kind])
                     seed = scenario.seed
                     size = scenario.size
-                    horizon = args.horizon or scenario.horizon
+                    horizon = (
+                        args.horizon
+                        or (assignment.handoff_horizon if assignment is not None else None)
+                        or scenario.horizon
+                    )
                     world_metadata = {}
                     if args.task_data_version == "v4":
-                        world_index = pair_index % len(scenario.worlds)
+                        selected_world = assignment.handoff_world if assignment is not None else None
+                        if selected_world is None:
+                            world_index = pair_index % len(scenario.worlds)
+                        else:
+                            world_index = next(
+                                index
+                                for index, candidate in enumerate(scenario.worlds)
+                                if candidate.label == selected_world
+                            )
                         world = scenario.worlds[world_index]
                         initial_state = world.state
                         world_metadata = {
@@ -686,6 +698,7 @@ async def main() -> None:
                             "target": world.active_target,
                             "candidate_targets": list(scenario.candidate_targets),
                             "state_sha256": pair[kind]["worlds"][world_index]["state_sha256"],
+                            "scheduled_horizon": horizon,
                         }
                     else:
                         initial_state = scenario.state

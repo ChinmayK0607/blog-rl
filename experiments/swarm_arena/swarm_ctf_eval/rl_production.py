@@ -63,6 +63,8 @@ class ScenarioAssignment:
     ordinary_size: int | None = None
     ordinary_horizon: int | None = None
     handoff_focus_role: HandoffFocusRole | None = None
+    handoff_world: str | None = None
+    handoff_horizon: int | None = None
 
 
 @dataclass(frozen=True)
@@ -73,6 +75,8 @@ class CurriculumStage:
     ordinary_sizes: tuple[int, ...]
     ordinary_horizons: tuple[int, ...]
     handoff_focus_roles: tuple[HandoffFocusRole, ...] = ("receiver",)
+    handoff_cases: tuple[tuple[int, str], ...] = ()
+    handoff_horizon: int | None = None
 
     def validate(self, *, groups_per_update: int) -> None:
         if not self.name or self.updates < 1 or not self.update_pattern:
@@ -89,6 +93,13 @@ class CurriculumStage:
             role not in {"sender", "receiver"} for role in self.handoff_focus_roles
         ):
             raise ValueError(f"stage {self.name} requires sender/receiver handoff focus roles")
+        if self.handoff_horizon is not None and self.handoff_horizon < 2:
+            raise ValueError(f"stage {self.name} handoff horizon must be at least two")
+        if any(
+            pair_index < 0 or world not in {"left_exposed", "right_exposed"}
+            for pair_index, world in self.handoff_cases
+        ):
+            raise ValueError(f"stage {self.name} contains an invalid selected handoff case")
 
 
 def exact_staged_curriculum_schedule(
@@ -112,11 +123,23 @@ def exact_staged_curriculum_schedule(
     ordinary_cursor = 0
     update_cursor = 0
     handoff_focus_cursor = 0
+    handoff_case_cursor = 0
     for stage in stages:
         stage.validate(groups_per_update=groups_per_update)
         for stage_update in range(stage.updates):
             mix = stage.update_pattern[stage_update % len(stage.update_pattern)]
-            pair_indices = tuple(pair_cursor + index for index in range(mix.critical))
+            if stage.handoff_cases:
+                selected_cases = tuple(
+                    stage.handoff_cases[(handoff_case_cursor + index) % len(stage.handoff_cases)]
+                    for index in range(mix.critical)
+                )
+                pair_indices = tuple(pair_index for pair_index, _ in selected_cases)
+                pair_worlds = tuple(world for _, world in selected_cases)
+                handoff_case_cursor += mix.critical
+            else:
+                pair_indices = tuple(pair_cursor + index for index in range(mix.critical))
+                pair_worlds = (None,) * mix.critical
+                pair_cursor += mix.critical
             pair_roles = tuple(
                 stage.handoff_focus_roles[
                     (handoff_focus_cursor + index) % len(stage.handoff_focus_roles)
@@ -124,25 +147,40 @@ def exact_staged_curriculum_schedule(
                 for index in range(mix.critical)
             )
             block: list[
-                tuple[ScenarioKind, int | None, int | None, HandoffFocusRole | None]
+                tuple[
+                    ScenarioKind,
+                    int | None,
+                    int | None,
+                    HandoffFocusRole | None,
+                    str | None,
+                ]
             ] = []
             block.extend(
-                ("ordinary", None, ordinary_seed_base + ordinary_cursor + index, None)
+                ("ordinary", None, ordinary_seed_base + ordinary_cursor + index, None, None)
                 for index in range(mix.ordinary)
             )
             ordinary_cursor += mix.ordinary
             block.extend(
-                ("critical", pair_index, None, focus_role)
-                for pair_index, focus_role in zip(pair_indices, pair_roles, strict=True)
+                ("critical", pair_index, None, focus_role, world)
+                for pair_index, focus_role, world in zip(
+                    pair_indices, pair_roles, pair_worlds, strict=True
+                )
             )
             block.extend(
-                ("decoy", pair_index, None, focus_role)
-                for pair_index, focus_role in zip(pair_indices, pair_roles, strict=True)
+                ("decoy", pair_index, None, focus_role, world)
+                for pair_index, focus_role, world in zip(
+                    pair_indices, pair_roles, pair_worlds, strict=True
+                )
             )
-            pair_cursor += mix.critical
             handoff_focus_cursor += mix.critical
             random.Random(f"{shuffle_seed}:{update_cursor}").shuffle(block)
-            for within_update, (kind, pair_index, ordinary_seed, focus_role) in enumerate(block):
+            for within_update, (
+                kind,
+                pair_index,
+                ordinary_seed,
+                focus_role,
+                handoff_world,
+            ) in enumerate(block):
                 assignments.append(
                     ScenarioAssignment(
                         ordinal=len(assignments),
@@ -161,6 +199,8 @@ def exact_staged_curriculum_schedule(
                             else None
                         ),
                         handoff_focus_role=focus_role,
+                        handoff_world=handoff_world,
+                        handoff_horizon=(stage.handoff_horizon if kind != "ordinary" else None),
                     )
                 )
             update_cursor += 1
@@ -449,6 +489,13 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
             ordinary_horizons=tuple(int(value) for value in row["ordinary_horizons"]),
             handoff_focus_roles=tuple(
                 str(value) for value in row.get("handoff_focus_roles", ["receiver"])
+            ),
+            handoff_cases=tuple(
+                (int(value["pair_index"]), str(value["world"]))
+                for value in row.get("handoff_cases", [])
+            ),
+            handoff_horizon=(
+                None if row.get("handoff_horizon") is None else int(row["handoff_horizon"])
             ),
         )
         for row in stage_rows

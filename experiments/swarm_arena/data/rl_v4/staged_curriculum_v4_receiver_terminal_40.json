@@ -1,0 +1,125 @@
+{
+  "version": "arena-rl-v4-receiver-terminal-curriculum-v4",
+  "total_updates": 40,
+  "groups_per_update": 4,
+  "reward": "verified_terminal_control_delta_only",
+  "credit_assignment": "receiver_act_focused_agent_common_random_leave_one_out",
+  "message_reward": null,
+  "initializer": "pinned_sft_not_prior_rl",
+  "selected_training_cases_source": "results/rl_v4_passk_screen_1_7b/analysis.json#selection.bands.primary_receiver_band",
+  "principles": [
+    "train only receiver ACT spans because target-fact emission is already saturated on the screened sender slice",
+    "bind every selected pair to its exact pass-at-k-screened latent world",
+    "start with two-turn terminal-proximal handoffs, expand to three turns, then restore the original four-or-five-turn horizon",
+    "retain one matched decoy for every critical handoff and never add message, capture, or action shaping",
+    "retain ordinary games at the beginning and end so the pilot measures tactics and communication separately"
+  ],
+  "stages": [
+    {
+      "name": "terminal_receiver_warmup",
+      "updates": 10,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["receiver"],
+      "handoff_horizon": 2,
+      "handoff_cases": [
+        {"pair_index": 1, "world": "left_exposed"},
+        {"pair_index": 2, "world": "left_exposed"},
+        {"pair_index": 5, "world": "right_exposed"},
+        {"pair_index": 6, "world": "right_exposed"},
+        {"pair_index": 7, "world": "left_exposed"},
+        {"pair_index": 7, "world": "right_exposed"},
+        {"pair_index": 8, "world": "left_exposed"},
+        {"pair_index": 9, "world": "left_exposed"},
+        {"pair_index": 9, "world": "right_exposed"},
+        {"pair_index": 10, "world": "left_exposed"},
+        {"pair_index": 10, "world": "right_exposed"},
+        {"pair_index": 11, "world": "right_exposed"}
+      ],
+      "purpose": "make the receiver's first action close enough to terminal return to survive credit assignment"
+    },
+    {
+      "name": "terminal_receiver_density",
+      "updates": 10,
+      "update_pattern": [
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["receiver"],
+      "handoff_horizon": 2,
+      "handoff_cases": [
+        {"pair_index": 1, "world": "left_exposed"},
+        {"pair_index": 2, "world": "left_exposed"},
+        {"pair_index": 5, "world": "right_exposed"},
+        {"pair_index": 6, "world": "right_exposed"},
+        {"pair_index": 7, "world": "left_exposed"},
+        {"pair_index": 7, "world": "right_exposed"},
+        {"pair_index": 8, "world": "left_exposed"},
+        {"pair_index": 9, "world": "left_exposed"},
+        {"pair_index": 9, "world": "right_exposed"},
+        {"pair_index": 10, "world": "left_exposed"},
+        {"pair_index": 10, "world": "right_exposed"},
+        {"pair_index": 11, "world": "right_exposed"}
+      ],
+      "purpose": "increase matched receiver learning density only after the short-horizon warmup"
+    },
+    {
+      "name": "receiver_horizon_transfer",
+      "updates": 10,
+      "update_pattern": [
+        {"ordinary": 0, "critical": 2, "decoy": 2}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["receiver"],
+      "handoff_horizon": 3,
+      "handoff_cases": [
+        {"pair_index": 1, "world": "left_exposed"},
+        {"pair_index": 2, "world": "left_exposed"},
+        {"pair_index": 5, "world": "right_exposed"},
+        {"pair_index": 6, "world": "right_exposed"},
+        {"pair_index": 7, "world": "left_exposed"},
+        {"pair_index": 7, "world": "right_exposed"},
+        {"pair_index": 8, "world": "left_exposed"},
+        {"pair_index": 9, "world": "left_exposed"},
+        {"pair_index": 9, "world": "right_exposed"},
+        {"pair_index": 10, "world": "left_exposed"},
+        {"pair_index": 10, "world": "right_exposed"},
+        {"pair_index": 11, "world": "right_exposed"}
+      ],
+      "purpose": "test whether the learned receiver behavior survives one extra transition"
+    },
+    {
+      "name": "full_game_consolidation",
+      "updates": 10,
+      "update_pattern": [
+        {"ordinary": 2, "critical": 1, "decoy": 1}
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["receiver"],
+      "handoff_cases": [
+        {"pair_index": 1, "world": "left_exposed"},
+        {"pair_index": 2, "world": "left_exposed"},
+        {"pair_index": 5, "world": "right_exposed"},
+        {"pair_index": 6, "world": "right_exposed"},
+        {"pair_index": 7, "world": "left_exposed"},
+        {"pair_index": 7, "world": "right_exposed"},
+        {"pair_index": 8, "world": "left_exposed"},
+        {"pair_index": 9, "world": "left_exposed"},
+        {"pair_index": 9, "world": "right_exposed"},
+        {"pair_index": 10, "world": "left_exposed"},
+        {"pair_index": 10, "world": "right_exposed"},
+        {"pair_index": 11, "world": "right_exposed"}
+      ],
+      "purpose": "restore original episode length and ordinary tactics before checkpoint comparison"
+    }
+  ],
+  "online_eval_updates": [0, 10, 20, 30, 40],
+  "checkpoint_selection": "development-only comparison after update 40",
+  "frozen_policy": "the existing rl_v4 development selection and frozen OOD tiers remain byte-identical and unopened during the pilot"
+}

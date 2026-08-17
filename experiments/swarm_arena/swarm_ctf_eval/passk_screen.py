@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import math
+import random
 import statistics
 from collections import defaultdict
 from itertools import combinations
 from typing import Any
 
 PASSK_SCREEN_VERSION = "arena-training-passk-screen-v1"
+TERMINAL_PROXIMAL_SCREEN_VERSION = "arena-terminal-proximal-screen-v1"
 
 
 def pass_at_k(successes: int, samples: int, k: int) -> float | None:
@@ -229,6 +231,130 @@ def summarize_passk(rows: list[dict[str, Any]]) -> dict[str, Any]:
             ),
             "decoy_reference_minus_dropped_receiver_action": mean(
                 decoy, "reference_minus_dropped_receiver_action"
+            ),
+        },
+    }
+
+
+def _bootstrap_mean_interval(values: list[float], *, seed: int = 20260817) -> list[float]:
+    if not values:
+        raise ValueError("bootstrap requires at least one independent value")
+    rng = random.Random(seed)
+    draws = sorted(
+        statistics.fmean(rng.choice(values) for _ in values)
+        for _ in range(10_000)
+    )
+    return [draws[249], draws[9749]]
+
+
+def _condition_effects(rows: list[dict[str, Any]]) -> dict[int, dict[str, float]]:
+    grouped: dict[tuple[int, str, str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        grouped[(row["pair_index"], row["world"], row["kind"], row["condition"])].append(row)
+
+    metrics = (
+        "terminal_return",
+        "target_captured",
+        "target_captured_turn_zero",
+        "receiver_target_action",
+    )
+    by_world: dict[tuple[int, str], dict[str, float]] = defaultdict(dict)
+    for (pair_index, world, kind, condition), cell_rows in grouped.items():
+        if condition not in {"generated", "dropped"}:
+            continue
+        if len(cell_rows) != 4:
+            raise ValueError(
+                f"terminal-proximal cell {pair_index}/{world}/{kind}/{condition} "
+                f"requires exactly four repetitions; got {len(cell_rows)}"
+            )
+        if not all(bool(row["protocol_valid"]) for row in cell_rows):
+            raise ValueError(f"invalid protocol in terminal-proximal cell {pair_index}/{world}")
+        for metric in metrics:
+            by_world[(pair_index, world)][f"{kind}_{condition}_{metric}"] = statistics.fmean(
+                float(row[metric]) for row in cell_rows
+            )
+
+    by_pair: dict[int, list[dict[str, float]]] = defaultdict(list)
+    for (pair_index, _), values in by_world.items():
+        expected = {
+            f"{kind}_{condition}_{metric}"
+            for kind in ("critical", "decoy")
+            for condition in ("generated", "dropped")
+            for metric in metrics
+        }
+        if set(values) != expected:
+            raise ValueError(f"incomplete terminal-proximal comparison for pair {pair_index}")
+        effects = {}
+        for metric in metrics:
+            critical = values[f"critical_generated_{metric}"] - values[f"critical_dropped_{metric}"]
+            decoy = values[f"decoy_generated_{metric}"] - values[f"decoy_dropped_{metric}"]
+            effects[f"critical_{metric}"] = critical
+            effects[f"decoy_{metric}"] = decoy
+            effects[f"specificity_{metric}"] = critical - decoy
+        by_pair[pair_index].append(effects)
+
+    return {
+        pair_index: {
+            metric: statistics.fmean(row[metric] for row in worlds)
+            for metric in worlds[0]
+        }
+        for pair_index, worlds in by_pair.items()
+    }
+
+
+def summarize_terminal_proximal(
+    fresh_rows: list[dict[str, Any]],
+    baseline_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Compare a short-horizon screen with the same four old-horizon samples."""
+    selected = {(row["pair_index"], row["world"]) for row in fresh_rows}
+    baseline = [
+        row
+        for row in baseline_rows
+        if (row["pair_index"], row["world"]) in selected
+        and row["condition"] in {"generated", "dropped"}
+        and int(row["repeat"]) < 4
+    ]
+    fresh = _condition_effects(fresh_rows)
+    old = _condition_effects(baseline)
+    if set(fresh) != set(old):
+        raise ValueError("fresh and old-horizon screens do not contain the same pair clusters")
+
+    metric_names = tuple(next(iter(fresh.values())))
+
+    def aggregate(source: dict[int, dict[str, float]]) -> dict[str, Any]:
+        result = {}
+        for metric in metric_names:
+            values = [source[pair_index][metric] for pair_index in sorted(source)]
+            result[metric] = {
+                "mean": statistics.fmean(values),
+                "bootstrap_95": _bootstrap_mean_interval(values),
+            }
+        return result
+
+    change = {}
+    for metric in metric_names:
+        values = [fresh[pair_index][metric] - old[pair_index][metric] for pair_index in sorted(fresh)]
+        change[metric] = {
+            "mean": statistics.fmean(values),
+            "bootstrap_95": _bootstrap_mean_interval(values, seed=20260818),
+        }
+
+    return {
+        "version": TERMINAL_PROXIMAL_SCREEN_VERSION,
+        "games": len(fresh_rows),
+        "selected_worlds": len(selected),
+        "independent_pair_clusters": len(fresh),
+        "old_horizon": aggregate(old),
+        "terminal_proximal": aggregate(fresh),
+        "terminal_proximal_minus_old": change,
+        "decision": {
+            "protocol_valid": all(bool(row["protocol_valid"]) for row in fresh_rows),
+            "terminal_specificity_improved": (
+                change["specificity_terminal_return"]["mean"] > 0
+            ),
+            "terminal_capture_specificity_improved": (
+                change["specificity_target_captured"]["mean"] > 0
             ),
         },
     }

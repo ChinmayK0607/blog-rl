@@ -236,6 +236,65 @@ def test_joint_curriculum_balances_sender_receiver_focus_and_retains_ordinary_pl
         }
 
 
+def test_receiver_terminal_curriculum_binds_screened_worlds_and_horizons() -> None:
+    root = Path(__file__).resolve().parents[1]
+    curriculum = json.loads(
+        (root / "data" / "rl_v4" / "staged_curriculum_v4_receiver_terminal_40.json").read_text()
+    )
+    analysis = json.loads(
+        (root / "results" / "rl_v4_passk_screen_1_7b" / "analysis.json").read_text()
+    )
+    selected_cases = {
+        (row["pair_index"], row["world"])
+        for row in analysis["selection"]["bands"]["primary_receiver_band"]
+    }
+    assert all(
+        {(case["pair_index"], case["world"]) for case in stage["handoff_cases"]}
+        == selected_cases
+        for stage in curriculum["stages"]
+    )
+    stages = tuple(
+        CurriculumStage(
+            name=stage["name"],
+            updates=stage["updates"],
+            update_pattern=tuple(CurriculumMix(**mix) for mix in stage["update_pattern"]),
+            ordinary_sizes=tuple(stage["ordinary_sizes"]),
+            ordinary_horizons=tuple(stage["ordinary_horizons"]),
+            handoff_focus_roles=tuple(stage["handoff_focus_roles"]),
+            handoff_cases=tuple(
+                (case["pair_index"], case["world"]) for case in stage["handoff_cases"]
+            ),
+            handoff_horizon=stage.get("handoff_horizon"),
+        )
+        for stage in curriculum["stages"]
+    )
+    schedule = exact_staged_curriculum_schedule(
+        stages,
+        groups_per_update=4,
+        pair_offset=0,
+        ordinary_seed_base=8_000_000,
+        shuffle_seed=17,
+    )
+
+    assert len(schedule) == 160
+    assert Counter(row.kind for row in schedule) == {
+        "ordinary": 40,
+        "critical": 60,
+        "decoy": 60,
+    }
+    handoffs = [row for row in schedule if row.kind != "ordinary"]
+    assert {row.handoff_focus_role for row in handoffs} == {"receiver"}
+    assert all(row.handoff_world is not None for row in handoffs)
+    assert {row.handoff_horizon for row in schedule[:80] if row.kind != "ordinary"} == {2}
+    assert {row.handoff_horizon for row in schedule[80:120] if row.kind != "ordinary"} == {3}
+    assert {row.handoff_horizon for row in schedule[120:] if row.kind != "ordinary"} == {None}
+    for update in range(40):
+        block = schedule[update * 4 : (update + 1) * 4]
+        critical = {(row.pair_index, row.handoff_world) for row in block if row.kind == "critical"}
+        decoy = {(row.pair_index, row.handoff_world) for row in block if row.kind == "decoy"}
+        assert critical == decoy
+
+
 def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() -> None:
     root = Path(__file__).resolve().parents[1]
     curriculum = json.loads((root / "data" / "rl_v4" / "staged_curriculum_v1.json").read_text())
