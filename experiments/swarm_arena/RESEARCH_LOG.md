@@ -3597,6 +3597,10 @@ no more critical-specific than decoy-specific. Therefore:
   `874dec87...129`. The complete directory is 552 KB under
   `results/rl_v4_passk_screen_1_7b/`; no model artifact or raw trajectory was
   copied to the Mac.
+- Final public validation: exact commit `f2691ec1` passed Ruff and the complete
+  Linux Swarm suite, **115 tests** with only the two known third-party SWIG
+  deprecation warnings. The remote checkout was clean and the L40S remained at
+  0 MiB / 0% utilization.
 - Next action: revise the joint curriculum from sender/receiver 50/50 to a
   terminal-proximal receiver-first stage, add a cheap sender-omission screen
   for later pairs, then launch a small RL pilot before a long run.
