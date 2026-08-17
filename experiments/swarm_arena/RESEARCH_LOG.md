@@ -3267,8 +3267,8 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-17 — atomic four-policy canary and fresh focused-80 restart
 
-- Status: atomic canary completed; fresh 80-update run launched and currently
-  running from update zero.
+- Status: atomic canary and update-zero pulse completed; fresh 80-update run is
+  running with one complete optimizer update.
 - Verdict: the atomic-update implementation passed its deliberately uneven
   live integration test. This is a mechanical safety result, not evidence of
   learning. The new RL run is not yet evaluated.
@@ -3324,7 +3324,27 @@ no more critical-specific than decoy-specific. Therefore:
   Trainer, controller, rescore worker, pulse worker, and W&B sidecar survived
   launcher health checks. Controller W&B run ID is
   `rl-v4-focused80-atomic-6c5eea73-l40-20260817-controller-v1`; trainer W&B is
-  offline and must be synced after completion.
+  offline run `220pn93o`. Both must be synced after completion.
+- Initial live verification: the update-zero pulse completed all 192 rows and
+  all four candidate adapter hashes exactly equalled the pinned SFT adapter
+  hash before the barrier released training. Candidate-minus-SFT overall return
+  was `-0.009648` with interval `[-0.026706,+0.005923]`; protocol and grounding
+  were all `1.0`. The absolute same-weight RL-specific communication-lift
+  estimate was nevertheless `+0.018417` with interval
+  `[+0.000790,+0.037868]`, while critical-minus-decoy specificity did not pass
+  and the evaluator correctly set `communication_claim_passed=false`. This
+  demonstrates why absolute pulse deltas cannot establish learning under
+  independently sampled rollouts: subsequent interpretation must use change
+  from this update-zero anchor and require critical-over-decoy specificity.
+- First live optimizer update: four groups and 16 replicas produced return
+  contrast in all four groups, mean scheduled return `0.024446`, and 16 non-zero
+  focused-agent advantages out of 64 policy slots. Every non-designated policy
+  advantage remained exactly zero. All four complete parity summaries passed
+  before the optimizer step; the worst run-level mean absolute log-probability
+  error was `0.007460` and worst mean mismatch-KL was `0.000700`. Only then did
+  one optimizer step occur and all four distinct step-1 adapters publish
+  together. All eight long-lived sessions remained healthy with zero logged
+  errors.
 - Failures and retries: the first prepare command omitted the experiment-local
   package and failed before creating a run directory with
   `ModuleNotFoundError: swarm_ctf_eval`; the retry used
