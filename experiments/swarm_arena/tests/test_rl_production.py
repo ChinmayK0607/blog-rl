@@ -264,7 +264,7 @@ def test_receiver_terminal_curriculum_binds_screened_worlds_and_horizons() -> No
             handoff_cases=tuple(
                 (case["pair_index"], case["world"]) for case in stage["handoff_cases"]
             ),
-            handoff_horizon=stage.get("handoff_horizon"),
+            handoff_remaining_turns=stage.get("handoff_remaining_turns"),
         )
         for stage in curriculum["stages"]
     )
@@ -285,9 +285,15 @@ def test_receiver_terminal_curriculum_binds_screened_worlds_and_horizons() -> No
     handoffs = [row for row in schedule if row.kind != "ordinary"]
     assert {row.handoff_focus_role for row in handoffs} == {"receiver"}
     assert all(row.handoff_world is not None for row in handoffs)
-    assert {row.handoff_horizon for row in schedule[:80] if row.kind != "ordinary"} == {2}
-    assert {row.handoff_horizon for row in schedule[80:120] if row.kind != "ordinary"} == {3}
-    assert {row.handoff_horizon for row in schedule[120:] if row.kind != "ordinary"} == {None}
+    assert {
+        row.handoff_remaining_turns for row in schedule[:80] if row.kind != "ordinary"
+    } == {1}
+    assert {
+        row.handoff_remaining_turns for row in schedule[80:120] if row.kind != "ordinary"
+    } == {2}
+    assert {
+        row.handoff_remaining_turns for row in schedule[120:] if row.kind != "ordinary"
+    } == {None}
     for update in range(40):
         block = schedule[update * 4 : (update + 1) * 4]
         critical = {(row.pair_index, row.handoff_world) for row in block if row.kind == "critical"}

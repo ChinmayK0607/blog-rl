@@ -69,7 +69,7 @@ def main() -> None:
                     "ordinary_horizons",
                     "handoff_focus_roles",
                     "handoff_cases",
-                    "handoff_horizon",
+                    "handoff_remaining_turns",
                 )
                 if key in stage
             }
@@ -145,7 +145,7 @@ def main() -> None:
                     "ordinary_horizon": row.ordinary_horizon,
                     "handoff_focus_role": row.handoff_focus_role,
                     "handoff_world": row.handoff_world,
-                    "handoff_horizon": row.handoff_horizon,
+                    "handoff_remaining_turns": row.handoff_remaining_turns,
                 }
                 for row in schedule
             ]

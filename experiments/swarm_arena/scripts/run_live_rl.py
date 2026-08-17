@@ -674,11 +674,7 @@ async def main() -> None:
                     scenario = reconstruct_scenario(pair[kind])
                     seed = scenario.seed
                     size = scenario.size
-                    horizon = (
-                        args.horizon
-                        or (assignment.handoff_horizon if assignment is not None else None)
-                        or scenario.horizon
-                    )
+                    horizon = args.horizon or scenario.horizon
                     world_metadata = {}
                     if args.task_data_version == "v4":
                         selected_world = assignment.handoff_world if assignment is not None else None
@@ -691,6 +687,10 @@ async def main() -> None:
                                 if candidate.label == selected_world
                             )
                         world = scenario.worlds[world_index]
+                        if args.horizon is None and assignment is not None:
+                            remaining_turns = assignment.handoff_remaining_turns
+                            if remaining_turns is not None:
+                                horizon = world.state.turn + remaining_turns
                         initial_state = world.state
                         world_metadata = {
                             "world": world.label,

@@ -64,7 +64,7 @@ class ScenarioAssignment:
     ordinary_horizon: int | None = None
     handoff_focus_role: HandoffFocusRole | None = None
     handoff_world: str | None = None
-    handoff_horizon: int | None = None
+    handoff_remaining_turns: int | None = None
 
 
 @dataclass(frozen=True)
@@ -76,7 +76,7 @@ class CurriculumStage:
     ordinary_horizons: tuple[int, ...]
     handoff_focus_roles: tuple[HandoffFocusRole, ...] = ("receiver",)
     handoff_cases: tuple[tuple[int, str], ...] = ()
-    handoff_horizon: int | None = None
+    handoff_remaining_turns: int | None = None
 
     def validate(self, *, groups_per_update: int) -> None:
         if not self.name or self.updates < 1 or not self.update_pattern:
@@ -93,8 +93,8 @@ class CurriculumStage:
             role not in {"sender", "receiver"} for role in self.handoff_focus_roles
         ):
             raise ValueError(f"stage {self.name} requires sender/receiver handoff focus roles")
-        if self.handoff_horizon is not None and self.handoff_horizon < 2:
-            raise ValueError(f"stage {self.name} handoff horizon must be at least two")
+        if self.handoff_remaining_turns is not None and self.handoff_remaining_turns < 1:
+            raise ValueError(f"stage {self.name} must retain at least one handoff turn")
         if any(
             pair_index < 0 or world not in {"left_exposed", "right_exposed"}
             for pair_index, world in self.handoff_cases
@@ -200,7 +200,9 @@ def exact_staged_curriculum_schedule(
                         ),
                         handoff_focus_role=focus_role,
                         handoff_world=handoff_world,
-                        handoff_horizon=(stage.handoff_horizon if kind != "ordinary" else None),
+                        handoff_remaining_turns=(
+                            stage.handoff_remaining_turns if kind != "ordinary" else None
+                        ),
                     )
                 )
             update_cursor += 1
@@ -494,8 +496,10 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
                 (int(value["pair_index"]), str(value["world"]))
                 for value in row.get("handoff_cases", [])
             ),
-            handoff_horizon=(
-                None if row.get("handoff_horizon") is None else int(row["handoff_horizon"])
+            handoff_remaining_turns=(
+                None
+                if row.get("handoff_remaining_turns") is None
+                else int(row["handoff_remaining_turns"])
             ),
         )
         for row in stage_rows

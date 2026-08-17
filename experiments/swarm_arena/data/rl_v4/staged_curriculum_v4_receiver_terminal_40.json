@@ -10,7 +10,7 @@
   "principles": [
     "train only receiver ACT spans because target-fact emission is already saturated on the screened sender slice",
     "bind every selected pair to its exact pass-at-k-screened latent world",
-    "start with two-turn terminal-proximal handoffs, expand to three turns, then restore the original four-or-five-turn horizon",
+    "start with one remaining handoff turn, expand to two remaining turns, then restore the original scenario horizon",
     "retain one matched decoy for every critical handoff and never add message, capture, or action shaping",
     "retain ordinary games at the beginning and end so the pilot measures tactics and communication separately"
   ],
@@ -24,7 +24,7 @@
       "ordinary_sizes": [12, 13],
       "ordinary_horizons": [4, 5],
       "handoff_focus_roles": ["receiver"],
-      "handoff_horizon": 2,
+      "handoff_remaining_turns": 1,
       "handoff_cases": [
         {"pair_index": 1, "world": "left_exposed"},
         {"pair_index": 2, "world": "left_exposed"},
@@ -50,7 +50,7 @@
       "ordinary_sizes": [12, 13],
       "ordinary_horizons": [4, 5],
       "handoff_focus_roles": ["receiver"],
-      "handoff_horizon": 2,
+      "handoff_remaining_turns": 1,
       "handoff_cases": [
         {"pair_index": 1, "world": "left_exposed"},
         {"pair_index": 2, "world": "left_exposed"},
@@ -76,7 +76,7 @@
       "ordinary_sizes": [12, 13],
       "ordinary_horizons": [4, 5],
       "handoff_focus_roles": ["receiver"],
-      "handoff_horizon": 3,
+      "handoff_remaining_turns": 2,
       "handoff_cases": [
         {"pair_index": 1, "world": "left_exposed"},
         {"pair_index": 2, "world": "left_exposed"},

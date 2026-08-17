@@ -126,13 +126,13 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--base-url", default="http://127.0.0.1:8000/v1")
     parser.add_argument("--model", default="sft")
-    parser.add_argument("--horizon", type=int, default=2)
+    parser.add_argument("--remaining-turns", type=int, default=1)
     parser.add_argument("--repetitions", type=int, default=4)
     parser.add_argument("--temperature", type=float, default=0.7)
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
-    if args.horizon < 2 or args.repetitions != 4:
-        raise ValueError("the matched screen requires horizon >=2 and exactly four repetitions")
+    if args.remaining_turns < 1 or args.repetitions != 4:
+        raise ValueError("the matched screen requires at least one turn and exactly four repetitions")
 
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
     analysis = json.loads(args.selection_analysis.read_text(encoding="utf-8"))
@@ -150,7 +150,7 @@ def main() -> None:
         ],
         "model": args.model,
         "temperature": args.temperature,
-        "horizon": args.horizon,
+        "remaining_turns": args.remaining_turns,
         "repetitions": args.repetitions,
         "conditions": ["generated", "dropped"],
         "scope": "training split only; development, selection, and frozen OOD tiers unopened",
@@ -183,7 +183,7 @@ def main() -> None:
             for condition in ("generated", "dropped"):
                 for repeat in range(args.repetitions):
                     evaluation_id = (
-                        f"h{args.horizon}:pair-{pair_index}:{kind}:{world_label}:{condition}:{repeat}"
+                        f"r{args.remaining_turns}:pair-{pair_index}:{kind}:{world_label}:{condition}:{repeat}"
                     )
                     if evaluation_id in completed:
                         continue
@@ -208,7 +208,7 @@ def main() -> None:
                         scenario=scenario,
                         world=world,
                         condition="dropped" if condition == "dropped" else "normal",
-                        horizon=args.horizon,
+                        horizon=world.state.turn + args.remaining_turns,
                     )
                     compact = {
                         "evaluation_id": evaluation_id,
@@ -221,7 +221,9 @@ def main() -> None:
                         "condition": condition,
                         "repeat": repeat,
                         "sampling_seed": sampling_seed,
-                        "horizon": args.horizon,
+                        "initial_turn": world.state.turn,
+                        "remaining_turns": args.remaining_turns,
+                        "terminal_horizon": world.state.turn + args.remaining_turns,
                         **result,
                     }
                     with rows_path.open("a", encoding="utf-8") as handle:

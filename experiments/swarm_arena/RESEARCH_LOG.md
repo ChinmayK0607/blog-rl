@@ -3629,14 +3629,14 @@ no more critical-specific than decoy-specific. Therefore:
 - Proposed curriculum: 40 updates, four groups per update, receiver `ACT`
   focus only, 40 ordinary / 60 critical / 60 matched-decoy groups. The exact
   12 primary pass@k worlds are bound by pair and latent-world label. Handoff
-  horizons are two turns for updates 0--19, three turns for 20--29, and the
-  original scenario horizon for 30--39. Sender `BROADCAST` updates are excluded
+  horizons retain one remaining turn for updates 0--19, two remaining turns
+  for 20--29, and the original scenario horizon for 30--39. Sender `BROADCAST` updates are excluded
   because target-fact emission was 100% on this screened slice.
 - Reward and model: unchanged verified terminal control delta, no shaping;
   pinned Qwen3-1.7B SFT initializer against a model-controlled copy of itself.
 - Live screen: rerun the same 12 selected worlds, their matched decoys,
   generated/dropped communication, and four common-seed repetitions at horizon
-  two (192 complete 4v4 games). Compare with the same repetitions from the
+  one remaining turn (192 complete 4v4 games). Compare with the same repetitions from the
   already-completed original-horizon screen, clustering uncertainty by handoff
   pair rather than treating games or agents as independent.
 - Decision rule: adopt the terminal-proximal first stage only if protocol stays
@@ -3649,6 +3649,11 @@ no more critical-specific than decoy-specific. Therefore:
   rows, summaries, hashes, code, and documentation may return to the Mac.
 - Instance decommissioned: no; the user is keeping the host active for this
   bounded screen.
+- First launch failure: the draft encoded absolute `horizon=2`, but handoff
+  states already begin at simulator turn two. The environment rejected the
+  state before any model request. The contract was renamed to explicit
+  `handoff_remaining_turns`, the empty failed directory was preserved, and no
+  result from that invocation will be scored.
 
 ## Artifact index
 
