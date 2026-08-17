@@ -3780,8 +3780,8 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-17 — pair-7 two-world communication overfit run
 
-- Status: planned for the live four-L40S allocation; no result is claimed at
-  this entry.
+- Status: running on the live four-L40S allocation; no learning result is
+  claimed before the scheduled development pulses complete.
 - Question: can terminal-return RL teach even one small-model receiver to use
   a teammate's private fact? This is intentionally a learnability/overfit
   experiment, not a generalization or emergent-swarm claim.
@@ -3820,6 +3820,35 @@ no more critical-specific than decoy-specific. Therefore:
   `configs/rl_v4_1_7b_communication_overfit_60.toml`. Exact source, plan,
   schedule, runtime-certificate, W&B, wall-time, and outcome identities will be
   appended after launch/completion.
+- Live launch identity: source
+  `42448837317e6dbe7896c8583b169b1fe1aa2703`; run
+  `rl-v4-communication-overfit-60-42448837`; remote directory
+  `/workspace/runs/rl-v4-communication-overfit-60-42448837-l40s-20260817`;
+  production-plan SHA-256
+  `7d66c6a4a69808ea56abf1e43790cdb0030f14610d6715e367f9a3a49bf63065`;
+  schedule SHA-256
+  `dcd05f0f6786688c05ff0ffd1664f43276e39956f517b17bc09e7de09584ddb3`;
+  runtime-certificate SHA-256
+  `171a81daf45c94d9dfe4449ed4d5f7ec6de03ba91ddea9dbd50a3f0997173a87`.
+  The plan contains 60 updates, 120 critical groups, 120 matched decoys, and no
+  ordinary groups.
+- Validation and startup: 117 Linux tests passed in 40.31 seconds. The single
+  32-decision runtime probe contained 1,367 completion tokens and passed with
+  mean absolute log-probability error `0.00173572`, mean mismatch KL
+  `0.0000663506`, and isolated four-policy optimizers. The three live endpoints
+  then passed one structured broadcast and one six-choice legal action. A
+  direct certifier invocation failed before model loading because PyTorch's
+  distributed environment variables were absent; the unchanged command was
+  rerun under one-process `torchrun` and passed. The GitHub HTML commit route
+  briefly returned 404 while the public branch and exact GitHub API commit
+  route returned 200, so immutable public-input preparation used the exact API
+  commit URL. Neither startup retry changed data, reward, model, or thresholds.
+- Logging and first health check: the trainer and controller use the W&B group
+  `qwen3-1.7b-communication-overfit-60-42448837` in offline/failure-isolated
+  mode for later sync. All five training sidecars and all three inference
+  servers were live. The update-0 evaluator had begun writing its fixed
+  192-game baseline (`raw.jsonl` and `rows.jsonl`) while the controller remained
+  blocked at the pre-update barrier, as intended.
 
 ## Artifact index
 
