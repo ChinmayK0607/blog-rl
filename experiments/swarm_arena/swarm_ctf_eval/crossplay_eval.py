@@ -226,6 +226,7 @@ def evaluate_crossplay(
     initial_state: GameState | None = None,
     env: ArenaEpisodeEnv | None = None,
     action_permutation_offset: int = 0,
+    turn_zero_broadcast_overrides: dict[str, Broadcast] | None = None,
 ) -> dict[str, Any]:
     if blue_condition not in CONDITIONS or red_condition not in CONDITIONS:
         raise ValueError("unknown communication condition")
@@ -324,6 +325,15 @@ def evaluate_crossplay(
                     "parsed_message": message.to_dict(),
                 }
             )
+
+        if turn == 0 and turn_zero_broadcast_overrides:
+            unknown = set(turn_zero_broadcast_overrides) - set(parsed_messages)
+            if unknown:
+                raise ValueError(f"turn-zero broadcast overrides name unknown agents: {sorted(unknown)}")
+            parsed_messages.update(turn_zero_broadcast_overrides)
+            for row in broadcast_rows:
+                override = turn_zero_broadcast_overrides.get(row["agent_id"])
+                row["broadcast_override"] = override.to_dict() if override is not None else None
 
         preview = _preview_accepted(env, parsed_messages)
         delivered: dict[str, Broadcast] = {}

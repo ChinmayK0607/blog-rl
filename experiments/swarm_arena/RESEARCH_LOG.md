@@ -3527,6 +3527,41 @@ no more critical-specific than decoy-specific. Therefore:
 - Instance decommissioned: previous four-L40 host was safe to decommission and
   is not required for this implementation.
 
+### 2026-08-17 — training-only pass@k curriculum screen
+
+- Status: running; implementation and local syntax checks complete, Linux/full
+  validation and model rollouts pending.
+- Verdict scope: training-data selection diagnostic only. It cannot promote a
+  checkpoint or establish communication on development/frozen evaluation.
+- Hypothesis: stochastic pass@k separates handoff cases that are already
+  solved, impossible for the receiver, communication-unnecessary, or useful
+  sender-learning examples more reliably than choosing a curriculum band from
+  single greedy rollouts.
+- Data: exactly 12 role-balanced bundles from the existing
+  `handoff_train.json`; both latent worlds and both critical/matched-decoy
+  scenarios. Development and frozen OOD manifests remain unopened.
+- Models: the pinned 1.7B SFT initializer plays BLUE against a model-controlled
+  copy of itself. BLUE and RED each make four independent requests per phase.
+- Sampling: temperature 0.7 with request seeds shared across corresponding
+  generated, dropped, and reference-message repetitions. Critical generated
+  play uses K=8; critical controls and all decoy conditions use K=4. Total:
+  672 complete model-vs-model games.
+- Reference condition: only the certified sender's grounded active-target fact
+  is substituted at turn zero. Every action and every later decision remains
+  model-generated. This distinguishes sender omission from receiver/game
+  incapability without supervising an action.
+- Measurements: pass@1/2/4/8 target capture, turn-zero capture, expected
+  best-return@k, return contrast@4, target-fact emission, receiver target
+  action, protocol validity, generated-minus-dropped capture, reference-minus-
+  generated sender gap, and reference-minus-dropped communication headroom.
+- GPU: one NVIDIA L40S 46,068 MiB on a fresh user-provided host; 554 GB free at
+  inspection and no stale process. Provider rate is unknown, so no cost is
+  inferred. Large trajectories/checkpoints will not be copied to the Mac.
+- Next action: pass the complete Linux suite, start one SFT LoRA vLLM server,
+  run a small live smoke, then the resumable 672-game screen. Preserve compact
+  JSON only, analyze the empirical band, commit/push, and stop inference.
+- Instance decommissioned: no; paid diagnostic is in progress.
+
 ## Artifact index
 
 - Public source branch:
