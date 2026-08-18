@@ -10,6 +10,8 @@ set -euo pipefail
 : "${SWARM_BASE_REVISION:?set SWARM_BASE_REVISION}"
 : "${SWARM_INITIAL_POLICY_REVISION:?set SWARM_INITIAL_POLICY_REVISION}"
 : "${SWARM_RUN_ID:?set SWARM_RUN_ID}"
+: "${SWARM_LIVE_HF_REPO:?set SWARM_LIVE_HF_REPO to a public model repo for live recovery artifacts}"
+: "${SWARM_DEADLINE_EPOCH:?set SWARM_DEADLINE_EPOCH to the pod termination Unix timestamp}"
 
 swarm_uv=${SWARM_UV:-/root/.local/bin/uv}
 swarm_inference_config=${SWARM_INFERENCE_CONFIG:-$SWARM_REPO_ROOT/experiments/swarm_arena/configs/inference_1_7b_l40s.toml}
@@ -24,6 +26,19 @@ swarm_checkpoint_interval=${SWARM_CHECKPOINT_INTERVAL:-10}
 swarm_credit_assignment=${SWARM_SHARED_RETURN_CREDIT_ASSIGNMENT:-shared_team}
 swarm_curriculum_artifact=${SWARM_CURRICULUM_ARTIFACT:-$SWARM_REPO_ROOT/experiments/swarm_arena/data/rl_v4/staged_curriculum_v3_joint_80.json}
 swarm_wandb_group=${SWARM_WANDB_GROUP:-qwen3-1.7b-staged-$swarm_expected_updates}
+swarm_controller_wandb_mode=${SWARM_CONTROLLER_WANDB_MODE:-online}
+swarm_final_sync_margin=${SWARM_FINAL_SYNC_MARGIN:-2700}
+swarm_pulse_mode=${SWARM_PULSE_MODE:-pair7}
+
+case "$swarm_controller_wandb_mode" in
+  online) swarm_wandb_mode_arg=() ;;
+  offline) swarm_wandb_mode_arg=(--offline) ;;
+  *) echo "SWARM_CONTROLLER_WANDB_MODE must be online or offline" >&2; exit 1 ;;
+esac
+if ! [[ "$SWARM_DEADLINE_EPOCH" =~ ^[0-9]+$ ]] || (( SWARM_DEADLINE_EPOCH <= $(date +%s) )); then
+  echo "SWARM_DEADLINE_EPOCH must be a future Unix timestamp" >&2
+  exit 1
+fi
 
 for swarm_port in 8001 8002 8003; do
   curl -fsS "http://127.0.0.1:$swarm_port/health" >/dev/null
@@ -51,7 +66,22 @@ export PYTHONPATH=$SWARM_REPO_ROOT/experiments/swarm_arena
 swarm_plan_sha=$(jq -r .production_plan_sha256 "$SWARM_RUN_DIR/PREFLIGHT.json")
 mkdir -p "$SWARM_RUN_DIR/logs" "$swarm_eval_root" "$swarm_rescore_dir"
 
-for swarm_role in trainer rescore pulses wandb controller; do
+# A run is not safe to leave unattended until the recovery repository is
+# anonymously readable.  Verify that before starting any new optimizer work.
+"$swarm_uv" run python \
+  "$SWARM_REPO_ROOT/experiments/swarm_arena/scripts/run_live_artifact_mirror.py" \
+  --repo-id "$SWARM_LIVE_HF_REPO" \
+  --run-id "$SWARM_RUN_ID" \
+  --run-dir "$SWARM_RUN_DIR" \
+  --deadline-epoch "$SWARM_DEADLINE_EPOCH" \
+  --final-sync-margin "$swarm_final_sync_margin" \
+  --artifact "$SWARM_PRODUCTION_PLAN" \
+  --artifact "$SWARM_RUNTIME_CERTIFICATE" \
+  --artifact "$swarm_curriculum_artifact" \
+  --preflight-only \
+  > "$SWARM_RUN_DIR/logs/mirror-preflight.log" 2>&1
+
+for swarm_role in trainer rescore pulses wandb mirror controller; do
   if tmux has-session -t "$swarm_session_prefix-$swarm_role" 2>/dev/null; then
     echo "refusing to reuse tmux session $swarm_session_prefix-$swarm_role" >&2
     exit 1
@@ -65,10 +95,13 @@ tmux new-session -d -s "$swarm_session_prefix-rescore" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_lag_zero_rescore_worker.py --root $swarm_rescore_dir --snapshot-manifest $swarm_rescore_dir/current_snapshots.json --production-plan-sha256 $swarm_plan_sha > $SWARM_RUN_DIR/logs/rescore.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-pulses" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_staged_pulses.py --repo-root $SWARM_REPO_ROOT --run-dir $SWARM_RUN_DIR --production-plan $SWARM_PRODUCTION_PLAN --barrier-dir $swarm_barrier_dir --eval-root $swarm_eval_root --data-dir $swarm_data_dir --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --baseline-revision $SWARM_INITIAL_POLICY_REVISION --expected-updates $swarm_expected_updates --interval $swarm_checkpoint_interval > $SWARM_RUN_DIR/logs/pulses.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_staged_pulses.py --repo-root $SWARM_REPO_ROOT --run-dir $SWARM_RUN_DIR --production-plan $SWARM_PRODUCTION_PLAN --barrier-dir $swarm_barrier_dir --eval-root $swarm_eval_root --data-dir $swarm_data_dir --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --baseline-revision $SWARM_INITIAL_POLICY_REVISION --expected-updates $swarm_expected_updates --interval $swarm_checkpoint_interval --evaluation-mode $swarm_pulse_mode > $SWARM_RUN_DIR/logs/pulses.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-wandb" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/log_live_rl_wandb.py --progress $SWARM_RUN_DIR/live_rl_progress.json --eval-root $swarm_eval_root --expected-updates $swarm_expected_updates --finish-marker $swarm_eval_root/COMPLETE --project swarm-arena-rl --group $swarm_wandb_group --run-name $SWARM_RUN_ID-controller --run-id $SWARM_RUN_ID-controller-v1 --tag 1.7b --tag causal-communication --tag development --offline --compact-artifact $SWARM_PRODUCTION_PLAN --compact-artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/wandb.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/log_live_rl_wandb.py --progress $SWARM_RUN_DIR/live_rl_progress.json --eval-root $swarm_eval_root --expected-updates $swarm_expected_updates --finish-marker $swarm_eval_root/COMPLETE --project swarm-arena-rl --group $swarm_wandb_group --run-name $SWARM_RUN_ID-controller --run-id $SWARM_RUN_ID-controller-v1 --tag 1.7b --tag causal-communication --tag development ${swarm_wandb_mode_arg[*]} --compact-artifact $SWARM_PRODUCTION_PLAN --compact-artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/wandb.log 2>&1"
+
+tmux new-session -d -s "$swarm_session_prefix-mirror" \
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_artifact_mirror.py --repo-id $SWARM_LIVE_HF_REPO --run-id $SWARM_RUN_ID --run-dir $SWARM_RUN_DIR --deadline-epoch $SWARM_DEADLINE_EPOCH --final-sync-margin $swarm_final_sync_margin --artifact $SWARM_PRODUCTION_PLAN --artifact $SWARM_RUNTIME_CERTIFICATE --artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/mirror.log 2>&1"
 
 sleep 15
 if ! tmux has-session -t "$swarm_session_prefix-trainer" 2>/dev/null; then
@@ -80,10 +113,10 @@ tmux new-session -d -s "$swarm_session_prefix-controller" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_rl.py --output-dir $SWARM_RUN_DIR --trainer-config $SWARM_RUN_DIR/trainer.toml --inference-config $swarm_inference_config --data-dir $swarm_data_dir --task-data-version v4 --tokenizer $SWARM_MODEL --initial-adapter $SWARM_INITIAL_ADAPTER --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --actor vllm --run-id $SWARM_RUN_ID --source-commit $swarm_source_commit --base-revision $SWARM_BASE_REVISION --initial-policy-revision $SWARM_INITIAL_POLICY_REVISION --credit-estimator shared_return --shared-return-replicas 4 --shared-return-credit-assignment $swarm_credit_assignment --production-plan $SWARM_PRODUCTION_PLAN --async-rescore-dir $swarm_rescore_dir --async-rescore-timeout 600 --steps $swarm_expected_updates --groups-per-step 4 --scenario-source curriculum --curriculum-split train --update-timeout 1200 --checkpoint-barrier-dir $swarm_barrier_dir --checkpoint-barrier-interval $swarm_checkpoint_interval --checkpoint-barrier-timeout 7200 > $SWARM_RUN_DIR/logs/controller.log 2>&1"
 
 sleep 10
-for swarm_role in trainer rescore pulses controller; do
+for swarm_role in trainer rescore pulses wandb mirror controller; do
   if ! tmux has-session -t "$swarm_session_prefix-$swarm_role" 2>/dev/null; then
     echo "$swarm_role exited during launch; stopping the new training stack" >&2
-    for swarm_cleanup in trainer rescore pulses wandb controller; do
+    for swarm_cleanup in trainer rescore pulses wandb mirror controller; do
       tmux kill-session -t "$swarm_session_prefix-$swarm_cleanup" 2>/dev/null || true
     done
     exit 1

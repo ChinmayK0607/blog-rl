@@ -3850,6 +3850,62 @@ no more critical-specific than decoy-specific. Therefore:
   192-game baseline (`raw.jsonl` and `rows.jsonl`) while the controller remained
   blocked at the pre-update barrier, as intended.
 
+### 2026-08-18 — lost-node incident and unattended-run redesign
+
+- Status: failed infrastructure run; no learning result and no recoverable
+  checkpoint are claimed.
+- Cost: the operator reports approximately `$50` lost. This was preventable:
+  all durable state, the watcher, compact status, and offline W&B files lived on
+  the same ephemeral pod. The monitoring process could detect a training fault,
+  but it could not preserve evidence after loss of the host itself.
+- Last confirmed observation: at `2026-08-17T16:38:02Z`, update 0 evaluation was
+  active, all trainer/controller/evaluator/serving sessions existed, and GPUs
+  1--3 were serving at 64%, 46%, and 74% utilization with 38,249 MiB allocated
+  each. GPU 0 had 8,921 MiB allocated and 0% utilization while the controller
+  waited at the evaluation barrier. Only the step-0 barrier and partial
+  update-0 evaluation files were confirmed. No optimizer update, later
+  checkpoint, W&B sync, HF upload, or clean completion was observed.
+- Failure evidence: repeated SSH probes to `64.247.196.196:40301` timed out.
+  This proves only endpoint loss; it cannot distinguish pod termination,
+  endpoint reassignment, provider/network failure, or host failure. There was
+  no confirmed in-run OOM, NCCL, parity, protocol, or optimizer failure before
+  connectivity disappeared.
+- Process failure: the launch contract incorrectly treated an on-pod watcher
+  and offline logging as adequate unattended protection. It also blocked the
+  optimizer at step zero on a 192-game development evaluation. Both choices
+  increased exposure to host loss without producing a checkpoint.
+- CPU-side correction: `run_live_artifact_mirror.py` now requires and
+  anonymously verifies a public HF recovery repository before optimizer launch.
+  It mirrors compact progress and eval records every five completed updates and
+  uploads only the four complete LoRA adapters at every checkpoint barrier. A
+  checkpoint is uploaded only after both `STABLE` markers exist and its four
+  adapter hashes equal the controller's signed ready record; public downloads
+  are re-hashed before the step is marked mirrored. Optimizer state and full
+  model weights are deliberately excluded.
+- Deadline correction: unattended launch now requires the provider's pod
+  termination epoch. Forty-five minutes before it, the mirror performs and
+  records an additional compact sync. Training may continue afterward, but a
+  previously verified recovery checkpoint is already off-node.
+- Telemetry correction: controller/evaluation W&B is online by default and
+  remains failure-isolated from training. The Prime trainer itself stays
+  offline so a W&B outage cannot kill an optimizer step. HF mirroring is an
+  independent tmux process with retry-on-network-error behavior.
+- Evaluation correction: the online barrier for this deliberate learnability
+  run is reduced from the 192-game development suite to a 24-game matched
+  pair-7 probe: two latent worlds, critical and decoy controls, normal/dropped/
+  sender-shuffled messages, and two stochastic repetitions. It reports return,
+  receiver target choice, sender target-fact use, protocol validity, and
+  critical-minus-decoy specificity. The large held-out development evaluation
+  is reserved for checkpoint selection; the frozen OOD tier remains unopened.
+- Claim boundary: improvement on the pair-7 probe demonstrates training-pair
+  message-conditioned learnability only. Generalization still requires the
+  byte-identical development intervention suite, and neither result establishes
+  broad emergent swarm intelligence.
+- New unattended-run rule: a future GPU run is not described as safely launched
+  until (1) the public HF heartbeat was anonymously downloaded, (2) the online
+  W&B run is visible, and (3) the mirror session is healthy. At update 10, the
+  public adapter hashes must also be verified before the run is left alone.
+
 ## Artifact index
 
 - Public source branch:

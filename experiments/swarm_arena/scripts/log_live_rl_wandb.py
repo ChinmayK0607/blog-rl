@@ -88,6 +88,33 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
 
 def summarize_evaluation(summary: dict[str, Any]) -> dict[str, int | float]:
     metrics: dict[str, int | float] = {}
+    if summary.get("version") == "pair7-communication-overfit-eval-v1":
+        critical = summary["critical"]
+        specificity = summary["specificity"]
+        protocol = summary["protocol"]
+        return {
+            "eval/train_pair/normal_return": float(critical["normal_return"]),
+            "eval/train_pair/normal_minus_dropped_return": float(
+                critical["normal_minus_dropped_return"]
+            ),
+            "eval/train_pair/normal_minus_shuffled_return": float(
+                critical["normal_minus_shuffled_return"]
+            ),
+            "eval/train_pair/receiver_target_action_rate": float(
+                critical["normal_receiver_target_action_rate"]
+            ),
+            "eval/train_pair/sender_target_fact_rate": float(
+                critical["normal_sender_target_fact_rate"]
+            ),
+            "eval/train_pair/critical_minus_decoy_specificity": float(
+                specificity["critical_minus_decoy_normal_dropped_lift"]
+            ),
+            "eval/protocol/broadcast_valid_rate": float(protocol["broadcast_valid_rate"]),
+            "eval/protocol/broadcast_grounded_rate": float(
+                protocol["broadcast_grounded_rate"]
+            ),
+            "eval/protocol/action_valid_rate": float(protocol["action_valid_rate"]),
+        }
     capability = summary.get("capability_rl_minus_sft", {})
     for suite in ("ordinary_legacy", "ordinary_hard"):
         if suite in capability:

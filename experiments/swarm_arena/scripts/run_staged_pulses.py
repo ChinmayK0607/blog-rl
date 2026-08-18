@@ -118,6 +118,18 @@ def _validate_summary(path: Path, *, step: int) -> dict:
     return summary
 
 
+def _validate_pair7_summary(path: Path, *, repetitions: int) -> dict:
+    summary = json.loads(path.read_text(encoding="utf-8"))
+    if summary.get("version") != "pair7-communication-overfit-eval-v1":
+        raise ValueError("communication pulse used the wrong evaluator version")
+    expected = 2 * 2 * 3 * repetitions
+    if summary.get("rows") != expected:
+        raise ValueError(
+            f"communication pulse is incomplete: {summary.get('rows')} rows, expected {expected}"
+        )
+    return summary
+
+
 def _wait_retained_checkpoints(
     run_dir: Path,
     *,
@@ -169,6 +181,14 @@ def main() -> None:
     parser.add_argument("--interval", type=int, default=10)
     parser.add_argument("--wait-timeout", type=float, default=7200.0)
     parser.add_argument("--checkpoint-timeout", type=float, default=600.0)
+    parser.add_argument(
+        "--evaluation-mode",
+        choices=("full", "pair7"),
+        default="full",
+        help="Use the compact training-pair probe online; reserve full for held-out selection.",
+    )
+    parser.add_argument("--pair7-repetitions", type=int, default=2)
+    parser.add_argument("--pair7-temperature", type=float, default=0.4)
     args = parser.parse_args()
     if args.expected_updates < 1 or args.interval < 1:
         parser.error("updates and interval must be positive")
@@ -232,28 +252,58 @@ def main() -> None:
                 _validate_step_zero_control_config(config)
             config_path = args.eval_root / f"update-{step}-config.json"
             _atomic_json(config_path, config)
-            command = [
-                sys.executable,
-                str(eval_script),
-                "--tier",
-                "pulse",
-                "--config",
-                str(config_path),
-                "--data-dir",
-                str(args.data_dir),
-                "--output-dir",
-                str(output_dir),
-                "--monitor-opponent-id",
-                "sft",
-                "--rl-specific-communication",
-            ]
-            if step:
-                command.extend(
-                    [
-                        "--baseline-rows",
-                        str(args.eval_root / "update-0" / "rows.jsonl"),
-                    ]
-                )
+            if args.evaluation_mode == "pair7":
+                command = [
+                    sys.executable,
+                    str(
+                        args.repo_root
+                        / "experiments"
+                        / "swarm_arena"
+                        / "scripts"
+                        / "run_pair7_communication_eval.py"
+                    ),
+                    "--manifest",
+                    str(args.data_dir / "handoff_train.json"),
+                    "--output-dir",
+                    str(output_dir),
+                    "--focal-revision",
+                    str(ready["policy_revision"]),
+                    "--opponent-revision",
+                    by_family["sft"].revision,
+                    "--repetitions",
+                    str(args.pair7_repetitions),
+                    "--temperature",
+                    str(args.pair7_temperature),
+                ]
+                for value in args.base_url:
+                    command.extend(("--base-url", value))
+                for value in config["candidate"]["models"]:
+                    command.extend(("--focal-model", value))
+                for value in config["baseline"]["models"]:
+                    command.extend(("--opponent-model", value))
+            else:
+                command = [
+                    sys.executable,
+                    str(eval_script),
+                    "--tier",
+                    "pulse",
+                    "--config",
+                    str(config_path),
+                    "--data-dir",
+                    str(args.data_dir),
+                    "--output-dir",
+                    str(output_dir),
+                    "--monitor-opponent-id",
+                    "sft",
+                    "--rl-specific-communication",
+                ]
+                if step:
+                    command.extend(
+                        [
+                            "--baseline-rows",
+                            str(args.eval_root / "update-0" / "rows.jsonl"),
+                        ]
+                    )
             if output_dir.exists():
                 command.append("--resume")
             completed = subprocess.run(
@@ -264,7 +314,10 @@ def main() -> None:
             )
             if completed.returncode != 0:
                 raise RuntimeError(f"development pulse failed at update {step}")
-        _validate_summary(summary_path, step=step)
+        if args.evaluation_mode == "pair7":
+            _validate_pair7_summary(summary_path, repetitions=args.pair7_repetitions)
+        else:
+            _validate_summary(summary_path, step=step)
         continuation = {
             "version": "swarm-checkpoint-barrier-v1",
             "step": step,

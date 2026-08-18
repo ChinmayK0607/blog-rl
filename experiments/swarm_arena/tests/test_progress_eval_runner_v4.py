@@ -10,6 +10,13 @@ from scripts.log_live_rl_wandb import (
     summarize_logical_update,
     watcher_complete,
 )
+from scripts.run_live_artifact_mirror import (
+    MirrorState,
+    checkpoint_files,
+    compact_files,
+    progress_step,
+)
+from scripts.run_pair7_communication_eval import summarize as summarize_pair7
 from scripts.run_progress_eval_v4 import (
     TIER_PLANS,
     _digest,
@@ -21,6 +28,7 @@ from scripts.run_progress_eval_v4 import (
 )
 from scripts.run_staged_pulses import (
     _candidate_models,
+    _validate_pair7_summary,
     _validate_step_zero_control_config,
     _wait_retained_checkpoints,
 )
@@ -305,3 +313,77 @@ def test_wandb_sidecar_waits_for_explicit_final_eval_marker(tmp_path) -> None:
         policy_adapter_sha256=expected,
         timeout=0.01,
     )
+
+
+def test_live_mirror_accepts_only_complete_checksum_bound_checkpoints(tmp_path: Path) -> None:
+    expected = {}
+    for index in range(4):
+        checkpoint = tmp_path / f"run_blue_{index}" / "checkpoints" / "step_10"
+        (checkpoint / "weight").mkdir(parents=True)
+        (checkpoint / "STABLE").touch()
+        (checkpoint / "weight" / "STABLE").touch()
+        adapter = checkpoint / "weight" / "adapter_model.safetensors"
+        adapter.write_bytes(f"adapter-{index}".encode())
+        (checkpoint / "weight" / "adapter_config.json").write_text("{}\n")
+        expected[f"blue-{index}"] = hashlib.sha256(adapter.read_bytes()).hexdigest()
+    files = checkpoint_files(tmp_path, 10, {"policy_adapter_sha256": expected})
+    assert len(files) == 8
+    assert all("rank_0.pt" not in name for name in files)
+    expected["blue-2"] = "0" * 64
+    with pytest.raises(ValueError, match="checksum mismatch"):
+        checkpoint_files(tmp_path, 10, {"policy_adapter_sha256": expected})
+
+
+def test_live_mirror_progress_and_state_are_resume_safe(tmp_path: Path) -> None:
+    progress = tmp_path / "progress.json"
+    progress.write_text(json.dumps([{"step": 0}, {"step": 1}]))
+    assert progress_step(progress) == 2
+    state_path = tmp_path / "state.json"
+    state = MirrorState((10, 20), 22, True)
+    state.write(state_path)
+    assert MirrorState.load(state_path) == state
+
+
+def test_pair7_summary_separates_communication_lift_from_decoy_tactics(
+    tmp_path: Path,
+) -> None:
+    rows = []
+    for kind, normal, dropped in (("critical", 0.8, 0.2), ("decoy", 0.5, 0.4)):
+        for condition, value in (
+            ("normal", normal),
+            ("dropped", dropped),
+            ("sender_shuffled", dropped),
+        ):
+            for _world in ("left", "right"):
+                rows.append(
+                    {
+                        "kind": kind,
+                        "condition": condition,
+                        "terminal_return": value,
+                        "receiver_target_action": condition == "normal",
+                        "sender_target_fact": condition == "normal",
+                        "broadcast_valid": 1.0,
+                        "broadcast_grounded": 1.0,
+                        "action_valid": 1.0,
+                    }
+                )
+    summary = summarize_pair7(rows)
+    assert summary["critical"]["normal_minus_dropped_return"] == pytest.approx(0.6)
+    assert summary["specificity"]["critical_minus_decoy_normal_dropped_lift"] == pytest.approx(0.5)
+    output = tmp_path / "summary.json"
+    output.write_text(json.dumps(summary))
+    _validate_pair7_summary(output, repetitions=1)
+    metrics = summarize_evaluation(summary)
+    assert metrics["eval/train_pair/normal_minus_dropped_return"] == pytest.approx(0.6)
+    assert metrics["eval/train_pair/critical_minus_decoy_specificity"] == pytest.approx(0.5)
+
+
+def test_live_mirror_collects_compact_eval_but_not_raw_generations(tmp_path: Path) -> None:
+    evaluation = tmp_path / "evaluations" / "update-10"
+    evaluation.mkdir(parents=True)
+    for name in ("manifest.json", "rows.jsonl", "summary.json", "raw.jsonl"):
+        (evaluation / name).write_text(name)
+    files = compact_files(tmp_path)
+    assert "evaluations/update-10/summary.json" in files
+    assert "evaluations/update-10/rows.jsonl" in files
+    assert "evaluations/update-10/raw.jsonl" not in files
