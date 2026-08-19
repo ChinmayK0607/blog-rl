@@ -883,6 +883,8 @@ async def build_live_shared_return_group(
     initial_state: GameState | None = None,
     sampling_namespace: str | None = None,
     focused_agent: str | None = None,
+    message_drop_agent: str | None = None,
+    message_drop_turn: int | None = None,
 ) -> LiveSharedReturnGroup:
     """Sample joint trajectories for shared or focused LOO terminal-return credit."""
     spec.validate()
@@ -905,6 +907,13 @@ async def build_live_shared_return_group(
             raise ValueError("focused-agent credit requires one trainable BLUE agent")
     elif focused_agent is not None:
         raise ValueError("shared-team credit cannot name a focused agent")
+    if spec.baseline == "paired_message_drop":
+        if message_drop_agent not in trainable_agents or message_drop_agent == focused_agent:
+            raise ValueError("paired message-drop credit requires a distinct trainable sender")
+        if message_drop_turn is None:
+            raise ValueError("paired message-drop credit requires an intervention turn")
+    elif message_drop_agent is not None or message_drop_turn is not None:
+        raise ValueError("leave-one-out credit cannot name a message intervention")
     base_namespace = sampling_namespace or group_id
     common_sampling_namespace = f"{base_namespace}:common" if spec.credit_assignment == "focused_agent" else None
     focused_action_prompt_agent = (
@@ -940,6 +949,34 @@ async def build_live_shared_return_group(
                 )
                 for index in range(spec.replicas)
             )
+        )
+        dropped_branches = (
+            await asyncio.gather(
+                *(
+                    rollout_branch(
+                        generator,
+                        game_id=f"{replica_game_ids[index]}:drop",
+                        initial_state=initial_state,
+                        config=config,
+                        bindings=bindings,
+                        policies=policy_by_id,
+                        replacement_policy_id=None,
+                        replaced_agent=None,
+                        sampling_namespace=f"{replica_namespaces[index]}:drop",
+                        message_drop_agent=message_drop_agent,
+                        message_drop_turn=message_drop_turn,
+                        sample_phases=phases,
+                        sample_turns=absolute_turns,
+                        common_sampling_namespace=common_sampling_namespace,
+                        independently_sampled_agent=focused_agent,
+                        prompt_namespace=common_sampling_namespace,
+                        focused_action_prompt_agent=focused_action_prompt_agent,
+                    )
+                    for index in range(spec.replicas)
+                )
+            )
+            if spec.baseline == "paired_message_drop"
+            else (None,) * spec.replicas
         )
 
     binding_by_agent = {row.agent_id: row for row in bindings}
@@ -978,6 +1015,8 @@ async def build_live_shared_return_group(
                 replica_namespaces[index],
                 branch.replay,
                 branch.decisions,
+                dropped_branches[index].replay if dropped_branches[index] is not None else None,
+                dropped_branches[index].decisions if dropped_branches[index] is not None else (),
             )
         )
     evidence = SharedReturnGroupEvidence(
@@ -991,5 +1030,7 @@ async def build_live_shared_return_group(
         common_sampling_namespace,
         tuple(replicas),
         None,
+        message_drop_agent,
+        message_drop_turn,
     )
     return LiveSharedReturnGroup(evidence, bindings, tuple(owned_by_replica))

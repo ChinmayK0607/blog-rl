@@ -166,7 +166,7 @@ class SharedReturnSpec:
     replicas: int
     trainable_phases: tuple[Literal["BROADCAST", "ACT"], ...] = ("BROADCAST",)
     trainable_turn_offsets: tuple[int, ...] | None = (0,)
-    baseline: Literal["leave_one_out_mean"] = "leave_one_out_mean"
+    baseline: Literal["leave_one_out_mean", "paired_message_drop"] = "leave_one_out_mean"
     reward: Literal["verified_terminal_team_return"] = "verified_terminal_team_return"
     credit_assignment: Literal["shared_team", "focused_agent"] = "shared_team"
     action_prompt_profile: Literal["full", "focused_handoff_compact"] = "full"
@@ -185,7 +185,7 @@ class SharedReturnSpec:
                 raise ValueError("shared-return turn offsets must be non-empty and unique")
             if any(offset < 0 for offset in self.trainable_turn_offsets):
                 raise ValueError("shared-return turn offsets cannot be negative")
-        if self.baseline != "leave_one_out_mean":
+        if self.baseline not in {"leave_one_out_mean", "paired_message_drop"}:
             raise ValueError("shared-return spec contains an unsupported baseline")
         if self.reward != "verified_terminal_team_return":
             raise ValueError("shared-return spec contains an unsupported reward")
@@ -202,6 +202,10 @@ class SharedReturnSpec:
             or self.trainable_phases[0] not in {"BROADCAST", "ACT"}
         ):
             raise ValueError("focused-agent credit requires exactly one causal decision phase")
+        if self.baseline == "paired_message_drop" and (
+            self.credit_assignment != "focused_agent" or self.trainable_phases != ("ACT",)
+        ):
+            raise ValueError("paired message-drop credit requires focused-agent ACT credit")
 
     @property
     def sha256(self) -> str:
@@ -221,6 +225,8 @@ class SharedReturnReplicaEvidence:
     sampling_namespace: str
     replay: BranchReplay
     decisions: tuple[RolloutDecision, ...]
+    dropped_replay: BranchReplay | None = None
+    dropped_decisions: tuple[RolloutDecision, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -235,6 +241,8 @@ class SharedReturnGroupEvidence:
     common_sampling_namespace: str | None
     replicas: tuple[SharedReturnReplicaEvidence, ...]
     trainer_logprobs: dict[str, tuple[float, ...]] | None
+    message_drop_agent: str | None = None
+    message_drop_turn: int | None = None
 
 
 @dataclass(frozen=True)
@@ -301,7 +309,7 @@ def _message_evidence_payload(evidence: MessageCreditGroupEvidence) -> dict[str,
 
 
 def shared_return_evidence_payload(evidence: SharedReturnGroupEvidence) -> dict[str, Any]:
-    return {
+    payload = {
         "run_lock_sha256": evidence.run_lock_sha256,
         "group_id": evidence.group_id,
         "initial_state_sha256": evidence.initial_state_sha256,
@@ -322,6 +330,15 @@ def shared_return_evidence_payload(evidence: SharedReturnGroupEvidence) -> dict[
         ],
         "trainer_logprobs": evidence.trainer_logprobs,
     }
+    if evidence.spec.baseline == "paired_message_drop":
+        payload["message_drop_agent"] = evidence.message_drop_agent
+        payload["message_drop_turn"] = evidence.message_drop_turn
+        for replica_payload, replica in zip(payload["replicas"], evidence.replicas, strict=True):
+            replica_payload["dropped_replay"] = (
+                _branch_payload(replica.dropped_replay) if replica.dropped_replay else None
+            )
+            replica_payload["dropped_decisions"] = [asdict(row) for row in replica.dropped_decisions]
+    return payload
 
 
 def _branch_payload(branch: BranchReplay) -> dict[str, Any]:
@@ -861,6 +878,17 @@ def leave_one_out_advantages(returns: tuple[float, ...]) -> tuple[float, ...]:
     return advantages
 
 
+def paired_message_drop_advantages(
+    normal_returns: tuple[float, ...],
+    dropped_returns: tuple[float, ...],
+) -> tuple[float, ...]:
+    """Center verified normal-minus-dropped terminal-return effects across replicas."""
+    if len(normal_returns) != len(dropped_returns):
+        raise ValueError("paired message-drop returns must have equal lengths")
+    effects = tuple(normal - dropped for normal, dropped in zip(normal_returns, dropped_returns, strict=True))
+    return leave_one_out_advantages(effects)
+
+
 def approve_shared_return_group(
     lock: RunLock,
     evidence: SharedReturnGroupEvidence,
@@ -909,6 +937,16 @@ def approve_shared_return_group(
             raise ValueError("focused-agent evidence requires a common sampling namespace")
     elif evidence.focused_agent is not None or evidence.common_sampling_namespace is not None:
         raise ValueError("shared-team evidence cannot name focused sampling fields")
+    if evidence.spec.baseline == "paired_message_drop":
+        same_team_agents = {binding.agent_id for binding in bindings if binding.team == trainable_team}
+        if evidence.message_drop_agent not in same_team_agents:
+            raise ValueError("paired message-drop evidence names an invalid same-team sender")
+        if evidence.message_drop_agent == evidence.focused_agent:
+            raise ValueError("paired message-drop sender and receiver must differ")
+        if evidence.message_drop_turn is None:
+            raise ValueError("paired message-drop evidence requires an intervention turn")
+    elif evidence.message_drop_agent is not None or evidence.message_drop_turn is not None:
+        raise ValueError("leave-one-out evidence cannot name a message intervention")
 
     policy_revisions = {
         **dict(lock.trainable_policy_revisions),
@@ -918,6 +956,7 @@ def approve_shared_return_group(
     allowed_constraints = set(lock.allowed_constraint_hashes)
     seen_sampling_keys: set[str] = set()
     verifications: list[ReplayVerification] = []
+    dropped_verifications: list[ReplayVerification] = []
     absolute_turns = (
         None
         if evidence.spec.trainable_turn_offsets is None
@@ -989,9 +1028,61 @@ def approve_shared_return_group(
             branch=f"replica-{replica.replica_index}",
         )
         verifications.append(verification)
-    _verify_common_random_outputs(tuple(decision for row in evidence.replicas for decision in row.decisions))
+        if evidence.spec.baseline == "paired_message_drop":
+            if replica.dropped_replay is None or not replica.dropped_decisions:
+                raise ValueError("paired message-drop replica omits its dropped branch")
+            if replica.dropped_replay.replaced_agent != evidence.message_drop_agent:
+                raise ValueError("paired message-drop replay names the wrong sender")
+            if {row.game_id for row in replica.dropped_decisions} != {f"{replica.game_id}:drop"}:
+                raise ValueError("paired message-drop decisions mix or omit their drop game ID")
+            for decision in replica.dropped_decisions:
+                if decision.branch != "message_drop" or decision.replaced_agent != evidence.message_drop_agent:
+                    raise ValueError("paired message-drop evidence contains a non-drop decision")
+                if decision.constraint_sha256 not in allowed_constraints:
+                    raise ValueError(f"unapproved dynamic constraint: {decision.decision_id}")
+                binding = binding_by_agent.get(decision.agent_id)
+                if binding is None or decision.policy_id != binding.policy_id:
+                    raise ValueError(f"wrong paired-drop policy routing: {decision.decision_id}")
+                expected_revision = policy_revisions.get(binding.policy_id)
+                if expected_revision is None or decision.policy_revision != expected_revision:
+                    raise ValueError(f"stale or unexpected policy revision: {decision.decision_id}")
+            dropped_verification = verify_replay(
+                evidence.initial_state,
+                evidence.episode_config,
+                replica.dropped_replay,
+                trainable_team,
+            )
+            _verify_delivery_contract(
+                evidence.initial_state,
+                evidence.episode_config,
+                replica.dropped_replay,
+                dropped_sender=evidence.message_drop_agent,
+                dropped_turn=evidence.message_drop_turn,
+            )
+            _verify_private_contexts(
+                replica.dropped_decisions,
+                dropped_verification,
+                branch=f"replica-{replica.replica_index}-drop",
+            )
+            dropped_verifications.append(dropped_verification)
+        elif replica.dropped_replay is not None or replica.dropped_decisions:
+            raise ValueError("leave-one-out replica cannot contain a dropped branch")
+    _verify_common_random_outputs(
+        tuple(
+            decision
+            for row in evidence.replicas
+            for decision in row.decisions + row.dropped_decisions
+        )
+    )
 
-    advantages = leave_one_out_advantages(tuple(row.terminal_return for row in verifications))
+    advantages = (
+        paired_message_drop_advantages(
+            tuple(row.terminal_return for row in verifications),
+            tuple(row.terminal_return for row in dropped_verifications),
+        )
+        if evidence.spec.baseline == "paired_message_drop"
+        else leave_one_out_advantages(tuple(row.terminal_return for row in verifications))
+    )
     envelopes = tuple(
         build_shared_return_training_envelopes(
             replica.decisions,

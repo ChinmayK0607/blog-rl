@@ -433,6 +433,11 @@ async def main() -> None:
                 else (0,)
             ),
             credit_assignment=args.shared_return_credit_assignment,
+            baseline=(
+                production_plan.shared_return_baseline
+                if production_plan is not None
+                else "leave_one_out_mean"
+            ),
             action_prompt_profile=(
                 production_plan.action_prompt_profile
                 if production_plan is not None
@@ -818,6 +823,16 @@ async def main() -> None:
                         initial_state=initial_state,
                         sampling_namespace=sampling_namespace,
                         focused_agent=focused_agent,
+                        message_drop_agent=(
+                            str(scenario_metadata["sender"])
+                            if group_shared_return_spec.baseline == "paired_message_drop"
+                            else None
+                        ),
+                        message_drop_turn=(
+                            initial_state.turn
+                            if group_shared_return_spec.baseline == "paired_message_drop"
+                            else None
+                        ),
                     )
                     approvals = approve_shared_return_group(lock, group.evidence, bindings, "BLUE", key)
                     replica_routes = tuple(
@@ -918,6 +933,10 @@ async def main() -> None:
                             "spec": asdict(group.evidence.spec),
                             "focused_agent": group.evidence.focused_agent,
                             "replica_returns": [row.replay.terminal_return for row in group.evidence.replicas],
+                            "dropped_returns": [
+                                row.dropped_replay.terminal_return if row.dropped_replay is not None else None
+                                for row in group.evidence.replicas
+                            ],
                         },
                     )
                     step_groups.append(

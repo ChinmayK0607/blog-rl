@@ -28,6 +28,7 @@ from swarm_ctf_eval.safety_supervisor import (
     approve_shared_return_group,
     canonical_sha256,
     leave_one_out_advantages,
+    paired_message_drop_advantages,
 )
 from swarm_ctf_eval.shared_return_parity import build_shared_return_parity_probe
 from swarm_ctf_eval.structured_protocol import protocol_choices
@@ -123,6 +124,96 @@ def test_leave_one_out_advantages_are_zero_sum_and_unshaped() -> None:
         )
     )
     assert math.isclose(sum(values), 0.0, abs_tol=1e-12)
+
+
+def test_paired_message_drop_advantages_center_only_terminal_return_effects() -> None:
+    values = paired_message_drop_advantages(
+        (0.5, 0.4, 0.9, 0.2),
+        (0.5, 0.2, 0.3, 0.4),
+    )
+    assert all(
+        math.isclose(actual, expected, abs_tol=1e-12)
+        for actual, expected in zip(values, (-0.26666666666666666, 0.0, 0.8, -0.5333333333333333), strict=True)
+    )
+    assert math.isclose(sum(values), 0.0, abs_tol=1e-12)
+
+
+def test_paired_message_drop_group_replays_both_conditions_and_routes_normal_receiver_only() -> None:
+    spec = SharedReturnSpec(
+        replicas=2,
+        trainable_phases=("ACT",),
+        trainable_turn_offsets=(0,),
+        baseline="paired_message_drop",
+        credit_assignment="focused_agent",
+        action_prompt_profile="focused_handoff_compact",
+    )
+    lock = _lock(spec)
+    bindings = _bindings()
+    group = asyncio.run(
+        build_live_shared_return_group(
+            FirstChoiceGenerator(),  # type: ignore[arg-type]
+            group_id="paired-drop-receiver",
+            seed=305,
+            size=12,
+            config=EpisodeConfig(
+                horizon=2,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            ),
+            spec=spec,
+            bindings=bindings,
+            policies=_endpoints(),
+            run_lock_sha256=lock.sha256,
+            focused_agent="blue-1",
+            message_drop_agent="blue-0",
+            message_drop_turn=0,
+        )
+    )
+    approvals = approve_shared_return_group(
+        lock,
+        group.evidence,
+        bindings,
+        "BLUE",
+        b"shared-return-test-signing-key-32-bytes",
+    )
+    assert len(approvals) == 2
+    assert all(replica.dropped_replay is not None for replica in group.evidence.replicas)
+    assert all(
+        decision.branch == "message_drop"
+        for replica in group.evidence.replicas
+        for decision in replica.dropped_decisions
+    )
+    assert {
+        envelope.agent_id
+        for approval in approvals
+        for envelope in approval.envelopes
+        if envelope.advantage != 0.0
+    } <= {"blue-1"}
+    assert all(
+        decision_id.endswith(":0:ACT")
+        for approval in approvals
+        for envelope in approval.envelopes
+        for decision_id in envelope.decision_ids
+    )
+
+    first = group.evidence.replicas[0]
+    assert first.dropped_replay is not None
+    tampered = replace(
+        group.evidence,
+        replicas=(
+            replace(first, dropped_replay=replace(first.dropped_replay, replaced_agent="blue-2")),
+            *group.evidence.replicas[1:],
+        ),
+    )
+    with pytest.raises(ValueError, match="wrong sender"):
+        approve_shared_return_group(
+            lock,
+            tampered,
+            bindings,
+            "BLUE",
+            b"shared-return-test-signing-key-32-bytes",
+        )
 
 
 def test_compact_prompt_profile_is_bound_without_changing_legacy_spec_identity() -> None:

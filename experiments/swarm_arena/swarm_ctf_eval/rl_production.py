@@ -374,6 +374,7 @@ class ProductionPlan:
     stages: tuple[CurriculumStage, ...] = ()
     shared_return_replicas: int = 4
     action_prompt_profile: Literal["full", "focused_handoff_compact"] = "full"
+    shared_return_baseline: Literal["leave_one_out_mean", "paired_message_drop"] = "leave_one_out_mean"
 
     def validate(self) -> None:
         if self.version not in {
@@ -429,6 +430,10 @@ class ProductionPlan:
             raise ValueError("production plan contains an unknown action prompt profile")
         if self.action_prompt_profile == "focused_handoff_compact" and "ACT" not in self.trainable_phases:
             raise ValueError("compact handoff prompts require ACT to be a trainable phase")
+        if self.shared_return_baseline not in {"leave_one_out_mean", "paired_message_drop"}:
+            raise ValueError("production plan contains an unknown shared-return baseline")
+        if self.shared_return_baseline == "paired_message_drop" and self.trainable_phases != ("ACT",):
+            raise ValueError("paired message-drop plans require receiver ACT-only training")
 
     @property
     def sha256(self) -> str:
@@ -438,6 +443,8 @@ class ProductionPlan:
             payload.pop("shared_return_replicas")
         if self.action_prompt_profile == "full":
             payload.pop("action_prompt_profile")
+        if self.shared_return_baseline == "leave_one_out_mean":
+            payload.pop("shared_return_baseline")
         if self.version == RL_PRODUCTION_PLAN_VERSION:
             # Preserve byte-for-byte run-lock identity for every completed v4 run.
             payload.pop("stages")
@@ -542,6 +549,9 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         stages=stages,
         shared_return_replicas=int(raw.get("rollout_runtime", {}).get("shared_return_replicas", 4)),
         action_prompt_profile=str(raw.get("rollout_runtime", {}).get("action_prompt_profile", "full")),
+        shared_return_baseline=str(
+            raw.get("rollout_runtime", {}).get("shared_return_baseline", "leave_one_out_mean")
+        ),
     )
     plan.validate()
     if set(runtime_paths) != {snapshot.opponent_id for snapshot in snapshots}:
