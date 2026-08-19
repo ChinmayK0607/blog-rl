@@ -56,6 +56,7 @@ export SWARM_CONTROLLER_WANDB_MODE=online
 export SWARM_LIVE_HF_REPO=CK0607/swarm-arena-live-runs
 export SWARM_DEADLINE_EPOCH=<provider-termination-unix-epoch>
 export SWARM_FINAL_SYNC_MARGIN=2700
+export SWARM_MIRROR_INTERVAL_STEPS=1
 
 bash experiments/swarm_arena/scripts/launch_staged_rl.sh
 ```
@@ -68,7 +69,7 @@ download, and byte-verify:
 ## What is saved off-node
 
 - Per-update controller and per-checkpoint evaluation metrics stream to W&B.
-- Every five updates, compact progress, logs, launch inputs, and completed
+- Every completed update, compact progress, logs, launch inputs, and completed
   pair-7 evaluation rows/summaries are committed to HF.
 - At updates 10, 20, ..., 60, all four complete LoRA adapters are committed to
   `runs/<run-id>/checkpoints/step-<N>/`. Adapter hashes must equal the controller

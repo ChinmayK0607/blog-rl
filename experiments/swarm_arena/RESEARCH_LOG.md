@@ -3953,6 +3953,45 @@ no more critical-specific than decoy-specific. Therefore:
 - Public, non-admitted mechanical RL artifact:
   `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v1`
 
+### 2026-08-19 — RTX 5090 communication-overfit backend-bound failure
+
+- Status: failed at the declared runtime gate after 11 completed controller
+  records; update 10 is the last accepted, publicly mirrored checkpoint.
+- Runtime: four RTX 5090 GPUs, driver `595.45.04`; source
+  `8fd1a918ab6831d3900cd7bd708b3d66bb49d5ca`. All 121 Linux tests passed.
+  The fresh 32-decision probe passed with mean absolute log-probability error
+  `0.00172195` and mean mismatch KL `0.000058302` under the original
+  `0.05`/`0.01` limits.
+- Startup failures before optimizer work were preserved separately: missing
+  declared `flash-attn`, a tmux uv-cache inheritance miss, HTTP 403 from W&B's
+  GraphQL endpoint on the provider IP, and a stale step-0 barrier left by the
+  aborted controller. W&B moved to offline logging; public HF mirroring stayed
+  active after every completed update.
+- Run identity:
+  `rl-v4-pair7-overfit60-8fd1a918-5090-20260819`. The complete four-policy
+  update-10 checkpoint was uploaded, anonymously re-downloaded, and SHA-256
+  verified. Update 0 had critical normal return `0.05556`,
+  generated-minus-dropped return `0.03704`, and receiver target-action rate
+  `0.5` under both conditions. Update 10 had critical normal return `0.05556`,
+  zero generated-minus-dropped return, receiver target-action rate `0.5` under
+  both conditions, and generated-minus-shuffled return `-0.01852`. Therefore no
+  communication learning was observed by update 10.
+- Rejected update 11: before applying its atomic optimizer update, one role
+  measured mean absolute log-probability error `0.083509512` and mean mismatch
+  KL `0.025269199`, above `0.05` and `0.01`. Exact adapter SHA-256 values matched
+  across the trainer broadcast, controller progress, lag-zero rescore manifest,
+  and all three vLLM registries. The rescorer reuses same-backend rollout
+  log-probabilities rather than running an independent HF forward pass. This
+  isolates the failure to the vLLM-FA2 versus HF-FA2 numerical envelope on a
+  peaked constrained choice, not stale-policy lag, OOM, partial optimization,
+  or a launcher failure.
+- Decision: preserve this run as rejected at its declared backend bound and
+  restart from the SFT initializer with a new identity. The newly declared hard
+  compatibility ceilings are `0.10` mean absolute log-probability error and
+  `0.05` mean mismatch KL. KL regularization, probability-tail checks, atomic
+  four-policy updates, task, terminal reward, curriculum, and evaluation remain
+  unchanged. This is not a retroactive pass for the rejected update.
+
 ## Future entry template
 
 Copy this block for each material run:

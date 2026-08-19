@@ -29,6 +29,7 @@ swarm_wandb_group=${SWARM_WANDB_GROUP:-qwen3-1.7b-staged-$swarm_expected_updates
 swarm_controller_wandb_mode=${SWARM_CONTROLLER_WANDB_MODE:-online}
 swarm_final_sync_margin=${SWARM_FINAL_SYNC_MARGIN:-2700}
 swarm_pulse_mode=${SWARM_PULSE_MODE:-pair7}
+swarm_mirror_interval_steps=${SWARM_MIRROR_INTERVAL_STEPS:-1}
 
 case "$swarm_controller_wandb_mode" in
   online) swarm_wandb_mode_arg=() ;;
@@ -37,6 +38,10 @@ case "$swarm_controller_wandb_mode" in
 esac
 if ! [[ "$SWARM_DEADLINE_EPOCH" =~ ^[0-9]+$ ]] || (( SWARM_DEADLINE_EPOCH <= $(date +%s) )); then
   echo "SWARM_DEADLINE_EPOCH must be a future Unix timestamp" >&2
+  exit 1
+fi
+if ! [[ "$swarm_mirror_interval_steps" =~ ^[1-9][0-9]*$ ]]; then
+  echo "SWARM_MIRROR_INTERVAL_STEPS must be a positive integer" >&2
   exit 1
 fi
 
@@ -101,7 +106,7 @@ tmux new-session -d -s "$swarm_session_prefix-wandb" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/log_live_rl_wandb.py --progress $SWARM_RUN_DIR/live_rl_progress.json --eval-root $swarm_eval_root --expected-updates $swarm_expected_updates --finish-marker $swarm_eval_root/COMPLETE --project swarm-arena-rl --group $swarm_wandb_group --run-name $SWARM_RUN_ID-controller --run-id $SWARM_RUN_ID-controller-v1 --tag 1.7b --tag causal-communication --tag development ${swarm_wandb_mode_arg[*]} --compact-artifact $SWARM_PRODUCTION_PLAN --compact-artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/wandb.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-mirror" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_artifact_mirror.py --repo-id $SWARM_LIVE_HF_REPO --run-id $SWARM_RUN_ID --run-dir $SWARM_RUN_DIR --deadline-epoch $SWARM_DEADLINE_EPOCH --final-sync-margin $swarm_final_sync_margin --artifact $SWARM_PRODUCTION_PLAN --artifact $SWARM_RUNTIME_CERTIFICATE --artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/mirror.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_artifact_mirror.py --repo-id $SWARM_LIVE_HF_REPO --run-id $SWARM_RUN_ID --run-dir $SWARM_RUN_DIR --deadline-epoch $SWARM_DEADLINE_EPOCH --final-sync-margin $swarm_final_sync_margin --compact-interval-steps $swarm_mirror_interval_steps --artifact $SWARM_PRODUCTION_PLAN --artifact $SWARM_RUNTIME_CERTIFICATE --artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/mirror.log 2>&1"
 
 sleep 15
 if ! tmux has-session -t "$swarm_session_prefix-trainer" 2>/dev/null; then
