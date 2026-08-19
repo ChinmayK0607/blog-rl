@@ -1,0 +1,65 @@
+{
+  "by_pair": {
+    "7": {
+      "critical": {
+        "dropped_receiver_target_action_rate": 0.5,
+        "normal_minus_dropped_return": 0.0,
+        "normal_minus_shuffled_return": 0.0,
+        "normal_receiver_target_action_rate": 0.5,
+        "normal_return": 0.05555555555555555,
+        "normal_sender_target_fact_rate": 1.0
+      },
+      "protocol": {
+        "action_valid_rate": 1.0,
+        "broadcast_grounded_rate": 1.0,
+        "broadcast_valid_rate": 1.0
+      },
+      "specificity": {
+        "critical_minus_decoy_normal_dropped_lift": -0.037037037037037035
+      }
+    },
+    "9": {
+      "critical": {
+        "dropped_receiver_target_action_rate": 0.5,
+        "normal_minus_dropped_return": -0.016666666666666677,
+        "normal_minus_shuffled_return": 0.0,
+        "normal_receiver_target_action_rate": 0.5,
+        "normal_return": -0.08333333333333334,
+        "normal_sender_target_fact_rate": 1.0
+      },
+      "protocol": {
+        "action_valid_rate": 1.0,
+        "broadcast_grounded_rate": 1.0,
+        "broadcast_valid_rate": 1.0
+      },
+      "specificity": {
+        "critical_minus_decoy_normal_dropped_lift": 0.033333333333333326
+      }
+    }
+  },
+  "critical": {
+    "dropped_receiver_target_action_rate": 0.5,
+    "normal_minus_dropped_return": -0.008333333333333338,
+    "normal_minus_shuffled_return": 0.0,
+    "normal_receiver_target_action_rate": 0.5,
+    "normal_return": -0.013888888888888895,
+    "normal_sender_target_fact_rate": 1.0
+  },
+  "interpretation": "This measures training-pair message-conditioned learning only. Held-out development remains the generalization measure.",
+  "manifest_sha256": "a7ec146e5e3a4468d56a6d89be3e70b5a75988f21919ea34250f688d90453034",
+  "pair_indices": [
+    7,
+    9
+  ],
+  "protocol": {
+    "action_valid_rate": 1.0,
+    "broadcast_grounded_rate": 1.0,
+    "broadcast_valid_rate": 1.0
+  },
+  "rows": 48,
+  "specificity": {
+    "critical_minus_decoy_normal_dropped_lift": -0.0018518518518518545
+  },
+  "version": "multipair-communication-learnability-eval-v2",
+  "wall_seconds": 93.57123637199402
+}

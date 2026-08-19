@@ -1,0 +1,72 @@
+{
+  "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+  "checkpoint_interval": 10,
+  "curriculum_sha256": "f0af86ce2608680c70f37dae51bbb4afeace54566a1efe861f7065ab5d674878",
+  "free_gib": 2289.701198577881,
+  "gpus": [
+    {
+      "driver_version": "580.126.09",
+      "index": 0,
+      "memory_total_mib": 46068,
+      "memory_used_mib": 0,
+      "name": "NVIDIA L40S"
+    },
+    {
+      "driver_version": "580.126.09",
+      "index": 1,
+      "memory_total_mib": 46068,
+      "memory_used_mib": 38249,
+      "name": "NVIDIA L40S"
+    },
+    {
+      "driver_version": "580.126.09",
+      "index": 2,
+      "memory_total_mib": 46068,
+      "memory_used_mib": 38249,
+      "name": "NVIDIA L40S"
+    },
+    {
+      "driver_version": "580.126.09",
+      "index": 3,
+      "memory_total_mib": 46068,
+      "memory_used_mib": 38249,
+      "name": "NVIDIA L40S"
+    }
+  ],
+  "production_plan_sha256": "93ae311d15bf57a40d7d4a16298bdb8fe35e28997eb68726bcc69e251ef6d64a",
+  "runtime_certificate_sha256": "a3da30e9d65b5ef457058444ac6ccf3dbd448758063c26fc7a9e86c5173a8115",
+  "schedule": {
+    "counts": {
+      "critical": 160
+    },
+    "groups": 160,
+    "handoff_pairs": 2,
+    "maximum_ordinary_horizon": 0,
+    "maximum_ordinary_size": 0,
+    "ordinary_seeds": 0,
+    "updates": 40
+  },
+  "serving": [
+    {
+      "base_url": "http://127.0.0.1:8001",
+      "models": 3
+    },
+    {
+      "base_url": "http://127.0.0.1:8002",
+      "models": 3
+    },
+    {
+      "base_url": "http://127.0.0.1:8003",
+      "models": 3
+    }
+  ],
+  "source_commit": "3ca20933409f2e02f9dce60a3f295f10d15a0806",
+  "status": "passed",
+  "task": {
+    "development_sha256": "e1a46a3b3a54b7410e330f49e59fae6d4ea0a7764d081e9df050fd6f27bd89eb",
+    "final_sha256": "440bc41ef06a755a0174245640fb6a837d31af39372fa4bf90994574feb63dec",
+    "train_sha256": "535c29bd5be475c615554c0fbd4aedab8566f16baf9ee0a2d69a42d92800ec38",
+    "version": "arena-rl-v4-information-handoff"
+  },
+  "version": "swarm-staged-rl-preflight-v2"
+}

@@ -4183,6 +4183,63 @@ no more critical-specific than decoy-specific. Therefore:
   dropped and shuffled messages in aggregate and on both pairs, with a larger
   critical than matched-decoy effect. No result is claimed at launch.
 
+### 2026-08-19 — compact multi-pair v6 completed result
+
+- Status: completed all 40 atomic updates and five checkpoint evaluations;
+  mechanically valid, scientifically negative for communication learning.
+- Run: `rl-v4-compact-multipair40-3ca20933-l40s-a`, source
+  `3ca20933409f2e02f9dce60a3f295f10d15a0806`. Launch-to-final-evaluation wall
+  time was approximately 72 minutes. The provider price for this allocation
+  was not supplied, so no dollar cost is inferred.
+- Integrity: all 130 Linux tests passed before launch. No OOM, NaN, NCCL,
+  launcher, protocol, or parity rejection occurred. The final atomic update's
+  largest per-policy mean absolute log-probability error was `0.0305019` and
+  largest mean mismatch KL was `0.00809766`, inside the unchanged `0.25` and
+  `0.15` compatibility alarms. Policy KL regularization remained
+  `kl_tau = 0.001`.
+- Durable artifacts: complete four-adapter sets at updates 10, 20, 30, and 40
+  were uploaded to `CK0607/swarm-arena-live-runs`, anonymously downloaded, and
+  SHA-256 verified. Final ready-record SHA-256 is
+  `640f17dba7003298900ae8712acfc13d16ff4780eb5bbcd0ecbf5c4fae074eef`;
+  final adapter hashes are `4b50b681...a85fb`, `2124b5bb...9ed0f`,
+  `9108b0da...cbeac`, and `c0dfb9b9...d04d1`. Controller and trainer W&B runs
+  both synced successfully.
+- Checkpoint curve, normal-minus-dropped return at updates 0/10/20/30/40:
+  `-0.01667`, `-0.00926`, `-0.00833`, `+0.00093`, `+0.00833`.
+  Normal-minus-shuffled was `+0.02778`, `-0.00926`, `0`, `-0.05093`, and
+  `-0.01759`. Receiver target choice stayed exactly `4/8` under both normal
+  and dropped messages at every checkpoint. Protocol and grounding stayed
+  `1.0`.
+- Final paired uncertainty: update-40 normal-minus-dropped was `+0.00833`,
+  four-unit bootstrap 95% interval `[-0.05370,+0.07037]`, with two pair/world
+  units positive and two negative. Normal-minus-shuffled was `-0.01759`,
+  interval `[-0.08333,+0.04722]`. Critical-minus-decoy specificity was
+  `+0.00833`, interval `[0,+0.025]`, from one positive unit and three zero.
+- Per-pair failure: pair 7 normal-minus-dropped was exactly `0`; pair 9 was
+  `+0.01667`. Neither changed receiver target accuracy, and both had negative
+  normal-minus-shuffled return. The preregistered aggregate, both-pair,
+  receiver-choice, and shuffled-message requirements therefore did not pass.
+- Training diagnosis: signal density was not the bottleneck. Non-zero focused
+  advantage rose to `95%` for both receiver slots in the last ten updates.
+  Pair-9 target captures rose from `6.25%` in the first ten updates to `20.63%`
+  in the last ten; pair 7 rose from `20.63%` to `26.25%`. Pair 9 improved far
+  more in the left world (`51.25%` target actions) than the right (`35%`), so
+  the policy strengthened a target prior and generic capture behavior rather
+  than switching from the teammate fact.
+- Decision: no checkpoint is eligible for development selection; the held-out
+  development and frozen OOD suites remain unopened. This is a clean negative
+  result for within-world leave-one-out receiver credit on Qwen3-1.7B, not a
+  failed RL pipeline. Full compact evidence and interpretation live in
+  `results/rl_v4_compact_multipair40_1_7b/RESULT.md`.
+- Next action: prospectively implement and audit a paired terminal-return
+  receiver estimator centered on normal-versus-message-intervention outcomes,
+  with matched decoys as a null control. Require balanced non-zero
+  critical-over-decoy signal for both receiver slots before another optimizer
+  run; if the 1.7B model cannot meet that gate, move to the 4B instruct model.
+- Instance status: trainer, inference, rescore, and watcher sessions were
+  stopped after publication. All four GPUs report `0 MiB` and no compute
+  processes. Safe to decommission.
+
 ## Future entry template
 
 Copy this block for each material run:

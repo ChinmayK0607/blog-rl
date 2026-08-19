@@ -1,0 +1,13 @@
+{
+  "checked_unix": 1787145759,
+  "deadline_finalized": false,
+  "mirrored_steps": [
+    10,
+    20,
+    30,
+    40
+  ],
+  "progress_step": 40,
+  "status": "healthy",
+  "version": "swarm-live-artifact-mirror-v1"
+}
