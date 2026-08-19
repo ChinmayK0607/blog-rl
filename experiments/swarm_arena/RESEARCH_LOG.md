@@ -4510,6 +4510,10 @@ no more critical-specific than decoy-specific. Therefore:
   validation command accidentally included the Bash launcher in Ruff's Python
   inputs and produced syntax noise without executing code or changing state;
   the corrected language-specific checks passed.
+- Memory setup: the trainer launcher now explicitly carries
+  `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` (overridable by a scoped
+  Swarm environment variable), preserving the allocator-only fix that let the
+  prior rank-32 4B run complete at roughly 42.8 GiB peak memory.
 - Interpretation boundary fixed prospectively: success on pairs 24--27 is
   within-manifest role/pair transfer. Only after development selection will one
   checkpoint be evaluated once on the unchanged frozen OOD suite. A rising

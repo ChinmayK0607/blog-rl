@@ -30,6 +30,7 @@ swarm_action_prompt_profile=${SWARM_ACTION_PROMPT_PROFILE:-$(jq -r '.runtime.act
 swarm_wandb_group=${SWARM_WANDB_GROUP:-qwen3-1.7b-staged-$swarm_expected_updates}
 swarm_wandb_model_tag=${SWARM_WANDB_MODEL_TAG:-1.7b}
 swarm_controller_wandb_mode=${SWARM_CONTROLLER_WANDB_MODE:-online}
+swarm_pytorch_cuda_alloc_conf=${SWARM_PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}
 swarm_final_sync_margin=${SWARM_FINAL_SYNC_MARGIN:-2700}
 swarm_pulse_mode=${SWARM_PULSE_MODE:-$(jq -r '.runtime.online_evaluation_mode // "full"' "$swarm_curriculum_artifact")}
 swarm_communication_eval_turns=${SWARM_COMMUNICATION_EVAL_TURNS:-$(jq -r '.runtime.online_eval_remaining_turns // 2' "$swarm_curriculum_artifact")}
@@ -107,7 +108,7 @@ for swarm_role in trainer rescore pulses wandb mirror controller; do
 done
 
 tmux new-session -d -s "$swarm_session_prefix-trainer" \
-  "cd $SWARM_REPO_ROOT && export CUDA_VISIBLE_DEVICES=0 && exec $swarm_uv run torchrun --standalone --nproc-per-node=1 .venv/bin/trainer @ $SWARM_RUN_DIR/trainer.toml > $SWARM_RUN_DIR/logs/trainer.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export CUDA_VISIBLE_DEVICES=0 PYTORCH_CUDA_ALLOC_CONF=$swarm_pytorch_cuda_alloc_conf && exec $swarm_uv run torchrun --standalone --nproc-per-node=1 .venv/bin/trainer @ $SWARM_RUN_DIR/trainer.toml > $SWARM_RUN_DIR/logs/trainer.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-rescore" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_lag_zero_rescore_worker.py --root $swarm_rescore_dir --snapshot-manifest $swarm_rescore_dir/current_snapshots.json --production-plan-sha256 $swarm_plan_sha > $SWARM_RUN_DIR/logs/rescore.log 2>&1"
