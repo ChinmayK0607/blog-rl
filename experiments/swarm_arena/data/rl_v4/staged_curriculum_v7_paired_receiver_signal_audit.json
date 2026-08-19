@@ -1,0 +1,31 @@
+{
+  "version": "arena-rl-v4-paired-receiver-signal-audit-v7",
+  "total_updates": 1,
+  "groups_per_update": 4,
+  "reward": "verified_terminal_control_delta_only",
+  "credit_assignment": "receiver_act_centered_normal_minus_dropped_terminal_return",
+  "message_reward": null,
+  "stages": [
+    {
+      "name": "paired_receiver_signal_audit",
+      "updates": 1,
+      "update_pattern": [{"ordinary": 0, "critical": 4, "decoy": 0}],
+      "ordinary_sizes": [12],
+      "ordinary_horizons": [4],
+      "handoff_focus_roles": ["receiver"],
+      "handoff_remaining_turns": 2,
+      "handoff_cases": [
+        {"pair_index": 7, "world": "left_exposed"},
+        {"pair_index": 7, "world": "right_exposed"},
+        {"pair_index": 9, "world": "left_exposed"},
+        {"pair_index": 9, "world": "right_exposed"}
+      ]
+    }
+  ],
+  "runtime": {
+    "shared_return_replicas": 8,
+    "action_prompt_profile": "focused_handoff_compact",
+    "shared_return_baseline": "paired_message_drop",
+    "online_evaluation_mode": "multipair"
+  }
+}
