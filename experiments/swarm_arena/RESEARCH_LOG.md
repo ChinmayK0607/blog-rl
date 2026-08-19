@@ -4124,6 +4124,65 @@ no more critical-specific than decoy-specific. Therefore:
   success still requires intervention lift on both pairs and held-out
   development improvement; training return alone remains insufficient.
 
+### 2026-08-19 — compact multi-pair v6 GPU launch
+
+- Status: running. The definitive 40-update Qwen3-1.7B communication-
+  learnability run launched at `2026-08-19T12:10Z` as
+  `rl-v4-compact-multipair40-3ca20933-l40s-a`.
+- Question: can terminal-return RL teach two separately optimized receiver
+  adapters to choose between already-legal targets using a teammate's private
+  fact, after the valid pair-7 60-update run learned only a generic capture
+  tactic?
+- Source commit: `3ca20933409f2e02f9dce60a3f295f10d15a0806` on
+  `exp/swarm-arena-4b`. The preceding Linux integration run exposed one test-
+  only import error: the compact-prompt test called the legacy communication
+  reconstructor on a v4 handoff manifest. Commit `3ca20933` switched that test
+  to the v4 handoff reconstructor; runtime code already used the correct
+  function. Focused Ruff and the complete Linux suite then passed 130 tests
+  with two known SWIG deprecation warnings.
+- Construction audit: passed at curriculum SHA-256
+  `0cffa3458f945bad62dcae8734fc6e5fd3ab1dacc2a21e96e3d495951659bb4f`.
+  Every update contains pair 7 and pair 9 in both latent worlds, eight common-
+  random replicas per group, and receiver ACT-only focused credit. Certified
+  minimum terminal advantages remain `0.074074` and `0.066667` respectively.
+- Hardware/runtime: four NVIDIA L40S GPUs with 46,068 MiB each, driver
+  `580.126.09`; vLLM `0.22.0+cu129`. GPUs 1--3 run independent rollout servers
+  and GPU 0 runs the Prime trainer. The fresh image omitted Prime's optional
+  `flash_attn` import, so the repository-pinned prebuilt
+  `flash-attn==2.8.3+cu128torch2.11` wheel was installed before calibration.
+  No config, sample, or threshold was changed in response.
+- Public inputs: Qwen3-1.7B revision
+  `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`; SFT revision
+  `534522a8f3ff3489b1dd8318dc8e533e51264cde`, adapter SHA-256
+  `2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b`;
+  historical opponent revision
+  `ad51ef261f3e7b7b2d3c6433106bd667ba1da81c`.
+- Fresh 32-decision host calibration: parity and four-policy optimizer
+  isolation passed. Mean absolute log-probability error was `0.0018759182`,
+  p99 absolute error `0.0581101403`, mean mismatch KL `0.0000817391`, and max
+  mismatch KL `0.0146048069`. The trainer's predeclared backend alarms remain
+  `0.25` mean absolute error and `0.15` mean mismatch KL; policy regularization
+  remains `kl_tau = 0.001`.
+- Runtime certificate SHA-256:
+  `a3da30e9d65b5ef457058444ac6ccf3dbd448758063c26fc7a9e86c5173a8115`.
+  Production-plan SHA-256:
+  `93ae311d15bf57a40d7d4a16298bdb8fe35e28997eb68726bcc69e251ef6d64a`.
+  Schedule SHA-256:
+  `acbe23d77277293e71b614a2024ec3e28c5ed474e3a3bad8187b730a6d179821`.
+- Recovery/logging: compact run state is mirrored publicly to
+  `CK0607/swarm-arena-live-runs` after every completed update; complete atomic
+  four-adapter checkpoints are mirrored and anonymously hash-verified every
+  ten updates. Trainer W&B remains offline by design so telemetry failure
+  cannot stop optimization. Controller/evaluation telemetry is online at
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v4-compact-multipair40-3ca20933-l40s-a-controller-v1`.
+  A detached lightweight watcher checks process/GPU/log/mirror health and is
+  authorized to preserve evidence and apply narrow infrastructure recovery,
+  but not to weaken or relabel scientific gates.
+- Result interpretation remains predeclared: gameplay return alone is a
+  capability result. Communication learning requires normal messages to beat
+  dropped and shuffled messages in aggregate and on both pairs, with a larger
+  critical than matched-decoy effect. No result is claimed at launch.
+
 ## Future entry template
 
 Copy this block for each material run:
