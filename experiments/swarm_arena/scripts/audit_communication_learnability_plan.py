@@ -47,6 +47,7 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         shuffle_seed=17,
     )
     replicas = int(curriculum.get("runtime", {}).get("shared_return_replicas", 4))
+    baseline = str(curriculum.get("runtime", {}).get("shared_return_baseline", "leave_one_out_mean"))
     selected_pairs = sorted({row.pair_index for row in schedule if row.pair_index is not None})
     pair_rows = []
     for pair_index in selected_pairs:
@@ -84,6 +85,7 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         len(schedule) == total_updates * groups_per_update
         and every_update_covers_all_cases
         and counts.get("critical", 0) > 0
+        and baseline in {"leave_one_out_mean", "paired_message_drop"}
         and all(
             row["private_worlds_indistinguishable"]
             and row["legal_actions_match"]
@@ -104,6 +106,7 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         "shared_return_replicas": replicas,
         "focused_receiver_samples": len(schedule) * replicas,
         "action_prompt_profile": curriculum.get("runtime", {}).get("action_prompt_profile", "full"),
+        "shared_return_baseline": baseline,
         "selected_cases": sorted(expected_cases),
         "every_update_covers_all_selected_cases": every_update_covers_all_cases,
         "pairs": pair_rows,

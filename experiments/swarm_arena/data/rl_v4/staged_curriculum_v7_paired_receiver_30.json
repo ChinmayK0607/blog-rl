@@ -1,0 +1,53 @@
+{
+  "version": "arena-rl-v4-paired-receiver-learnability-v7",
+  "total_updates": 30,
+  "groups_per_update": 4,
+  "reward": "verified_terminal_control_delta_only",
+  "credit_assignment": "receiver_act_centered_normal_minus_dropped_terminal_return",
+  "message_reward": null,
+  "initializer": "pinned_sft_not_prior_rl",
+  "scope": "causal communication learnability test for message-conditioned receiver actions",
+  "principles": [
+    "pair each normal rollout with the same sender message withheld at the certified handoff turn",
+    "center normal-minus-dropped verified terminal-return effects across eight receiver replicas",
+    "train only the normal receiver ACT span; never train on intervention tokens",
+    "cover both latent worlds of pairs 7 and 9 in every update and alternate receiver policy slots",
+    "add no message, action, target, capture, or communication reward",
+    "retain matched decoys exclusively as an online specificity control"
+  ],
+  "stages": [
+    {
+      "name": "paired_receivers_7_9_two_worlds",
+      "updates": 30,
+      "update_pattern": [
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        }
+      ],
+      "ordinary_sizes": [12, 13],
+      "ordinary_horizons": [4, 5],
+      "handoff_focus_roles": ["receiver"],
+      "handoff_remaining_turns": 2,
+      "handoff_cases": [
+        {"pair_index": 7, "world": "left_exposed"},
+        {"pair_index": 7, "world": "right_exposed"},
+        {"pair_index": 9, "world": "left_exposed"},
+        {"pair_index": 9, "world": "right_exposed"}
+      ]
+    }
+  ],
+  "runtime": {
+    "shared_return_replicas": 8,
+    "action_prompt_profile": "focused_handoff_compact",
+    "shared_return_baseline": "paired_message_drop",
+    "online_evaluation_mode": "multipair"
+  },
+  "online_eval_updates": [0, 10, 20, 30],
+  "primary_success_measure": "critical normal-minus-dropped receiver target-action and terminal-return lift",
+  "specificity_measure": "critical-minus-matched-decoy intervention lift",
+  "checkpoint_selection": "development-only after update 30; intermediate pulses are diagnostic",
+  "frozen_policy": "the existing frozen OOD evaluation remains byte-identical and unopened until development selection",
+  "limitation": "success establishes communication-conditioned learnability on two training pairs, not broad swarm intelligence"
+}
