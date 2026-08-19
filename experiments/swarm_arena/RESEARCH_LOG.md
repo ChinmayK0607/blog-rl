@@ -4298,6 +4298,82 @@ no more critical-specific than decoy-specific. Therefore:
   to use a constrained teammate message containing private information, without
   an explicit communication reward?
 
+### 2026-08-19 — Qwen3-4B paired receiver RL completed result
+
+- Status: completed all 30 atomic updates and four checkpoint evaluations.
+  Mechanically valid; positive evidence of message sensitivity, but not a
+  demonstrated improvement in receiver target selection or absolute task
+  performance.
+- Run: `rl-v7-paired4b30-memfix-5f3ddf7e`, source
+  `5f3ddf7ef9c38f8f37954a216a0604eeeef18500`. The production run started at
+  `2026-08-19T16:23Z`; final evaluation completed at `18:42Z`, approximately
+  2 hours 19 minutes later.
+- Model: public `Qwen/Qwen3-4B-Instruct-2507` revision
+  `cdbee75f17c01a7cc42f958dc650907174af0554`; public SFT adapter
+  `CK0607/Qwen3-4B-Swarm-Arena-SFT-v2` revision
+  `d1a55d5594c8b544121e546e14229268c8c26bae`, adapter SHA-256
+  `168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2`.
+  Four agent-slot LoRA policies were optimized independently.
+- Plan and calibration: paired terminal-return receiver credit over pair 7 and
+  pair 9 in both latent worlds, eight common-random replicas, receiver ACT-only
+  spans, and rotating base/SFT/historical/current opponents. Production-plan
+  SHA-256 was
+  `41cb423f1e527725c754ecbd75af87ad956caed12211e1563958920874342b51`.
+  The valid preflight calibration had mean absolute log-probability error
+  `0.0036866383` and mean mismatch KL `0.0004692887`.
+- Infrastructure recovery: the first run identity,
+  `rl-v7-paired4b30-5f3ddf7e`, completed three updates and then OOMed during
+  backward on a 2,526-token slice. PyTorch held 5.24 GiB reserved but
+  unallocated and recommended expandable segments. No atomic update-10
+  checkpoint existed, so this partial state was preserved as rejected failure
+  evidence rather than treated as resumable. The replacement changed only the
+  trainer allocator environment to
+  `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`. Its first trainer launch
+  selected the inference UV cache and failed before loading because that
+  environment lacked `flash_attn`; the log was archived and the trainer was
+  relaunched with the previously validated default UV environment before any
+  rollout, barrier, or update. It then completed without OOM, NaN, NCCL, parity,
+  or protocol failure. Peak trainer memory was approximately 42.8 GiB.
+- Integrity and publication: complete four-adapter checkpoints at updates 10,
+  20, and 30 were uploaded to public
+  `CK0607/swarm-arena-live-runs`, anonymously downloaded, and SHA-256 verified.
+  Final ready-record SHA-256 begins `99c50e0c`. Controller W&B is
+  `rl-v7-paired4b30-memfix-5f3ddf7e-controller-v1`; the trainer's offline run
+  `vzd45lk6` was explicitly synced before decommission approval.
+- Training-pair evaluation curve at updates 0/10/20/30:
+  normal-minus-dropped return was `+0.05556`, `+0.07037`, `+0.05370`, and
+  `+0.07870`; normal-minus-shuffled was `+0.03889`, `+0.03704`, `+0.03704`,
+  and `+0.04537`; critical-minus-decoy specificity was `+0.07037`, `+0.08889`,
+  `+0.10741`, and `+0.10741`. Protocol action validity, broadcast validity,
+  and broadcast grounding remained `1.0` throughout.
+- Final pair detail: pair 7 normal-minus-dropped was `+0.07407`,
+  normal-minus-shuffled `+0.07407`, and specificity `+0.14815`. Pair 9 was
+  `+0.08333`, `+0.01667`, and `+0.06667`, respectively. Thus both training
+  pairs ended with positive intervention lift, unlike the 1.7B run.
+- Scientific caveat: normal receiver target-action accuracy was exactly `0.5`
+  under both normal and dropped messages at updates 10, 20, and 30. Aggregate
+  final normal return remained negative at `-0.06204`, compared with
+  `-0.05185` at baseline. The main normal-minus-dropped statistic improved by
+  only `+0.02315` over the 4B baseline and was non-monotonic. Most of the large
+  improvement over the prior 1.7B experiment therefore comes from the 4B
+  starting policy, not an established RL effect.
+- Verdict: the experiment establishes that the 4B policy has reproducible,
+  pair-specific causal message sensitivity and that the paired estimator can
+  train stably. It does not establish that RL taught the receiver to decode the
+  private fact into the correct target action, improved game performance, or
+  generalized beyond the two training pairs. The held-out development and
+  frozen OOD suites remain unopened because the stronger behavioral claim was
+  not met.
+- Next action: diagnose which action transitions create positive terminal
+  intervention lift despite unchanged target accuracy. The next prospective
+  experiment should optimize an alternating frozen-sender/receiver phase only
+  after confirming that its terminal counterfactual reward ranks the intended
+  target-switch behavior, then use a larger training-pair set and select on a
+  development suite without touching frozen OOD.
+- Instance status: final compact artifacts, checkpoints, controller telemetry,
+  and trainer telemetry are off-node. Remaining GPU processes are idle; safe to
+  decommission.
+
 ## Future entry template
 
 Copy this block for each material run:
