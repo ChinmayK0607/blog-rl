@@ -38,6 +38,9 @@ from swarm_ctf_eval.episode_protocol import (
 from swarm_ctf_eval.episode_splits import EPISODE_EVAL_CASES
 from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
 from swarm_ctf_eval.final_eval_v3 import summarize_final_eval
+from swarm_ctf_eval.handoff_curriculum import (
+    reconstruct_manifest_scenario as reconstruct_handoff_manifest_scenario,
+)
 from swarm_ctf_eval.live_rl_rollout import (
     ChoiceCompletion,
     PolicyEndpoint,
@@ -358,7 +361,9 @@ def test_compact_handoff_prompt_preserves_the_intended_causal_information_bounda
     root = Path(__file__).resolve().parents[1]
     training = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
     for pair_index in (7, 9):
-        scenario = reconstruct_manifest_scenario(training["pairs"][pair_index]["critical"])
+        scenario = reconstruct_handoff_manifest_scenario(
+            training["pairs"][pair_index]["critical"]
+        )
         dropped_prompts = []
         normal_prompts = []
         for world in scenario.worlds:
