@@ -4501,6 +4501,11 @@ no more critical-specific than decoy-specific. Therefore:
   passes the curriculum's declared online pair indices to the pulse evaluator
   and accepts an explicit W&B model tag. Trainer W&B is offline/failure-isolated;
   the compact controller sidecar remains the online telemetry source.
+- Validation: focused production-plan tests passed `14/14`; focused staged-pulse
+  tests passed `15/15`; changed Python Ruff and shell syntax checks passed. One
+  validation command accidentally included the Bash launcher in Ruff's Python
+  inputs and produced syntax noise without executing code or changing state;
+  the corrected language-specific checks passed.
 - Interpretation boundary fixed prospectively: success on pairs 24--27 is
   within-manifest role/pair transfer. Only after development selection will one
   checkpoint be evaluated once on the unchanged frozen OOD suite. A rising
