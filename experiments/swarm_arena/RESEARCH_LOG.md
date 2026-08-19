@@ -4434,6 +4434,40 @@ no more critical-specific than decoy-specific. Therefore:
   one world. Keep the frozen OOD suite untouched until the full-prompt
   development effect is positive.
 
+### 2026-08-20 — powered 4B prompt-transfer matrix
+
+- Status: running; design fixed before any cell summary was available.
+- Scope: training pairs 7 and 9 only, both latent worlds, critical and matched
+  decoy cases, normal/dropped/sender-shuffled messages, and 16 independent
+  sampling repetitions. The frozen development and OOD suites remain unopened.
+- Matrix: final step-30 four-policy checkpoint and its SFT initializer, each
+  evaluated with the receiver's exact `focused_handoff_compact` training prompt
+  and the normal full-game prompt, at temperatures `1.0` and `0.4`. Each cell
+  contains 384 complete games and 64 critical matched intervention units; the
+  full eight-cell matrix contains 3,072 games.
+- Purpose: compact/T=1 tests in-distribution learnability; compact/T=0.4
+  isolates the sampling change; full/T=1 isolates prompt transfer; full/T=0.4
+  measures the existing operational evaluation interface. Identically seeded
+  SFT cells distinguish RL learning from starting-model capability.
+- Primary readout: paired normal-minus-dropped terminal return and receiver
+  target accuracy, final-minus-SFT difference-in-differences, and
+  critical-minus-decoy specificity. Normal-minus-shuffled return, sender target
+  fact rate, protocol validity, pair/world decomposition, Wilson intervals,
+  paired bootstrap intervals, and exact McNemar tests are supporting readouts.
+- Interpretation fixed prospectively: a positive compact result alone is an
+  in-interface learning result. A full-prompt result is required for transfer.
+  Neither licenses a held-out or broad swarm claim. The no-message left-target
+  prior is reported per world rather than hidden by aggregate averaging.
+- Implementation source: `340ca74d` adds an explicit per-agent action-prompt
+  profile to cross-play and the training-pair evaluator. Focused Linux test
+  passed 1/1 and changed-file Ruff passed before launch. The first pytest
+  invocation omitted the experiment `PYTHONPATH` and collected no test; the
+  corrected command passed and no model request was made by the failed command.
+- Runtime: four final-checkpoint cells launched concurrently on the retained
+  4x L40S node. Public synchronization and exact wall time/results will be
+  appended after completion; baseline cells launch only after capacity becomes
+  available.
+
 ## Future entry template
 
 Copy this block for each material run:
