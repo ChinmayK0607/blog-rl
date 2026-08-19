@@ -25,6 +25,7 @@ from .episode import (
 )
 from .episode_protocol import (
     EPISODE_PROMPT_VERSION,
+    ActionPromptProfile,
     episode_action_prompt,
     episode_broadcast_prompt,
 )
@@ -238,6 +239,7 @@ def evaluate_crossplay(
     env: ArenaEpisodeEnv | None = None,
     action_permutation_offset: int = 0,
     turn_zero_required_facts: dict[str, NodeObservation] | None = None,
+    action_prompt_profiles: dict[str, ActionPromptProfile] | None = None,
 ) -> dict[str, Any]:
     if blue_condition not in CONDITIONS or red_condition not in CONDITIONS:
         raise ValueError("unknown communication condition")
@@ -258,6 +260,13 @@ def evaluate_crossplay(
     blue_roster = _resolve_roster(env, "BLUE", blue_model)
     red_roster = _resolve_roster(env, "RED", red_model)
     models_by_agent = {**blue_roster, **red_roster}
+    resolved_action_prompt_profiles = action_prompt_profiles or {}
+    unknown_profile_agents = set(resolved_action_prompt_profiles) - set(models_by_agent)
+    if unknown_profile_agents:
+        raise ValueError(
+            "action prompt profiles name unknown agents: "
+            f"{sorted(unknown_profile_agents)}"
+        )
     conditions: dict[Team, str] = {"BLUE": blue_condition, "RED": red_condition}
     history_windows: dict[Team, int] = {
         "BLUE": blue_history_window,
@@ -389,6 +398,7 @@ def evaluate_crossplay(
                     env,
                     agent_id,
                     permutation=seed + turn * 23 + index + action_permutation_offset,
+                    profile=resolved_action_prompt_profiles.get(agent_id, "full"),
                 )
                 window = history_windows[team]
                 prompt = _with_history(prompt, histories[agent_id][-window:] if window else [])

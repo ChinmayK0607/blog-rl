@@ -201,6 +201,7 @@ def test_crossplay_controls_all_eight_agents_and_preserves_private_history() -> 
         {f"blue-{index}": FirstOptionModel(f"blue-policy-{index}") for index in range(4)},
         {f"red-{index}": FirstOptionModel(f"red-policy-{index}") for index in range(4)},
         development_cases(1)[0],
+        action_prompt_profiles={"blue-0": "focused_handoff_compact"},
     )
     assert row["metrics"]["BLUE"]["action_protocol_rate"] == 1.0
     assert row["metrics"]["RED"]["action_protocol_rate"] == 1.0
@@ -208,6 +209,12 @@ def test_crossplay_controls_all_eight_agents_and_preserves_private_history() -> 
     assert all(len(turn["actions"]) == 8 for turn in row["turns"])
     assert set(row["blue_agent_models"]) == {f"blue-{index}" for index in range(4)}
     assert len(set(row["blue_agent_models"].values())) == 4
+    blue_zero_prompt = next(
+        action["prompt_messages"]
+        for action in row["turns"][0]["actions"]
+        if action["agent_id"] == "blue-0"
+    )
+    assert "compact private view" in blue_zero_prompt[0]["content"]
     assert parse_conditions("generated:generated,dropped:generated") == (
         ("generated", "generated"),
         ("dropped", "generated"),

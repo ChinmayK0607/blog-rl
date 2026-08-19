@@ -9,6 +9,7 @@ from .arena_generation import generate_state
 from .communication_curriculum import permute_agent_labels, swap_team_labels
 from .crossplay_eval import evaluate_crossplay
 from .episode import EMPTY_BROADCAST, EpisodeConfig
+from .episode_protocol import ActionPromptProfile
 from .final_eval_v3 import COMMUNICATION_CONDITIONS
 from .rl_v3 import ArenaRLEnv
 
@@ -78,6 +79,7 @@ def evaluate_final_case(
     initial_state: GameState | None = None,
     critical_target: str | None = None,
     turn_zero_required_facts: dict[str, NodeObservation] | None = None,
+    action_prompt_profiles: dict[str, ActionPromptProfile] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if condition not in COMMUNICATION_CONDITIONS:
         raise ValueError(f"unknown final-eval condition: {condition}")
@@ -130,6 +132,7 @@ def evaluate_final_case(
         env=env,
         action_permutation_offset=_option_offset(identity.option_order),
         turn_zero_required_facts=turn_zero_required_facts,
+        action_prompt_profiles=action_prompt_profiles,
     )
     nonempty = 0
     for turn in raw["turns"]:

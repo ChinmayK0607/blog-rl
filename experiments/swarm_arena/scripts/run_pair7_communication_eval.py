@@ -146,6 +146,11 @@ def main() -> None:
     parser.add_argument("--remaining-turns", type=int, default=2)
     parser.add_argument("--repetitions", type=int, default=2)
     parser.add_argument("--temperature", type=float, default=0.4)
+    parser.add_argument(
+        "--receiver-action-prompt-profile",
+        choices=("full", "focused_handoff_compact"),
+        default="full",
+    )
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
     if len(args.focal_model) != 4 or len(args.opponent_model) != 4:
@@ -173,6 +178,7 @@ def main() -> None:
         "remaining_turns": args.remaining_turns,
         "repetitions": args.repetitions,
         "temperature": args.temperature,
+        "receiver_action_prompt_profile": args.receiver_action_prompt_profile,
         "claim_boundary": "training-pair learnability, not held-out communication generalization",
     }
     bound = {**body, "sha256": _digest(body)}
@@ -238,6 +244,9 @@ def main() -> None:
                             condition=condition,
                             initial_state=world.state,
                             critical_target=world.active_target if kind == "critical" else None,
+                            action_prompt_profiles={
+                                scenario.receiver: args.receiver_action_prompt_profile
+                            },
                         )
                         broadcast = _turn_zero(raw, "broadcasts", scenario.sender)
                         action = _turn_zero(raw, "actions", scenario.receiver)
@@ -250,6 +259,9 @@ def main() -> None:
                             "repeat": repeat,
                             "sampling_seed": seed,
                             "target": world.active_target,
+                            "receiver_action_prompt_profile": (
+                                args.receiver_action_prompt_profile
+                            ),
                             "terminal_return": row["terminal_return"],
                             "sender_target_fact": any(
                                 fact["node"] == world.active_target
@@ -269,6 +281,8 @@ def main() -> None:
     rows = [json.loads(line) for line in rows_path.read_text().splitlines() if line]
     summary = {
         **summarize(rows, pair_indices),
+        "receiver_action_prompt_profile": args.receiver_action_prompt_profile,
+        "temperature": args.temperature,
         "manifest_sha256": bound["sha256"],
         "wall_seconds": time.time() - started,
     }
