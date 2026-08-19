@@ -136,7 +136,7 @@
     "online_eval_remaining_turns": 4
   },
   "online_eval_updates": [0, 12, 24, 36, 48, 60],
-  "online_eval_pair_indices": [24, 25, 26, 27],
+  "online_eval_pair_indices": [24, 28, 32, 33],
   "primary_success_measure": "full-prompt normal-minus-dropped receiver target-action and terminal-return lift on unseen training pairs",
   "specificity_measure": "critical-minus-matched-decoy intervention lift",
   "checkpoint_selection": "full-prompt unseen-training-pair development only after update 60",

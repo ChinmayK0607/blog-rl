@@ -4488,11 +4488,15 @@ no more critical-specific than decoy-specific. Therefore:
   additive shaping reward. Four LoRA rank-32 agent policies remain independently
   optimized from the same pinned 4B SFT initializer at learning rate `5e-6`.
 - Development measurement: checkpoints at updates 0/12/24/36/48/60 are measured
-  on unseen training-manifest pairs 24--27, both worlds, with the full action
+  on unseen training-manifest pairs 24, 28, 32, and 33, both worlds, with the full action
   prompt and a fixed four-turn horizon. Primary endpoints are
   normal-minus-dropped terminal return and receiver target accuracy;
   shuffled-message lift and matched critical/decoy specificity distinguish
   useful message content from generic perturbation sensitivity.
+  Those four pairs form the directed cycle `0->1, 1->2, 2->3, 3->0`, so every
+  sender and every receiver policy slot appears exactly once in each pulse;
+  the initially drafted contiguous range 24--27 covered all receivers but
+  overrepresented sender 0 and was corrected before any training launch.
 - Implementation correction discovered before launch: the generic preflight
   still hard-coded the older 1.7B run's learning rate and LoRA rank even though
   PREPARE, parity, and the runtime certificate already hash-bind the exact
