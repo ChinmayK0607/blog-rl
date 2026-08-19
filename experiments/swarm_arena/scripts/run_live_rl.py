@@ -947,6 +947,16 @@ async def main() -> None:
                                 {
                                     "game_id": replica.game_id,
                                     "return": replica.replay.terminal_return,
+                                    "dropped_return": (
+                                        replica.dropped_replay.terminal_return
+                                        if replica.dropped_replay is not None
+                                        else None
+                                    ),
+                                    "message_effect": (
+                                        replica.replay.terminal_return - replica.dropped_replay.terminal_return
+                                        if replica.dropped_replay is not None
+                                        else None
+                                    ),
                                     "advantages": {
                                         envelope.agent_id: envelope.advantage for envelope in approval.envelopes
                                     },
