@@ -9,10 +9,10 @@ impl = "hf"
 fused_lm_head_token_chunk_size = "disabled"
 
 [model.lora]
-rank = 16
-alpha = 32
+rank = 32
+alpha = 64
 dropout = 0.0
-target_modules = ["q_proj", "k_proj", "v_proj", "o_proj"]
+target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
 initial_adapter_path = "/workspace/artifacts/qwen3-4b-sft-v2-d1a55d55"
 initial_adapter_sha256 = "168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2"
 

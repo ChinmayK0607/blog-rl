@@ -1,7 +1,7 @@
 enable_lora = true
 max_loras = 8
 max_cpu_loras = 16
-max_lora_rank = 16
+max_lora_rank = 32
 gpu_memory_utilization = 0.82
 
 [model]
