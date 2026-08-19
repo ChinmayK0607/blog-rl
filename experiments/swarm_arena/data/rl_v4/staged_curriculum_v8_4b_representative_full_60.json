@@ -132,7 +132,8 @@
     "shared_return_replicas": 4,
     "action_prompt_profile": "full",
     "shared_return_baseline": "paired_message_drop",
-    "online_evaluation_mode": "multipair"
+    "online_evaluation_mode": "multipair",
+    "online_eval_remaining_turns": 4
   },
   "online_eval_updates": [0, 12, 24, 36, 48, 60],
   "online_eval_pair_indices": [24, 25, 26, 27],

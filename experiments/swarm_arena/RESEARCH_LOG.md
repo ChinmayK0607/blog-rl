@@ -4489,9 +4489,10 @@ no more critical-specific than decoy-specific. Therefore:
   optimized from the same pinned 4B SFT initializer at learning rate `5e-6`.
 - Development measurement: checkpoints at updates 0/12/24/36/48/60 are measured
   on unseen training-manifest pairs 24--27, both worlds, with the full action
-  prompt. Primary endpoints are normal-minus-dropped terminal return and receiver
-  target accuracy; shuffled-message lift and matched critical/decoy specificity
-  distinguish useful message content from generic perturbation sensitivity.
+  prompt and a fixed four-turn horizon. Primary endpoints are
+  normal-minus-dropped terminal return and receiver target accuracy;
+  shuffled-message lift and matched critical/decoy specificity distinguish
+  useful message content from generic perturbation sensitivity.
 - Implementation correction discovered before launch: the generic preflight
   still hard-coded the older 1.7B run's learning rate and LoRA rank even though
   PREPARE, parity, and the runtime certificate already hash-bind the exact

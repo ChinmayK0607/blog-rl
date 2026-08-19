@@ -208,6 +208,7 @@ def main() -> None:
     )
     parser.add_argument("--pair7-repetitions", type=int, default=2)
     parser.add_argument("--pair7-temperature", type=float, default=0.4)
+    parser.add_argument("--communication-remaining-turns", type=int, default=2)
     parser.add_argument("--multipair-index", type=int, action="append", default=[])
     args = parser.parse_args()
     if args.expected_updates < 1 or args.interval < 1:
@@ -216,6 +217,8 @@ def main() -> None:
         parser.error("pulse interval must divide expected updates")
     if len(args.base_url) != 3:
         parser.error("staged pulses require exactly three rollout server URLs")
+    if args.communication_remaining_turns < 1:
+        parser.error("communication remaining turns must be positive")
     pair_indices = (
         tuple(args.multipair_index or (7, 9))
         if args.evaluation_mode == "multipair"
@@ -299,6 +302,8 @@ def main() -> None:
                     str(args.pair7_repetitions),
                     "--temperature",
                     str(args.pair7_temperature),
+                    "--remaining-turns",
+                    str(args.communication_remaining_turns),
                 ]
                 for value in args.base_url:
                     command.extend(("--base-url", value))
