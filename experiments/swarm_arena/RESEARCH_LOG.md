@@ -4468,6 +4468,44 @@ no more critical-specific than decoy-specific. Therefore:
   appended after completion; baseline cells launch only after capacity becomes
   available.
 
+### 2026-08-20 — representative 4B full-interface curriculum (prospective)
+
+- Status: implementation complete; launch waits only for the powered
+  prompt-transfer matrix and one exact-runtime calibration on the freed trainer
+  GPU. The frozen OOD evaluation remains unopened.
+- Hypothesis: the Qwen3-4B SFT initializer can learn a message-conditioned
+  receiver action under the same full action prompt used at evaluation when the
+  curriculum covers all directed roles and increases the remaining game horizon
+  gradually. This is a stricter target than the preceding compact-prompt run.
+- Curriculum: `staged_curriculum_v8_4b_representative_full_60.json` schedules
+  60 updates and 240 groups over training pairs 12--23. Every six-update cycle
+  covers all 12 directed sender-to-receiver roles, both latent worlds, and all
+  four receiver policy slots. The first 12 updates use two remaining turns,
+  followed by 24 updates each with three and four remaining turns.
+- Credit and optimization: four common-random normal/dropped replicas provide
+  paired terminal-return advantage. Only the normal receiver's first `ACT`
+  span is trainable; there is no message, target, capture, protocol, or other
+  additive shaping reward. Four LoRA rank-32 agent policies remain independently
+  optimized from the same pinned 4B SFT initializer at learning rate `5e-6`.
+- Development measurement: checkpoints at updates 0/12/24/36/48/60 are measured
+  on unseen training-manifest pairs 24--27, both worlds, with the full action
+  prompt. Primary endpoints are normal-minus-dropped terminal return and receiver
+  target accuracy; shuffled-message lift and matched critical/decoy specificity
+  distinguish useful message content from generic perturbation sensitivity.
+- Implementation correction discovered before launch: the generic preflight
+  still hard-coded the older 1.7B run's learning rate and LoRA rank even though
+  PREPARE, parity, and the runtime certificate already hash-bind the exact
+  trainer config. It now validates safe numeric/rank invariants and the inference
+  rank limit without duplicating obsolete experiment values. The launcher now
+  passes the curriculum's declared online pair indices to the pulse evaluator
+  and accepts an explicit W&B model tag. Trainer W&B is offline/failure-isolated;
+  the compact controller sidecar remains the online telemetry source.
+- Interpretation boundary fixed prospectively: success on pairs 24--27 is
+  within-manifest role/pair transfer. Only after development selection will one
+  checkpoint be evaluated once on the unchanged frozen OOD suite. A rising
+  training return without dropped/shuffled intervention lift is not a positive
+  communication result.
+
 ## Future entry template
 
 Copy this block for each material run:

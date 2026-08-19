@@ -184,10 +184,17 @@ def main() -> None:
         raise ValueError("staged run requires atomic four-policy optimizer updates")
     if trainer.get("max_steps") is not None:
         raise ValueError("trainer max_steps must remain controller-owned")
-    if trainer["optim"]["lr"] != 7.5e-6:
-        raise ValueError("staged run requires the predeclared 7.5e-6 learning rate")
-    if trainer["model"]["lora"]["rank"] != 16:
-        raise ValueError("staged run requires LoRA rank 16")
+    # The resolved trainer config is already immutably bound by PREPARE.json,
+    # the parity report, and the runtime certificate.  Do not duplicate an old
+    # experiment's exact hyperparameters here: doing so made this safety check
+    # reject intentionally preregistered 4B/rank-32 runs after they had passed
+    # exact-runtime calibration.
+    if not 0.0 < float(trainer["optim"]["lr"]) <= 1e-3:
+        raise ValueError(
+            "staged run requires a finite positive learning rate no larger than 1e-3"
+        )
+    if int(trainer["model"]["lora"]["rank"]) < 1:
+        raise ValueError("staged run requires a positive LoRA rank")
     if trainer["ckpt"]["interval"] != args.checkpoint_interval:
         raise ValueError("trainer checkpoint interval mismatch")
     if trainer["ckpt"]["keep_interval"] != args.checkpoint_interval:

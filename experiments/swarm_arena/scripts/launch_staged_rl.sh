@@ -28,10 +28,17 @@ swarm_curriculum_artifact=${SWARM_CURRICULUM_ARTIFACT:-$SWARM_REPO_ROOT/experime
 swarm_shared_return_replicas=${SWARM_SHARED_RETURN_REPLICAS:-$(jq -r '.runtime.shared_return_replicas // 4' "$swarm_curriculum_artifact")}
 swarm_action_prompt_profile=${SWARM_ACTION_PROMPT_PROFILE:-$(jq -r '.runtime.action_prompt_profile // "full"' "$swarm_curriculum_artifact")}
 swarm_wandb_group=${SWARM_WANDB_GROUP:-qwen3-1.7b-staged-$swarm_expected_updates}
+swarm_wandb_model_tag=${SWARM_WANDB_MODEL_TAG:-1.7b}
 swarm_controller_wandb_mode=${SWARM_CONTROLLER_WANDB_MODE:-online}
 swarm_final_sync_margin=${SWARM_FINAL_SYNC_MARGIN:-2700}
 swarm_pulse_mode=${SWARM_PULSE_MODE:-$(jq -r '.runtime.online_evaluation_mode // "full"' "$swarm_curriculum_artifact")}
 swarm_mirror_interval_steps=${SWARM_MIRROR_INTERVAL_STEPS:-1}
+swarm_multipair_args=()
+while IFS= read -r swarm_pair_index; do
+  if [[ -n "$swarm_pair_index" ]]; then
+    swarm_multipair_args+=(--multipair-index "$swarm_pair_index")
+  fi
+done < <(jq -r '.online_eval_pair_indices[]?' "$swarm_curriculum_artifact")
 
 case "$swarm_controller_wandb_mode" in
   online) swarm_wandb_mode_arg=() ;;
@@ -105,10 +112,10 @@ tmux new-session -d -s "$swarm_session_prefix-rescore" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_lag_zero_rescore_worker.py --root $swarm_rescore_dir --snapshot-manifest $swarm_rescore_dir/current_snapshots.json --production-plan-sha256 $swarm_plan_sha > $SWARM_RUN_DIR/logs/rescore.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-pulses" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_staged_pulses.py --repo-root $SWARM_REPO_ROOT --run-dir $SWARM_RUN_DIR --production-plan $SWARM_PRODUCTION_PLAN --barrier-dir $swarm_barrier_dir --eval-root $swarm_eval_root --data-dir $swarm_data_dir --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --baseline-revision $SWARM_INITIAL_POLICY_REVISION --expected-updates $swarm_expected_updates --interval $swarm_checkpoint_interval --evaluation-mode $swarm_pulse_mode > $SWARM_RUN_DIR/logs/pulses.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_staged_pulses.py --repo-root $SWARM_REPO_ROOT --run-dir $SWARM_RUN_DIR --production-plan $SWARM_PRODUCTION_PLAN --barrier-dir $swarm_barrier_dir --eval-root $swarm_eval_root --data-dir $swarm_data_dir --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --baseline-revision $SWARM_INITIAL_POLICY_REVISION --expected-updates $swarm_expected_updates --interval $swarm_checkpoint_interval --evaluation-mode $swarm_pulse_mode ${swarm_multipair_args[*]} > $SWARM_RUN_DIR/logs/pulses.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-wandb" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/log_live_rl_wandb.py --progress $SWARM_RUN_DIR/live_rl_progress.json --eval-root $swarm_eval_root --expected-updates $swarm_expected_updates --finish-marker $swarm_eval_root/COMPLETE --project swarm-arena-rl --group $swarm_wandb_group --run-name $SWARM_RUN_ID-controller --run-id $SWARM_RUN_ID-controller-v1 --tag 1.7b --tag causal-communication --tag development ${swarm_wandb_mode_arg[*]} --compact-artifact $SWARM_PRODUCTION_PLAN --compact-artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/wandb.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/log_live_rl_wandb.py --progress $SWARM_RUN_DIR/live_rl_progress.json --eval-root $swarm_eval_root --expected-updates $swarm_expected_updates --finish-marker $swarm_eval_root/COMPLETE --project swarm-arena-rl --group $swarm_wandb_group --run-name $SWARM_RUN_ID-controller --run-id $SWARM_RUN_ID-controller-v1 --tag $swarm_wandb_model_tag --tag causal-communication --tag development ${swarm_wandb_mode_arg[*]} --compact-artifact $SWARM_PRODUCTION_PLAN --compact-artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/wandb.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-mirror" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_artifact_mirror.py --repo-id $SWARM_LIVE_HF_REPO --run-id $SWARM_RUN_ID --run-dir $SWARM_RUN_DIR --deadline-epoch $SWARM_DEADLINE_EPOCH --final-sync-margin $swarm_final_sync_margin --compact-interval-steps $swarm_mirror_interval_steps --artifact $SWARM_PRODUCTION_PLAN --artifact $SWARM_RUNTIME_CERTIFICATE --artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/mirror.log 2>&1"

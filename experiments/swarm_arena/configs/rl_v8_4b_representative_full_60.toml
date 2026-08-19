@@ -58,4 +58,4 @@ project = "swarm-arena-rl"
 name = "qwen3-4b-representative-full-60-trainer"
 group = "qwen3-4b-representative-full-60"
 tags = ["4b", "lora", "marl", "paired-message-drop", "receiver", "full-prompt", "role-balanced", "horizon-curriculum", "four-policy"]
-offline = false
+offline = true
