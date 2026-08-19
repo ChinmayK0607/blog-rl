@@ -4387,6 +4387,12 @@ no more critical-specific than decoy-specific. Therefore:
   `9d30cb39147601005c0eeef768d7ebb8a875a52a`; local and anonymous-download
   SHA-256 both equal
   `80bb1ddc705afad9168bbee4c15e7a9002ce4a7b944d1a1924d9388d77c48809`.
+  The full semantic audit was also gzip-compressed to `106,345,893` bytes and
+  preserved at Hub commit `af5e099fa3469bef58e7ae3ce3cde1f3c602e41f`;
+  local and anonymous-download SHA-256 both equal
+  `3e6b1f177742bbd279ccc4ca02a06d7990e1472c6c641ddbe4c739e4dbe37569`.
+  This retains reproducible semantic evidence without publishing the disposable
+  `17 GiB` trainer shards.
 - Direct attribution result: mean normal-minus-dropped terminal return across
   training replicas was `+0.04951`; `54.38%` had a non-zero effect and `44.48%`
   a positive effect. In all `522/522` non-zero-effect replicas, the trained
