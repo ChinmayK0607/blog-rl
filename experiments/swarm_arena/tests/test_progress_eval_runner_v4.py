@@ -30,6 +30,7 @@ from scripts.run_staged_pulses import (
     _candidate_models,
     _validate_pair7_summary,
     _validate_step_zero_control_config,
+    _validate_training_pair_summary,
     _wait_retained_checkpoints,
 )
 from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
@@ -284,6 +285,49 @@ def test_wandb_controller_summary_exposes_curriculum_and_opponent_metrics() -> N
     assert metrics["controller/focused_nonzero_advantage_rate"] == 0.5
     assert metrics["curriculum/focused_broadcast_fraction"] == 0.5
     assert metrics["controller/mean_abs_focused_advantage/broadcast"] == 0.1
+    assert metrics["controller/mean_focused_action_diversity"] == 0.0
+
+
+def test_controller_summary_reports_within_group_focused_action_diversity() -> None:
+    record = {
+        "step": 0,
+        "groups": [
+            {
+                "scenario": {
+                    "kind": "critical",
+                    "curriculum_stage": "compact",
+                    "focused_agent": "blue-1",
+                    "focused_phase": "ACT",
+                    "opponent": {"family": "sft"},
+                },
+                "replicas": [
+                    {
+                        "return": 0.1,
+                        "advantages": {"blue-1": 0.1},
+                        "focused_action": {"type": "CAPTURE", "target": "V13"},
+                    },
+                    {
+                        "return": -0.1,
+                        "advantages": {"blue-1": -0.1},
+                        "focused_action": {"type": "CAPTURE", "target": "V19"},
+                    },
+                    {
+                        "return": 0.1,
+                        "advantages": {"blue-1": 0.1},
+                        "focused_action": {"type": "CAPTURE", "target": "V13"},
+                    },
+                    {
+                        "return": -0.1,
+                        "advantages": {"blue-1": -0.1},
+                        "focused_action": {"type": "CAPTURE", "target": "V19"},
+                    },
+                ],
+            }
+        ],
+    }
+    metrics = summarize_logical_update(record)
+    assert metrics["controller/mean_focused_action_diversity"] == 0.5
+    assert metrics["controller/focused_nonzero_advantage_rate"] == 1.0
 
 
 def test_wandb_sidecar_waits_for_explicit_final_eval_marker(tmp_path) -> None:
@@ -376,6 +420,53 @@ def test_pair7_summary_separates_communication_lift_from_decoy_tactics(
     metrics = summarize_evaluation(summary)
     assert metrics["eval/train_pair/normal_minus_dropped_return"] == pytest.approx(0.6)
     assert metrics["eval/train_pair/critical_minus_decoy_specificity"] == pytest.approx(0.5)
+
+
+def test_multipair_summary_preserves_per_pair_signal(tmp_path: Path) -> None:
+    rows = []
+    for pair_index, lift in ((7, 0.6), (9, 0.2)):
+        for kind in ("critical", "decoy"):
+            for condition in ("normal", "dropped", "sender_shuffled"):
+                for world in ("left", "right"):
+                    terminal_return = (
+                        lift
+                        if kind == "critical" and condition == "normal"
+                        else 0.0
+                    )
+                    rows.append(
+                        {
+                            "pair_index": pair_index,
+                            "kind": kind,
+                            "condition": condition,
+                            "world": world,
+                            "terminal_return": terminal_return,
+                            "receiver_target_action": condition == "normal",
+                            "sender_target_fact": condition == "normal",
+                            "broadcast_valid": 1.0,
+                            "broadcast_grounded": 1.0,
+                            "action_valid": 1.0,
+                        }
+                    )
+    summary = summarize_pair7(rows, (7, 9))
+    assert summary["version"] == "multipair-communication-learnability-eval-v2"
+    assert summary["critical"]["normal_minus_dropped_return"] == pytest.approx(0.4)
+    assert summary["by_pair"]["7"]["critical"][
+        "normal_minus_dropped_return"
+    ] == pytest.approx(0.6)
+    assert summary["by_pair"]["9"]["critical"][
+        "normal_minus_dropped_return"
+    ] == pytest.approx(0.2)
+    output = tmp_path / "summary.json"
+    output.write_text(json.dumps(summary))
+    _validate_training_pair_summary(
+        output,
+        repetitions=1,
+        pair_indices=(7, 9),
+    )
+    metrics = summarize_evaluation(summary)
+    assert metrics["eval/train_pair/normal_minus_dropped_return"] == pytest.approx(0.4)
+    assert metrics["eval/train_pair/7/normal_minus_dropped_return"] == pytest.approx(0.6)
+    assert metrics["eval/train_pair/9/normal_minus_dropped_return"] == pytest.approx(0.2)
 
 
 def test_live_mirror_collects_compact_eval_but_not_raw_generations(tmp_path: Path) -> None:

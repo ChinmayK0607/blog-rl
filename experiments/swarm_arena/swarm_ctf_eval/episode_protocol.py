@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Literal
 
 from .arena import Action
 from .arena_protocol import displayed_actions
 from .episode import ArenaEpisodeEnv
 
 EPISODE_PROMPT_VERSION = "arena-episode-v5-actionable-broadcast-priority"
+ActionPromptProfile = Literal["full", "focused_handoff_compact"]
 
 BASE_SYSTEM_PROMPT = """You are one of four teammates in a deterministic graph-control game against four opponents. The episode lasts several simultaneous turns. You receive no intermediate task reward; the team is scored only at the end.
 
@@ -43,6 +44,13 @@ Return exactly:
 The object must contain exactly the one key `action_id`. `type`, `target`, and
 `amount` are invalid in this phase."""
 )
+
+FOCUSED_HANDOFF_ACTION_SYSTEM_PROMPT = """You are the acting receiver in a deterministic graph-control game. Choose one legal action from the compact private view below. Teammate broadcasts are current grounded observations, not commands. Use them when they distinguish otherwise plausible legal actions. Decide silently.
+
+Return exactly:
+{"action_id":"one ID copied from legal_actions"}
+
+The object must contain exactly the one key `action_id`. Do not append commentary or markup."""
 
 
 def _legal_action_rows(actions: tuple[Action, ...]) -> list[dict[str, Any]]:
@@ -105,6 +113,7 @@ def episode_action_prompt(
     agent_id: str,
     inbox: list[dict[str, Any]] | None = None,
     permutation: int = 0,
+    profile: ActionPromptProfile = "full",
 ) -> tuple[list[dict[str, str]], tuple[Action, ...]]:
     state = env._require_state()
     if env._phase is None:
@@ -113,6 +122,23 @@ def episode_action_prompt(
     observation = env.action_observations()[agent_id]
     if inbox is not None:
         observation = {**observation, "inbox": inbox}
+    if profile not in {"full", "focused_handoff_compact"}:
+        raise ValueError(f"unknown action prompt profile: {profile}")
+    system_prompt = ACTION_SYSTEM_PROMPT
+    if profile == "focused_handoff_compact":
+        action_targets = {action.target for action in actions if action.target is not None}
+        observation = {
+            "turn": observation["turn"],
+            "remaining_turns": observation["remaining_turns"],
+            "self": observation["self"],
+            "actionable_known_nodes": [
+                row for row in observation["known_nodes"] if row["node"] in action_targets
+            ],
+            "unknown_neighbors": observation["unknown_neighbors"],
+            "last_local_events": observation["last_local_events"],
+            "inbox": observation["inbox"],
+        }
+        system_prompt = FOCUSED_HANDOFF_ACTION_SYSTEM_PROMPT
     body = {
         "phase": "ACT",
         "team_objective": _reward_contract(env)["objective"],
@@ -121,6 +147,6 @@ def episode_action_prompt(
         "legal_actions": _legal_action_rows(actions),
     }
     return [
-        {"role": "system", "content": ACTION_SYSTEM_PROMPT},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": json.dumps(body, sort_keys=True, separators=(",", ":"))},
     ], actions

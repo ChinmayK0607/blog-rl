@@ -4004,6 +4004,10 @@ no more critical-specific than decoy-specific. Therefore:
   `JOINT_COMMUNICATION_RL_PLAN.md`,
   `data/rl_v4/staged_curriculum_v3_joint_80.json`, and
   `configs/rl_v4_1_7b_joint_80.toml`
+- Compact multi-pair communication learnability contract:
+  `COMMUNICATION_LEARNABILITY_V6_RUNBOOK.md`,
+  `data/rl_v4/staged_curriculum_v6_compact_multipair_40.json`, and
+  `configs/rl_v4_1_7b_compact_multipair_40.toml`
 - Frozen message-credit admission plan:
   `MESSAGE_CREDIT_AUDIT_PLAN.md`
 - Public, non-admitted mechanical RL artifact:
@@ -4054,6 +4058,71 @@ no more critical-specific than decoy-specific. Therefore:
   same-policy mismatch KL. These bounds do not change the separate `kl_tau =
   0.001` policy regularizer, reward, samples, or evaluation. The stopped
   one-update replacement is not treated as evidence.
+
+### 2026-08-19 — compact multi-pair v6 CPU preparation
+
+- Status: CPU implementation and focused audits complete; fresh Linux/GPU
+  integration run pending. No pod or GPU was active during this work.
+- Hypothesis: the pair-7 run learned generic capture behavior because only four
+  receiver samples per world were available and matched decoys occupied half
+  of every optimizer batch. A small model should receive a clearer conditional
+  signal when several ambiguous communication worlds co-occur, irrelevant
+  receiver context is removed, and decoys remain causal evaluation controls
+  rather than optimizer examples.
+- Curriculum: `data/rl_v4/staged_curriculum_v6_compact_multipair_40.json`.
+  Every one of 40 updates contains pair 7 left/right and pair 9 left/right.
+  Pair 7 trains receiver `blue-1`; pair 9 trains receiver `blue-0`. Each group
+  has eight common-random replicas, for 160 critical groups and 1,280 focused
+  receiver decisions. No ordinary or decoy group is optimized in this narrow
+  learnability run. File SHA-256:
+  `0cffa3458f945bad62dcae8734fc6e5fd3ab1dacc2a21e96e3d495951659bb4f`.
+- Reward and credit: unchanged replay-verified terminal control delta with
+  focused-agent within-world leave-one-out credit. No message/action/capture/
+  target reward was introduced. A proposed cross-world scalar baseline was not
+  added: it would not solve contextual credit and could mix different return
+  distributions. Instead, both worlds are balanced inside every update and
+  each world's counterfactual variation remains isolated by common randomness.
+- Prompt: new `focused_handoff_compact` profile applies only to the focused
+  receiver's ACT request. It retains the inbox, complete legal action list,
+  self state, local events, unknown neighbors, and known nodes referenced by a
+  legal action; other agents and all evaluation defaults remain unchanged.
+  The profile and replica count are bound into the shared-return spec and
+  immutable production-plan digest. Legacy full-prompt spec hashes are
+  preserved.
+- Evaluation: the old pair-7 online probe now supports a multipair mode. The
+  48-game checkpoint pulse reports aggregate and per-pair normal-minus-dropped,
+  normal-minus-shuffled, receiver target choice, critical-minus-decoy
+  specificity, and protocol validity. Matched decoys are therefore still
+  tested at every checkpoint despite receiving no optimizer gradient. The
+  unchanged development and frozen OOD suites remain the selection and final
+  claim surfaces.
+- Observability: compact controller progress and W&B now include focused
+  non-zero-advantage rate and within-group focused-action diversity on every
+  update. This makes a low-diversity first batch visible without another
+  multi-stage launch gate. Public HF mirroring remains per-update, with full
+  adapter snapshots every ten updates.
+- CPU audit: `scripts/audit_communication_learnability_plan.py` passed. Both
+  pairs have indistinguishable critical receiver observations across latent
+  worlds, identical receiver legal actions, no message-unlocked action, and
+  minimum certified terminal advantages `0.074074` (pair 7) and `0.066667`
+  (pair 9). Script SHA-256:
+  `798dfe15f576236ee88dee91d228d68e41e190756b537226cc79823ddf8c0a9c`.
+- Tests: all 14 production/curriculum tests pass; focused prompt, immutable
+  spec, multipair summary, W&B metric, shell syntax, compile, JSON, Ruff, and
+  diff-whitespace checks pass. Full PyTorch-dependent test collection was not
+  run on the Mac because the repository submodules are intentionally absent
+  and installing PyTorch would violate the local-storage policy. A fresh Linux
+  host must run the complete suite once before launch.
+- Trainer: `configs/rl_v4_1_7b_compact_multipair_40.toml`, SHA-256
+  `2daa6202a7a4e71e33bae6b1ac9742dd8717042f720d38ab0bcf32ac8819b4c9`.
+  It retains LoRA rank 16, learning rate `7.5e-6`, terminal-only loss, policy
+  KL regularization, and the measured `0.25`/`0.15` backend compatibility
+  alarms.
+- Runbook: `COMMUNICATION_LEARNABILITY_V6_RUNBOOK.md`. The remaining empirical
+  risk is insufficient on-policy action diversity even with eight replicas.
+  The first GPU update will measure, not assume, this quantity. The run's
+  success still requires intervention lift on both pairs and held-out
+  development improvement; training return alone remains insufficient.
 
 ## Future entry template
 

@@ -282,6 +282,11 @@ async def main() -> None:
         default="shared_team",
     )
     parser.add_argument(
+        "--shared-return-action-prompt-profile",
+        choices=("full", "focused_handoff_compact"),
+        default="full",
+    )
+    parser.add_argument(
         "--shared-return-trainable-phase",
         action="append",
         choices=("BROADCAST", "ACT"),
@@ -407,7 +412,11 @@ async def main() -> None:
     shared_return_spec = None
     if args.credit_estimator == "shared_return":
         shared_return_spec = SharedReturnSpec(
-            args.shared_return_replicas,
+            (
+                production_plan.shared_return_replicas
+                if production_plan is not None
+                else args.shared_return_replicas
+            ),
             trainable_phases=(
                 ("ACT",)
                 if production_plan is not None
@@ -424,6 +433,11 @@ async def main() -> None:
                 else (0,)
             ),
             credit_assignment=args.shared_return_credit_assignment,
+            action_prompt_profile=(
+                production_plan.action_prompt_profile
+                if production_plan is not None
+                else args.shared_return_action_prompt_profile
+            ),
         )
     data_binding = resolve_task_data_binding(args.data_dir, args.task_data_version)
     base_urls = tuple(args.base_url)
@@ -917,6 +931,12 @@ async def main() -> None:
                                     "advantages": {
                                         envelope.agent_id: envelope.advantage for envelope in approval.envelopes
                                     },
+                                    "focused_action": (
+                                        dict(replica.replay.turns[0].actions)[focused_agent].to_dict()
+                                        if focused_agent is not None
+                                        and scenario_metadata.get("focused_phase") == "ACT"
+                                        else None
+                                    ),
                                 }
                                 for replica, approval in zip(group.evidence.replicas, approvals, strict=True)
                             ],

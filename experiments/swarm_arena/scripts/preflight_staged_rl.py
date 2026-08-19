@@ -97,6 +97,7 @@ def main() -> None:
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--inference-config", type=Path, required=True)
     parser.add_argument("--production-plan", type=Path, required=True)
+    parser.add_argument("--curriculum-artifact", type=Path, required=True)
     parser.add_argument("--runtime-certificate", type=Path, required=True)
     parser.add_argument("--data-dir", type=Path, required=True)
     parser.add_argument("--initial-adapter", type=Path, required=True)
@@ -108,6 +109,12 @@ def main() -> None:
         "--shared-return-credit-assignment",
         choices=("shared_team", "focused_agent"),
         default="shared_team",
+    )
+    parser.add_argument("--shared-return-replicas", type=int, default=4)
+    parser.add_argument(
+        "--action-prompt-profile",
+        choices=("full", "focused_handoff_compact"),
+        default="full",
     )
     parser.add_argument("--minimum-free-gib", type=float, default=20.0)
     parser.add_argument("--skip-hardware", action="store_true")
@@ -213,6 +220,12 @@ def main() -> None:
 
     plan, opponent_paths = load_production_plan(args.production_plan)
     raw_plan = json.loads(args.production_plan.read_text(encoding="utf-8"))
+    curriculum = json.loads(args.curriculum_artifact.read_text(encoding="utf-8"))
+    curriculum_sha256 = hashlib.sha256(
+        json.dumps(curriculum, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    if raw_plan.get("curriculum_source", {}).get("sha256") != curriculum_sha256:
+        raise ValueError("production plan does not bind the supplied curriculum artifact")
     if raw_plan.get("runtime_certificate", {}).get("sha256") != certificate_sha256:
         raise ValueError("production plan does not bind the supplied runtime certificate")
     if plan.backend.calibration_sha256 != certificate_sha256:
@@ -223,6 +236,10 @@ def main() -> None:
         raise ValueError("production backend name does not match runtime certificate")
     if plan.backend.version != certificate["backend"]["version"]:
         raise ValueError("production backend version does not match runtime certificate")
+    if args.shared_return_replicas != plan.shared_return_replicas:
+        raise ValueError("launcher replica count does not match the immutable production plan")
+    if args.action_prompt_profile != plan.action_prompt_profile:
+        raise ValueError("launcher action prompt profile does not match the immutable production plan")
     base_snapshots = [
         row for row in plan.opponent_pool.snapshots if row.family == "base"
     ]
@@ -336,6 +353,7 @@ def main() -> None:
         "status": "passed",
         "source_commit": head,
         "production_plan_sha256": plan.sha256,
+        "curriculum_sha256": curriculum_sha256,
         "runtime_certificate_sha256": certificate_sha256,
         "task": {
             "version": binding.task_version,

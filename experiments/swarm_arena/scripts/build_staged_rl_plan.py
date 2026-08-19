@@ -79,6 +79,13 @@ def main() -> None:
             "path": str(args.curriculum),
             "sha256": _digest(curriculum),
         },
+        "rollout_runtime": curriculum.get(
+            "runtime",
+            {
+                "shared_return_replicas": 4,
+                "action_prompt_profile": "full",
+            },
+        ),
         "training_data": {
             "handoff_manifest": str(args.handoff_manifest),
             "sha256": handoff["sha256"],

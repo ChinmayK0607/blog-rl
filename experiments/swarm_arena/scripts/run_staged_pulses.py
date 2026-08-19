@@ -118,16 +118,35 @@ def _validate_summary(path: Path, *, step: int) -> dict:
     return summary
 
 
-def _validate_pair7_summary(path: Path, *, repetitions: int) -> dict:
+def _validate_training_pair_summary(
+    path: Path,
+    *,
+    repetitions: int,
+    pair_indices: tuple[int, ...],
+) -> dict:
     summary = json.loads(path.read_text(encoding="utf-8"))
-    if summary.get("version") != "pair7-communication-overfit-eval-v1":
+    expected_version = (
+        "pair7-communication-overfit-eval-v1"
+        if pair_indices == (7,)
+        else "multipair-communication-learnability-eval-v2"
+    )
+    if summary.get("version") != expected_version:
         raise ValueError("communication pulse used the wrong evaluator version")
-    expected = 2 * 2 * 3 * repetitions
+    expected = len(pair_indices) * 2 * 2 * 3 * repetitions
     if summary.get("rows") != expected:
         raise ValueError(
             f"communication pulse is incomplete: {summary.get('rows')} rows, expected {expected}"
         )
     return summary
+
+
+def _validate_pair7_summary(path: Path, *, repetitions: int) -> dict:
+    """Backward-compatible validator for completed and resumable pair-7 runs."""
+    return _validate_training_pair_summary(
+        path,
+        repetitions=repetitions,
+        pair_indices=(7,),
+    )
 
 
 def _wait_retained_checkpoints(
@@ -183,12 +202,13 @@ def main() -> None:
     parser.add_argument("--checkpoint-timeout", type=float, default=600.0)
     parser.add_argument(
         "--evaluation-mode",
-        choices=("full", "pair7"),
+        choices=("full", "pair7", "multipair"),
         default="full",
         help="Use the compact training-pair probe online; reserve full for held-out selection.",
     )
     parser.add_argument("--pair7-repetitions", type=int, default=2)
     parser.add_argument("--pair7-temperature", type=float, default=0.4)
+    parser.add_argument("--multipair-index", type=int, action="append", default=[])
     args = parser.parse_args()
     if args.expected_updates < 1 or args.interval < 1:
         parser.error("updates and interval must be positive")
@@ -196,6 +216,11 @@ def main() -> None:
         parser.error("pulse interval must divide expected updates")
     if len(args.base_url) != 3:
         parser.error("staged pulses require exactly three rollout server URLs")
+    pair_indices = (
+        tuple(args.multipair_index or (7, 9))
+        if args.evaluation_mode == "multipair"
+        else (7,)
+    )
 
     plan, _ = load_production_plan(args.production_plan)
     if plan.expected_updates != args.expected_updates:
@@ -252,7 +277,7 @@ def main() -> None:
                 _validate_step_zero_control_config(config)
             config_path = args.eval_root / f"update-{step}-config.json"
             _atomic_json(config_path, config)
-            if args.evaluation_mode == "pair7":
+            if args.evaluation_mode in {"pair7", "multipair"}:
                 command = [
                     sys.executable,
                     str(
@@ -281,6 +306,8 @@ def main() -> None:
                     command.extend(("--focal-model", value))
                 for value in config["baseline"]["models"]:
                     command.extend(("--opponent-model", value))
+                for pair_index in pair_indices:
+                    command.extend(("--pair-index", str(pair_index)))
             else:
                 command = [
                     sys.executable,
@@ -314,8 +341,12 @@ def main() -> None:
             )
             if completed.returncode != 0:
                 raise RuntimeError(f"development pulse failed at update {step}")
-        if args.evaluation_mode == "pair7":
-            _validate_pair7_summary(summary_path, repetitions=args.pair7_repetitions)
+        if args.evaluation_mode in {"pair7", "multipair"}:
+            _validate_training_pair_summary(
+                summary_path,
+                repetitions=args.pair7_repetitions,
+                pair_indices=pair_indices,
+            )
         else:
             _validate_summary(summary_path, step=step)
         continuation = {

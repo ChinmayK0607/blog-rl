@@ -466,6 +466,7 @@ async def rollout_branch(
     common_sampling_namespace: str | None = None,
     independently_sampled_agent: str | None = None,
     prompt_namespace: str | None = None,
+    focused_action_prompt_agent: str | None = None,
 ) -> BranchRollout:
     if replaced_agent is not None and message_drop_agent is not None:
         raise ValueError("a branch cannot replace a policy and drop a message simultaneously")
@@ -584,6 +585,11 @@ async def rollout_branch(
                 permutation=int(
                     hashlib.sha256(f"{resolved_prompt_namespace}:action:{turn}:{index}".encode()).hexdigest()[:8],
                     16,
+                ),
+                profile=(
+                    "focused_handoff_compact"
+                    if agent_id == focused_action_prompt_agent
+                    else "full"
                 ),
             )
             endpoint = _policy_for_agent(
@@ -901,6 +907,9 @@ async def build_live_shared_return_group(
         raise ValueError("shared-team credit cannot name a focused agent")
     base_namespace = sampling_namespace or group_id
     common_sampling_namespace = f"{base_namespace}:common" if spec.credit_assignment == "focused_agent" else None
+    focused_action_prompt_agent = (
+        focused_agent if spec.action_prompt_profile == "focused_handoff_compact" else None
+    )
     absolute_turns = (
         None
         if spec.trainable_turn_offsets is None
@@ -927,6 +936,7 @@ async def build_live_shared_return_group(
                     common_sampling_namespace=common_sampling_namespace,
                     independently_sampled_agent=focused_agent,
                     prompt_namespace=common_sampling_namespace,
+                    focused_action_prompt_agent=focused_action_prompt_agent,
                 )
                 for index in range(spec.replicas)
             )

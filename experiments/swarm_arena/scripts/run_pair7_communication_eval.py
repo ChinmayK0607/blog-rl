@@ -16,6 +16,7 @@ from swarm_ctf_eval.providers import OpenAICompatibleProvider
 from swarm_ctf_eval.structured_protocol import protocol_response_format
 
 VERSION = "pair7-communication-overfit-eval-v1"
+MULTIPAIR_VERSION = "multipair-communication-learnability-eval-v2"
 CONDITIONS = ("normal", "dropped", "sender_shuffled")
 
 
@@ -67,7 +68,7 @@ def _mean(rows: list[dict[str, Any]], field: str, **filters: str) -> float:
     return statistics.fmean(values) if values else 0.0
 
 
-def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
+def _summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     critical_generated = _mean(rows, "terminal_return", kind="critical", condition="normal")
     critical_dropped = _mean(rows, "terminal_return", kind="critical", condition="dropped")
     critical_shuffled = _mean(
@@ -76,8 +77,6 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     decoy_generated = _mean(rows, "terminal_return", kind="decoy", condition="normal")
     decoy_dropped = _mean(rows, "terminal_return", kind="decoy", condition="dropped")
     return {
-        "version": VERSION,
-        "rows": len(rows),
         "critical": {
             "normal_return": critical_generated,
             "normal_minus_dropped_return": critical_generated - critical_dropped,
@@ -103,8 +102,27 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "broadcast_grounded_rate": _mean(rows, "broadcast_grounded"),
             "action_valid_rate": _mean(rows, "action_valid"),
         },
+    }
+
+
+def summarize(
+    rows: list[dict[str, Any]],
+    pair_indices: tuple[int, ...] = (7,),
+) -> dict[str, Any]:
+    version = VERSION if pair_indices == (7,) else MULTIPAIR_VERSION
+    return {
+        "version": version,
+        "rows": len(rows),
+        "pair_indices": list(pair_indices),
+        **_summary_metrics(rows),
+        "by_pair": {
+            str(pair_index): _summary_metrics(
+                [row for row in rows if row.get("pair_index", 7) == pair_index]
+            )
+            for pair_index in pair_indices
+        },
         "interpretation": (
-            "This measures memorized pair-7 message-conditioned learning only. "
+            "This measures training-pair message-conditioned learning only. "
             "Held-out development remains the generalization measure."
         ),
     }
@@ -124,7 +142,7 @@ def main() -> None:
     parser.add_argument("--opponent-model", action="append", required=True)
     parser.add_argument("--focal-revision", required=True)
     parser.add_argument("--opponent-revision", required=True)
-    parser.add_argument("--pair-index", type=int, default=7)
+    parser.add_argument("--pair-index", type=int, action="append", default=[])
     parser.add_argument("--remaining-turns", type=int, default=2)
     parser.add_argument("--repetitions", type=int, default=2)
     parser.add_argument("--temperature", type=float, default=0.4)
@@ -134,15 +152,19 @@ def main() -> None:
         parser.error("exactly four focal and four opponent model aliases are required")
     if not args.base_url or args.remaining_turns < 1 or args.repetitions < 1:
         parser.error("base URL, remaining turns, and repetitions must be positive")
+    pair_indices = tuple(args.pair_index or (7,))
+    if len(pair_indices) != len(set(pair_indices)) or any(value < 0 for value in pair_indices):
+        parser.error("pair indices must be unique and non-negative")
 
     training = json.loads(args.manifest.read_text(encoding="utf-8"))
-    pair = training["pairs"][args.pair_index]
+    if max(pair_indices) >= len(training["pairs"]):
+        parser.error("pair index exceeds the training manifest")
     source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     body = {
-        "version": VERSION,
+        "version": VERSION if pair_indices == (7,) else MULTIPAIR_VERSION,
         "source_commit": source_commit,
         "training_manifest_sha256": training["sha256"],
-        "pair_index": args.pair_index,
+        "pair_indices": list(pair_indices),
         "focal_models": args.focal_model,
         "opponent_models": args.opponent_model,
         "focal_revision": args.focal_revision,
@@ -172,79 +194,81 @@ def main() -> None:
 
     base_urls = tuple(args.base_url)
     started = time.time()
-    for kind in ("critical", "decoy"):
-        scenario = reconstruct_manifest_scenario(pair[kind])
-        for world in scenario.worlds:
-            for condition in CONDITIONS:
-                for repeat in range(args.repetitions):
-                    evaluation_id = (
-                        f"pair-{args.pair_index}:{kind}:{world.label}:"
-                        f"{condition}:{repeat}"
-                    )
-                    if evaluation_id in completed:
-                        continue
-                    seed = (scenario.seed * 1_000_003 + repeat * 97 + 11) % (2**32)
-                    focal = _roster(
-                        base_urls, tuple(args.focal_model), temperature=args.temperature, seed=seed
-                    )
-                    opponent = _roster(
-                        base_urls,
-                        tuple(args.opponent_model),
-                        temperature=args.temperature,
-                        seed=(seed + 1_000_000_007) % (2**32),
-                    )
-                    identity = FinalEvalIdentity(
-                        evaluation_id,
-                        f"handoff_{kind}",
-                        "candidate_rl",
-                        args.focal_revision,
-                        "identity",
-                        "identity",
-                        "canonical",
-                        "sft",
-                        args.opponent_revision,
-                        evaluation_id,
-                    )
-                    row, raw = evaluate_final_case(
-                        focal,
-                        opponent,
-                        (scenario.seed, scenario.size, world.state.turn + args.remaining_turns),
-                        identity,
-                        focal_side="BLUE",
-                        condition=condition,
-                        initial_state=world.state,
-                        critical_target=world.active_target if kind == "critical" else None,
-                    )
-                    broadcast = _turn_zero(raw, "broadcasts", scenario.sender)
-                    action = _turn_zero(raw, "actions", scenario.receiver)
-                    result = {
-                        "evaluation_id": evaluation_id,
-                        "pair_index": args.pair_index,
-                        "kind": kind,
-                        "world": world.label,
-                        "condition": condition,
-                        "repeat": repeat,
-                        "sampling_seed": seed,
-                        "target": world.active_target,
-                        "terminal_return": row["terminal_return"],
-                        "sender_target_fact": any(
-                            fact["node"] == world.active_target
-                            for fact in broadcast["accepted_message"]["facts"]
-                        ),
-                        "receiver_target_action": (
-                            action["selected_action"].get("target") == world.active_target
-                        ),
-                        "broadcast_valid": row["broadcast_protocol_rate"],
-                        "broadcast_grounded": row["broadcast_grounded_rate"],
-                        "action_valid": row["action_protocol_rate"],
-                    }
-                    with rows_path.open("a", encoding="utf-8") as handle:
-                        handle.write(json.dumps(result, sort_keys=True) + "\n")
-                    completed.add(evaluation_id)
+    for pair_index in pair_indices:
+        pair = training["pairs"][pair_index]
+        for kind in ("critical", "decoy"):
+            scenario = reconstruct_manifest_scenario(pair[kind])
+            for world in scenario.worlds:
+                for condition in CONDITIONS:
+                    for repeat in range(args.repetitions):
+                        evaluation_id = (
+                            f"pair-{pair_index}:{kind}:{world.label}:"
+                            f"{condition}:{repeat}"
+                        )
+                        if evaluation_id in completed:
+                            continue
+                        seed = (scenario.seed * 1_000_003 + repeat * 97 + 11) % (2**32)
+                        focal = _roster(
+                            base_urls, tuple(args.focal_model), temperature=args.temperature, seed=seed
+                        )
+                        opponent = _roster(
+                            base_urls,
+                            tuple(args.opponent_model),
+                            temperature=args.temperature,
+                            seed=(seed + 1_000_000_007) % (2**32),
+                        )
+                        identity = FinalEvalIdentity(
+                            evaluation_id,
+                            f"handoff_{kind}",
+                            "candidate_rl",
+                            args.focal_revision,
+                            "identity",
+                            "identity",
+                            "canonical",
+                            "sft",
+                            args.opponent_revision,
+                            evaluation_id,
+                        )
+                        row, raw = evaluate_final_case(
+                            focal,
+                            opponent,
+                            (scenario.seed, scenario.size, world.state.turn + args.remaining_turns),
+                            identity,
+                            focal_side="BLUE",
+                            condition=condition,
+                            initial_state=world.state,
+                            critical_target=world.active_target if kind == "critical" else None,
+                        )
+                        broadcast = _turn_zero(raw, "broadcasts", scenario.sender)
+                        action = _turn_zero(raw, "actions", scenario.receiver)
+                        result = {
+                            "evaluation_id": evaluation_id,
+                            "pair_index": pair_index,
+                            "kind": kind,
+                            "world": world.label,
+                            "condition": condition,
+                            "repeat": repeat,
+                            "sampling_seed": seed,
+                            "target": world.active_target,
+                            "terminal_return": row["terminal_return"],
+                            "sender_target_fact": any(
+                                fact["node"] == world.active_target
+                                for fact in broadcast["accepted_message"]["facts"]
+                            ),
+                            "receiver_target_action": (
+                                action["selected_action"].get("target") == world.active_target
+                            ),
+                            "broadcast_valid": row["broadcast_protocol_rate"],
+                            "broadcast_grounded": row["broadcast_grounded_rate"],
+                            "action_valid": row["action_protocol_rate"],
+                        }
+                        with rows_path.open("a", encoding="utf-8") as handle:
+                            handle.write(json.dumps(result, sort_keys=True) + "\n")
+                        completed.add(evaluation_id)
 
     rows = [json.loads(line) for line in rows_path.read_text().splitlines() if line]
     summary = {
-        **summarize(rows),
+        **summarize(rows, pair_indices),
         "manifest_sha256": bound["sha256"],
         "wall_seconds": time.time() - started,
     }

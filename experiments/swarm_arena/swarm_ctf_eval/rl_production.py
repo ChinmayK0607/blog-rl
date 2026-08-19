@@ -33,10 +33,12 @@ class CurriculumMix:
     decoy: int
 
     def validate(self) -> None:
-        if self.ordinary < 0 or min(self.critical, self.decoy) < 1:
-            raise ValueError("curriculum mix requires non-negative ordinary and positive critical/decoy groups")
-        if self.critical != self.decoy:
-            raise ValueError("critical and matched-decoy counts must be equal")
+        if self.ordinary < 0 or self.critical < 1 or self.decoy < 0:
+            raise ValueError(
+                "curriculum mix requires non-negative ordinary/decoy and positive critical groups"
+            )
+        if self.decoy > self.critical:
+            raise ValueError("training decoys must be a matched subset of critical groups")
 
     @property
     def reduced_counts(self) -> tuple[int, int, int]:
@@ -110,7 +112,7 @@ def exact_staged_curriculum_schedule(
     ordinary_seed_base: int,
     shuffle_seed: int,
 ) -> tuple[ScenarioAssignment, ...]:
-    """Build a predeclared staged schedule with matched critical/decoy pairs per update."""
+    """Build a predeclared staged schedule with optional matched training decoys."""
     if not stages:
         raise ValueError("staged curriculum requires at least one stage")
     if min(groups_per_update, pair_offset, ordinary_seed_base, shuffle_seed) < 0:
@@ -169,7 +171,10 @@ def exact_staged_curriculum_schedule(
             block.extend(
                 ("decoy", pair_index, None, focus_role, world)
                 for pair_index, focus_role, world in zip(
-                    pair_indices, pair_roles, pair_worlds, strict=True
+                    pair_indices[: mix.decoy],
+                    pair_roles[: mix.decoy],
+                    pair_worlds[: mix.decoy],
+                    strict=True,
                 )
             )
             handoff_focus_cursor += mix.critical
@@ -234,7 +239,7 @@ def exact_curriculum_schedule(
         ordinary_cursor += ordinary
         pair_indices = tuple(pair_cursor + index for index in range(critical))
         block.extend(("critical", pair_index, None) for pair_index in pair_indices)
-        block.extend(("decoy", pair_index, None) for pair_index in pair_indices)
+        block.extend(("decoy", pair_index, None) for pair_index in pair_indices[:decoy])
         pair_cursor += critical
         random.Random(f"{shuffle_seed}:{block_index}").shuffle(block)
         for kind, pair_index, ordinary_seed in block:
@@ -367,6 +372,8 @@ class ProductionPlan:
     ordinary_sizes: tuple[int, ...]
     ordinary_horizons: tuple[int, ...]
     stages: tuple[CurriculumStage, ...] = ()
+    shared_return_replicas: int = 4
+    action_prompt_profile: Literal["full", "focused_handoff_compact"] = "full"
 
     def validate(self) -> None:
         if self.version not in {
@@ -416,11 +423,21 @@ class ProductionPlan:
             raise ValueError("production plan requires valid ordinary graph sizes")
         if not self.ordinary_horizons or min(self.ordinary_horizons) < 2:
             raise ValueError("production plan requires valid ordinary horizons")
+        if self.shared_return_replicas < 2 or self.shared_return_replicas > 32:
+            raise ValueError("production plan requires 2--32 shared-return replicas")
+        if self.action_prompt_profile not in {"full", "focused_handoff_compact"}:
+            raise ValueError("production plan contains an unknown action prompt profile")
+        if self.action_prompt_profile == "focused_handoff_compact" and "ACT" not in self.trainable_phases:
+            raise ValueError("compact handoff prompts require ACT to be a trainable phase")
 
     @property
     def sha256(self) -> str:
         self.validate()
         payload = asdict(self)
+        if self.shared_return_replicas == 4:
+            payload.pop("shared_return_replicas")
+        if self.action_prompt_profile == "full":
+            payload.pop("action_prompt_profile")
         if self.version == RL_PRODUCTION_PLAN_VERSION:
             # Preserve byte-for-byte run-lock identity for every completed v4 run.
             payload.pop("stages")
@@ -523,6 +540,8 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         ordinary_sizes=tuple(int(value) for value in raw["schedule"]["ordinary_sizes"]),
         ordinary_horizons=tuple(int(value) for value in raw["schedule"]["ordinary_horizons"]),
         stages=stages,
+        shared_return_replicas=int(raw.get("rollout_runtime", {}).get("shared_return_replicas", 4)),
+        action_prompt_profile=str(raw.get("rollout_runtime", {}).get("action_prompt_profile", "full")),
     )
     plan.validate()
     if set(runtime_paths) != {snapshot.opponent_id for snapshot in snapshots}:

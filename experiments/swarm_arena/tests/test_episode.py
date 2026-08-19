@@ -320,6 +320,86 @@ def test_dynamic_action_schema_enumerates_only_displayed_action_ids() -> None:
     ]
 
 
+def test_compact_handoff_action_prompt_keeps_only_decision_relevant_private_state() -> None:
+    env = ArenaEpisodeEnv(seed=22, size=12)
+    env.reset()
+    env.broadcast_phase({})
+    full_messages, full_actions = episode_action_prompt(env, "red-0", permutation=7)
+    compact_messages, compact_actions = episode_action_prompt(
+        env,
+        "red-0",
+        permutation=7,
+        profile="focused_handoff_compact",
+    )
+    full = json.loads(full_messages[-1]["content"])
+    compact = json.loads(compact_messages[-1]["content"])
+    action_targets = {
+        row["target"] for row in compact["legal_actions"] if row.get("target") is not None
+    }
+
+    assert compact_actions == full_actions
+    assert set(compact["observation"]) == {
+        "turn",
+        "remaining_turns",
+        "self",
+        "actionable_known_nodes",
+        "unknown_neighbors",
+        "last_local_events",
+        "inbox",
+    }
+    assert {
+        row["node"] for row in compact["observation"]["actionable_known_nodes"]
+    } <= action_targets
+    assert compact["observation"]["inbox"] == full["observation"]["inbox"]
+    assert len(compact_messages[-1]["content"]) < len(full_messages[-1]["content"])
+
+
+def test_compact_handoff_prompt_preserves_the_intended_causal_information_boundary() -> None:
+    root = Path(__file__).resolve().parents[1]
+    training = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    for pair_index in (7, 9):
+        scenario = reconstruct_manifest_scenario(training["pairs"][pair_index]["critical"])
+        dropped_prompts = []
+        normal_prompts = []
+        for world in scenario.worlds:
+            config = EpisodeConfig(
+                horizon=world.state.turn + 2,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            )
+            dropped = ArenaEpisodeEnv(size=scenario.size, config=config)
+            dropped.reset_from_state(world.state)
+            dropped.broadcast_phase({})
+            messages, _ = episode_action_prompt(
+                dropped,
+                scenario.receiver,
+                profile="focused_handoff_compact",
+            )
+            dropped_prompts.append(messages[-1]["content"])
+
+            normal = ArenaEpisodeEnv(size=scenario.size, config=config)
+            normal.reset_from_state(world.state)
+            fact = normal._require_state().knowledge[scenario.sender][world.active_target]
+            normal.broadcast_phase(
+                {scenario.sender: Broadcast((fact,), None, 0)}
+            )
+            messages, displayed = episode_action_prompt(
+                normal,
+                scenario.receiver,
+                profile="focused_handoff_compact",
+            )
+            body = json.loads(messages[-1]["content"])
+            assert body["observation"]["inbox"][0]["broadcast"]["facts"][0][
+                "node"
+            ] == world.active_target
+            assert world.active_target in {action.target for action in displayed}
+            normal_prompts.append(messages[-1]["content"])
+
+        assert dropped_prompts[0] == dropped_prompts[1]
+        assert normal_prompts[0] != normal_prompts[1]
+
+
 def test_protocol_choice_trie_reconstructs_exact_legal_action_distribution() -> None:
     env = ArenaEpisodeEnv(seed=22, size=12)
     env.reset()

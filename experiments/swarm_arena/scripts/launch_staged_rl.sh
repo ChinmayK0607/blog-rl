@@ -25,10 +25,12 @@ swarm_expected_updates=${SWARM_EXPECTED_UPDATES:-$(jq '[.curriculum_stages[].upd
 swarm_checkpoint_interval=${SWARM_CHECKPOINT_INTERVAL:-10}
 swarm_credit_assignment=${SWARM_SHARED_RETURN_CREDIT_ASSIGNMENT:-shared_team}
 swarm_curriculum_artifact=${SWARM_CURRICULUM_ARTIFACT:-$SWARM_REPO_ROOT/experiments/swarm_arena/data/rl_v4/staged_curriculum_v3_joint_80.json}
+swarm_shared_return_replicas=${SWARM_SHARED_RETURN_REPLICAS:-$(jq -r '.runtime.shared_return_replicas // 4' "$swarm_curriculum_artifact")}
+swarm_action_prompt_profile=${SWARM_ACTION_PROMPT_PROFILE:-$(jq -r '.runtime.action_prompt_profile // "full"' "$swarm_curriculum_artifact")}
 swarm_wandb_group=${SWARM_WANDB_GROUP:-qwen3-1.7b-staged-$swarm_expected_updates}
 swarm_controller_wandb_mode=${SWARM_CONTROLLER_WANDB_MODE:-online}
 swarm_final_sync_margin=${SWARM_FINAL_SYNC_MARGIN:-2700}
-swarm_pulse_mode=${SWARM_PULSE_MODE:-pair7}
+swarm_pulse_mode=${SWARM_PULSE_MODE:-$(jq -r '.runtime.online_evaluation_mode // "full"' "$swarm_curriculum_artifact")}
 swarm_mirror_interval_steps=${SWARM_MIRROR_INTERVAL_STEPS:-1}
 
 case "$swarm_controller_wandb_mode" in
@@ -57,6 +59,7 @@ export PYTHONPATH=$SWARM_REPO_ROOT/experiments/swarm_arena
   --run-dir "$SWARM_RUN_DIR" \
   --inference-config "$swarm_inference_config" \
   --production-plan "$SWARM_PRODUCTION_PLAN" \
+  --curriculum-artifact "$swarm_curriculum_artifact" \
   --runtime-certificate "$SWARM_RUNTIME_CERTIFICATE" \
   --data-dir "$swarm_data_dir" \
   --initial-adapter "$SWARM_INITIAL_ADAPTER" \
@@ -66,7 +69,9 @@ export PYTHONPATH=$SWARM_REPO_ROOT/experiments/swarm_arena
   --base-url http://127.0.0.1:8003 \
   --expected-updates "$swarm_expected_updates" \
   --checkpoint-interval "$swarm_checkpoint_interval" \
-  --shared-return-credit-assignment "$swarm_credit_assignment"
+  --shared-return-credit-assignment "$swarm_credit_assignment" \
+  --shared-return-replicas "$swarm_shared_return_replicas" \
+  --action-prompt-profile "$swarm_action_prompt_profile"
 
 swarm_plan_sha=$(jq -r .production_plan_sha256 "$SWARM_RUN_DIR/PREFLIGHT.json")
 mkdir -p "$SWARM_RUN_DIR/logs" "$swarm_eval_root" "$swarm_rescore_dir"
@@ -115,7 +120,7 @@ if ! tmux has-session -t "$swarm_session_prefix-trainer" 2>/dev/null; then
 fi
 
 tmux new-session -d -s "$swarm_session_prefix-controller" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_rl.py --output-dir $SWARM_RUN_DIR --trainer-config $SWARM_RUN_DIR/trainer.toml --inference-config $swarm_inference_config --data-dir $swarm_data_dir --task-data-version v4 --tokenizer $SWARM_MODEL --initial-adapter $SWARM_INITIAL_ADAPTER --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --actor vllm --run-id $SWARM_RUN_ID --source-commit $swarm_source_commit --base-revision $SWARM_BASE_REVISION --initial-policy-revision $SWARM_INITIAL_POLICY_REVISION --credit-estimator shared_return --shared-return-replicas 4 --shared-return-credit-assignment $swarm_credit_assignment --production-plan $SWARM_PRODUCTION_PLAN --async-rescore-dir $swarm_rescore_dir --async-rescore-timeout 600 --steps $swarm_expected_updates --groups-per-step 4 --scenario-source curriculum --curriculum-split train --update-timeout 1200 --checkpoint-barrier-dir $swarm_barrier_dir --checkpoint-barrier-interval $swarm_checkpoint_interval --checkpoint-barrier-timeout 7200 > $SWARM_RUN_DIR/logs/controller.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_rl.py --output-dir $SWARM_RUN_DIR --trainer-config $SWARM_RUN_DIR/trainer.toml --inference-config $swarm_inference_config --data-dir $swarm_data_dir --task-data-version v4 --tokenizer $SWARM_MODEL --initial-adapter $SWARM_INITIAL_ADAPTER --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --actor vllm --run-id $SWARM_RUN_ID --source-commit $swarm_source_commit --base-revision $SWARM_BASE_REVISION --initial-policy-revision $SWARM_INITIAL_POLICY_REVISION --credit-estimator shared_return --shared-return-replicas $swarm_shared_return_replicas --shared-return-credit-assignment $swarm_credit_assignment --shared-return-action-prompt-profile $swarm_action_prompt_profile --production-plan $SWARM_PRODUCTION_PLAN --async-rescore-dir $swarm_rescore_dir --async-rescore-timeout 600 --steps $swarm_expected_updates --groups-per-step 4 --scenario-source curriculum --curriculum-split train --update-timeout 1200 --checkpoint-barrier-dir $swarm_barrier_dir --checkpoint-barrier-interval $swarm_checkpoint_interval --checkpoint-barrier-timeout 7200 > $SWARM_RUN_DIR/logs/controller.log 2>&1"
 
 sleep 10
 for swarm_role in trainer rescore pulses wandb mirror controller; do

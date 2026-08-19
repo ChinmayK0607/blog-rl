@@ -22,6 +22,7 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
     returns_by_opponent: dict[str, list[float]] = defaultdict(list)
     focused_advantages_by_phase: dict[str, list[float]] = defaultdict(list)
     focused_phase_counts: Counter[str] = Counter()
+    focused_action_diversities: list[float] = []
     for group in groups:
         scenario = group["scenario"]
         kind = str(scenario.get("kind", "ordinary"))
@@ -31,6 +32,13 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
         kinds[kind] += 1
         group_returns = [float(row["return"]) for row in group["replicas"]]
         group_advantages = []
+        focused_actions = [
+            json.dumps(row["focused_action"], sort_keys=True, separators=(",", ":"))
+            for row in group["replicas"]
+            if row.get("focused_action") is not None
+        ]
+        if focused_actions:
+            focused_action_diversities.append(len(set(focused_actions)) / len(focused_actions))
         focused_agent = scenario.get("focused_agent")
         focused_phase = scenario.get("focused_phase")
         if focused_phase is not None:
@@ -71,6 +79,11 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
         "controller/focused_nonzero_advantage_rate": statistics.mean(
             abs(value) > 1e-12 for value in focused_advantages
         ),
+        "controller/mean_focused_action_diversity": (
+            statistics.mean(focused_action_diversities)
+            if focused_action_diversities
+            else 0.0
+        ),
         "curriculum/stage": ",".join(sorted(stage_names)) or "legacy-fixed",
     }
     for kind, count in sorted(kinds.items()):
@@ -88,11 +101,14 @@ def summarize_logical_update(record: dict[str, Any]) -> dict[str, int | float | 
 
 def summarize_evaluation(summary: dict[str, Any]) -> dict[str, int | float]:
     metrics: dict[str, int | float] = {}
-    if summary.get("version") == "pair7-communication-overfit-eval-v1":
+    if summary.get("version") in {
+        "pair7-communication-overfit-eval-v1",
+        "multipair-communication-learnability-eval-v2",
+    }:
         critical = summary["critical"]
         specificity = summary["specificity"]
         protocol = summary["protocol"]
-        return {
+        metrics = {
             "eval/train_pair/normal_return": float(critical["normal_return"]),
             "eval/train_pair/normal_minus_dropped_return": float(
                 critical["normal_minus_dropped_return"]
@@ -115,6 +131,22 @@ def summarize_evaluation(summary: dict[str, Any]) -> dict[str, int | float]:
             ),
             "eval/protocol/action_valid_rate": float(protocol["action_valid_rate"]),
         }
+        for pair_index, pair_summary in summary.get("by_pair", {}).items():
+            pair_critical = pair_summary["critical"]
+            pair_specificity = pair_summary["specificity"]
+            metrics[f"eval/train_pair/{pair_index}/normal_minus_dropped_return"] = float(
+                pair_critical["normal_minus_dropped_return"]
+            )
+            metrics[f"eval/train_pair/{pair_index}/normal_minus_shuffled_return"] = float(
+                pair_critical["normal_minus_shuffled_return"]
+            )
+            metrics[f"eval/train_pair/{pair_index}/receiver_target_action_rate"] = float(
+                pair_critical["normal_receiver_target_action_rate"]
+            )
+            metrics[f"eval/train_pair/{pair_index}/critical_minus_decoy_specificity"] = float(
+                pair_specificity["critical_minus_decoy_normal_dropped_lift"]
+            )
+        return metrics
     capability = summary.get("capability_rl_minus_sft", {})
     for suite in ("ordinary_legacy", "ordinary_hard"):
         if suite in capability:

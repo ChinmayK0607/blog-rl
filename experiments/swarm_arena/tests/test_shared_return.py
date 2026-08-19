@@ -125,6 +125,31 @@ def test_leave_one_out_advantages_are_zero_sum_and_unshaped() -> None:
     assert math.isclose(sum(values), 0.0, abs_tol=1e-12)
 
 
+def test_compact_prompt_profile_is_bound_without_changing_legacy_spec_identity() -> None:
+    legacy = SharedReturnSpec(replicas=4)
+    assert legacy.sha256 == canonical_sha256(
+        {
+            "replicas": 4,
+            "trainable_phases": ("BROADCAST",),
+            "trainable_turn_offsets": (0,),
+            "baseline": "leave_one_out_mean",
+            "reward": "verified_terminal_team_return",
+            "credit_assignment": "shared_team",
+        }
+    )
+    compact = SharedReturnSpec(
+        replicas=8,
+        trainable_phases=("ACT",),
+        trainable_turn_offsets=(0,),
+        credit_assignment="focused_agent",
+        action_prompt_profile="focused_handoff_compact",
+    )
+    compact.validate()
+    assert compact.sha256 != replace(compact, action_prompt_profile="full").sha256
+    with pytest.raises(ValueError, match="focused-agent ACT"):
+        replace(compact, credit_assignment="shared_team").validate()
+
+
 def test_shared_return_group_is_replayed_signed_and_routed_fail_closed() -> None:
     spec = SharedReturnSpec(replicas=4)
     lock = _lock(spec)

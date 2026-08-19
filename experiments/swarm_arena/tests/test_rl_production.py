@@ -13,6 +13,7 @@ from swarm_ctf_eval.rl_production import (
     OpponentSnapshot,
     exact_curriculum_schedule,
     exact_staged_curriculum_schedule,
+    load_production_plan,
     scenario_sampling_namespace,
 )
 
@@ -130,6 +131,55 @@ def test_opponent_pool_rotates_all_model_families_exactly() -> None:
     assert len(pool.sha256) == 64
 
 
+def test_rollout_runtime_changes_plan_identity_without_changing_legacy_default(
+    tmp_path: Path,
+) -> None:
+    root = Path(__file__).resolve().parents[1]
+    source = (
+        root
+        / "results"
+        / "rl_v4_1_7b_lr_ablation"
+        / "variant_a"
+        / "plan_original_mix.json"
+    )
+    raw = json.loads(source.read_text())
+    legacy_path = tmp_path / "legacy.json"
+    legacy_path.write_text(json.dumps(raw))
+    legacy, _ = load_production_plan(legacy_path)
+
+    explicit_default_path = tmp_path / "explicit-default.json"
+    explicit_default_path.write_text(
+        json.dumps(
+            {
+                **raw,
+                "rollout_runtime": {
+                    "shared_return_replicas": 4,
+                    "action_prompt_profile": "full",
+                },
+            }
+        )
+    )
+    explicit_default, _ = load_production_plan(explicit_default_path)
+    assert explicit_default.sha256 == legacy.sha256
+
+    compact_path = tmp_path / "compact.json"
+    compact_path.write_text(
+        json.dumps(
+            {
+                **raw,
+                "rollout_runtime": {
+                    "shared_return_replicas": 8,
+                    "action_prompt_profile": "focused_handoff_compact",
+                },
+            }
+        )
+    )
+    compact, _ = load_production_plan(compact_path)
+    assert compact.shared_return_replicas == 8
+    assert compact.action_prompt_profile == "focused_handoff_compact"
+    assert compact.sha256 != legacy.sha256
+
+
 def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
     tactical = CurriculumMix(ordinary=2, critical=1, decoy=1)
     communication = CurriculumMix(ordinary=0, critical=2, decoy=2)
@@ -193,6 +243,62 @@ def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
         ordinary_seed_base=90_000,
         shuffle_seed=17,
     )
+
+
+def test_staged_schedule_can_reserve_decoys_for_evaluation_only() -> None:
+    stage = CurriculumStage(
+        name="critical-only-learnability",
+        updates=2,
+        update_pattern=(CurriculumMix(ordinary=0, critical=4, decoy=0),),
+        ordinary_sizes=(12,),
+        ordinary_horizons=(4,),
+        handoff_focus_roles=("receiver",),
+        handoff_cases=(
+            (7, "left_exposed"),
+            (7, "right_exposed"),
+            (10, "left_exposed"),
+            (10, "right_exposed"),
+        ),
+        handoff_remaining_turns=2,
+    )
+    schedule = exact_staged_curriculum_schedule(
+        (stage,),
+        groups_per_update=4,
+        pair_offset=0,
+        ordinary_seed_base=90_000,
+        shuffle_seed=17,
+    )
+
+    assert Counter(row.kind for row in schedule) == {"critical": 8}
+    for update in range(2):
+        block = schedule[update * 4 : (update + 1) * 4]
+        assert {(row.pair_index, row.handoff_world) for row in block} == set(
+            stage.handoff_cases
+        )
+
+
+def test_partial_decoy_mix_uses_only_matched_critical_cases() -> None:
+    stage = CurriculumStage(
+        name="partial-decoy",
+        updates=1,
+        update_pattern=(CurriculumMix(ordinary=0, critical=3, decoy=1),),
+        ordinary_sizes=(12,),
+        ordinary_horizons=(4,),
+        handoff_focus_roles=("receiver",),
+        handoff_cases=((7, "left_exposed"), (7, "right_exposed"), (10, "left_exposed")),
+    )
+    schedule = exact_staged_curriculum_schedule(
+        (stage,),
+        groups_per_update=4,
+        pair_offset=0,
+        ordinary_seed_base=90_000,
+        shuffle_seed=17,
+    )
+    critical = {(row.pair_index, row.handoff_world) for row in schedule if row.kind == "critical"}
+    decoy = {(row.pair_index, row.handoff_world) for row in schedule if row.kind == "decoy"}
+    assert len(critical) == 3
+    assert len(decoy) == 1
+    assert decoy < critical
 
 
 def test_joint_curriculum_balances_sender_receiver_focus_and_retains_ordinary_play() -> None:
@@ -355,6 +461,69 @@ def test_communication_overfit_curriculum_requires_the_message_to_select_the_wor
             } == selected_cases
         assert {row.handoff_focus_role for row in block} == {"receiver"}
         assert {row.handoff_remaining_turns for row in block} == {2}
+
+
+def test_compact_multipair_curriculum_concentrates_only_verified_critical_signal() -> None:
+    root = Path(__file__).resolve().parents[1]
+    curriculum = json.loads(
+        (
+            root
+            / "data"
+            / "rl_v4"
+            / "staged_curriculum_v6_compact_multipair_40.json"
+        ).read_text()
+    )
+    handoffs = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    stage = curriculum["stages"][0]
+    selected_cases = {
+        (case["pair_index"], case["world"]) for case in stage["handoff_cases"]
+    }
+
+    assert selected_cases == {
+        (7, "left_exposed"),
+        (7, "right_exposed"),
+        (9, "left_exposed"),
+        (9, "right_exposed"),
+    }
+    assert curriculum["runtime"] == {
+        "shared_return_replicas": 8,
+        "action_prompt_profile": "focused_handoff_compact",
+        "online_evaluation_mode": "multipair",
+    }
+    for pair_index in (7, 9):
+        pair = handoffs["pairs"][pair_index]
+        audit = pair["matched_pair_audit"]
+        assert audit["critical_receiver_worlds_indistinguishable_without_message"]
+        assert audit["receiver_action_sets_match_across_worlds"]
+        assert audit["message_does_not_change_receiver_legal_actions"]
+        assert all(
+            certificate["advantage"] > 0
+            for certificate in pair["critical"]["certificates"]
+        )
+
+    schedule = exact_staged_curriculum_schedule(
+        (
+            CurriculumStage(
+                name=stage["name"],
+                updates=stage["updates"],
+                update_pattern=tuple(
+                    CurriculumMix(**mix) for mix in stage["update_pattern"]
+                ),
+                ordinary_sizes=tuple(stage["ordinary_sizes"]),
+                ordinary_horizons=tuple(stage["ordinary_horizons"]),
+                handoff_focus_roles=tuple(stage["handoff_focus_roles"]),
+                handoff_cases=tuple(selected_cases),
+                handoff_remaining_turns=stage["handoff_remaining_turns"],
+            ),
+        ),
+        groups_per_update=4,
+        pair_offset=0,
+        ordinary_seed_base=8_000_000,
+        shuffle_seed=17,
+    )
+    assert len(schedule) == 160
+    assert Counter(row.kind for row in schedule) == {"critical": 160}
+    assert all(row.handoff_focus_role == "receiver" for row in schedule)
 
 
 def test_staged_run_keeps_training_short_and_preserves_ten_step_checkpoints() -> None:

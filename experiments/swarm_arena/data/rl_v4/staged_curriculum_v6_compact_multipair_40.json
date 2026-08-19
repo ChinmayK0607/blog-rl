@@ -1,0 +1,80 @@
+{
+  "version": "arena-rl-v4-compact-multipair-learnability-v6",
+  "total_updates": 40,
+  "groups_per_update": 4,
+  "reward": "verified_terminal_control_delta_only",
+  "credit_assignment": "receiver_act_focused_agent_common_random_leave_one_out",
+  "message_reward": null,
+  "initializer": "pinned_sft_not_prior_rl",
+  "scope": "critical-only learnability test for message-conditioned receiver actions",
+  "principles": [
+    "train on two independent handoff pairs whose left and right worlds passed the receiver screen and whose receivers use different policy slots",
+    "include both latent worlds of both pairs in every update so pair identity and private observation cannot identify the active target",
+    "train only the receiver's first ACT span with eight common-random replicas per group",
+    "use a compact receiver view containing the inbox, legal actions, and only action-relevant private state",
+    "derive every advantage from replay-verified terminal team return; add no action, capture, target, or communication reward",
+    "reserve matched decoys for checkpoint evaluation rather than spending half the optimizer batch on an easier generic capture pattern",
+    "retain two remaining turns for the previously measured terminal-return contrast"
+  ],
+  "stages": [
+    {
+      "name": "compact_pairs_7_9_two_worlds",
+      "updates": 40,
+      "update_pattern": [
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        }
+      ],
+      "ordinary_sizes": [
+        12,
+        13
+      ],
+      "ordinary_horizons": [
+        4,
+        5
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 2,
+      "handoff_cases": [
+        {
+          "pair_index": 7,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 7,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 9,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 9,
+          "world": "right_exposed"
+        }
+      ],
+      "purpose": "make message-conditioned target switching the only repeated cross-world rule"
+    }
+  ],
+  "runtime": {
+    "shared_return_replicas": 8,
+    "action_prompt_profile": "focused_handoff_compact",
+    "online_evaluation_mode": "multipair"
+  },
+  "online_eval_updates": [
+    0,
+    10,
+    20,
+    30,
+    40
+  ],
+  "primary_success_measure": "critical generated-minus-dropped receiver target-action and terminal-return lift on held-out development pairs",
+  "specificity_measure": "critical-minus-matched-decoy intervention lift, evaluated but never optimized",
+  "checkpoint_selection": "development-only after update 40; intermediate pulses are diagnostic",
+  "frozen_policy": "the existing RL-v4 frozen OOD evaluation remains byte-identical and unopened until development selection",
+  "limitation": "success establishes message-conditioned learnability across two training pairs, not broad swarm intelligence"
+}

@@ -169,6 +169,7 @@ class SharedReturnSpec:
     baseline: Literal["leave_one_out_mean"] = "leave_one_out_mean"
     reward: Literal["verified_terminal_team_return"] = "verified_terminal_team_return"
     credit_assignment: Literal["shared_team", "focused_agent"] = "shared_team"
+    action_prompt_profile: Literal["full", "focused_handoff_compact"] = "full"
 
     def validate(self) -> None:
         if self.replicas < 2 or self.replicas > 32:
@@ -190,6 +191,12 @@ class SharedReturnSpec:
             raise ValueError("shared-return spec contains an unsupported reward")
         if self.credit_assignment not in {"shared_team", "focused_agent"}:
             raise ValueError("shared-return spec contains an unsupported credit assignment")
+        if self.action_prompt_profile not in {"full", "focused_handoff_compact"}:
+            raise ValueError("shared-return spec contains an unsupported action prompt profile")
+        if self.action_prompt_profile == "focused_handoff_compact" and (
+            self.credit_assignment != "focused_agent" or self.trainable_phases != ("ACT",)
+        ):
+            raise ValueError("compact handoff prompts require focused-agent ACT credit")
         if self.credit_assignment == "focused_agent" and (
             len(self.trainable_phases) != 1
             or self.trainable_phases[0] not in {"BROADCAST", "ACT"}
@@ -199,7 +206,12 @@ class SharedReturnSpec:
     @property
     def sha256(self) -> str:
         self.validate()
-        return canonical_sha256(asdict(self))
+        payload = asdict(self)
+        if self.action_prompt_profile == "full":
+            # Preserve the immutable identity of completed runs created before
+            # prompt profiles were introduced.
+            payload.pop("action_prompt_profile")
+        return canonical_sha256(payload)
 
 
 @dataclass(frozen=True)
