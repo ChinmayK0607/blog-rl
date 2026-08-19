@@ -4436,7 +4436,9 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-08-20 — powered 4B prompt-transfer matrix
 
-- Status: running; design fixed before any cell summary was available.
+- Status: completed (`3,072/3,072` games); design fixed before any cell summary
+  was available. All eight cells retained 100% action validity, broadcast
+  validity, and broadcast grounding.
 - Scope: training pairs 7 and 9 only, both latent worlds, critical and matched
   decoy cases, normal/dropped/sender-shuffled messages, and 16 independent
   sampling repetitions. The frozen development and OOD suites remain unopened.
@@ -4463,10 +4465,50 @@ no more critical-specific than decoy-specific. Therefore:
   passed 1/1 and changed-file Ruff passed before launch. The first pytest
   invocation omitted the experiment `PYTHONPATH` and collected no test; the
   corrected command passed and no model request was made by the failed command.
-- Runtime: four final-checkpoint cells launched concurrently on the retained
-  4x L40S node. Public synchronization and exact wall time/results will be
-  appended after completion; baseline cells launch only after capacity becomes
-  available.
+- Results at the trained checkpoint: compact/T=0.4 target accuracy was
+  `100%` normal versus `50%` dropped, paired return lift `+0.07569` with
+  sampling-bootstrap 95% CI `[+0.05810,+0.09340]`. Compact/T=1.0 was
+  `89.06%` versus `50%`, lift `+0.05255` `[+0.03542,+0.07037]`. Under the full
+  prompt, target accuracy fell to `51.56%` versus `50%` at T=0.4 and `48.44%`
+  versus `51.56%` at T=1.0, although return lift stayed positive (`+0.07037`
+  and `+0.05764`). This is direct evidence of compact-interface learning with
+  poor transfer of the intended target-selection rule to the real interface.
+- RL-minus-SFT: compact return-lift difference was `+0.03102`
+  `[+0.01505,+0.04769]` at T=0.4 and `+0.04028`
+  `[+0.02037,+0.06019]` at T=1.0; normal target-accuracy improvements were
+  `+25.0` and `+26.56` percentage points. Full-prompt return-lift difference
+  was smaller: `+0.01285` `[-0.00868,+0.03426]` at T=0.4 and `+0.02164`
+  `[+0.00255,+0.04109]` at T=1.0. Full-prompt target-accuracy differences were
+  `+17.19` points `[+3.13,+29.69]` and `+9.38` points
+  `[-3.13,+21.88]`, respectively. Thus RL added clear compact-prompt capability
+  but at best weak/inconsistent full-prompt behavioral transfer.
+- Specificity: trained-checkpoint critical-minus-decoy drop lift was `+0.04016`
+  compact/T=0.4, `+0.03299` compact/T=1.0, `+0.10428` full/T=0.4, and
+  `+0.08287` full/T=1.0. Positive terminal sensitivity in the full cells cannot
+  substitute for target accuracy; rollout attribution remains necessary.
+- Runtime/recovery: the four final cells used GPUs 0--3. The four SFT controls
+  were initially all routed through GPU 0; after final cells completed, three
+  were deliberately stopped and resumed by immutable evaluation ID on GPUs
+  1--3. Two resume attempts failed before generation because the evaluator
+  correctly rejected source-commit mismatches (current head, then `847ecf31`)
+  against manifests bound to `0fe6949b`. Checkout at exact `0fe6949b` resumed
+  successfully; existing rows were retained and no cell was duplicated or
+  relabeled.
+- Artifacts: complete rows, manifests, summaries, and analysis are public under
+  `CK0607/swarm-arena-live-runs/rl-v7-paired4b30-memfix-5f3ddf7e/diagnostics/prompt-transfer`.
+  Final upload commit is `dc4db51b38f30a75a1e4177d42dc856f35c149f5`;
+  canonical report SHA is
+  `6b0bb1d781cd8ed916c30cf4f3cca4980b73d3b088346e656b8ff7f48d5595ee`
+  and file SHA-256 is
+  `7266c6b090dbb3943a569f04d77cdc1c321566f436d5ecac5b751e07fbf2fc9f`.
+  Anonymous repository listing confirmed all eight completed cell summaries.
+  Two anonymous re-download/hash invocations for the final analysis were
+  aborted by the local approval-review timeout rather than a Hub error; public
+  upload is confirmed but byte re-verification is not claimed.
+- Verdict: positive and useful. The old run did learn causal message-conditioned
+  receiver behavior, but mostly under the compact training prompt. This
+  justifies the next preregistered run's full-prompt-only curriculum; it does
+  not by itself justify a held-out swarm-intelligence claim.
 
 ### 2026-08-20 — representative 4B full-interface curriculum (prospective)
 
