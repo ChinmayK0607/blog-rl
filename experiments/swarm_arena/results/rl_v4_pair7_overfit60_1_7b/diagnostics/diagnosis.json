@@ -1,0 +1,925 @@
+{
+  "evaluations": {
+    "pair7-rep16-step0": {
+      "critical_minus_decoy_normal_dropped_return": {
+        "mean": 0.0023148148148148147,
+        "mean_95": [
+          -0.027777777777777776,
+          0.034722222222222224
+        ],
+        "paired_cells": 32
+      },
+      "effects": {
+        "critical": {
+          "normal_minus_dropped": {
+            "receiver_target_action": {
+              "mean": 0.0625,
+              "mean_95": [
+                -0.125,
+                0.25
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": -0.0023148148148148147,
+              "mean_95": [
+                -0.03009259259259259,
+                0.02546296296296296
+              ],
+              "paired_cells": 32
+            }
+          },
+          "normal_minus_sender_shuffled": {
+            "receiver_target_action": {
+              "mean": 0.09375,
+              "mean_95": [
+                -0.15625,
+                0.34375
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": 0.009259259259259259,
+              "mean_95": [
+                -0.023148148148148147,
+                0.041666666666666664
+              ],
+              "paired_cells": 32
+            }
+          }
+        },
+        "decoy": {
+          "normal_minus_dropped": {
+            "receiver_target_action": {
+              "mean": 0.0625,
+              "mean_95": [
+                -0.15625,
+                0.28125
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": -0.004629629629629629,
+              "mean_95": [
+                -0.037037037037037035,
+                0.02546296296296296
+              ],
+              "paired_cells": 32
+            }
+          },
+          "normal_minus_sender_shuffled": {
+            "receiver_target_action": {
+              "mean": 0.15625,
+              "mean_95": [
+                -0.0625,
+                0.375
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": 0.027777777777777776,
+              "mean_95": [
+                -0.006944444444444444,
+                0.0625
+              ],
+              "paired_cells": 32
+            }
+          }
+        }
+      },
+      "rows": 192
+    },
+    "pair7-rep16-step50": {
+      "critical_minus_decoy_normal_dropped_return": {
+        "mean": 0.0,
+        "mean_95": [
+          -0.032407407407407406,
+          0.032407407407407406
+        ],
+        "paired_cells": 32
+      },
+      "effects": {
+        "critical": {
+          "normal_minus_dropped": {
+            "receiver_target_action": {
+              "mean": 0.09375,
+              "mean_95": [
+                -0.125,
+                0.34375
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": -0.0023148148148148147,
+              "mean_95": [
+                -0.039351851851851846,
+                0.034722222222222224
+              ],
+              "paired_cells": 32
+            }
+          },
+          "normal_minus_sender_shuffled": {
+            "receiver_target_action": {
+              "mean": 0.0625,
+              "mean_95": [
+                -0.15625,
+                0.28125
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": 0.011574074074074073,
+              "mean_95": [
+                -0.020833333333333332,
+                0.04398148148148148
+              ],
+              "paired_cells": 32
+            }
+          }
+        },
+        "decoy": {
+          "normal_minus_dropped": {
+            "receiver_target_action": {
+              "mean": 0.0625,
+              "mean_95": [
+                -0.21875,
+                0.34375
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": -0.0023148148148148147,
+              "mean_95": [
+                -0.04398148148148148,
+                0.039351851851851846
+              ],
+              "paired_cells": 32
+            }
+          },
+          "normal_minus_sender_shuffled": {
+            "receiver_target_action": {
+              "mean": -0.125,
+              "mean_95": [
+                -0.34375,
+                0.09375
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": -0.020833333333333332,
+              "mean_95": [
+                -0.05092592592592592,
+                0.009259259259259259
+              ],
+              "paired_cells": 32
+            }
+          }
+        }
+      },
+      "rows": 192
+    },
+    "pair7-rep16-step60": {
+      "critical_minus_decoy_normal_dropped_return": {
+        "mean": -0.0023148148148148147,
+        "mean_95": [
+          -0.032407407407407406,
+          0.027777777777777776
+        ],
+        "paired_cells": 32
+      },
+      "effects": {
+        "critical": {
+          "normal_minus_dropped": {
+            "receiver_target_action": {
+              "mean": 0.125,
+              "mean_95": [
+                -0.09375,
+                0.34375
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": 0.0,
+              "mean_95": [
+                -0.037037037037037035,
+                0.034722222222222224
+              ],
+              "paired_cells": 32
+            }
+          },
+          "normal_minus_sender_shuffled": {
+            "receiver_target_action": {
+              "mean": 0.125,
+              "mean_95": [
+                -0.09375,
+                0.34375
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": 0.013888888888888888,
+              "mean_95": [
+                -0.018518518518518517,
+                0.046296296296296294
+              ],
+              "paired_cells": 32
+            }
+          }
+        },
+        "decoy": {
+          "normal_minus_dropped": {
+            "receiver_target_action": {
+              "mean": 0.0625,
+              "mean_95": [
+                -0.21875,
+                0.34375
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": 0.0023148148148148147,
+              "mean_95": [
+                -0.039351851851851846,
+                0.04398148148148148
+              ],
+              "paired_cells": 32
+            }
+          },
+          "normal_minus_sender_shuffled": {
+            "receiver_target_action": {
+              "mean": -0.0625,
+              "mean_95": [
+                -0.25,
+                0.125
+              ],
+              "paired_cells": 32
+            },
+            "terminal_return": {
+              "mean": -0.009259259259259259,
+              "mean_95": [
+                -0.037037037037037035,
+                0.018518518518518517
+              ],
+              "paired_cells": 32
+            }
+          }
+        }
+      },
+      "rows": 192
+    }
+  },
+  "overall": {
+    "critical": {
+      "action_types": {
+        "CAPTURE": 280,
+        "PROBE": 191,
+        "WAIT": 9
+      },
+      "mean_advantage": 0.0,
+      "mean_return": 0.009567901234567902,
+      "other_action_mean_advantage": -0.03429929231881812,
+      "other_action_mean_return": -0.0368820703548737,
+      "other_action_positive_advantage_rate": 0.04184100418410042,
+      "positive_advantage_rate": 0.24375,
+      "samples": 480,
+      "target_action_mean_advantage": 0.034014650888786434,
+      "target_action_mean_return": 0.055632395881358536,
+      "target_action_positive_advantage_rate": 0.44398340248962653,
+      "target_action_rate": 0.5020833333333333,
+      "target_capture_rate": 0.2916666666666667,
+      "worlds": {
+        "left_exposed": {
+          "mean_return": 0.018209876543209876,
+          "samples": 240,
+          "selected_targets": {
+            "None": 5,
+            "V13": 138,
+            "V19": 97
+          },
+          "target_action_rate": 0.575,
+          "target_capture_rate": 0.3333333333333333
+        },
+        "right_exposed": {
+          "mean_return": 0.0009259259259259259,
+          "samples": 240,
+          "selected_targets": {
+            "None": 4,
+            "V13": 133,
+            "V19": 103
+          },
+          "target_action_rate": 0.42916666666666664,
+          "target_capture_rate": 0.25
+        }
+      },
+      "zero_advantage_rate": 0.4125
+    },
+    "decoy": {
+      "action_types": {
+        "CAPTURE": 276,
+        "PROBE": 194,
+        "WAIT": 10
+      },
+      "mean_advantage": 0.0,
+      "mean_return": 0.015586419753086419,
+      "other_action_mean_advantage": -0.03613627934085731,
+      "other_action_mean_return": -0.030519790176442536,
+      "other_action_positive_advantage_rate": 0.05150214592274678,
+      "positive_advantage_rate": 0.26458333333333334,
+      "samples": 480,
+      "target_action_mean_advantage": 0.03408806917578847,
+      "target_action_mean_return": 0.05907932223721697,
+      "target_action_positive_advantage_rate": 0.46558704453441296,
+      "target_action_rate": 0.5145833333333333,
+      "target_capture_rate": 0.29583333333333334,
+      "worlds": {
+        "left_exposed": {
+          "mean_return": 0.026234567901234566,
+          "samples": 240,
+          "selected_targets": {
+            "None": 5,
+            "V13": 144,
+            "V19": 91
+          },
+          "target_action_rate": 0.6,
+          "target_capture_rate": 0.3416666666666667
+        },
+        "right_exposed": {
+          "mean_return": 0.0049382716049382715,
+          "samples": 240,
+          "selected_targets": {
+            "None": 5,
+            "V13": 132,
+            "V19": 103
+          },
+          "target_action_rate": 0.42916666666666664,
+          "target_capture_rate": 0.25
+        }
+      },
+      "zero_advantage_rate": 0.35625
+    }
+  },
+  "run_dir": "/workspace/runs/rl-v4-pair7-overfit60-2243447c-5090-20260819",
+  "samples": 960,
+  "updates": 60,
+  "version": "pair7-overfit-training-diagnosis-v1",
+  "windows": [
+    {
+      "by_kind": {
+        "critical": {
+          "action_types": {
+            "CAPTURE": 28,
+            "PROBE": 50,
+            "WAIT": 2
+          },
+          "mean_advantage": 0.0,
+          "mean_return": -0.012037037037037037,
+          "other_action_mean_advantage": -0.02710027100271003,
+          "other_action_mean_return": -0.037940379403794036,
+          "other_action_positive_advantage_rate": 0.0,
+          "positive_advantage_rate": 0.1625,
+          "samples": 80,
+          "target_action_mean_advantage": 0.02849002849002849,
+          "target_action_mean_return": 0.015194681861348527,
+          "target_action_positive_advantage_rate": 0.3333333333333333,
+          "target_action_rate": 0.4875,
+          "target_capture_rate": 0.15,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": -0.0037037037037037034,
+              "samples": 40,
+              "selected_targets": {
+                "None": 1,
+                "V13": 21,
+                "V19": 18
+              },
+              "target_action_rate": 0.525,
+              "target_capture_rate": 0.175
+            },
+            "right_exposed": {
+              "mean_return": -0.02037037037037037,
+              "samples": 40,
+              "selected_targets": {
+                "None": 1,
+                "V13": 21,
+                "V19": 18
+              },
+              "target_action_rate": 0.45,
+              "target_capture_rate": 0.125
+            }
+          },
+          "zero_advantage_rate": 0.5
+        },
+        "decoy": {
+          "action_types": {
+            "CAPTURE": 28,
+            "PROBE": 49,
+            "WAIT": 3
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.006481481481481481,
+          "other_action_mean_advantage": -0.028695362028695357,
+          "other_action_mean_return": -0.026026026026026026,
+          "other_action_positive_advantage_rate": 0.0,
+          "positive_advantage_rate": 0.1875,
+          "samples": 80,
+          "target_action_mean_advantage": 0.024691358024691353,
+          "target_action_mean_return": 0.03445305770887166,
+          "target_action_positive_advantage_rate": 0.3488372093023256,
+          "target_action_rate": 0.5375,
+          "target_capture_rate": 0.175,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.018518518518518517,
+              "samples": 40,
+              "selected_targets": {
+                "None": 1,
+                "V13": 22,
+                "V19": 17
+              },
+              "target_action_rate": 0.55,
+              "target_capture_rate": 0.175
+            },
+            "right_exposed": {
+              "mean_return": -0.005555555555555555,
+              "samples": 40,
+              "selected_targets": {
+                "None": 2,
+                "V13": 17,
+                "V19": 21
+              },
+              "target_action_rate": 0.525,
+              "target_capture_rate": 0.175
+            }
+          },
+          "zero_advantage_rate": 0.45
+        }
+      },
+      "updates": [
+        0,
+        9
+      ]
+    },
+    {
+      "by_kind": {
+        "critical": {
+          "action_types": {
+            "CAPTURE": 42,
+            "PROBE": 37,
+            "WAIT": 1
+          },
+          "mean_advantage": 0.0,
+          "mean_return": -0.01944444444444444,
+          "other_action_mean_advantage": -0.04093567251461988,
+          "other_action_mean_return": -0.07992202729044834,
+          "other_action_positive_advantage_rate": 0.02631578947368421,
+          "positive_advantage_rate": 0.25,
+          "samples": 80,
+          "target_action_mean_advantage": 0.037037037037037035,
+          "target_action_mean_return": 0.03527336860670194,
+          "target_action_positive_advantage_rate": 0.4523809523809524,
+          "target_action_rate": 0.525,
+          "target_capture_rate": 0.275,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.009259259259259259,
+              "samples": 40,
+              "selected_targets": {
+                "None": 1,
+                "V13": 26,
+                "V19": 13
+              },
+              "target_action_rate": 0.65,
+              "target_capture_rate": 0.375
+            },
+            "right_exposed": {
+              "mean_return": -0.04814814814814815,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 24,
+                "V19": 16
+              },
+              "target_action_rate": 0.4,
+              "target_capture_rate": 0.175
+            }
+          },
+          "zero_advantage_rate": 0.35
+        },
+        "decoy": {
+          "action_types": {
+            "CAPTURE": 43,
+            "PROBE": 36,
+            "WAIT": 1
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.021296296296296296,
+          "other_action_mean_advantage": -0.035454257676479896,
+          "other_action_mean_return": -0.024691358024691357,
+          "other_action_positive_advantage_rate": 0.02564102564102564,
+          "positive_advantage_rate": 0.2125,
+          "samples": 80,
+          "target_action_mean_advantage": 0.03372478169226137,
+          "target_action_mean_return": 0.06504065040650406,
+          "target_action_positive_advantage_rate": 0.3902439024390244,
+          "target_action_rate": 0.5125,
+          "target_capture_rate": 0.275,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.046296296296296294,
+              "samples": 40,
+              "selected_targets": {
+                "None": 1,
+                "V13": 26,
+                "V19": 13
+              },
+              "target_action_rate": 0.65,
+              "target_capture_rate": 0.375
+            },
+            "right_exposed": {
+              "mean_return": -0.0037037037037037034,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 25,
+                "V19": 15
+              },
+              "target_action_rate": 0.375,
+              "target_capture_rate": 0.175
+            }
+          },
+          "zero_advantage_rate": 0.45
+        }
+      },
+      "updates": [
+        10,
+        19
+      ]
+    },
+    {
+      "by_kind": {
+        "critical": {
+          "action_types": {
+            "CAPTURE": 48,
+            "PROBE": 31,
+            "WAIT": 1
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.021296296296296296,
+          "other_action_mean_advantage": -0.018193632228719947,
+          "other_action_mean_return": -0.02729044834307992,
+          "other_action_positive_advantage_rate": 0.07894736842105263,
+          "positive_advantage_rate": 0.2375,
+          "samples": 80,
+          "target_action_mean_advantage": 0.016460905349794237,
+          "target_action_mean_return": 0.06525573192239859,
+          "target_action_positive_advantage_rate": 0.38095238095238093,
+          "target_action_rate": 0.525,
+          "target_capture_rate": 0.3,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.029629629629629627,
+              "samples": 40,
+              "selected_targets": {
+                "None": 1,
+                "V13": 24,
+                "V19": 15
+              },
+              "target_action_rate": 0.6,
+              "target_capture_rate": 0.325
+            },
+            "right_exposed": {
+              "mean_return": 0.012962962962962963,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 22,
+                "V19": 18
+              },
+              "target_action_rate": 0.45,
+              "target_capture_rate": 0.275
+            }
+          },
+          "zero_advantage_rate": 0.55
+        },
+        "decoy": {
+          "action_types": {
+            "CAPTURE": 46,
+            "PROBE": 34
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.004629629629629629,
+          "other_action_mean_advantage": -0.027360694027360695,
+          "other_action_mean_return": -0.03803803803803804,
+          "other_action_positive_advantage_rate": 0.10810810810810811,
+          "positive_advantage_rate": 0.25,
+          "samples": 80,
+          "target_action_mean_advantage": 0.02354292276772897,
+          "target_action_mean_return": 0.04134366925064599,
+          "target_action_positive_advantage_rate": 0.37209302325581395,
+          "target_action_rate": 0.5375,
+          "target_capture_rate": 0.3,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.005555555555555555,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 24,
+                "V19": 16
+              },
+              "target_action_rate": 0.6,
+              "target_capture_rate": 0.275
+            },
+            "right_exposed": {
+              "mean_return": 0.0037037037037037034,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 21,
+                "V19": 19
+              },
+              "target_action_rate": 0.475,
+              "target_capture_rate": 0.325
+            }
+          },
+          "zero_advantage_rate": 0.45
+        }
+      },
+      "updates": [
+        20,
+        29
+      ]
+    },
+    {
+      "by_kind": {
+        "critical": {
+          "action_types": {
+            "CAPTURE": 56,
+            "PROBE": 24
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.024074074074074074,
+          "other_action_mean_advantage": -0.043209876543209874,
+          "other_action_mean_return": -0.016666666666666666,
+          "other_action_positive_advantage_rate": 0.025,
+          "positive_advantage_rate": 0.2625,
+          "samples": 80,
+          "target_action_mean_advantage": 0.043209876543209874,
+          "target_action_mean_return": 0.06481481481481481,
+          "target_action_positive_advantage_rate": 0.5,
+          "target_action_rate": 0.5,
+          "target_capture_rate": 0.35,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.024074074074074074,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 21,
+                "V19": 19
+              },
+              "target_action_rate": 0.525,
+              "target_capture_rate": 0.4
+            },
+            "right_exposed": {
+              "mean_return": 0.024074074074074074,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 21,
+                "V19": 19
+              },
+              "target_action_rate": 0.475,
+              "target_capture_rate": 0.3
+            }
+          },
+          "zero_advantage_rate": 0.425
+        },
+        "decoy": {
+          "action_types": {
+            "CAPTURE": 56,
+            "PROBE": 24
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.01944444444444444,
+          "other_action_mean_advantage": -0.04382716049382716,
+          "other_action_mean_return": -0.03148148148148148,
+          "other_action_positive_advantage_rate": 0.05,
+          "positive_advantage_rate": 0.325,
+          "samples": 80,
+          "target_action_mean_advantage": 0.04382716049382716,
+          "target_action_mean_return": 0.07037037037037037,
+          "target_action_positive_advantage_rate": 0.6,
+          "target_action_rate": 0.5,
+          "target_capture_rate": 0.35,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.03888888888888888,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 24,
+                "V19": 16
+              },
+              "target_action_rate": 0.6,
+              "target_capture_rate": 0.475
+            },
+            "right_exposed": {
+              "mean_return": 0.0,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 24,
+                "V19": 16
+              },
+              "target_action_rate": 0.4,
+              "target_capture_rate": 0.225
+            }
+          },
+          "zero_advantage_rate": 0.2625
+        }
+      },
+      "updates": [
+        30,
+        39
+      ]
+    },
+    {
+      "by_kind": {
+        "critical": {
+          "action_types": {
+            "CAPTURE": 55,
+            "PROBE": 20,
+            "WAIT": 5
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.025925925925925925,
+          "other_action_mean_advantage": -0.04713804713804714,
+          "other_action_mean_return": -0.03198653198653199,
+          "other_action_positive_advantage_rate": 0.045454545454545456,
+          "positive_advantage_rate": 0.3125,
+          "samples": 80,
+          "target_action_mean_advantage": 0.05761316872427983,
+          "target_action_mean_return": 0.09670781893004116,
+          "target_action_positive_advantage_rate": 0.6388888888888888,
+          "target_action_rate": 0.45,
+          "target_capture_rate": 0.3375,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.037037037037037035,
+              "samples": 40,
+              "selected_targets": {
+                "None": 2,
+                "V13": 22,
+                "V19": 16
+              },
+              "target_action_rate": 0.55,
+              "target_capture_rate": 0.375
+            },
+            "right_exposed": {
+              "mean_return": 0.014814814814814814,
+              "samples": 40,
+              "selected_targets": {
+                "None": 3,
+                "V13": 23,
+                "V19": 14
+              },
+              "target_action_rate": 0.35,
+              "target_capture_rate": 0.3
+            }
+          },
+          "zero_advantage_rate": 0.2
+        },
+        "decoy": {
+          "action_types": {
+            "CAPTURE": 53,
+            "PROBE": 21,
+            "WAIT": 6
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.03518518518518519,
+          "other_action_mean_advantage": -0.04585537918871252,
+          "other_action_mean_return": -0.014109347442680775,
+          "other_action_positive_advantage_rate": 0.0,
+          "positive_advantage_rate": 0.3,
+          "samples": 80,
+          "target_action_mean_advantage": 0.050682261208576995,
+          "target_action_mean_return": 0.08966861598440545,
+          "target_action_positive_advantage_rate": 0.631578947368421,
+          "target_action_rate": 0.475,
+          "target_capture_rate": 0.35,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.04074074074074074,
+              "samples": 40,
+              "selected_targets": {
+                "None": 3,
+                "V13": 24,
+                "V19": 13
+              },
+              "target_action_rate": 0.6,
+              "target_capture_rate": 0.4
+            },
+            "right_exposed": {
+              "mean_return": 0.029629629629629627,
+              "samples": 40,
+              "selected_targets": {
+                "None": 3,
+                "V13": 23,
+                "V19": 14
+              },
+              "target_action_rate": 0.35,
+              "target_capture_rate": 0.3
+            }
+          },
+          "zero_advantage_rate": 0.225
+        }
+      },
+      "updates": [
+        40,
+        49
+      ]
+    },
+    {
+      "by_kind": {
+        "critical": {
+          "action_types": {
+            "CAPTURE": 51,
+            "PROBE": 29
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.017592592592592594,
+          "other_action_mean_advantage": -0.02729044834307992,
+          "other_action_mean_return": -0.029239766081871347,
+          "other_action_positive_advantage_rate": 0.07894736842105263,
+          "positive_advantage_rate": 0.2375,
+          "samples": 80,
+          "target_action_mean_advantage": 0.024691358024691357,
+          "target_action_mean_return": 0.05996472663139329,
+          "target_action_positive_advantage_rate": 0.38095238095238093,
+          "target_action_rate": 0.525,
+          "target_capture_rate": 0.3375,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.012962962962962963,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 24,
+                "V19": 16
+              },
+              "target_action_rate": 0.6,
+              "target_capture_rate": 0.35
+            },
+            "right_exposed": {
+              "mean_return": 0.02222222222222222,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 22,
+                "V19": 18
+              },
+              "target_action_rate": 0.45,
+              "target_capture_rate": 0.325
+            }
+          },
+          "zero_advantage_rate": 0.45
+        },
+        "decoy": {
+          "action_types": {
+            "CAPTURE": 50,
+            "PROBE": 30
+          },
+          "mean_advantage": 0.0,
+          "mean_return": 0.006481481481481481,
+          "other_action_mean_advantage": -0.03378817413905133,
+          "other_action_mean_return": -0.050682261208576995,
+          "other_action_positive_advantage_rate": 0.13157894736842105,
+          "positive_advantage_rate": 0.3125,
+          "samples": 80,
+          "target_action_mean_advantage": 0.030570252792475012,
+          "target_action_mean_return": 0.0582010582010582,
+          "target_action_positive_advantage_rate": 0.47619047619047616,
+          "target_action_rate": 0.525,
+          "target_capture_rate": 0.325,
+          "worlds": {
+            "left_exposed": {
+              "mean_return": 0.007407407407407407,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 24,
+                "V19": 16
+              },
+              "target_action_rate": 0.6,
+              "target_capture_rate": 0.35
+            },
+            "right_exposed": {
+              "mean_return": 0.005555555555555555,
+              "samples": 40,
+              "selected_targets": {
+                "V13": 22,
+                "V19": 18
+              },
+              "target_action_rate": 0.45,
+              "target_capture_rate": 0.3
+            }
+          },
+          "zero_advantage_rate": 0.3
+        }
+      },
+      "updates": [
+        50,
+        59
+      ]
+    }
+  ]
+}

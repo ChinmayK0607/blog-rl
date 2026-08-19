@@ -3906,6 +3906,60 @@ no more critical-specific than decoy-specific. Therefore:
   W&B run is visible, and (3) the mirror session is healthy. At update 10, the
   public adapter hashes must also be verified before the run is left alone.
 
+### 2026-08-19 — completed pair-7 overfit run and larger diagnosis
+
+- Completed run: `rl-v4-pair7-overfit60-2243447c-5090-20260819`, source
+  `2243447cc891e9432309fc79dfa99aed7a99038d`, reached all 60 atomic updates.
+  Checkpoints 10--60 and compact pulse evidence were publicly mirrored and
+  anonymously hash-verified. The update-60 ready-record SHA-256 is
+  `d71fd405bc82838d9ead4bd9d555f5d1dfe0444726bdd8983e333cbeef7bc181`;
+  the four adapter SHA-256 values are `c8268185...6764d`,
+  `1594af86...25c8c`, `8dc5de28...50646`, and `86056aef...60a0f8`.
+- Original pulse verdict: the 24-game update-50 pulse briefly reported normal
+  return `0.09259`, normal-minus-dropped `+0.01852`, and receiver target choice
+  `0.75` versus `0.50`. Update 60 returned to `0.05556`, `0`, and
+  `0.50`/`0.50`. Specificity was negative at update 50 and zero at update 60.
+- Exact row diagnosis: every world/condition cell in the pulse had only two
+  repetitions, so critical normal contained four samples. The apparent
+  update-50 gain was one right-world sample flipping. The same target behavior
+  appeared in the matched decoy and shuffled-message controls. It was not
+  information-specific communication learning.
+- Larger replay: the SFT initializer, update 50, and update 60 were each run on
+  192 matched games (16 repetitions, both pair-7 worlds, critical and decoy,
+  normal/dropped/sender-shuffled). Their normal returns were `-0.009259`,
+  `+0.039352`, and `+0.037037`, respectively. Normal-minus-dropped return was
+  `-0.002315`, `-0.002315`, and `0`. Critical-minus-decoy specificity was
+  `+0.002315`, `0`, and `-0.002315`. Every paired bootstrap 95% interval for a
+  communication return effect or specificity crossed zero. The three sweeps
+  consumed 788.5 seconds of measured evaluation wall time, about `$0.44` at
+  the operator's `$2/hour` node rate.
+- Training audit: all 960 retained blue-1 decisions were decoded. Critical
+  correct-target action rate changed only from `48.75%` in updates 0--9 to
+  `52.50%` in updates 50--59. Correct-target capture rose from `15.00%` to
+  `33.75%`; the matched decoy rose almost identically from `17.50%` to
+  `32.50%`. Across the full run, critical target actions averaged `+0.05563`
+  terminal return versus `-0.03688` for other actions, so reward direction was
+  sound. However, decoys received at least as much usable gradient: 127
+  positive and 182 negative receiver advantages versus 117 and 165 on
+  critical cases. The receiver retained a left/V13 prior instead of reliably
+  switching from the sender fact.
+- Scientific verdict: the optimizer, LoRA path, protocol constraints, and
+  terminal reward were capable of learning generic tactics. The run did not
+  learn useful or information-specific communication. Update 50 must not be
+  selected as a communication checkpoint, and simply extending this
+  curriculum is not justified.
+- Next design: keep the unchanged terminal reward but expose more independent
+  communication-critical contexts, shorten the receiver prompt, calculate a
+  paired receiver advantage across matched latent worlds/conditions, and move
+  most decoys out of the optimizer stream while retaining them as a causal
+  evaluation control. Require a CPU batch audit showing critical-specific
+  advantage density before renting GPUs again.
+- Compact evidence: `results/rl_v4_pair7_overfit60_1_7b/`; diagnosis SHA-256
+  `dfd77496d2b3661776f091cf3465537ec3f2f1197be8b3980675505b9ce748f0`.
+  No model files or raw checkpoints were copied to the Mac. Core run artifacts
+  remain public at `CK0607/swarm-arena-live-runs`. Instance decommission status:
+  safe to decommission after this compact evidence is pushed.
+
 ## Artifact index
 
 - Public source branch:
@@ -3933,6 +3987,8 @@ no more critical-specific than decoy-specific. Therefore:
   `results/rl_v4_passk_screen_1_7b/`
 - Receiver terminal-proximal curriculum screen:
   `results/rl_v4_terminal_proximal_screen_1_7b/`
+- Completed pair-7 overfit diagnosis:
+  `results/rl_v4_pair7_overfit60_1_7b/`
 - RL v4 30-update development result:
   `results/rl_v4_1_7b_long/` and
   `https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-long-development`

@@ -1,0 +1,23 @@
+{
+  "critical": {
+    "dropped_receiver_target_action_rate": 0.5,
+    "normal_minus_dropped_return": -0.002314814814814818,
+    "normal_minus_shuffled_return": 0.01157407407407407,
+    "normal_receiver_target_action_rate": 0.59375,
+    "normal_return": 0.039351851851851846,
+    "normal_sender_target_fact_rate": 1.0
+  },
+  "interpretation": "This measures memorized pair-7 message-conditioned learning only. Held-out development remains the generalization measure.",
+  "manifest_sha256": "1ed18721aebebce8d027dc738832ff0656fa2accb13551bafe4eb434b63fae7c",
+  "protocol": {
+    "action_valid_rate": 1.0,
+    "broadcast_grounded_rate": 1.0,
+    "broadcast_valid_rate": 1.0
+  },
+  "rows": 192,
+  "specificity": {
+    "critical_minus_decoy_normal_dropped_lift": 0.0
+  },
+  "version": "pair7-communication-overfit-eval-v1",
+  "wall_seconds": 263.2855770587921
+}
