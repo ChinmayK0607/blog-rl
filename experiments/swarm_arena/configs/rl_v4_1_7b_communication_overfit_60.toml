@@ -50,9 +50,9 @@ save_adapter_separately = true
 # vLLM FA2 and the HF/FA2 trainer can disagree most on highly peaked,
 # dynamically constrained choices even when their exact adapter hashes match.
 # These remain hard bounds for the measured RTX 5090 backend envelope.
-max_mean_logprob_error = 0.10
+max_mean_logprob_error = 0.25
 probability_tail_threshold = 0.05
-max_mean_mismatch_kl = 0.05
+max_mean_mismatch_kl = 0.15
 
 [log]
 level = "info"

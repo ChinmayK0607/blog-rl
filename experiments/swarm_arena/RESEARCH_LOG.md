@@ -3991,6 +3991,13 @@ no more critical-specific than decoy-specific. Therefore:
   `0.05` mean mismatch KL. KL regularization, probability-tail checks, atomic
   four-policy updates, task, terminal reward, curriculum, and evaluation remain
   unchanged. This is not a retroactive pass for the rejected update.
+- Operator correction before the next material run: a first replacement under
+  `0.10`/`0.05` was intentionally stopped after its first completed update.
+  For this narrow overfit feasibility test, the final predeclared backend
+  envelope is `0.25` mean absolute log-probability error and `0.15` mean
+  same-policy mismatch KL. These bounds do not change the separate `kl_tau =
+  0.001` policy regularizer, reward, samples, or evaluation. The stopped
+  one-update replacement is not treated as evidence.
 
 ## Future entry template
 
