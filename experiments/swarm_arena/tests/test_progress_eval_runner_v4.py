@@ -463,6 +463,14 @@ def test_multipair_summary_preserves_per_pair_signal(tmp_path: Path) -> None:
         repetitions=1,
         pair_indices=(7, 9),
     )
+    invalid = {**summary, "protocol": {**summary["protocol"], "action_valid_rate": 0.99}}
+    output.write_text(json.dumps(invalid))
+    with pytest.raises(ValueError, match="invalid or ungrounded"):
+        _validate_training_pair_summary(
+            output,
+            repetitions=1,
+            pair_indices=(7, 9),
+        )
     metrics = summarize_evaluation(summary)
     assert metrics["eval/train_pair/normal_minus_dropped_return"] == pytest.approx(0.4)
     assert metrics["eval/train_pair/7/normal_minus_dropped_return"] == pytest.approx(0.6)

@@ -137,6 +137,14 @@ def _validate_training_pair_summary(
         raise ValueError(
             f"communication pulse is incomplete: {summary.get('rows')} rows, expected {expected}"
         )
+    protocol = summary.get("protocol", {})
+    required_protocol_rates = (
+        protocol.get("action_valid_rate"),
+        protocol.get("broadcast_valid_rate"),
+        protocol.get("broadcast_grounded_rate"),
+    )
+    if any(value != 1.0 for value in required_protocol_rates):
+        raise ValueError("communication pulse contains invalid or ungrounded protocol output")
     return summary
 
 
