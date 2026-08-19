@@ -4374,6 +4374,60 @@ no more critical-specific than decoy-specific. Therefore:
   and trainer telemetry are off-node. Remaining GPU processes are idle; safe to
   decommission.
 
+### 2026-08-20 — Qwen3-4B raw rollout attribution diagnosis
+
+- Status: completed over every paired training replica from
+  `rl-v7-paired4b30-memfix-5f3ddf7e` (`960` replicas: 30 updates, four
+  pair/world groups, eight common-random replicas). Analysis script:
+  `scripts/analyze_paired_rollout_attribution.py`.
+- Storage: the complete run remains node-local at approximately `17 GiB`, with
+  `1,279` Prime `.bin` rollout shards. The semantic paired-return audit is
+  `576 MiB`. Neither was copied onto the Mac. The compact `24 KiB` attribution
+  report was uploaded to public `CK0607/swarm-arena-live-runs` at Hub commit
+  `9d30cb39147601005c0eeef768d7ebb8a875a52a`; local and anonymous-download
+  SHA-256 both equal
+  `80bb1ddc705afad9168bbee4c15e7a9002ce4a7b944d1a1924d9388d77c48809`.
+- Direct attribution result: mean normal-minus-dropped terminal return across
+  training replicas was `+0.04951`; `54.38%` had a non-zero effect and `44.48%`
+  a positive effect. In all `522/522` non-zero-effect replicas, the trained
+  receiver's first action changed. In `414/427` positive-effect replicas
+  (`96.96%`), normal selected the active target while dropped did not. This
+  rejects the hypothesis that the positive paired reward was created only by
+  an unrelated teammate transition while the credited receiver was unchanged.
+- On-policy learning curve: normal receiver target selection increased from
+  `70.31%` in updates 0--9 to `91.25%` in 10--19 and `97.81%` in 20--29;
+  dropped-message selection stayed approximately chance (`50.31%`, `50.00%`,
+  `49.69%`). Mean paired return effect rose `+0.02329 -> +0.05917 -> +0.06606`.
+  The run therefore did learn the intended target switch under its rollout
+  context, despite the small checkpoint evaluation reporting `50%/50%`.
+- World decomposition: in updates 20--29 normal target selection reached
+  `100%` in all four pair/world cells. Dropped behavior retained a strong
+  left-target default: pair 7 left/right target accuracy was `97.5%/1.25%`,
+  and pair 9 was `88.75%/11.25%`. Consequently almost all measured reward lift
+  appears in right-exposed worlds, while left-exposed worlds have little lift
+  because the no-message default is already correct. This is asymmetric
+  fallback behavior, not evidence that normal messages are ignored.
+- Train/eval mismatch found: the credited receiver is trained with the
+  `focused_handoff_compact` action prompt and temperature-1 constrained
+  multinomial sampling. `run_pair7_communication_eval.py` calls
+  `evaluate_final_case -> evaluate_crossplay`, whose action prompt is always
+  the full profile, at temperature `0.4`; its final receiver statistic has only
+  eight critical rows. Thus the published checkpoint eval currently mixes
+  prompt transfer, sampling change, and a high-variance behavioral estimate
+  with the within-training-distribution learnability question.
+- Interpretation: this run is more successful than the original headline
+  suggested. It demonstrates receiver-specific, message-conditioned learning
+  on the compact training interface. It still does not demonstrate robust
+  communication under the normal full game interface or held-out
+  generalization. The failure is now localized to transfer/evaluation rather
+  than credit attribution or optimizer stability.
+- Prospective fix: add a sufficiently powered matched compact-prompt
+  development evaluation at the same checkpoint, then separately measure
+  compact-to-full-prompt transfer. Balance the dropped baseline or add
+  content-swapped messages so the no-message left-target prior cannot dominate
+  one world. Keep the frozen OOD suite untouched until the full-prompt
+  development effect is positive.
+
 ## Future entry template
 
 Copy this block for each material run:
