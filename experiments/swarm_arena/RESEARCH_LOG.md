@@ -4240,6 +4240,64 @@ no more critical-specific than decoy-specific. Therefore:
   stopped after publication. All four GPUs report `0 MiB` and no compute
   processes. Safe to decommission.
 
+### 2026-08-19 — literature note: RLSVR / SpyRL
+
+- Reference: Wang et al., *From RLVR to RLSVR: Task Transformation Induces
+  Self-Verifiable Rewards for Open-Ended LLM Self-Improvement*, arXiv
+  `2607.23802v2`, COLM 2026. The authors release SpyRL and train
+  Qwen3-4B-Instruct-2507 with GRPO for 100 iterations on one eight-GPU node.
+- Conceptual overlap: SpyRL also constructs an information-asymmetric
+  multi-agent game around a deterministic environment-assigned latent fact.
+  Four players see complete task information, one spy sees degraded
+  information, all produce outputs, and the group votes for the spy. This is
+  strong external evidence that proxy games with private information can make
+  otherwise difficult objectives trainable at the 4B scale.
+- Important difference: SpyRL is competitive detection, not constrained
+  communication or team cooperation. Its five players sample from a shared
+  performer policy and a shared detector policy; it does not maintain five
+  independently adapting policies. It uses one public-output/voting round and
+  does not evaluate a causal message channel. Swarm Arena instead maintains
+  independently updated agent-slot adapters in a multi-round 4v4 environment
+  and directly intervenes on teammate messages.
+- Reward caveat: the detector's spy-identification reward is exactly verifiable
+  because the environment assigned the spy identity. The performer's reward is
+  derived from learned detector votes, so it can inherit detector weaknesses or
+  superficial shortcuts. SpyRL validates correlation with human and model
+  quality rankings, but this remains less direct than Swarm Arena's deterministic
+  terminal outcome combined with matched message interventions.
+- Credit-assignment lesson: SpyRL's role-advantage estimation is essential.
+  Their raw-role-reward ablation underperforms the untrained model, while the
+  role-calibrated version improves substantially. This supports Swarm Arena's
+  paired receiver estimator: compare the same receiver under normal and dropped
+  messages, center within the receiver role, and avoid broadcasting an
+  uncalibrated team return to every token span.
+- Curriculum lesson: SpyRL alternates performer and detector optimization based
+  on detector saturation, and its joint-update ablation collapses. Swarm Arena's
+  current receiver-ACT-only phase already follows the same stability principle.
+  If receiver learning succeeds, a prospective extension should alternate
+  frozen-sender/receiver-learning and frozen-receiver/sender-learning phases
+  rather than updating both sides simultaneously.
+- Scale lesson: SpyRL reports the largest marginal benefit when increasing from
+  three to five players, with diminishing returns at six and eight. This argues
+  against increasing Swarm Arena's agent count before the four-agent team learns
+  a reliable information handoff.
+- Evaluation lesson: a rising training return establishes capability learning,
+  not its mechanism. An agent can raise return by learning a generic capture
+  prior, exploiting one opponent, or using a state cue that bypasses the
+  teammate message. Evidence for communication requires a controlled causal
+  contrast on the same state distribution: normal messages must beat dropped,
+  shuffled, and irrelevant/reference messages; the receiver must change toward
+  the message-conditioned target; the effect must be larger on critical cases
+  than matched decoys; and it must generalize to held-out pairs/opponents without
+  reducing absolute task performance or protocol validity. These interventions
+  make the claim more rigorous than selecting the checkpoint with the highest
+  reward curve.
+- Blog framing: SpyRL asks whether information-asymmetric self-play can create a
+  verifiable proxy reward for open-ended quality. Swarm Arena asks the
+  complementary causal question: can independently adapting small agents learn
+  to use a constrained teammate message containing private information, without
+  an explicit communication reward?
+
 ## Future entry template
 
 Copy this block for each material run:
