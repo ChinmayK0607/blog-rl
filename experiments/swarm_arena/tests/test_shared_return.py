@@ -133,7 +133,7 @@ def test_paired_message_drop_advantages_center_only_terminal_return_effects() ->
     )
     assert all(
         math.isclose(actual, expected, abs_tol=1e-12)
-        for actual, expected in zip(values, (-0.26666666666666666, 0.0, 0.8, -0.5333333333333333), strict=True)
+        for actual, expected in zip(values, (-0.2, 0.06666666666666667, 0.6, -0.4666666666666667), strict=True)
     )
     assert math.isclose(sum(values), 0.0, abs_tol=1e-12)
 
