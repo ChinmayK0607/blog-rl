@@ -33,6 +33,13 @@ def main() -> None:
         default=[],
         help="override the base plan's trainable phases while retaining its turn schedule",
     )
+    parser.add_argument(
+        "--trainable-turn-offset",
+        action="append",
+        type=int,
+        default=[],
+        help="override the base plan's trainable turn offsets",
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
@@ -106,12 +113,21 @@ def main() -> None:
             "sha256": certificate["sha256"],
         },
     }
-    if args.trainable_phase:
+    if args.trainable_phase or args.trainable_turn_offset:
         if len(set(args.trainable_phase)) != len(args.trainable_phase):
             raise ValueError("trainable phase overrides must be unique")
+        if len(set(args.trainable_turn_offset)) != len(args.trainable_turn_offset):
+            raise ValueError("trainable turn-offset overrides must be unique")
+        if any(value < 0 for value in args.trainable_turn_offset):
+            raise ValueError("trainable turn-offset overrides cannot be negative")
         plan["trainable_spans"] = {
             **base["trainable_spans"],
-            "phases": args.trainable_phase,
+            **({"phases": args.trainable_phase} if args.trainable_phase else {}),
+            **(
+                {"turn_offsets": args.trainable_turn_offset}
+                if args.trainable_turn_offset
+                else {}
+            ),
         }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n", encoding="utf-8")
