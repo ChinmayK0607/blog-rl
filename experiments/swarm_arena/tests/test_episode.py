@@ -540,6 +540,10 @@ def test_final_eval_runner_supports_four_policy_rosters_and_true_side_swap() -> 
         )
         assert row["side"] == side
         assert row["horizon"] == 2
+        assert row["communication_spend"] == 0
+        assert row["invalid_broadcasts"] == 0
+        assert row["invalid_actions"] == 0
+        assert 0.0 <= row["duplicate_target_turn_rate"] <= 1.0
         assert len(raw["turns"]) == 1
         assert len(set(raw[f"{side.lower()}_agent_models"].values())) == 4
     permuted_identity = FinalEvalIdentity(

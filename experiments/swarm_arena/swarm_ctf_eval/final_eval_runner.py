@@ -165,6 +165,12 @@ def evaluate_final_case(
         "broadcast_protocol_rate": raw["metrics"][focal_side]["broadcast_protocol_rate"],
         "broadcast_grounded_rate": raw["metrics"][focal_side]["broadcast_grounded_rate"],
         "action_protocol_rate": raw["metrics"][focal_side]["action_protocol_rate"],
+        "communication_spend": raw["metrics"][focal_side]["communication_spend"],
+        "invalid_broadcasts": raw["metrics"][focal_side]["invalid_broadcasts"],
+        "invalid_actions": raw["metrics"][focal_side]["invalid_actions"],
+        "duplicate_target_turn_rate": raw["metrics"][focal_side][
+            "duplicate_target_turn_rate"
+        ],
         "seed": seed,
         "size": size,
         "horizon": horizon,

@@ -4562,6 +4562,96 @@ no more critical-specific than decoy-specific. Therefore:
   training return without dropped/shuffled intervention lift is not a positive
   communication result.
 
+### 2026-08-20 — representative 4B full-interface RL v8
+
+- Status: completed, 60/60 optimizer updates. Verdict: useful development
+  signal, rejected as a semantic held-out communication result.
+- Source/run: commit `3c6b8f7998062349d34f4a6f0e9796549032a876`, run
+  `rl-v8-representative4b60-3c6b8f79`; Qwen3-4B SFT initialization, four
+  separate rank-32 LoRA policies, learning rate `5e-6`, KL tau `0.001`.
+- Exact-runtime calibration passed: mean log-probability error
+  `0.0006304588`, p99 `0.004082242`, mean mismatch KL `0.00007731738`, and
+  maximum mismatch KL `0.0934515`.
+- Runtime result: no OOM, NaN, parity rejection, or fatal training failure.
+  Checkpoints 12/24/36/48/60 were mirrored to public
+  `CK0607/swarm-arena-live-runs` and anonymously re-downloaded/hash-verified.
+  Controller telemetry is public at
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v8-representative4b60-3c6b8f79-controller-v1`.
+- Development trajectory (`normal return`, `normal-dropped`,
+  `normal-shuffled`, `critical-decoy specificity`, `target accuracy`): update
+  0 `(+.00828,-.01892,+.00774,-.02305,.625)`; 12
+  `(+.02205,+.02105,+.00327,+.04619,.625)`; 24
+  `(+.05328,+.03360,+.04827,+.04726,.625)`; 36
+  `(+.02092,+.03778,+.01224,+.08001,.625)`; 48
+  `(+.01936,+.01054,+.01903,+.06300,.625)`; 60
+  `(+.03601,+.03058,-.00620,-.00069,.625)`. Update 36 was selected for
+  communication specificity; update 24 had the highest normal return.
+- GPU/time/cost: approximately 8.5 hours of a 4xL40S node for the live run and
+  final small screen, roughly `$17` at the user-reported `$2/hour`; provider
+  billing was not independently available. The node was reported safe to
+  decommission after public preservation; a confirmed provider-side
+  decommission timestamp was not observed.
+
+### 2026-08-20 — v8 small frozen exploratory screen and rollout diagnosis
+
+- Status: completed `252/252` rows after the user stopped the full frozen run
+  at 73 rows to minimize GPU cost. This is a small feasibility screen with only
+  two independent handoff units, not the preregistered confirmatory final.
+- Public artifact: Hub revision
+  `be6722128f6ded06481830f4051904f4e74b38db` under
+  `runs/rl-v8-representative4b60-3c6b8f79-final-heldout-small-u36/`.
+- Critical RL normal-minus-dropped return was `+.014261`, 95% interval
+  `[-.007937,+.036458]`; shuffled `+.013145`
+  `[+.010417,+.015873]`; delayed `-.000124`
+  `[-.015873,+.015625]`; zero-budget `-.008185`
+  `[-.047619,+.031250]`.
+- The matched decoy normal-minus-dropped effect was identically `+.014261`
+  `[+.005952,+.022569]`, leaving critical-minus-decoy specificity approximately
+  zero `[-.013889,+.013889]`. RL-specific drop lift over SFT was `+.020337`,
+  but critical capture lift was `-.041667`, ordinary-hard RL-minus-SFT was
+  `-.053968`, legacy was `-.080808` (`n=1`), and handoff-normal RL-minus-SFT
+  was `-.008433`. All confirmatory claim checks were false.
+- Sender target-fact, defined broadcast protocol/grounding, and action validity
+  were `1.0`. The original summarizer failed only after all rows completed
+  because zero-budget rows correctly stored undefined broadcast protocol fields
+  as `null`. Raw evidence was unchanged; a defined-row aggregation recovery
+  produced summary SHA-256
+  `a1cf1afbd8de772c8d21f03d37bb6da7a2bca7beb9dae4f47df58b4b221f66b3`
+  and recovery-record SHA-256
+  `4e7a48bb6c83a480b86fd34fb08e244debf50c2d05fbfd29058bfd5a9c9a34d4`.
+- Qualitative diagnosis over 186 candidate games found zero invalid actions or
+  broadcasts and near-maximal communication spend in 161/162 defined games,
+  but mean duplicate-target-turn rate was `0.215`. A positive critical handoff
+  existed (`bundle-000`, historical opponent, BLUE: `+.2083` normal versus
+  `0` dropped), yet a decoy cell gained the same `+.2083`; bundle-level normal
+  returns also reversed from `+.0538` to `-.1032`. The learned effect is best
+  described as fragile generic coordination/de-duplication, not reliable use of
+  the certified private fact.
+- Decision: v9 must replace message presence/silence as the primary training
+  contrast with a well-formed target-swapped fact counterfactual, preserve
+  terminal-only reward, train receiver actions first, and select checkpoints on
+  semantic critical-minus-decoy specificity plus ordinary-game preservation.
+  The prospective design is `REPRESENTATIVE_RL_V9_PLAN.md`.
+
+### 2026-08-20 — held-out summary robustness fix
+
+- Status: implemented locally. `progress_eval_v4` now excludes intentionally
+  undefined protocol values from means and reports defined/undefined
+  denominators. Compact final-eval rows now retain communication spend, invalid
+  action/broadcast counts, and duplicate-target-turn rate so future diagnosis
+  does not require downloading the full raw trace.
+- Failure/retry: the first local `uv run` could not initialize the default uv
+  cache under the desktop sandbox; an isolated `/private/tmp` cache then found
+  uninitialized repository submodules. A minimal `uv --no-project` test
+  environment was used instead. Its first collection lacked
+  `huggingface_hub`; the dependency-complete retry exposed an incorrect expected
+  test denominator (`8` rather than `6`), which was corrected without changing
+  production behavior. The focused summary suite then passed `15/15` and
+  changed-file Ruff passed. A focused final-runner test could not collect in the
+  lightweight CPU environment because that broad test module imports Torch;
+  Torch was deliberately not downloaded solely for this test. The assertion is
+  included for the next existing Linux/GPU environment test pass.
+
 ## Future entry template
 
 Copy this block for each material run:

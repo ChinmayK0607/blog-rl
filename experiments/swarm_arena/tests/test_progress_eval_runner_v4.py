@@ -223,6 +223,22 @@ def test_rl_specific_summary_requires_gain_over_sft_and_decoy() -> None:
                         ),
                     }
                 )
+    rows.append(
+        {
+            **common,
+            "independent_id": "zero-budget-unit",
+            "case_id": "zero-budget-case",
+            "suite": "handoff_critical",
+            "policy_variant": "candidate_rl",
+            "policy_revision": "candidate_rl",
+            "condition": "zero_budget",
+            "terminal_return": 0.0,
+            "critical_capture": False,
+            "sender_target_fact": False,
+            "broadcast_protocol_rate": None,
+            "broadcast_grounded_rate": None,
+        }
+    )
     summary = summarize_rl_specific_progress_eval(rows)
     assert summary["rl_specific_communication_lift"]["mean_difference"] == pytest.approx(0.3)
     assert summary["rl_specific_communication_lift"]["independent_units"] == 1
@@ -235,6 +251,11 @@ def test_rl_specific_summary_requires_gain_over_sft_and_decoy() -> None:
     assert summary["communication_mechanism"]["rl_specific_capture_lift"][
         "mean_difference"
     ] == pytest.approx(1.0)
+    assert summary["candidate_protocol"]["broadcast_protocol_rate"] == pytest.approx(1.0)
+    assert summary["candidate_protocol_denominators"]["broadcast_protocol_rate"] == {
+        "defined_rows": 6,
+        "undefined_rows": 1,
+    }
     metrics = summarize_evaluation(summary)
     assert metrics["eval/rl_specific_communication_lift"] == pytest.approx(0.3)
     assert metrics["eval/overall_gameplay_rl_minus_sft"] == pytest.approx(0.3)

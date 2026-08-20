@@ -38,6 +38,25 @@ Do not run the repository pytest suite as a health check while `torchrun` is
 live. Its repository-level zombie-cleanup fixture uses `pkill -f torchrun` and
 will terminate unrelated training or rollout jobs owned by the same user.
 
+For paid Swarm Arena runs, keep the compact off-node mirror live from update 0,
+not just at checkpoint boundaries. The mirror should write progress atomically,
+upload only an explicit safe allowlist, and anonymously download and hash-check
+every complete adapter checkpoint. Do not include credentials, logs, W&B files,
+or unresolved configs in a public upload.
+
+### Evaluation completion and summary recovery
+
+Treat durable row generation and summary aggregation as separate milestones.
+Before restarting an evaluator after a summary error, verify the expected row
+count, newline completeness, evaluation IDs, and raw/compact row agreement. A
+completed row set must not be regenerated merely because aggregation failed.
+
+For Swarm Arena zero-message-budget interventions,
+`broadcast_protocol_rate` and `broadcast_grounded_rate` are intentionally
+undefined (`null`): there was no broadcast opportunity to score. Aggregate
+protocol metrics over defined rows and report defined/undefined denominators.
+Never coerce these nulls to zero, which would create a false protocol failure.
+
 ### Restarting a run
 
 **Never restart unless the researcher explicitly asked.** Confirm the exact restart command and the conditions that warrant one.

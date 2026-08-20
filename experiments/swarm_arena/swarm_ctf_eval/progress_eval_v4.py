@@ -257,14 +257,19 @@ def summarize_progress_eval(
         for opponent_id in opponents
     }
     candidate_rows = [row for row in rows if row["policy_variant"] == "candidate_rl"]
-    protocol = {
-        field: statistics.mean(float(row[field]) for row in candidate_rows)
-        for field in (
-            "broadcast_protocol_rate",
-            "broadcast_grounded_rate",
-            "action_protocol_rate",
-        )
-    }
+    protocol = {}
+    protocol_denominators = {}
+    for field in (
+        "broadcast_protocol_rate",
+        "broadcast_grounded_rate",
+        "action_protocol_rate",
+    ):
+        defined = [float(row[field]) for row in candidate_rows if row[field] is not None]
+        protocol[field] = statistics.mean(defined) if defined else None
+        protocol_denominators[field] = {
+            "defined_rows": len(defined),
+            "undefined_rows": len(candidate_rows) - len(defined),
+        }
     tested_communication_positive = all(
         endpoint["mean_difference_95"][0] > 0 for endpoint in communication.values()
     )
@@ -290,6 +295,7 @@ def summarize_progress_eval(
         "communication_effects_by_opponent": communication_by_opponent,
         "matched_decoy_normal_minus_dropped": decoy_effect,
         "candidate_protocol": protocol,
+        "candidate_protocol_denominators": protocol_denominators,
         "claim_checks": {
             "legacy_capability_interval_positive": capability["ordinary_legacy"][
                 "mean_difference_95"
