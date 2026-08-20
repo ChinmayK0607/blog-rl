@@ -126,13 +126,13 @@ def _validate_training_pair_summary(
 ) -> dict:
     summary = json.loads(path.read_text(encoding="utf-8"))
     expected_version = (
-        "pair7-communication-overfit-eval-v1"
+        "pair7-semantic-communication-eval-v2"
         if pair_indices == (7,)
-        else "multipair-communication-learnability-eval-v2"
+        else "multipair-semantic-communication-eval-v3"
     )
     if summary.get("version") != expected_version:
         raise ValueError("communication pulse used the wrong evaluator version")
-    expected = len(pair_indices) * 2 * 2 * 3 * repetitions
+    expected = len(pair_indices) * 2 * 2 * 4 * repetitions
     if summary.get("rows") != expected:
         raise ValueError(
             f"communication pulse is incomplete: {summary.get('rows')} rows, expected {expected}"

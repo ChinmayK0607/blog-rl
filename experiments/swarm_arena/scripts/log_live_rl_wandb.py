@@ -104,6 +104,8 @@ def summarize_evaluation(summary: dict[str, Any]) -> dict[str, int | float]:
     if summary.get("version") in {
         "pair7-communication-overfit-eval-v1",
         "multipair-communication-learnability-eval-v2",
+        "pair7-semantic-communication-eval-v2",
+        "multipair-semantic-communication-eval-v3",
     }:
         critical = summary["critical"]
         specificity = summary["specificity"]
@@ -131,6 +133,16 @@ def summarize_evaluation(summary: dict[str, Any]) -> dict[str, int | float]:
             ),
             "eval/protocol/action_valid_rate": float(protocol["action_valid_rate"]),
         }
+        if "normal_minus_target_swapped_return" in critical:
+            metrics["eval/train_pair/normal_minus_target_swapped_return"] = float(
+                critical["normal_minus_target_swapped_return"]
+            )
+            metrics["eval/train_pair/target_swapped_receiver_target_action_rate"] = float(
+                critical["target_swapped_receiver_target_action_rate"]
+            )
+            metrics["eval/train_pair/critical_minus_decoy_target_swap_specificity"] = float(
+                specificity["critical_minus_decoy_target_swapped_lift"]
+            )
         for pair_index, pair_summary in summary.get("by_pair", {}).items():
             pair_critical = pair_summary["critical"]
             pair_specificity = pair_summary["specificity"]
@@ -146,6 +158,13 @@ def summarize_evaluation(summary: dict[str, Any]) -> dict[str, int | float]:
             metrics[f"eval/train_pair/{pair_index}/critical_minus_decoy_specificity"] = float(
                 pair_specificity["critical_minus_decoy_normal_dropped_lift"]
             )
+            if "normal_minus_target_swapped_return" in pair_critical:
+                metrics[f"eval/train_pair/{pair_index}/normal_minus_target_swapped_return"] = float(
+                    pair_critical["normal_minus_target_swapped_return"]
+                )
+                metrics[f"eval/train_pair/{pair_index}/critical_minus_decoy_target_swap_specificity"] = float(
+                    pair_specificity["critical_minus_decoy_target_swapped_lift"]
+                )
         return metrics
     capability = summary.get("capability_rl_minus_sft", {})
     for suite in ("ordinary_legacy", "ordinary_hard"):

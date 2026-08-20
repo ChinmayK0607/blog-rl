@@ -93,19 +93,34 @@ Select the earliest checkpoint satisfying all of:
 Only the selected checkpoint is opened on the unchanged frozen OOD suite. A
 rising training return or normal-minus-dropped lift alone is not success.
 
-## Required CPU implementation before GPU use
+## CPU implementation status
 
-1. Add a target-swapped branch type to rollout evidence, replay verification,
-   supervisor admission, and immutable run-lock hashing.
-2. Generate the swapped fact structurally from the certified handoff bundle;
-   never edit free-form text or expose the active world in the receiver prompt.
-3. Prove paired branches differ only in the delivered sender fact and downstream
-   model decisions/state transitions.
-4. Extend the learnability audit to require balanced non-zero semantic effects
-   across receiver slots, worlds, opponents, and matched decoys.
-5. Add a compact pulse evaluator and predeclare thresholds before launch.
-6. Run the Linux test suite and exact serving/trainer calibration once on the
-   eventual GPU host, then launch without additional exploratory detours.
+Implemented:
+
+1. `message_swap` is a first-class rollout branch bound into immutable evidence,
+   independent replay, delivery-contract verification, supervisor admission,
+   common-random validation, and receiver-only terminal-contrast advantage.
+2. The trusted transform structurally swaps only the two certified candidate
+   identities in facts and candidate-target intents. It preserves the message
+   schema, fact count, sender, turn, and all non-candidate content.
+3. The compact pair evaluator now reports actual-minus-target-swapped return,
+   receiver target-action direction, and critical-minus-decoy semantic
+   specificity per pair and to W&B.
+4. The checked-in 60-update curriculum contains 216 semantic groups and 24
+   ordinary preservation groups. Sender and receiver policy slots each receive
+   exactly 54 semantic assignments; both worlds receive 108.
+5. The CPU audit verifies private-world indistinguishability, unchanged legal
+   actions, positive critical oracle opportunity, zero decoy oracle value, and
+   exact role/world balance.
+6. All 135 Swarm Arena CPU tests pass. The focused semantic-counterfactual
+   matrix accounts for 42 of them and covers structural transformation, live
+   rollout generation, independent replay, fail-closed supervisor admission,
+   compact evaluation, and pulse validation.
+
+Still required on the eventual GPU host: the full Linux suite, exact
+serving/trainer calibration, and a short first-update sampled-advantage audit.
+The last item is irreducibly model-dependent; CPU construction checks cannot
+honestly guarantee that the SFT policy samples non-zero contrasts.
 
 ## Interpretation boundary
 

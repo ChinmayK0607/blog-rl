@@ -571,6 +571,74 @@ def test_final_eval_runner_supports_four_policy_rosters_and_true_side_swap() -> 
     assert raw["blue_agent_models"]["blue-1"] == "focal-2"
 
 
+def test_final_eval_runner_applies_certified_target_swap() -> None:
+    class ExposedFactModel:
+        def __init__(self, name: str) -> None:
+            self.name = name
+
+        def respond(self, messages: list[dict[str, str]], oracle_target: str) -> str:
+            del oracle_target
+            body = json.loads(messages[-1]["content"])
+            if body["phase"] == "ACT":
+                return '{"action_id":"A0"}'
+            exposed = next(
+                (
+                    fact
+                    for fact in body["observation"]["known_nodes"]
+                    if fact["status"] == "EXPOSED"
+                ),
+                None,
+            )
+            return json.dumps(
+                {
+                    "facts": [exposed] if exposed is not None else [],
+                    "intent": None,
+                    "request_resource": 0,
+                },
+                separators=(",", ":"),
+            )
+
+    root = Path(__file__).resolve().parents[1]
+    manifest = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    scenario = reconstruct_handoff_manifest_scenario(manifest["pairs"][12]["critical"])
+    world = scenario.worlds[0]
+    identity = FinalEvalIdentity(
+        "target-swap-smoke",
+        "handoff_critical",
+        "candidate_rl",
+        "candidate-revision",
+        "identity",
+        "identity",
+        "canonical",
+        "opponent",
+        "opponent-revision",
+        "sample-1",
+    )
+    focal = tuple(ExposedFactModel(f"focal-{index}") for index in range(4))
+    opponent_models = tuple(ExposedFactModel(f"opponent-{index}") for index in range(4))
+    _, raw = evaluate_final_case(
+        focal,
+        opponent_models,
+        (scenario.seed, scenario.size, world.state.turn + 2),
+        identity,
+        focal_side="BLUE",
+        condition="target_swapped",
+        initial_state=world.state,
+        critical_target=world.active_target,
+        target_swap_sender=scenario.sender,
+        target_swap_targets=scenario.candidate_targets,
+        target_swap_active_target=world.active_target,
+    )
+    sender = next(
+        row for row in raw["turns"][0]["broadcasts"] if row["agent_id"] == scenario.sender
+    )
+    other_target = next(
+        target for target in scenario.candidate_targets if target != world.active_target
+    )
+    assert sender["accepted_message"]["facts"][0]["node"] == world.active_target
+    assert sender["delivered_message"]["facts"][0]["node"] == other_target
+
+
 def test_four_policy_contract_assigns_distinct_replacement_credit_to_owned_spans() -> None:
     bindings = tuple(
         AgentPolicy(

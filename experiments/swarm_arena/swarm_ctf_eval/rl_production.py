@@ -374,7 +374,9 @@ class ProductionPlan:
     stages: tuple[CurriculumStage, ...] = ()
     shared_return_replicas: int = 4
     action_prompt_profile: Literal["full", "focused_handoff_compact"] = "full"
-    shared_return_baseline: Literal["leave_one_out_mean", "paired_message_drop"] = "leave_one_out_mean"
+    shared_return_baseline: Literal[
+        "leave_one_out_mean", "paired_message_drop", "paired_target_swap"
+    ] = "leave_one_out_mean"
 
     def validate(self) -> None:
         if self.version not in {
@@ -430,10 +432,16 @@ class ProductionPlan:
             raise ValueError("production plan contains an unknown action prompt profile")
         if self.action_prompt_profile == "focused_handoff_compact" and "ACT" not in self.trainable_phases:
             raise ValueError("compact handoff prompts require ACT to be a trainable phase")
-        if self.shared_return_baseline not in {"leave_one_out_mean", "paired_message_drop"}:
+        if self.shared_return_baseline not in {
+            "leave_one_out_mean",
+            "paired_message_drop",
+            "paired_target_swap",
+        }:
             raise ValueError("production plan contains an unknown shared-return baseline")
-        if self.shared_return_baseline == "paired_message_drop" and self.trainable_phases != ("ACT",):
-            raise ValueError("paired message-drop plans require receiver ACT-only training")
+        if self.shared_return_baseline in {"paired_message_drop", "paired_target_swap"} and (
+            self.trainable_phases != ("ACT",)
+        ):
+            raise ValueError("paired message-intervention plans require receiver ACT-only training")
 
     @property
     def sha256(self) -> str:

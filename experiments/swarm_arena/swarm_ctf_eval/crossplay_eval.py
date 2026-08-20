@@ -29,11 +29,19 @@ from .episode_protocol import (
     episode_action_prompt,
     episode_broadcast_prompt,
 )
+from .message_interventions import target_swapped_broadcast
 from .providers import OpenAICompatibleProvider
 from .structured_protocol import STRUCTURED_PROTOCOL_VERSION, protocol_response_format
 
 CROSSPLAY_VERSION = "arena-crossplay-v5-source-prompt-bound"
-CONDITIONS = ("generated", "dropped", "sender_shuffled", "delayed", "zero_budget")
+CONDITIONS = (
+    "generated",
+    "dropped",
+    "sender_shuffled",
+    "delayed",
+    "zero_budget",
+    "target_swapped",
+)
 Case = tuple[int, int, int]
 ModelRoster = ArenaModel | dict[str, ArenaModel]
 FROZEN_CROSSPLAY_CASES: tuple[Case, ...] = tuple(
@@ -212,6 +220,8 @@ def _delivered_for_team(
         return _rotate(current, members)
     if condition == "delayed":
         return {agent_id: previous.get(agent_id, EMPTY_BROADCAST) for agent_id in members}
+    if condition == "target_swapped":
+        return {agent_id: current[agent_id] for agent_id in members}
     raise ValueError(f"unknown condition: {condition}")
 
 
@@ -240,6 +250,7 @@ def evaluate_crossplay(
     action_permutation_offset: int = 0,
     turn_zero_required_facts: dict[str, NodeObservation] | None = None,
     action_prompt_profiles: dict[str, ActionPromptProfile] | None = None,
+    target_swap_interventions: dict[Team, tuple[str, tuple[str, str], str]] | None = None,
 ) -> dict[str, Any]:
     if blue_condition not in CONDITIONS or red_condition not in CONDITIONS:
         raise ValueError("unknown communication condition")
@@ -373,9 +384,21 @@ def evaluate_crossplay(
         delivered: dict[str, Broadcast] = {}
         for team in TEAMS:
             members = _members(env, team)
-            delivered.update(
-                _delivered_for_team(conditions[team], members, preview, previous_accepted)
+            team_delivered = _delivered_for_team(
+                conditions[team], members, preview, previous_accepted
             )
+            if conditions[team] == "target_swapped":
+                if target_swap_interventions is None or team not in target_swap_interventions:
+                    raise ValueError("target-swapped condition requires a certified intervention")
+                sender, targets, active_target = target_swap_interventions[team]
+                if sender not in team_delivered:
+                    raise ValueError("target-swapped condition names an unknown sender")
+                team_delivered[sender] = target_swapped_broadcast(
+                    team_delivered[sender],
+                    candidate_targets=targets,
+                    active_target=active_target,
+                )
+            delivered.update(team_delivered)
         phase = env.broadcast_phase(parsed_messages, delivered_broadcasts=delivered)
         previous_accepted = dict(phase.accepted)
         for row in broadcast_rows:

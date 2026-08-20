@@ -3,7 +3,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from scripts.summarize_message_credit_audit import load_verified_payloads
-from swarm_ctf_eval.arena import Action, state_to_dict
+from swarm_ctf_eval.arena import Action, NodeObservation, state_to_dict
 from swarm_ctf_eval.arena_protocol import Broadcast
 from swarm_ctf_eval.broadcast_priority import (
     PROMPT_VARIANTS,
@@ -15,6 +15,7 @@ from swarm_ctf_eval.message_credit_audit import (
     message_credit_audit_record,
     summarize_message_credit_records,
 )
+from swarm_ctf_eval.message_interventions import target_swapped_broadcast
 from swarm_ctf_eval.multi_policy_contract import AgentPolicy
 from swarm_ctf_eval.prime_rl_bridge import RolloutDecision
 from swarm_ctf_eval.rl_v3 import ArenaRLEnv
@@ -27,6 +28,23 @@ from swarm_ctf_eval.safety_supervisor import (
     approve_message_credit_group,
     canonical_sha256,
 )
+
+
+def test_target_swap_changes_only_the_certified_candidate_identity() -> None:
+    active = NodeObservation("V1", "NEUTRAL", "EXPOSED", 3, True, 2)
+    other = NodeObservation("V9", "BLUE", "SECURE", 1, False, 2)
+    original = Broadcast((active, other), Action("CAPTURE", "V1"), 0)
+    swapped = target_swapped_broadcast(
+        original,
+        candidate_targets=("V1", "V2"),
+        active_target="V1",
+    )
+    assert swapped == Broadcast(
+        (replace(active, node="V2"), other),
+        Action("CAPTURE", "V2"),
+        0,
+    )
+    assert len(swapped.facts) == len(original.facts)
 
 
 def test_message_credit_summary_combines_independently_verified_shards(

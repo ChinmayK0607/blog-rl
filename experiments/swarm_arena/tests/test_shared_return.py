@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import math
 from copy import deepcopy
 from dataclasses import replace
@@ -9,12 +10,14 @@ from types import SimpleNamespace
 
 import pytest
 from swarm_ctf_eval.episode import EpisodeConfig
+from swarm_ctf_eval.handoff_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.live_rl_rollout import (
     ChoiceCompletion,
     PolicyEndpoint,
     build_live_shared_return_group,
     protocol_constraint_sha256,
 )
+from swarm_ctf_eval.message_interventions import target_swapped_broadcast
 from swarm_ctf_eval.multi_policy_contract import AgentPolicy
 from swarm_ctf_eval.prime_multi_run_router import (
     PolicyRunRoute,
@@ -59,6 +62,36 @@ class FirstChoiceGenerator:
             text,
             request_sha256,
             serving_allowed_logprobs=(((11, 0.0),),),
+        )
+
+
+class ExposedFactGenerator(FirstChoiceGenerator):
+    async def generate(
+        self,
+        endpoint: PolicyEndpoint,
+        messages: list[dict[str, str]],
+        *,
+        sampling_key: str,
+    ) -> ChoiceCompletion:
+        choices = protocol_choices(messages)
+        selected = choices[0]
+        for choice in choices:
+            payload = json.loads(choice)
+            if any(fact.get("status") == "EXPOSED" for fact in payload.get("facts", [])):
+                selected = choice
+                break
+        original = await super().generate(endpoint, messages, sampling_key=sampling_key)
+        return replace(
+            original,
+            text=selected,
+            request_sha256=canonical_sha256(
+                {
+                    "policy_id": endpoint.policy_id,
+                    "revision": endpoint.revision,
+                    "messages": messages,
+                    "sampling_key": sampling_key,
+                }
+            ),
         )
 
 
@@ -211,6 +244,101 @@ def test_paired_message_drop_group_replays_both_conditions_and_routes_normal_rec
             lock,
             tampered,
             bindings,
+            "BLUE",
+            b"shared-return-test-signing-key-32-bytes",
+        )
+
+
+def test_paired_target_swap_is_replayed_and_routes_only_the_receiver() -> None:
+    root = Path(__file__).resolve().parents[1]
+    manifest = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    critical = reconstruct_manifest_scenario(manifest["pairs"][12]["critical"])
+    world = critical.worlds[0]
+    spec = SharedReturnSpec(
+        replicas=2,
+        trainable_phases=("ACT",),
+        trainable_turn_offsets=(0,),
+        baseline="paired_target_swap",
+        credit_assignment="focused_agent",
+        action_prompt_profile="focused_handoff_compact",
+    )
+    lock = _lock(spec)
+    group = asyncio.run(
+        build_live_shared_return_group(
+            ExposedFactGenerator(),  # type: ignore[arg-type]
+            group_id="paired-swap-receiver",
+            seed=critical.seed,
+            size=critical.size,
+            config=EpisodeConfig(
+                horizon=world.state.turn + 2,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            ),
+            spec=spec,
+            bindings=_bindings(),
+            policies=_endpoints(),
+            run_lock_sha256=lock.sha256,
+            initial_state=world.state,
+            focused_agent=critical.receiver,
+            message_swap_agent=critical.sender,
+            message_swap_turn=world.state.turn,
+            message_swap_targets=critical.candidate_targets,
+            message_swap_active_target=world.active_target,
+        )
+    )
+    approvals = approve_shared_return_group(
+        lock,
+        group.evidence,
+        _bindings(),
+        "BLUE",
+        b"shared-return-test-signing-key-32-bytes",
+    )
+    assert len(approvals) == 2
+    assert all(replica.swapped_replay is not None for replica in group.evidence.replicas)
+    assert all(
+        decision.branch == "message_swap"
+        for replica in group.evidence.replicas
+        for decision in replica.swapped_decisions
+    )
+    assert {
+        envelope.agent_id
+        for approval in approvals
+        for envelope in approval.envelopes
+        if envelope.advantage != 0.0
+    } <= {critical.receiver}
+    first = group.evidence.replicas[0]
+    assert first.swapped_replay is not None
+    actual_message = dict(first.replay.turns[0].delivered_broadcasts)[critical.sender]
+    swapped_message = dict(first.swapped_replay.turns[0].delivered_broadcasts)[critical.sender]
+    assert swapped_message == target_swapped_broadcast(
+        actual_message,
+        candidate_targets=critical.candidate_targets,
+        active_target=world.active_target,
+    )
+    tampered_turn = replace(
+        first.swapped_replay.turns[0],
+        delivered_broadcasts=tuple(
+            (agent_id, actual_message if agent_id == critical.sender else broadcast)
+            for agent_id, broadcast in first.swapped_replay.turns[0].delivered_broadcasts
+        ),
+    )
+    tampered_replica = replace(
+        first,
+        swapped_replay=replace(
+            first.swapped_replay,
+            turns=(tampered_turn, *first.swapped_replay.turns[1:]),
+        ),
+    )
+    tampered_evidence = replace(
+        group.evidence,
+        replicas=(tampered_replica, *group.evidence.replicas[1:]),
+    )
+    with pytest.raises(ValueError, match="replay post-state mismatch"):
+        approve_shared_return_group(
+            lock,
+            tampered_evidence,
+            _bindings(),
             "BLUE",
             b"shared-return-test-signing-key-32-bytes",
         )

@@ -80,9 +80,17 @@ def evaluate_final_case(
     critical_target: str | None = None,
     turn_zero_required_facts: dict[str, NodeObservation] | None = None,
     action_prompt_profiles: dict[str, ActionPromptProfile] | None = None,
+    target_swap_sender: str | None = None,
+    target_swap_targets: tuple[str, str] | None = None,
+    target_swap_active_target: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    if condition not in COMMUNICATION_CONDITIONS:
+    if condition not in {*COMMUNICATION_CONDITIONS, "target_swapped"}:
         raise ValueError(f"unknown final-eval condition: {condition}")
+    swap_fields = (target_swap_sender, target_swap_targets, target_swap_active_target)
+    if condition == "target_swapped" and not all(value is not None for value in swap_fields):
+        raise ValueError("target-swapped evaluation requires complete intervention metadata")
+    if condition != "target_swapped" and any(value is not None for value in swap_fields):
+        raise ValueError("non-swap evaluation cannot bind a target-swap intervention")
     handoff_suites = {"critical", "decoy", "handoff_critical", "handoff_decoy"}
     if identity.suite in handoff_suites and initial_state is None:
         raise ValueError("critical and decoy evaluation require a frozen initial state")
@@ -122,6 +130,10 @@ def evaluate_final_case(
         if resolved_state is None:
             resolved_state = generate_state(seed, size)
         resolved_state = permute_agent_labels(resolved_state, focal_side, role_assignment)
+    resolved_swap_sender = None
+    if target_swap_sender is not None:
+        sender_index = int(target_swap_sender.split("-", 1)[1])
+        resolved_swap_sender = f"{focal_side.lower()}-{role_assignment[sender_index]}"
     raw = evaluate_crossplay(
         blue,
         red,
@@ -133,6 +145,17 @@ def evaluate_final_case(
         action_permutation_offset=_option_offset(identity.option_order),
         turn_zero_required_facts=turn_zero_required_facts,
         action_prompt_profiles=action_prompt_profiles,
+        target_swap_interventions=(
+            {
+                focal_side: (
+                    resolved_swap_sender,
+                    target_swap_targets,
+                    target_swap_active_target,
+                )
+            }
+            if condition == "target_swapped"
+            else None
+        ),
     )
     nonempty = 0
     for turn in raw["turns"]:

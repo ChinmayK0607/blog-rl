@@ -12,6 +12,7 @@ from typing import Any, Literal
 from .arena import Action, GameState, Team, state_to_dict
 from .arena_protocol import Broadcast
 from .episode import EMPTY_BROADCAST, EpisodeConfig
+from .message_interventions import target_swapped_broadcast
 from .multi_policy_contract import AgentPolicy, MessageCredit, ReplacementCredit
 from .prime_rl_bridge import (
     PolicyTrainingEnvelope,
@@ -166,7 +167,9 @@ class SharedReturnSpec:
     replicas: int
     trainable_phases: tuple[Literal["BROADCAST", "ACT"], ...] = ("BROADCAST",)
     trainable_turn_offsets: tuple[int, ...] | None = (0,)
-    baseline: Literal["leave_one_out_mean", "paired_message_drop"] = "leave_one_out_mean"
+    baseline: Literal[
+        "leave_one_out_mean", "paired_message_drop", "paired_target_swap"
+    ] = "leave_one_out_mean"
     reward: Literal["verified_terminal_team_return"] = "verified_terminal_team_return"
     credit_assignment: Literal["shared_team", "focused_agent"] = "shared_team"
     action_prompt_profile: Literal["full", "focused_handoff_compact"] = "full"
@@ -185,7 +188,11 @@ class SharedReturnSpec:
                 raise ValueError("shared-return turn offsets must be non-empty and unique")
             if any(offset < 0 for offset in self.trainable_turn_offsets):
                 raise ValueError("shared-return turn offsets cannot be negative")
-        if self.baseline not in {"leave_one_out_mean", "paired_message_drop"}:
+        if self.baseline not in {
+            "leave_one_out_mean",
+            "paired_message_drop",
+            "paired_target_swap",
+        }:
             raise ValueError("shared-return spec contains an unsupported baseline")
         if self.reward != "verified_terminal_team_return":
             raise ValueError("shared-return spec contains an unsupported reward")
@@ -202,10 +209,10 @@ class SharedReturnSpec:
             or self.trainable_phases[0] not in {"BROADCAST", "ACT"}
         ):
             raise ValueError("focused-agent credit requires exactly one causal decision phase")
-        if self.baseline == "paired_message_drop" and (
+        if self.baseline in {"paired_message_drop", "paired_target_swap"} and (
             self.credit_assignment != "focused_agent" or self.trainable_phases != ("ACT",)
         ):
-            raise ValueError("paired message-drop credit requires focused-agent ACT credit")
+            raise ValueError("paired message intervention credit requires focused-agent ACT credit")
 
     @property
     def sha256(self) -> str:
@@ -227,6 +234,8 @@ class SharedReturnReplicaEvidence:
     decisions: tuple[RolloutDecision, ...]
     dropped_replay: BranchReplay | None = None
     dropped_decisions: tuple[RolloutDecision, ...] = ()
+    swapped_replay: BranchReplay | None = None
+    swapped_decisions: tuple[RolloutDecision, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -243,6 +252,10 @@ class SharedReturnGroupEvidence:
     trainer_logprobs: dict[str, tuple[float, ...]] | None
     message_drop_agent: str | None = None
     message_drop_turn: int | None = None
+    message_swap_agent: str | None = None
+    message_swap_turn: int | None = None
+    message_swap_targets: tuple[str, str] | None = None
+    message_swap_active_target: str | None = None
 
 
 @dataclass(frozen=True)
@@ -338,6 +351,16 @@ def shared_return_evidence_payload(evidence: SharedReturnGroupEvidence) -> dict[
                 _branch_payload(replica.dropped_replay) if replica.dropped_replay else None
             )
             replica_payload["dropped_decisions"] = [asdict(row) for row in replica.dropped_decisions]
+    elif evidence.spec.baseline == "paired_target_swap":
+        payload["message_swap_agent"] = evidence.message_swap_agent
+        payload["message_swap_turn"] = evidence.message_swap_turn
+        payload["message_swap_targets"] = evidence.message_swap_targets
+        payload["message_swap_active_target"] = evidence.message_swap_active_target
+        for replica_payload, replica in zip(payload["replicas"], evidence.replicas, strict=True):
+            replica_payload["swapped_replay"] = (
+                _branch_payload(replica.swapped_replay) if replica.swapped_replay else None
+            )
+            replica_payload["swapped_decisions"] = [asdict(row) for row in replica.swapped_decisions]
     return payload
 
 
@@ -432,9 +455,18 @@ def _verify_delivery_contract(
     *,
     dropped_sender: str | None,
     dropped_turn: int | None = None,
+    swapped_sender: str | None = None,
+    swapped_turn: int | None = None,
+    swapped_targets: tuple[str, str] | None = None,
+    swapped_active_target: str | None = None,
 ) -> None:
     if (dropped_sender is None) != (dropped_turn is None):
         raise ValueError("message delivery intervention requires both sender and turn")
+    swap_fields = (swapped_sender, swapped_turn, swapped_targets, swapped_active_target)
+    if any(value is not None for value in swap_fields) != all(value is not None for value in swap_fields):
+        raise ValueError("target swap requires sender, turn, candidates, and active target")
+    if dropped_sender is not None and swapped_sender is not None:
+        raise ValueError("one replay cannot drop and swap a message")
     env = ArenaRLEnv(size=len(initial_state.nodes), config=config)
     env.reset_from_state(initial_state)
     for row in branch.turns:
@@ -447,8 +479,23 @@ def _verify_delivery_contract(
             if dropped_sender not in expected:
                 raise ValueError(f"message-drop branch names an unknown sender: {dropped_sender}")
             expected[dropped_sender] = EMPTY_BROADCAST
+        if swapped_sender is not None and row.turn == swapped_turn:
+            if swapped_sender not in expected:
+                raise ValueError(f"message-swap branch names an unknown sender: {swapped_sender}")
+            assert swapped_targets is not None and swapped_active_target is not None
+            expected[swapped_sender] = target_swapped_broadcast(
+                expected[swapped_sender],
+                candidate_targets=swapped_targets,
+                active_target=swapped_active_target,
+            )
         if phase.delivered != expected:
-            label = "actual" if dropped_sender is None else f"drop-message-{dropped_sender}"
+            label = (
+                f"drop-message-{dropped_sender}"
+                if dropped_sender is not None
+                else f"swap-message-{swapped_sender}"
+                if swapped_sender is not None
+                else "actual"
+            )
             raise ValueError(f"{label} branch violates its delivery intervention")
         env.advance(dict(row.actions))
 
@@ -878,15 +925,26 @@ def leave_one_out_advantages(returns: tuple[float, ...]) -> tuple[float, ...]:
     return advantages
 
 
+def paired_terminal_contrast_advantages(
+    actual_returns: tuple[float, ...],
+    counterfactual_returns: tuple[float, ...],
+) -> tuple[float, ...]:
+    """Center verified actual-minus-counterfactual terminal effects across replicas."""
+    if len(actual_returns) != len(counterfactual_returns):
+        raise ValueError("paired terminal-return contrasts must have equal lengths")
+    effects = tuple(
+        actual - counterfactual
+        for actual, counterfactual in zip(actual_returns, counterfactual_returns, strict=True)
+    )
+    return leave_one_out_advantages(effects)
+
+
 def paired_message_drop_advantages(
     normal_returns: tuple[float, ...],
     dropped_returns: tuple[float, ...],
 ) -> tuple[float, ...]:
     """Center verified normal-minus-dropped terminal-return effects across replicas."""
-    if len(normal_returns) != len(dropped_returns):
-        raise ValueError("paired message-drop returns must have equal lengths")
-    effects = tuple(normal - dropped for normal, dropped in zip(normal_returns, dropped_returns, strict=True))
-    return leave_one_out_advantages(effects)
+    return paired_terminal_contrast_advantages(normal_returns, dropped_returns)
 
 
 def approve_shared_return_group(
@@ -945,7 +1003,41 @@ def approve_shared_return_group(
             raise ValueError("paired message-drop sender and receiver must differ")
         if evidence.message_drop_turn is None:
             raise ValueError("paired message-drop evidence requires an intervention turn")
-    elif evidence.message_drop_agent is not None or evidence.message_drop_turn is not None:
+        if any(
+            value is not None
+            for value in (
+                evidence.message_swap_agent,
+                evidence.message_swap_turn,
+                evidence.message_swap_targets,
+                evidence.message_swap_active_target,
+            )
+        ):
+            raise ValueError("message-drop evidence cannot also name a target swap")
+    elif evidence.spec.baseline == "paired_target_swap":
+        same_team_agents = {binding.agent_id for binding in bindings if binding.team == trainable_team}
+        if evidence.message_swap_agent not in same_team_agents:
+            raise ValueError("paired target-swap evidence names an invalid same-team sender")
+        if evidence.message_swap_agent == evidence.focused_agent:
+            raise ValueError("paired target-swap sender and receiver must differ")
+        if (
+            evidence.message_swap_turn is None
+            or evidence.message_swap_targets is None
+            or evidence.message_swap_active_target is None
+        ):
+            raise ValueError("paired target-swap evidence requires complete intervention metadata")
+        if evidence.message_drop_agent is not None or evidence.message_drop_turn is not None:
+            raise ValueError("target-swap evidence cannot also name a message drop")
+    elif any(
+        value is not None
+        for value in (
+            evidence.message_drop_agent,
+            evidence.message_drop_turn,
+            evidence.message_swap_agent,
+            evidence.message_swap_turn,
+            evidence.message_swap_targets,
+            evidence.message_swap_active_target,
+        )
+    ):
         raise ValueError("leave-one-out evidence cannot name a message intervention")
 
     policy_revisions = {
@@ -957,6 +1049,7 @@ def approve_shared_return_group(
     seen_sampling_keys: set[str] = set()
     verifications: list[ReplayVerification] = []
     dropped_verifications: list[ReplayVerification] = []
+    swapped_verifications: list[ReplayVerification] = []
     absolute_turns = (
         None
         if evidence.spec.trainable_turn_offsets is None
@@ -1066,12 +1159,55 @@ def approve_shared_return_group(
             )
             dropped_verifications.append(dropped_verification)
         elif replica.dropped_replay is not None or replica.dropped_decisions:
-            raise ValueError("leave-one-out replica cannot contain a dropped branch")
+            raise ValueError("non-drop replica cannot contain a dropped branch")
+
+        if evidence.spec.baseline == "paired_target_swap":
+            if replica.swapped_replay is None or not replica.swapped_decisions:
+                raise ValueError("paired target-swap replica omits its swapped branch")
+            if replica.swapped_replay.replaced_agent != evidence.message_swap_agent:
+                raise ValueError("paired target-swap replay names the wrong sender")
+            if {row.game_id for row in replica.swapped_decisions} != {f"{replica.game_id}:swap"}:
+                raise ValueError("paired target-swap decisions mix or omit their swap game ID")
+            for decision in replica.swapped_decisions:
+                if decision.branch != "message_swap" or decision.replaced_agent != evidence.message_swap_agent:
+                    raise ValueError("paired target-swap evidence contains a non-swap decision")
+                if decision.constraint_sha256 not in allowed_constraints:
+                    raise ValueError(f"unapproved dynamic constraint: {decision.decision_id}")
+                binding = binding_by_agent.get(decision.agent_id)
+                if binding is None or decision.policy_id != binding.policy_id:
+                    raise ValueError(f"wrong paired-swap policy routing: {decision.decision_id}")
+                expected_revision = policy_revisions.get(binding.policy_id)
+                if expected_revision is None or decision.policy_revision != expected_revision:
+                    raise ValueError(f"stale or unexpected policy revision: {decision.decision_id}")
+            swapped_verification = verify_replay(
+                evidence.initial_state,
+                evidence.episode_config,
+                replica.swapped_replay,
+                trainable_team,
+            )
+            _verify_delivery_contract(
+                evidence.initial_state,
+                evidence.episode_config,
+                replica.swapped_replay,
+                dropped_sender=None,
+                swapped_sender=evidence.message_swap_agent,
+                swapped_turn=evidence.message_swap_turn,
+                swapped_targets=evidence.message_swap_targets,
+                swapped_active_target=evidence.message_swap_active_target,
+            )
+            _verify_private_contexts(
+                replica.swapped_decisions,
+                swapped_verification,
+                branch=f"replica-{replica.replica_index}-swap",
+            )
+            swapped_verifications.append(swapped_verification)
+        elif replica.swapped_replay is not None or replica.swapped_decisions:
+            raise ValueError("non-swap replica cannot contain a swapped branch")
     _verify_common_random_outputs(
         tuple(
             decision
             for row in evidence.replicas
-            for decision in row.decisions + row.dropped_decisions
+            for decision in row.decisions + row.dropped_decisions + row.swapped_decisions
         )
     )
 
@@ -1081,6 +1217,11 @@ def approve_shared_return_group(
             tuple(row.terminal_return for row in dropped_verifications),
         )
         if evidence.spec.baseline == "paired_message_drop"
+        else paired_terminal_contrast_advantages(
+            tuple(row.terminal_return for row in verifications),
+            tuple(row.terminal_return for row in swapped_verifications),
+        )
+        if evidence.spec.baseline == "paired_target_swap"
         else leave_one_out_advantages(tuple(row.terminal_return for row in verifications))
     )
     envelopes = tuple(

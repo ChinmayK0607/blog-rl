@@ -4652,6 +4652,60 @@ no more critical-specific than decoy-specific. Therefore:
   Torch was deliberately not downloaded solely for this test. The assertion is
   included for the next existing Linux/GPU environment test pass.
 
+### 2026-08-20 — semantic target-swap v9 CPU implementation
+
+- Status: CPU implementation and focused validation completed; no GPU used.
+  Source begins from `969fff0197bd712d38cf559e36dfbbae6e7e7c91`.
+- Intervention: added a first-class `message_swap` rollout branch. The trusted
+  transform requires the sender's generated message to contain the certified
+  active candidate, swaps the two candidate node identities in all candidate
+  facts and candidate-target intents, and preserves sender, turn, schema, fact
+  count, non-candidate content, state, opponent, prompt ordering, and the
+  common-random schedule. Messages containing one or both candidate facts are
+  supported; omission of the active fact fails closed.
+- Credit/safety: actual and swapped trajectories are independently replayed and
+  delivery-verified. Immutable evidence records swap sender, turn, candidates,
+  active target, decisions, and replay. Advantages are centered verified
+  actual-minus-swapped terminal-return effects, routed only to actual receiver
+  ACT tokens. The four LoRA policies remain separate. Ordinary preservation
+  groups automatically use ordinary leave-one-out return rather than an
+  inapplicable message intervention.
+- Compact evaluation: the training-pair evaluator is versioned as
+  `pair7-semantic-communication-eval-v2` /
+  `multipair-semantic-communication-eval-v3`. It adds target-swapped return,
+  receiver target-action rate, critical-minus-decoy semantic specificity,
+  per-pair decomposition, pulse completeness validation, and W&B metrics. The
+  frozen OOD design and rows remain unchanged.
+- Curriculum: `staged_curriculum_v9_4b_semantic_target_swap_60.json`, SHA-256
+  `15afa7bd6b9516fb61ade1eb6779ce413946e7533051732a879327729177937b`.
+  It schedules 60 updates: 216 semantic critical groups and 24 ordinary
+  preservation groups, four replicas each. Stages contain 10/20/30 updates at
+  two/three/four remaining turns. Each sender and receiver policy slot appears
+  exactly 54 times; left/right worlds appear exactly 108 times each. All 12
+  directed roles and both worlds are covered. Critical certified opportunities
+  are positive and matched-decoy certified advantage is zero.
+- Failure/retry: the first prospective schedule used 210 semantic groups. The
+  audit rejected it because sender counts were `54/54/53/49` and world counts
+  `106/104`. No GPU work or model request occurred. A five-update pattern and
+  10/20/30 stage lengths produce 216 groups, exact role/world balance, and a
+  passing audit. A first end-to-end test fixture used a seed that did not yield
+  a v4 handoff and was replaced with checked-in manifest pair 12. The next test
+  exposed that valid sender output may contain both candidates; the transform
+  was generalized to swap both identities while still requiring the active
+  fact.
+- Validation: focused CPU matrix passed `42/42`: compact summaries/pulses
+  `15`, production scheduling `14`, shared-return replay/supervisor `10`,
+  structural swap `1`, and final-evaluator normal/swap smoke tests `2`.
+  The complete Swarm Arena CPU directory then passed `135/135`. Changed-file
+  Ruff and Python compilation passed. Temporary import stubs under
+  `/private/tmp` avoided installing Torch solely for CPU tests and are not
+  repository artifacts.
+- Interpretation: the CPU audit proves construction, balance, non-leakage, and
+  exact replay/admission behavior. It cannot prove sampled advantages are
+  non-zero for the SFT model. A short first-update GPU diagnostic remains the
+  honest final precondition before the 60-update run.
+- GPU time/cost: none. Instance decommissioned: not applicable.
+
 ## Future entry template
 
 Copy this block for each material run:

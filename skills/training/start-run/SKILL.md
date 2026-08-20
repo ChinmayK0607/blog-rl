@@ -79,6 +79,17 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   and log-prob parity. Append approvals/rejections to the hash-chained trace.
   Any mismatch fails closed and blocks optimizer input rather than becoming a
   reward penalty.
+- Semantic receiver curricula use `paired_target_swap`, not message silence, as
+  the focused ACT baseline. The actual and counterfactual branches share the
+  state, sender, message count/schema, opponent, prompt order, and random-key
+  schedule. The trusted intervention swaps the two certified candidate node
+  identities in the sender's delivered facts and candidate-target intent, then
+  independently replays both branches. Require the generated sender message to
+  contain the active candidate fact; missing/uncertified facts fail the group.
+  Center actual-minus-swapped verified terminal returns across replicas and
+  route only the actual receiver ACT spans. Ordinary preservation groups under
+  the same plan use the ordinary leave-one-out terminal-return baseline; never
+  fabricate a target swap for an ordinary map.
 - Certify constrained-policy parity on the exact serving and trainer stacks
   before admitting a run. Require identical token IDs, allowed-token masks and
   policy routing, then gate the unavoidable vLLM/FSDP kernel drift with the

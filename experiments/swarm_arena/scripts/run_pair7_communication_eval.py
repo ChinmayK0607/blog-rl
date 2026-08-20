@@ -15,9 +15,9 @@ from swarm_ctf_eval.handoff_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.providers import OpenAICompatibleProvider
 from swarm_ctf_eval.structured_protocol import protocol_response_format
 
-VERSION = "pair7-communication-overfit-eval-v1"
-MULTIPAIR_VERSION = "multipair-communication-learnability-eval-v2"
-CONDITIONS = ("normal", "dropped", "sender_shuffled")
+VERSION = "pair7-semantic-communication-eval-v2"
+MULTIPAIR_VERSION = "multipair-semantic-communication-eval-v3"
+CONDITIONS = ("normal", "dropped", "sender_shuffled", "target_swapped")
 
 
 def _digest(value: object) -> str:
@@ -74,18 +74,31 @@ def _summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     critical_shuffled = _mean(
         rows, "terminal_return", kind="critical", condition="sender_shuffled"
     )
+    critical_swapped = _mean(
+        rows, "terminal_return", kind="critical", condition="target_swapped"
+    )
     decoy_generated = _mean(rows, "terminal_return", kind="decoy", condition="normal")
     decoy_dropped = _mean(rows, "terminal_return", kind="decoy", condition="dropped")
+    decoy_swapped = _mean(
+        rows, "terminal_return", kind="decoy", condition="target_swapped"
+    )
     return {
         "critical": {
             "normal_return": critical_generated,
             "normal_minus_dropped_return": critical_generated - critical_dropped,
             "normal_minus_shuffled_return": critical_generated - critical_shuffled,
+            "normal_minus_target_swapped_return": critical_generated - critical_swapped,
             "normal_receiver_target_action_rate": _mean(
                 rows, "receiver_target_action", kind="critical", condition="normal"
             ),
             "dropped_receiver_target_action_rate": _mean(
                 rows, "receiver_target_action", kind="critical", condition="dropped"
+            ),
+            "target_swapped_receiver_target_action_rate": _mean(
+                rows,
+                "receiver_target_action",
+                kind="critical",
+                condition="target_swapped",
             ),
             "normal_sender_target_fact_rate": _mean(
                 rows, "sender_target_fact", kind="critical", condition="normal"
@@ -96,6 +109,10 @@ def _summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 critical_generated - critical_dropped
             )
             - (decoy_generated - decoy_dropped),
+            "critical_minus_decoy_target_swapped_lift": (
+                critical_generated - critical_swapped
+            )
+            - (decoy_generated - decoy_swapped),
         },
         "protocol": {
             "broadcast_valid_rate": _mean(rows, "broadcast_valid"),
@@ -247,6 +264,17 @@ def main() -> None:
                             action_prompt_profiles={
                                 scenario.receiver: args.receiver_action_prompt_profile
                             },
+                            target_swap_sender=(
+                                scenario.sender if condition == "target_swapped" else None
+                            ),
+                            target_swap_targets=(
+                                scenario.candidate_targets
+                                if condition == "target_swapped"
+                                else None
+                            ),
+                            target_swap_active_target=(
+                                world.active_target if condition == "target_swapped" else None
+                            ),
                         )
                         broadcast = _turn_zero(raw, "broadcasts", scenario.sender)
                         action = _turn_zero(raw, "actions", scenario.receiver)

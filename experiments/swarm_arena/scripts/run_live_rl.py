@@ -799,6 +799,15 @@ async def main() -> None:
                     )
                     scenario_metadata["focused_agent"] = focused_agent
                     scenario_metadata["focused_phase"] = focused_phase
+                if (
+                    group_shared_return_spec is not None
+                    and group_shared_return_spec.baseline == "paired_target_swap"
+                    and scenario_metadata["source"] == "ordinary"
+                ):
+                    group_shared_return_spec = replace(
+                        group_shared_return_spec,
+                        baseline="leave_one_out_mean",
+                    )
                 lock = run_lock(
                     args,
                     config,
@@ -831,6 +840,26 @@ async def main() -> None:
                         message_drop_turn=(
                             initial_state.turn
                             if group_shared_return_spec.baseline == "paired_message_drop"
+                            else None
+                        ),
+                        message_swap_agent=(
+                            str(scenario_metadata["sender"])
+                            if group_shared_return_spec.baseline == "paired_target_swap"
+                            else None
+                        ),
+                        message_swap_turn=(
+                            initial_state.turn
+                            if group_shared_return_spec.baseline == "paired_target_swap"
+                            else None
+                        ),
+                        message_swap_targets=(
+                            tuple(str(value) for value in scenario_metadata["candidate_targets"])
+                            if group_shared_return_spec.baseline == "paired_target_swap"
+                            else None
+                        ),
+                        message_swap_active_target=(
+                            str(scenario_metadata["active_target"])
+                            if group_shared_return_spec.baseline == "paired_target_swap"
                             else None
                         ),
                     )
@@ -937,6 +966,10 @@ async def main() -> None:
                                 row.dropped_replay.terminal_return if row.dropped_replay is not None else None
                                 for row in group.evidence.replicas
                             ],
+                            "swapped_returns": [
+                                row.swapped_replay.terminal_return if row.swapped_replay is not None else None
+                                for row in group.evidence.replicas
+                            ],
                         },
                     )
                     step_groups.append(
@@ -955,6 +988,16 @@ async def main() -> None:
                                     "message_effect": (
                                         replica.replay.terminal_return - replica.dropped_replay.terminal_return
                                         if replica.dropped_replay is not None
+                                        else None
+                                    ),
+                                    "swapped_return": (
+                                        replica.swapped_replay.terminal_return
+                                        if replica.swapped_replay is not None
+                                        else None
+                                    ),
+                                    "semantic_effect": (
+                                        replica.replay.terminal_return - replica.swapped_replay.terminal_return
+                                        if replica.swapped_replay is not None
                                         else None
                                     ),
                                     "advantages": {

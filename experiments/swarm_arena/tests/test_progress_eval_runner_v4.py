@@ -418,6 +418,7 @@ def test_pair7_summary_separates_communication_lift_from_decoy_tactics(
             ("normal", normal),
             ("dropped", dropped),
             ("sender_shuffled", dropped),
+            ("target_swapped", dropped),
         ):
             for _world in ("left", "right"):
                 rows.append(
@@ -435,6 +436,7 @@ def test_pair7_summary_separates_communication_lift_from_decoy_tactics(
     summary = summarize_pair7(rows)
     assert summary["critical"]["normal_minus_dropped_return"] == pytest.approx(0.6)
     assert summary["specificity"]["critical_minus_decoy_normal_dropped_lift"] == pytest.approx(0.5)
+    assert summary["specificity"]["critical_minus_decoy_target_swapped_lift"] == pytest.approx(0.5)
     output = tmp_path / "summary.json"
     output.write_text(json.dumps(summary))
     _validate_pair7_summary(output, repetitions=1)
@@ -447,7 +449,7 @@ def test_multipair_summary_preserves_per_pair_signal(tmp_path: Path) -> None:
     rows = []
     for pair_index, lift in ((7, 0.6), (9, 0.2)):
         for kind in ("critical", "decoy"):
-            for condition in ("normal", "dropped", "sender_shuffled"):
+            for condition in ("normal", "dropped", "sender_shuffled", "target_swapped"):
                 for world in ("left", "right"):
                     terminal_return = (
                         lift
@@ -469,7 +471,7 @@ def test_multipair_summary_preserves_per_pair_signal(tmp_path: Path) -> None:
                         }
                     )
     summary = summarize_pair7(rows, (7, 9))
-    assert summary["version"] == "multipair-communication-learnability-eval-v2"
+    assert summary["version"] == "multipair-semantic-communication-eval-v3"
     assert summary["critical"]["normal_minus_dropped_return"] == pytest.approx(0.4)
     assert summary["by_pair"]["7"]["critical"][
         "normal_minus_dropped_return"

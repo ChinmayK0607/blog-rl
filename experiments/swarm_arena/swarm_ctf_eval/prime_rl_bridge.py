@@ -16,7 +16,7 @@ from .multi_policy_contract import (
     validate_token_spans,
 )
 
-BranchKind = Literal["actual", "replacement", "message_drop"]
+BranchKind = Literal["actual", "replacement", "message_drop", "message_swap"]
 Phase = Literal["BROADCAST", "ACT"]
 
 
@@ -50,6 +50,8 @@ class RolloutDecision:
             branch_id = self.branch
         elif self.branch == "message_drop":
             branch_id = f"drop-message-{self.replaced_agent}"
+        elif self.branch == "message_swap":
+            branch_id = f"swap-message-{self.replaced_agent}"
         else:
             branch_id = f"replace-{self.replaced_agent}"
         return f"{self.game_id}:{branch_id}:{self.agent_id}:{self.turn}:{self.phase}"
@@ -162,6 +164,8 @@ def _validate_decision(decision: RolloutDecision) -> None:
         raise ValueError("replacement branches must name the replaced agent")
     if decision.branch == "message_drop" and decision.replaced_agent is None:
         raise ValueError("message-drop branches must name the intervened sender")
+    if decision.branch == "message_swap" and decision.replaced_agent is None:
+        raise ValueError("message-swap branches must name the intervened sender")
     if decision.allowed_token_ids:
         if len(decision.allowed_token_ids) != len(decision.completion_ids):
             raise ValueError(f"completion/constraint-row length mismatch: {decision.decision_id}")

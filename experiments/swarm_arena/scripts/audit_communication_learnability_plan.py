@@ -53,6 +53,7 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
     for pair_index in selected_pairs:
         pair = handoff["pairs"][pair_index]
         critical = pair["critical"]
+        decoy = pair["decoy"]
         audit_row = pair["matched_pair_audit"]
         worlds = {world["label"]: world["active_target"] for world in critical["worlds"]}
         pair_rows.append(
@@ -64,6 +65,9 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
                 "minimum_certified_terminal_advantage": min(
                     float(row["advantage"]) for row in critical["certificates"]
                 ),
+                "decoy_maximum_certified_advantage": max(
+                    abs(float(row["advantage"])) for row in decoy["certificates"]
+                ),
                 "private_worlds_indistinguishable": bool(
                     audit_row["critical_receiver_worlds_indistinguishable_without_message"]
                 ),
@@ -72,30 +76,44 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
             }
         )
 
-    update_blocks = [
-        schedule[index : index + groups_per_update] for index in range(0, len(schedule), groups_per_update)
-    ]
     expected_cases = {(row.pair_index, row.handoff_world) for row in schedule if row.kind == "critical"}
-    every_update_covers_all_cases = all(
-        {(row.pair_index, row.handoff_world) for row in block if row.kind == "critical"} == expected_cases
-        for block in update_blocks
-    )
     counts = Counter(row.kind for row in schedule)
+    critical_assignments = [row for row in schedule if row.kind == "critical"]
+    receiver_counts = Counter(
+        handoff["pairs"][row.pair_index]["critical"]["receiver"]
+        for row in critical_assignments
+        if row.pair_index is not None
+    )
+    sender_counts = Counter(
+        handoff["pairs"][row.pair_index]["critical"]["sender"]
+        for row in critical_assignments
+        if row.pair_index is not None
+    )
+    world_counts = Counter(row.handoff_world for row in critical_assignments)
+    role_balance = all(
+        counts_by_role and max(counts_by_role.values()) - min(counts_by_role.values()) <= 1
+        for counts_by_role in (receiver_counts, sender_counts)
+    )
+    world_balance = world_counts and max(world_counts.values()) - min(world_counts.values()) <= 1
+    all_policy_slots = set(receiver_counts) == {f"blue-{index}" for index in range(4)}
     valid = (
         len(schedule) == total_updates * groups_per_update
-        and every_update_covers_all_cases
         and counts.get("critical", 0) > 0
-        and baseline in {"leave_one_out_mean", "paired_message_drop"}
+        and baseline in {"leave_one_out_mean", "paired_message_drop", "paired_target_swap"}
+        and role_balance
+        and world_balance
+        and all_policy_slots
         and all(
             row["private_worlds_indistinguishable"]
             and row["legal_actions_match"]
             and row["message_does_not_unlock_action"]
             and row["minimum_certified_terminal_advantage"] > 0
+            and row["decoy_maximum_certified_advantage"] == 0
             for row in pair_rows
         )
     )
     return {
-        "version": "swarm-communication-learnability-plan-audit-v1",
+        "version": "swarm-communication-learnability-plan-audit-v2",
         "status": "passed" if valid else "failed",
         "curriculum": str(curriculum_path),
         "curriculum_sha256": _sha256(curriculum_path),
@@ -104,18 +122,26 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         "groups_per_update": groups_per_update,
         "group_counts": dict(sorted(counts.items())),
         "shared_return_replicas": replicas,
-        "focused_receiver_samples": len(schedule) * replicas,
+        "focused_receiver_samples": counts.get("critical", 0) * replicas,
+        "ordinary_preservation_samples": counts.get("ordinary", 0) * replicas,
         "action_prompt_profile": curriculum.get("runtime", {}).get("action_prompt_profile", "full"),
         "shared_return_baseline": baseline,
         "selected_cases": sorted(expected_cases),
-        "every_update_covers_all_selected_cases": every_update_covers_all_cases,
+        "receiver_policy_slot_counts": dict(sorted(receiver_counts.items())),
+        "sender_policy_slot_counts": dict(sorted(sender_counts.items())),
+        "world_counts": dict(sorted(world_counts.items())),
+        "role_balance_max_difference": 1,
+        "role_balance_passed": role_balance,
+        "world_balance_passed": bool(world_balance),
+        "all_receiver_policy_slots_covered": all_policy_slots,
         "pairs": pair_rows,
         "reward_contract": curriculum["reward"],
         "message_reward": curriculum["message_reward"],
         "interpretation": (
-            "This certifies task construction and terminal-reward opportunity, not that "
-            "sampled policy batches will contain non-zero advantage. The latter remains a "
-            "first-update GPU diagnostic."
+            "This certifies task construction, role/world balance, private-world "
+            "indistinguishability, unchanged legal actions, and terminal-reward opportunity. "
+            "A non-zero sampled policy advantage remains model-dependent and must pass the "
+            "first-update diagnostic before a long GPU run."
         ),
     }
 

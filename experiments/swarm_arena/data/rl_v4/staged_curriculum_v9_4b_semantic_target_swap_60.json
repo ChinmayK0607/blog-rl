@@ -1,0 +1,470 @@
+{
+  "version": "arena-rl-v4-semantic-target-swap-v9",
+  "total_updates": 60,
+  "groups_per_update": 4,
+  "reward": "verified_terminal_control_delta_only",
+  "credit_assignment": "receiver_act_centered_actual_minus_target_swapped_terminal_return",
+  "message_reward": null,
+  "initializer": "pinned_sft_not_prior_rl",
+  "scope": "role-balanced semantic receiver learning under the full interface",
+  "principles": [
+    "contrast the correct grounded target fact with a well-formed target-swapped fact",
+    "keep message count, sender, schema, prompt order, opponent, and random-key schedule matched",
+    "train only receiver ACT spans on communication groups and use terminal team return only",
+    "interleave ordinary leave-one-out return groups for tactical preservation",
+    "balance all directed roles, receiver policy slots, latent worlds, targets, and opponents",
+    "retain matched decoys for semantic specificity and keep frozen OOD untouched"
+  ],
+  "stages": [
+    {
+      "name": "semantic_full_prompt_horizon_2",
+      "updates": 10,
+      "update_pattern": [
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        },
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        },
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        },
+        {
+          "ordinary": 1,
+          "critical": 3,
+          "decoy": 0
+        },
+        {
+          "ordinary": 1,
+          "critical": 3,
+          "decoy": 0
+        }
+      ],
+      "ordinary_sizes": [
+        12,
+        13
+      ],
+      "ordinary_horizons": [
+        4,
+        5
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 2,
+      "handoff_cases": [
+        {
+          "pair_index": 12,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 12,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "right_exposed"
+        }
+      ]
+    },
+    {
+      "name": "semantic_full_prompt_horizon_3",
+      "updates": 20,
+      "update_pattern": [
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        },
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        },
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        },
+        {
+          "ordinary": 1,
+          "critical": 3,
+          "decoy": 0
+        },
+        {
+          "ordinary": 1,
+          "critical": 3,
+          "decoy": 0
+        }
+      ],
+      "ordinary_sizes": [
+        12,
+        13
+      ],
+      "ordinary_horizons": [
+        4,
+        5
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 3,
+      "handoff_cases": [
+        {
+          "pair_index": 12,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 12,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "right_exposed"
+        }
+      ]
+    },
+    {
+      "name": "semantic_full_prompt_horizon_4",
+      "updates": 30,
+      "update_pattern": [
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        },
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        },
+        {
+          "ordinary": 0,
+          "critical": 4,
+          "decoy": 0
+        },
+        {
+          "ordinary": 1,
+          "critical": 3,
+          "decoy": 0
+        },
+        {
+          "ordinary": 1,
+          "critical": 3,
+          "decoy": 0
+        }
+      ],
+      "ordinary_sizes": [
+        12,
+        13
+      ],
+      "ordinary_horizons": [
+        4,
+        5
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 4,
+      "handoff_cases": [
+        {
+          "pair_index": 12,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 12,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "right_exposed"
+        }
+      ]
+    }
+  ],
+  "runtime": {
+    "shared_return_replicas": 4,
+    "action_prompt_profile": "full",
+    "shared_return_baseline": "paired_target_swap",
+    "online_evaluation_mode": "multipair",
+    "online_eval_remaining_turns": 4
+  },
+  "online_eval_updates": [
+    0,
+    10,
+    20,
+    30,
+    40,
+    50,
+    60
+  ],
+  "online_eval_pair_indices": [
+    24,
+    28,
+    32,
+    33
+  ],
+  "primary_success_measure": "critical actual-minus-target-swapped terminal return plus receiver target-action direction on unseen training pairs",
+  "specificity_measure": "critical-minus-matched-decoy actual-minus-target-swapped lift",
+  "checkpoint_selection": "earliest full-prompt checkpoint passing semantic specificity and ordinary preservation gates",
+  "frozen_policy": "the existing frozen OOD evaluation remains byte-identical and unopened until development selection",
+  "limitation": "success establishes content-conditioned receiver learning in this simulator, not broad swarm intelligence"
+}
