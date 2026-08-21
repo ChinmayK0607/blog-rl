@@ -4706,6 +4706,93 @@ no more critical-specific than decoy-specific. Therefore:
   honest final precondition before the 60-update run.
 - GPU time/cost: none. Instance decommissioned: not applicable.
 
+### 2026-08-21 — privileged-value-function follow-up design
+
+- Reference: Venkatraman, Dinot, and Aitchison, *Le Critique: Privileged Value
+  Functions for LLM Reinforcement Learning*, arXiv:2608.16739v1
+  (`https://arxiv.org/abs/2608.16739`). The paper is unusually well matched to
+  this project: its policy experiments use Qwen3-4B-Instruct-2507 and its
+  strongest qualitative result is on a long-horizon, multi-turn environment.
+- Main opportunity: retain decentralized policy inputs and separate blue-0…3
+  LoRA policies, but train an auxiliary shared critic that sees the acting
+  agent's token prefix plus privileged simulator context. Candidate context is
+  the pre-action global graph state, agent identity/policy slot, the other
+  agents' contemporaneous private observations, and broadcasts already fixed
+  before the current action token. This can provide token-level advantages
+  without exposing privileged state to the deployed policies.
+- Admissibility boundary: the privileged context must be conditionally
+  independent of the agent's current sampled token given its policy history.
+  The critic must not see future teammate actions influenced by that token,
+  later transitions, realized terminal reward, counterfactual outcomes, or
+  future messages from the same trajectory. Use Monte-Carlo advantages
+  (`lambda_GAE = lambda_target = 1`) for the initial experiment; lower lambda
+  introduces critic-dependent bias unless the critic is exact.
+- Recommended estimator: do not replace the verified paired target-swap
+  estimator immediately. First run v9 unchanged. For a subsequent v10
+  ablation, compare (a) paired target-swap/RLOO, (b) an ordinary token critic,
+  and (c) the privileged critic while keeping policy data, reward, and
+  optimizer fixed. A TETHER-style lagged mixture can start at the group
+  baseline and move toward the critic only as held-out critic explained
+  variance improves; the mixture coefficient for batch k must be fitted only
+  after batch k's policy advantages are frozen and used on later batches.
+- Measurements: policy sample efficiency, wall-clock throughput, advantage and
+  gradient variance, critic explained variance, communication specificity,
+  receiver target use, ordinary-game regression, and compute overhead. The
+  paper's own experiments are small-scale and its value setup adds a dedicated
+  evaluator and trainer, so this is a meaningful follow-up rather than a free
+  change to the current 4xL40S run.
+- Current decision: log the design now, but keep the frozen v9 semantic
+  target-swap diagnostic and run unchanged. Otherwise a new critic would
+  confound whether the counterfactual reward estimator itself is learnable.
+
+### 2026-08-21 — v9 4B semantic-signal diagnostic and production launch
+
+- Status: the no-optimizer diagnostic completed; the 60-update production run
+  is running. Source commit
+  `802cc869cd6a794124ea685d94af939e01053e55` on 4xL40S host
+  `64.247.196.177:40299`. Base revision is
+  `cdbee75f17c01a7cc42f958dc650907174af0554`; SFT revision is
+  `d1a55d5594c8b544121e546e14229268c8c26bae`; adapter SHA-256 is
+  `168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2`.
+- Host validation: all 135 Linux tests passed. Three vLLM 0.22.0 servers passed
+  the structured serving probe. The exact resolved trainer config passed the
+  32-decision numerical calibration: mean absolute log-probability error
+  `0.0009186207`, p99 `0.0019978492`, and mean mismatch KL `0.0001179355`.
+  Bound runtime-certificate SHA-256 is
+  `2873b8ac4c518cc4f8797c41f5f34318d430354f2b50d5f3e814612f57d6091c`.
+- Learnability diagnostic: one balanced update with four critical groups, all
+  four receiver policy slots, two left/two right worlds, and eight common-random
+  replicas per group (32 actual/swapped pairs). Every receiver sample received
+  a non-zero centered advantage; 21/32 raw semantic effects were non-zero.
+  Actual target accuracy was `19/32`. Correct-target actions were `16/17`
+  among positive-advantage samples but only `3/15` among negative-advantage
+  samples. This is strong evidence that the estimator reinforces the certified
+  target and suppresses the wrong candidate rather than merely tracking return.
+  The overall mean actual-minus-swapped effect was `+.00822`; its small size is
+  expected because the initializer is directionally biased: receiver means
+  were blue-0 `-.0500`, blue-1 `+.09677`, blue-2 `-.09722`, blue-3 `+.08333`.
+  This failure symmetry is the curriculum's intended learning problem.
+- Production plan: SHA-256
+  `0f78bb77a3de8e095287f75171118fc45f2a32d2e9c99a16e4b612373f071076`;
+  60 updates / 240 groups (`216` critical, `24` ordinary), 12 directed
+  handoff pairs, four replicas, receiver ACT-only credit, horizons 2→3→4,
+  checkpoints/evaluations every ten updates. Full preflight passed. Public
+  recovery heartbeat was anonymously verified at Hub revision
+  `6e7b5fbce88f86998d85b0272adfbc03a6146e38`. Controller W&B:
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v9-semantic4b60-802cc869-controller-v1`.
+- Startup failure/recovery: the generic launcher changed `.venv` back to the
+  default `/root/.cache/uv` environment, whose trainer lacked `flash_attn`.
+  It exited before optimizer step 1. The exact log/config and hashes were
+  preserved under the run's `audit/failures/20260821T061723Z-trainer-uv-cache/`.
+  The narrow retry bypassed `uv run` and launched Torchrun plus Trainer from
+  the already-calibrated `/workspace/.uv-cache/...` environment. The recovered
+  trainer loaded the model/optimizer and entered the training loop; the frozen
+  plan, data, reward, gates, and run identity were unchanged.
+- GPU/time/cost: user supplied the node and did not provide an independently
+  verifiable hourly rate in this launch message. Software deadline was set
+  eight hours after launch with a 45-minute final-sync margin. Instance
+  decommissioned: no; production run active.
+
 ## Future entry template
 
 Copy this block for each material run:
