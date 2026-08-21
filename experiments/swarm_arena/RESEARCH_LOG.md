@@ -4843,8 +4843,26 @@ no more critical-specific than decoy-specific. Therefore:
   `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v9b-semantic4b60-34444777-controller-v1`.
 - Interpretation: v9b remains the same preregistered 60-update scientific test;
   only evaluator handling of a mathematically undefined intervention changed.
-  Real optimizer training must not be claimed until update 1 is durable.
-- Instance decommissioned: no; corrected baseline evaluation active.
+  The corrected update-0 baseline completed all 128 rows with action,
+  broadcast, and grounding validity `1.0`. Baseline critical normal return was
+  `+.02652`; normal-minus-dropped `+.00713`; normal-minus-shuffled `+.02597`;
+  normal-minus-target-swapped `-.009375`; receiver target-action was `.625`
+  normally versus `.500` with dropped messages. Target-swap eligibility was
+  `10/16` (`.625`) for both critical and decoy units; critical-minus-decoy
+  target-swap specificity was `+.03254`. Pairwise heterogeneity was material,
+  so these are starting coordinates rather than evidence of learned semantic
+  communication.
+- First optimizer update: durable controller progress step `0` was written at
+  `06:52 UTC`, corresponding to real optimizer update 1 and policy revision
+  `f4ae14ec172784b7c6de944d6d8acda609c0ebc20206739c89a424ecb89cf925`.
+  Four separate adapter hashes were recorded. All policy parity checks passed;
+  the largest mean log-probability error was `.006107` and largest mean
+  mismatch KL `.001169`. The update used LR `5e-6` and had grad norm `3.3625`.
+  Signal was sparse in this first batch: one receiver group had non-zero
+  centered counterfactual advantages, while three groups' replicas were
+  identical and centered to zero. The balanced 60-update schedule must show
+  that useful signal reaches all receiver slots by later milestones.
+- Instance decommissioned: no; production optimizer training active.
 
 ## Future entry template
 
