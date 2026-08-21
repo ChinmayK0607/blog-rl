@@ -4940,7 +4940,28 @@ no more critical-specific than decoy-specific. Therefore:
   Update 40 remains the best preregistered development checkpoint so far; do
   not prefer the latest checkpoint merely because it trained longer. Continue
   the unchanged run to update 60 to measure endpoint stability.
-- Instance decommissioned: no; production optimizer training active.
+- Final update-60 milestone: all 60 optimizer updates completed; checkpoint 60
+  and all four policy adapters were publicly mirrored. The final 128-row
+  evaluation completed in `933.19s` with all action, broadcast, and grounding
+  validity rates `1.0`. On the same 10 eligible paired critical units, normal
+  target choice was `.70`, target-swapped choice `.20`, and the semantic action
+  gap remained `+.50`. Final normal return was `+.02824`;
+  normal-minus-drop `+.01575`; normal-minus-shuffle `+.02034`; and
+  normal-minus-target-swap `+.00693`. Critical-minus-decoy target-swap
+  specificity was positive at `+.02731`; drop specificity was approximately
+  neutral/slightly negative at `-.00387`. Thus the endpoint retained the core
+  causal message-to-action behavior and a positive target-swap return effect,
+  while the matched-decoy drop effect was not stable. Update 40 remains the
+  strongest balanced development checkpoint (`+.01907` target-swap return and
+  `+.06549` swap specificity), while update 60 provides a positive endpoint
+  replication rather than a monotonic-learning claim.
+- Preservation: public Hugging Face inspection without authentication found
+  all four `264,308,896`-byte step-60 adapter files, the step-60 manifest, all
+  evaluation summaries from updates 0 through 60, and final compact progress.
+  W&B reported a successful sync of 4 files and 11 artifact files. No fatal,
+  OOM, NaN, parity-rejection, or protocol fault occurred after launch.
+- Instance decommissioned: ready after `2026-08-21T13:16:36Z`; training,
+  evaluation, public checkpoint preservation, and W&B sync complete.
 
 ## Future entry template
 
