@@ -4928,6 +4928,18 @@ no more critical-specific than decoy-specific. Therefore:
   message dependence improves action selection and terminal outcome more on
   critical than matched-decoy states. Later frozen milestones remain necessary
   to establish stability rather than selecting a transient peak.
+- Update-50 milestone: checkpoint 50 was complete and publicly mirrored before
+  its 128-row evaluation. The semantic action response persisted on the same
+  eligible paired units: normal target choice `.70`, target-swapped choice
+  `.20`, gap `+.50`. Outcome and specificity regressed from update 40, however:
+  normal return `-.00005`, normal-minus-drop `-.01254`, normal-minus-shuffle
+  `-.00060`, normal-minus-target-swap `-.02836`, drop specificity `+.00524`,
+  and target-swap specificity `-.01513`; all protocol rates remained `1.0`.
+  Interpretation: the learned message-to-action dependency is stable through
+  update 50, but its conversion into beneficial team behavior is not monotonic.
+  Update 40 remains the best preregistered development checkpoint so far; do
+  not prefer the latest checkpoint merely because it trained longer. Continue
+  the unchanged run to update 60 to measure endpoint stability.
 - Instance decommissioned: no; production optimizer training active.
 
 ## Future entry template
