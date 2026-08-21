@@ -4880,6 +4880,20 @@ no more critical-specific than decoy-specific. Therefore:
   has begun to follow message identity, but the receiver choice is not yet
   reliably converted into team return or confined to information-critical
   states. Continue the frozen run; do not tune on this development checkpoint.
+- Update-20 milestone: checkpoint 20 and its four adapters were publicly
+  mirrored before evaluation. All 128 paired rows completed with protocol
+  validity `1.0` and unchanged target-swap coverage (`10/16` eligible critical
+  units). On the same eligible units, normal target choice remained `.70` and
+  target-swapped choice fell further to `.20`, increasing the paired semantic
+  action gap from `0` at update 0 and `+.40` at update 10 to `+.50` at update
+  20. This strengthens the evidence that the receiver is conditioning its node
+  choice on the message identity. Outcome alignment is still absent: normal
+  return was `+.00438`, normal-minus-drop `-.00812`, normal-minus-shuffle
+  `-.00720`, normal-minus-target-swap `-.04577`, and critical-minus-decoy
+  target-swap specificity `-.03818`. Thus v9 has learned a causal behavioral
+  response before learning to turn that response into higher team return or
+  information-specific coordination. The frozen run continues to later
+  milestones without checkpoint-driven tuning.
 - Instance decommissioned: no; production optimizer training active.
 
 ## Future entry template
