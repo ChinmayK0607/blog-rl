@@ -4909,6 +4909,25 @@ no more critical-specific than decoy-specific. Therefore:
   intervention has not yet produced a positive terminal-return effect. The
   frozen run continues; update 30 is currently the best balanced development
   checkpoint, not a final claim.
+- Update-40 milestone: checkpoint 40 was complete and publicly mirrored before
+  its 128-row evaluation. This is the first checkpoint where the intended
+  communication effect is simultaneously positive in receiver behavior, team
+  return, and matched-decoy specificity. On the same 10 eligible paired
+  critical units, normal target choice was `.70`, target-swapped choice `.20`,
+  and the semantic action gap `+.50` versus `0` at baseline. Normal return was
+  `+.02824` (slightly above the `+.02652` baseline); normal-minus-drop
+  `+.01965`; normal-minus-shuffle `+.01667`; and, critically,
+  normal-minus-target-swap became positive at `+.01907` after remaining
+  negative through update 30. Critical-minus-decoy specificity was positive
+  for both drop (`+.02487`) and target swap (`+.06549`). Action, broadcast, and
+  grounding validity remained `1.0`; all four policy slots retained non-zero
+  advantage coverage. Training behavior was capture-heavy as intended by the
+  receiver curriculum (711/800 focused actions), but retained four action types
+  and 37 target nodes, so there was no single-action or single-target collapse.
+  Interpretation: update 40 is the first strong development result that causal
+  message dependence improves action selection and terminal outcome more on
+  critical than matched-decoy states. Later frozen milestones remain necessary
+  to establish stability rather than selecting a transient peak.
 - Instance decommissioned: no; production optimizer training active.
 
 ## Future entry template
