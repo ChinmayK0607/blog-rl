@@ -4960,6 +4960,21 @@ no more critical-specific than decoy-specific. Therefore:
   evaluation summaries from updates 0 through 60, and final compact progress.
   W&B reported a successful sync of 4 files and 11 artifact files. No fatal,
   OOM, NaN, parity-rejection, or protocol fault occurred after launch.
+- Qualitative rollout review: before decommissioning, 12 immutable training
+  evidence records at steps 39, 49, and 59 were reviewed (9 critical groups,
+  36 actual/swap replica pairs, and 3 ordinary groups). Receivers selected the
+  certified active target in 32/36 actual branches and the swapped alternate in
+  36/36 counterfactual branches; 32/36 decisions therefore changed when only
+  the sender's candidate fact changed. This confirms the semantic action effect
+  is visible in traces rather than only aggregate metrics. However, only 4/36
+  reviewed pairs changed terminal return, and those four belonged to a group
+  where the focused receiver's action itself did not change, implying a
+  teammate-mediated effect and noisy focused-agent attribution. At steps 49
+  and 59, all 24 critical pairs switched targets but had equal actual/swapped
+  returns. Ordinary preservation traces retained non-capture behavior and
+  positive returns. The compact review and record hashes are preserved in
+  `results/rl_v9b_rollout_review/final_rollout_review.json`; the full 848 MiB
+  token-level evidence file is intentionally not mirrored.
 - Instance decommissioned: ready after `2026-08-21T13:16:36Z`; training,
   evaluation, public checkpoint preservation, and W&B sync complete.
 
