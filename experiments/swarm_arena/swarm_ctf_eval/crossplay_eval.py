@@ -29,11 +29,11 @@ from .episode_protocol import (
     episode_action_prompt,
     episode_broadcast_prompt,
 )
-from .message_interventions import target_swapped_broadcast
+from .message_interventions import TargetSwapIneligibleError, target_swapped_broadcast
 from .providers import OpenAICompatibleProvider
 from .structured_protocol import STRUCTURED_PROTOCOL_VERSION, protocol_response_format
 
-CROSSPLAY_VERSION = "arena-crossplay-v5-source-prompt-bound"
+CROSSPLAY_VERSION = "arena-crossplay-v6-target-swap-eligibility"
 CONDITIONS = (
     "generated",
     "dropped",
@@ -295,6 +295,7 @@ def evaluate_crossplay(
     final = None
     initial_state = _referee_state(env)
 
+    target_swap_eligibility: dict[Team, bool | None] = {team: None for team in TEAMS}
     for turn in range(horizon):
         state = env._require_state()
         pre_state = _referee_state(env)
@@ -387,17 +388,25 @@ def evaluate_crossplay(
             team_delivered = _delivered_for_team(
                 conditions[team], members, preview, previous_accepted
             )
-            if conditions[team] == "target_swapped":
+            if conditions[team] == "target_swapped" and turn == 0:
                 if target_swap_interventions is None or team not in target_swap_interventions:
                     raise ValueError("target-swapped condition requires a certified intervention")
                 sender, targets, active_target = target_swap_interventions[team]
                 if sender not in team_delivered:
                     raise ValueError("target-swapped condition names an unknown sender")
-                team_delivered[sender] = target_swapped_broadcast(
-                    team_delivered[sender],
-                    candidate_targets=targets,
-                    active_target=active_target,
-                )
+                try:
+                    team_delivered[sender] = target_swapped_broadcast(
+                        team_delivered[sender],
+                        candidate_targets=targets,
+                        active_target=active_target,
+                    )
+                except TargetSwapIneligibleError:
+                    # An absent certified fact makes the intervention undefined,
+                    # not malformed. Preserve the sampled message and expose the
+                    # ineligible unit so paired summaries can exclude it.
+                    target_swap_eligibility[team] = False
+                else:
+                    target_swap_eligibility[team] = True
             delivered.update(team_delivered)
         phase = env.broadcast_phase(parsed_messages, delivered_broadcasts=delivered)
         previous_accepted = dict(phase.accepted)
@@ -537,6 +546,7 @@ def evaluate_crossplay(
         },
         "blue_condition": blue_condition,
         "red_condition": red_condition,
+        "target_swap_eligibility": target_swap_eligibility,
         "blue_history_window": blue_history_window,
         "red_history_window": red_history_window,
         "initial_team_value": dict(env.initial_values),

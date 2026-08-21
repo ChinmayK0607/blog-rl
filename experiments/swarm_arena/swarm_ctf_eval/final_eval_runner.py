@@ -181,6 +181,7 @@ def evaluate_final_case(
         "role_assignment": identity.role_assignment,
         "option_order": identity.option_order,
         "condition": condition,
+        "target_swap_eligible": raw["target_swap_eligibility"][focal_side],
         "sampling_key": identity.sampling_key,
         "terminal_return": raw["metrics"][focal_side]["terminal_return"],
         "messages_nonempty": nonempty,

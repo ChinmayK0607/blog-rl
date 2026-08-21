@@ -15,8 +15,8 @@ from swarm_ctf_eval.handoff_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.providers import OpenAICompatibleProvider
 from swarm_ctf_eval.structured_protocol import protocol_response_format
 
-VERSION = "pair7-semantic-communication-eval-v2"
-MULTIPAIR_VERSION = "multipair-semantic-communication-eval-v3"
+VERSION = "pair7-semantic-communication-eval-v3"
+MULTIPAIR_VERSION = "multipair-semantic-communication-eval-v4"
 CONDITIONS = ("normal", "dropped", "sender_shuffled", "target_swapped")
 
 
@@ -68,38 +68,78 @@ def _mean(rows: list[dict[str, Any]], field: str, **filters: str) -> float:
     return statistics.fmean(values) if values else 0.0
 
 
+def _target_swap_endpoint(rows: list[dict[str, Any]], *, kind: str) -> dict[str, Any]:
+    def unit_key(row: dict[str, Any]) -> tuple[int, str, str, int]:
+        return (
+            int(row.get("pair_index", 7)),
+            str(row["kind"]),
+            str(row["world"]),
+            int(row["repeat"]),
+        )
+
+    normal = {
+        unit_key(row): row
+        for row in rows
+        if row["kind"] == kind and row["condition"] == "normal"
+    }
+    swapped = [
+        row
+        for row in rows
+        if row["kind"] == kind and row["condition"] == "target_swapped"
+    ]
+    eligible = [row for row in swapped if row.get("target_swap_eligible") is True]
+    effects = [
+        float(normal[unit_key(row)]["terminal_return"]) - float(row["terminal_return"])
+        for row in eligible
+        if unit_key(row) in normal
+    ]
+    return {
+        "mean_effect": statistics.fmean(effects) if effects else None,
+        "eligible_units": len(effects),
+        "total_units": len(swapped),
+        "eligibility_rate": len(eligible) / len(swapped) if swapped else 0.0,
+        "receiver_target_action_rate": (
+            statistics.fmean(float(row["receiver_target_action"]) for row in eligible)
+            if eligible
+            else None
+        ),
+    }
+
+
 def _summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     critical_generated = _mean(rows, "terminal_return", kind="critical", condition="normal")
     critical_dropped = _mean(rows, "terminal_return", kind="critical", condition="dropped")
     critical_shuffled = _mean(
         rows, "terminal_return", kind="critical", condition="sender_shuffled"
     )
-    critical_swapped = _mean(
-        rows, "terminal_return", kind="critical", condition="target_swapped"
-    )
+    critical_swap = _target_swap_endpoint(rows, kind="critical")
     decoy_generated = _mean(rows, "terminal_return", kind="decoy", condition="normal")
     decoy_dropped = _mean(rows, "terminal_return", kind="decoy", condition="dropped")
-    decoy_swapped = _mean(
-        rows, "terminal_return", kind="decoy", condition="target_swapped"
+    decoy_swap = _target_swap_endpoint(rows, kind="decoy")
+    semantic_specificity = (
+        critical_swap["mean_effect"] - decoy_swap["mean_effect"]
+        if critical_swap["mean_effect"] is not None
+        and decoy_swap["mean_effect"] is not None
+        else None
     )
     return {
         "critical": {
             "normal_return": critical_generated,
             "normal_minus_dropped_return": critical_generated - critical_dropped,
             "normal_minus_shuffled_return": critical_generated - critical_shuffled,
-            "normal_minus_target_swapped_return": critical_generated - critical_swapped,
+            "normal_minus_target_swapped_return": critical_swap["mean_effect"],
+            "target_swap_eligible_units": critical_swap["eligible_units"],
+            "target_swap_total_units": critical_swap["total_units"],
+            "target_swap_eligibility_rate": critical_swap["eligibility_rate"],
             "normal_receiver_target_action_rate": _mean(
                 rows, "receiver_target_action", kind="critical", condition="normal"
             ),
             "dropped_receiver_target_action_rate": _mean(
                 rows, "receiver_target_action", kind="critical", condition="dropped"
             ),
-            "target_swapped_receiver_target_action_rate": _mean(
-                rows,
-                "receiver_target_action",
-                kind="critical",
-                condition="target_swapped",
-            ),
+            "target_swapped_receiver_target_action_rate": critical_swap[
+                "receiver_target_action_rate"
+            ],
             "normal_sender_target_fact_rate": _mean(
                 rows, "sender_target_fact", kind="critical", condition="normal"
             ),
@@ -109,10 +149,10 @@ def _summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 critical_generated - critical_dropped
             )
             - (decoy_generated - decoy_dropped),
-            "critical_minus_decoy_target_swapped_lift": (
-                critical_generated - critical_swapped
-            )
-            - (decoy_generated - decoy_swapped),
+            "critical_minus_decoy_target_swapped_lift": semantic_specificity,
+            "decoy_target_swap_eligible_units": decoy_swap["eligible_units"],
+            "decoy_target_swap_total_units": decoy_swap["total_units"],
+            "decoy_target_swap_eligibility_rate": decoy_swap["eligibility_rate"],
         },
         "protocol": {
             "broadcast_valid_rate": _mean(rows, "broadcast_valid"),
@@ -298,6 +338,7 @@ def main() -> None:
                             "receiver_target_action": (
                                 action["selected_action"].get("target") == world.active_target
                             ),
+                            "target_swap_eligible": row["target_swap_eligible"],
                             "broadcast_valid": row["broadcast_protocol_rate"],
                             "broadcast_grounded": row["broadcast_grounded_rate"],
                             "action_valid": row["action_protocol_rate"],

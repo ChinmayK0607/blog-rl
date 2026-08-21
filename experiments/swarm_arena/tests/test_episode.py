@@ -639,6 +639,57 @@ def test_final_eval_runner_applies_certified_target_swap() -> None:
     assert sender["delivered_message"]["facts"][0]["node"] == other_target
 
 
+def test_final_eval_runner_records_ineligible_target_swap_without_fabricating_fact() -> None:
+    class EmptyFactModel:
+        def __init__(self, name: str) -> None:
+            self.name = name
+
+        def respond(self, messages: list[dict[str, str]], oracle_target: str) -> str:
+            del oracle_target
+            body = json.loads(messages[-1]["content"])
+            if body["phase"] == "ACT":
+                return '{"action_id":"A0"}'
+            return '{"facts":[],"intent":null,"request_resource":0}'
+
+    root = Path(__file__).resolve().parents[1]
+    manifest = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    scenario = reconstruct_handoff_manifest_scenario(manifest["pairs"][12]["critical"])
+    world = scenario.worlds[0]
+    identity = FinalEvalIdentity(
+        "target-swap-ineligible",
+        "handoff_critical",
+        "candidate_rl",
+        "candidate-revision",
+        "identity",
+        "identity",
+        "canonical",
+        "opponent",
+        "opponent-revision",
+        "sample-2",
+    )
+    focal = tuple(EmptyFactModel(f"focal-{index}") for index in range(4))
+    opponents = tuple(EmptyFactModel(f"opponent-{index}") for index in range(4))
+    row, raw = evaluate_final_case(
+        focal,
+        opponents,
+        (scenario.seed, scenario.size, world.state.turn + 2),
+        identity,
+        focal_side="BLUE",
+        condition="target_swapped",
+        initial_state=world.state,
+        critical_target=world.active_target,
+        target_swap_sender=scenario.sender,
+        target_swap_targets=scenario.candidate_targets,
+        target_swap_active_target=world.active_target,
+    )
+    sender = next(
+        item for item in raw["turns"][0]["broadcasts"] if item["agent_id"] == scenario.sender
+    )
+    assert row["target_swap_eligible"] is False
+    assert raw["target_swap_eligibility"]["BLUE"] is False
+    assert sender["accepted_message"] == sender["delivered_message"]
+
+
 def test_four_policy_contract_assigns_distinct_replacement_credit_to_owned_spans() -> None:
     bindings = tuple(
         AgentPolicy(

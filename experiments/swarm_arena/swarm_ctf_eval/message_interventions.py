@@ -5,6 +5,10 @@ from dataclasses import replace
 from .arena_protocol import Broadcast
 
 
+class TargetSwapIneligibleError(ValueError):
+    """The sampled message lacks the certified fact needed for a semantic swap."""
+
+
 def target_swapped_broadcast(
     broadcast: Broadcast,
     *,
@@ -16,7 +20,9 @@ def target_swapped_broadcast(
         raise ValueError("target-swap intervention requires two targets and one active target")
     candidate_facts = [fact for fact in broadcast.facts if fact.node in candidate_targets]
     if not candidate_facts or all(fact.node != active_target for fact in candidate_facts):
-        raise ValueError("target-swap sender must broadcast the active candidate fact")
+        raise TargetSwapIneligibleError(
+            "target-swap sender must broadcast the active candidate fact"
+        )
     other_target = next(target for target in candidate_targets if target != active_target)
     target_mapping = {active_target: other_target, other_target: active_target}
     facts = tuple(

@@ -420,17 +420,20 @@ def test_pair7_summary_separates_communication_lift_from_decoy_tactics(
             ("sender_shuffled", dropped),
             ("target_swapped", dropped),
         ):
-            for _world in ("left", "right"):
+            for world in ("left", "right"):
                 rows.append(
                     {
                         "kind": kind,
                         "condition": condition,
+                        "world": world,
+                        "repeat": 0,
                         "terminal_return": value,
                         "receiver_target_action": condition == "normal",
                         "sender_target_fact": condition == "normal",
                         "broadcast_valid": 1.0,
                         "broadcast_grounded": 1.0,
                         "action_valid": 1.0,
+                        "target_swap_eligible": condition == "target_swapped",
                     }
                 )
     summary = summarize_pair7(rows)
@@ -462,16 +465,18 @@ def test_multipair_summary_preserves_per_pair_signal(tmp_path: Path) -> None:
                             "kind": kind,
                             "condition": condition,
                             "world": world,
+                            "repeat": 0,
                             "terminal_return": terminal_return,
                             "receiver_target_action": condition == "normal",
                             "sender_target_fact": condition == "normal",
                             "broadcast_valid": 1.0,
                             "broadcast_grounded": 1.0,
                             "action_valid": 1.0,
+                            "target_swap_eligible": condition == "target_swapped",
                         }
                     )
     summary = summarize_pair7(rows, (7, 9))
-    assert summary["version"] == "multipair-semantic-communication-eval-v3"
+    assert summary["version"] == "multipair-semantic-communication-eval-v4"
     assert summary["critical"]["normal_minus_dropped_return"] == pytest.approx(0.4)
     assert summary["by_pair"]["7"]["critical"][
         "normal_minus_dropped_return"
@@ -498,6 +503,39 @@ def test_multipair_summary_preserves_per_pair_signal(tmp_path: Path) -> None:
     assert metrics["eval/train_pair/normal_minus_dropped_return"] == pytest.approx(0.4)
     assert metrics["eval/train_pair/7/normal_minus_dropped_return"] == pytest.approx(0.6)
     assert metrics["eval/train_pair/9/normal_minus_dropped_return"] == pytest.approx(0.2)
+
+
+def test_semantic_summary_excludes_ineligible_target_swap_units() -> None:
+    rows = []
+    for kind in ("critical", "decoy"):
+        for world, eligible in (("left", True), ("right", False)):
+            for condition in ("normal", "dropped", "sender_shuffled", "target_swapped"):
+                rows.append(
+                    {
+                        "pair_index": 7,
+                        "kind": kind,
+                        "condition": condition,
+                        "world": world,
+                        "repeat": 0,
+                        "terminal_return": (
+                            1.0 if condition == "normal" else 0.0
+                        ),
+                        "receiver_target_action": condition == "normal",
+                        "sender_target_fact": condition == "normal",
+                        "broadcast_valid": 1.0,
+                        "broadcast_grounded": 1.0,
+                        "action_valid": 1.0,
+                        "target_swap_eligible": (
+                            eligible if condition == "target_swapped" else None
+                        ),
+                    }
+                )
+    summary = summarize_pair7(rows)
+    assert summary["critical"]["target_swap_eligible_units"] == 1
+    assert summary["critical"]["target_swap_total_units"] == 2
+    assert summary["critical"]["target_swap_eligibility_rate"] == 0.5
+    assert summary["critical"]["normal_minus_target_swapped_return"] == 1.0
+    assert summary["specificity"]["critical_minus_decoy_target_swapped_lift"] == 0.0
 
 
 def test_live_mirror_collects_compact_eval_but_not_raw_generations(tmp_path: Path) -> None:
