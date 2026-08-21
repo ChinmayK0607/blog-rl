@@ -4894,6 +4894,21 @@ no more critical-specific than decoy-specific. Therefore:
   response before learning to turn that response into higher team return or
   information-specific coordination. The frozen run continues to later
   milestones without checkpoint-driven tuning.
+- Update-30 milestone: checkpoint 30 was complete, publicly mirrored, and
+  followed by a 128-row protocol-valid evaluation. This is the first balanced
+  promising checkpoint. On the same 10 eligible paired critical units, normal
+  target choice remained `.70`, target-swapped choice was `.40`, and the causal
+  semantic action gap was `+.30` versus `0` at baseline. Normal return recovered
+  to `+.02089` (baseline `+.02652`, update 20 `+.00438`); normal-minus-drop was
+  `+.00840`; normal-minus-shuffle `+.01299`. Critical-minus-decoy specificity
+  was positive for both drop (`+.04089`) and target swap (`+.02731`). The
+  remaining caveat is outcome alignment under target swap: normal-minus-swap
+  remained negative at `-.03051`, although less negative than updates 10 and
+  20. Interpretation: message-conditioned receiver behavior, information
+  specificity, and ordinary task capability now coexist, but the semantic
+  intervention has not yet produced a positive terminal-return effect. The
+  frozen run continues; update 30 is currently the best balanced development
+  checkpoint, not a final claim.
 - Instance decommissioned: no; production optimizer training active.
 
 ## Future entry template
