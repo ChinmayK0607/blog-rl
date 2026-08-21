@@ -4749,9 +4749,16 @@ no more critical-specific than decoy-specific. Therefore:
   asynchronous value evaluator and value trainer from the policy trainer,
   carries monotonic value-weight versions, and uses bounded queues/replay for
   non-blocking rollouts. A v10 prototype should extend this implementation
-  instead of recreating critic infrastructure. The first controlled comparison
-  remains paired target-swap/RLOO versus ordinary critic versus privileged
-  critic, with identical policy data and optimizer settings.
+  instead of recreating critic infrastructure. It is not currently a drop-in
+  path for this project: the documented scope rejects LoRA, and the task-owned
+  privileged prompt is fixed for an episode rather than accepting structured
+  per-turn online state. Our v10 therefore needs an explicit compatibility
+  extension for LoRA policies and causally frozen pre-action snapshots. Swarm
+  returns also cross zero, so the default categorical `[0,1]` critic support is
+  invalid without a widened support; MSE is the simpler initial choice. The
+  first controlled comparison remains paired target-swap/RLOO versus ordinary
+  critic versus privileged critic, with identical policy data and optimizer
+  settings.
 
 ### 2026-08-21 — v9 4B semantic-signal diagnostic and production launch
 
