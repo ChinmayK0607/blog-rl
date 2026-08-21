@@ -4862,6 +4862,24 @@ no more critical-specific than decoy-specific. Therefore:
   centered counterfactual advantages, while three groups' replicas were
   identical and centered to zero. The balanced 60-update schedule must show
   that useful signal reaches all receiver slots by later milestones.
+- Update-10 milestone: checkpoint 10 was complete and anonymously verified by
+  the public mirror before evaluation. All four policies had received non-zero
+  centered semantic advantages by update 4. The 128-row paired evaluation was
+  protocol-valid (`1.0` action, broadcast, and grounding rates) and retained
+  identical target-swap eligibility to baseline (`10/16` critical and `10/16`
+  decoy units). On the paired eligible critical units, normal and swapped
+  messages both selected the original target at `.70` at update 0 (gap `0`);
+  at update 10, normal remained `.70` while target-swapped fell to `.30` (gap
+  `+.40`). This is an early causal semantic-response signal: changing only the
+  communicated candidate changed receiver behavior in the intended direction.
+  It is not yet a coordination win. Critical normal-minus-target-swapped return
+  worsened from `-.00938` to `-.05814`, normal return fell from `+.02652` to
+  `+.00633`, drop lift fell from `+.00713` to `+.00142`, shuffle lift fell from
+  `+.02597` to approximately zero, and critical-minus-decoy target-swap
+  specificity changed from `+.03254` to `-.02739`. Interpretation: the policy
+  has begun to follow message identity, but the receiver choice is not yet
+  reliably converted into team return or confined to information-critical
+  states. Continue the frozen run; do not tune on this development checkpoint.
 - Instance decommissioned: no; production optimizer training active.
 
 ## Future entry template
