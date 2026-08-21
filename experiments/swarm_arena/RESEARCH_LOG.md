@@ -4744,6 +4744,14 @@ no more critical-specific than decoy-specific. Therefore:
 - Current decision: log the design now, but keep the frozen v9 semantic
   target-swap diagnostic and run unchanged. Otherwise a new critic would
   confound whether the counterfactual reward estimator itself is learnable.
+- Implementation reference: the authors' public Prime-RL fork is
+  `https://github.com/HyperPotatoNeo/prime-values`. It already separates an
+  asynchronous value evaluator and value trainer from the policy trainer,
+  carries monotonic value-weight versions, and uses bounded queues/replay for
+  non-blocking rollouts. A v10 prototype should extend this implementation
+  instead of recreating critic infrastructure. The first controlled comparison
+  remains paired target-swap/RLOO versus ordinary critic versus privileged
+  critic, with identical policy data and optimizer settings.
 
 ### 2026-08-21 — v9 4B semantic-signal diagnostic and production launch
 
@@ -4792,6 +4800,44 @@ no more critical-specific than decoy-specific. Therefore:
   verifiable hourly rate in this launch message. Software deadline was set
   eight hours after launch with a 45-minute final-sync margin. Instance
   decommissioned: no; production run active.
+
+### 2026-08-21 — v9 evaluator rejection and corrected v9b restart
+
+- Status: running; no optimizer update had completed at the time of this log
+  entry. Corrected run identity is `rl-v9b-semantic4b60-34444777`, source
+  commit `344447776986af42a16c1344f57fda6706684113`.
+- Rejection: the first v9 run stopped during its update-0 baseline after six
+  rows, before any optimizer update. The target-swap evaluator assumed every
+  generated sender message contained the certified active candidate and raised
+  when the model omitted it. This was an evaluation eligibility bug, not a
+  training or model failure. Evidence was preserved under
+  `audit/failures/20260821T062148Z-update0-swap-ineligible/`; the earlier
+  default-UV-cache startup failure remains separately preserved under
+  `audit/failures/20260821T061723Z-trainer-uv-cache/`.
+- Fix: target swap is now attempted only on the initial handoff turn. A narrowly
+  typed ineligibility exception leaves the original message unchanged, records
+  eligibility per team, and excludes undefined paired units from semantic
+  effects rather than fabricating a fact or treating missing intervention as
+  zero. Coverage counts/rates are reported. The supervised training path still
+  fails closed if a sampled training group lacks its certified active fact.
+- Validation: changed-file Ruff passed and the complete Linux Swarm Arena suite
+  passed `137/137`. The corrected run re-used the exact validated interpreter
+  and passed numerical calibration: mean absolute log-probability error
+  `0.0009186207`, p99 `0.0019978492`, mean mismatch KL `0.0001179355`, and max
+  mismatch KL `0.0934324`. Resolved trainer config SHA-256 is
+  `2e18aa5ef7d1c576ae390a4a8f28070d157f608bef96b62d93695f16316a30aa`;
+  runtime certificate SHA-256 is
+  `d8ebab0163b82135b8691633331320f2bab89c348f5ce75cbbc08cc60276f248`;
+  frozen production-plan SHA-256 is
+  `ea2f4a628d0fd65d910caac2fa3c6ae2cb9dcc4ad90f045f9f6b9b94f52b5d29`.
+- Preservation: public recovery heartbeat was anonymously verified at Hub
+  revision `5643a8889083147f5d6d39879611be18fe575af2`; live-mirror heartbeat at
+  `d79c15a5cd022ae4652ca3100b12bb0915f35f32`. W&B controller run:
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v9b-semantic4b60-34444777-controller-v1`.
+- Interpretation: v9b remains the same preregistered 60-update scientific test;
+  only evaluator handling of a mathematically undefined intervention changed.
+  Real optimizer training must not be claimed until update 1 is durable.
+- Instance decommissioned: no; corrected baseline evaluation active.
 
 ## Future entry template
 
