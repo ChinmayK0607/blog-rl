@@ -267,6 +267,7 @@ class SharedReturnGroupEvidence:
     message_swap_turn: int | None = None
     message_swap_targets: tuple[str, str] | None = None
     message_swap_active_target: str | None = None
+    message_swap_sender_sampling_namespace: str | None = None
 
 
 @dataclass(frozen=True)
@@ -370,6 +371,10 @@ def shared_return_evidence_payload(evidence: SharedReturnGroupEvidence) -> dict[
         payload["message_swap_turn"] = evidence.message_swap_turn
         payload["message_swap_targets"] = evidence.message_swap_targets
         payload["message_swap_active_target"] = evidence.message_swap_active_target
+        if evidence.message_swap_sender_sampling_namespace is not None:
+            payload["message_swap_sender_sampling_namespace"] = (
+                evidence.message_swap_sender_sampling_namespace
+            )
         for replica_payload, replica in zip(payload["replicas"], evidence.replicas, strict=True):
             replica_payload["swapped_replay"] = (
                 _branch_payload(replica.swapped_replay) if replica.swapped_replay else None
@@ -1051,6 +1056,7 @@ def approve_shared_return_group(
                 evidence.message_swap_turn,
                 evidence.message_swap_targets,
                 evidence.message_swap_active_target,
+                evidence.message_swap_sender_sampling_namespace,
             )
         ):
             raise ValueError("message-drop evidence cannot also name a target swap")
@@ -1069,6 +1075,8 @@ def approve_shared_return_group(
             or evidence.message_swap_active_target is None
         ):
             raise ValueError("paired target-swap evidence requires complete intervention metadata")
+        if evidence.message_swap_sender_sampling_namespace == "":
+            raise ValueError("sender sampling override namespace cannot be empty")
         if evidence.message_drop_agent is not None or evidence.message_drop_turn is not None:
             raise ValueError("target-swap evidence cannot also name a message drop")
     elif any(
@@ -1080,6 +1088,7 @@ def approve_shared_return_group(
             evidence.message_swap_turn,
             evidence.message_swap_targets,
             evidence.message_swap_active_target,
+            evidence.message_swap_sender_sampling_namespace,
         )
     ):
         raise ValueError("leave-one-out evidence cannot name a message intervention")
@@ -1125,7 +1134,14 @@ def approve_shared_return_group(
                     and (absolute_turns is None or decision.turn in absolute_turns)
                 )
                 expected_namespace = (
-                    replica.sampling_namespace if independently_sampled else evidence.common_sampling_namespace
+                    evidence.message_swap_sender_sampling_namespace
+                    if evidence.message_swap_sender_sampling_namespace is not None
+                    and decision.agent_id == evidence.message_swap_agent
+                    and decision.phase == "BROADCAST"
+                    and decision.turn == evidence.message_swap_turn
+                    else replica.sampling_namespace
+                    if independently_sampled
+                    else evidence.common_sampling_namespace
                 )
                 if not decision.sampling_key.startswith(f"{expected_namespace}:"):
                     raise ValueError("focused-agent decision escaped its declared sampling namespace")

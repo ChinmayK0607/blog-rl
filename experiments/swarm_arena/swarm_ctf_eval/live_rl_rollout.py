@@ -1179,5 +1179,6 @@ async def build_live_shared_return_group(
         message_swap_turn,
         message_swap_targets,
         message_swap_active_target,
+        message_swap_sender_sampling_namespace,
     )
     return LiveSharedReturnGroup(evidence, bindings, tuple(owned_by_replica))
