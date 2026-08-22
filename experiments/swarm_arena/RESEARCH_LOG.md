@@ -5166,6 +5166,36 @@ no more critical-specific than decoy-specific. Therefore:
 - Public logging: W&B controller run
   `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v10-receiver-isolated4b60-d25505dc-controller-v1`;
   public artifact repo `CK0607/swarm-arena-live-runs`.
+- Update-40 rollout inspection before decommission: the evaluation retained
+  compact matched rows rather than full text traces, while the training
+  rescore requests retained token-exact prompts and completions. Decoding those
+  requests in place showed no formatting or legality failure. Messages were
+  grounded, actions used legal IDs, and apparent WAIT behavior was usually
+  forced by a singleton legal-action set rather than unconditional action
+  collapse.
+- Concrete semantic behavior exists. In training pair 22, blue-3 reported that
+  critical node V33 was exposed; receiver blue-1 selected `CAPTURE V33` in all
+  four replicas. Replaying only the receiver with the alternative certified
+  target fact reduced terminal return from `.16` to `.08`, a `+.08` factual
+  semantic effect. In pair 20, blue-2 reported V30 exposed and receiver blue-3
+  sometimes captured V30, but other replicas captured V32 and all had equal
+  return. Pair 21 followed the communicated V68 in only two of four replicas,
+  and either capture produced the same return. Pair 23 always captured the
+  reported exposed V20, but swapping the fact again left return unchanged.
+  Thus content-conditioned action selection is visible, while many examples
+  still lack outcome-discriminating credit.
+- The 16 critical development units are heterogeneous. Update 40's positive
+  aggregate drop/shuffle signal is materially concentrated: pair 32
+  `right_exposed`, repeat 1 has normal-minus-drop and normal-minus-shuffle
+  `+.40`; pair 28's two `left_exposed` repeats each have drop lift `+.14286`.
+  Counterexamples include pair 24 `left_exposed`, repeat 1 with drop lift
+  `-.11765`, and both pair 33 `left_exposed` repeats with `-.125`. Several
+  normal-versus-target-swapped terminal differences are zero or negative even
+  when the receiver action changes. This supports selecting update 40 for a
+  larger frozen held-out test, but rules out calling the development result a
+  robust communication win by itself. The main bottleneck is no longer syntax
+  or basic message following; it is producing broadly outcome-relevant private
+  facts and stable receiver credit across maps/opponents.
 
 ## Future entry template
 
