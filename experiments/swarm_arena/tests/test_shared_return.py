@@ -383,6 +383,30 @@ def test_receiver_only_target_swap_isolates_the_counterfactual_context() -> None
             message_swap_sender_sampling_namespace="sender-eligibility-retry-1",
         )
     )
+    control = asyncio.run(
+        build_live_shared_return_group(
+            ExposedFactGenerator(),  # type: ignore[arg-type]
+            group_id="paired-receiver-only-swap",
+            seed=critical.seed,
+            size=critical.size,
+            config=EpisodeConfig(
+                horizon=world.state.turn + 1,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            ),
+            spec=spec,
+            bindings=_bindings(),
+            policies=_endpoints(),
+            run_lock_sha256=lock.sha256,
+            initial_state=world.state,
+            focused_agent=critical.receiver,
+            message_swap_agent=critical.sender,
+            message_swap_turn=world.state.turn,
+            message_swap_targets=critical.candidate_targets,
+            message_swap_active_target=world.active_target,
+        )
+    )
     approve_shared_return_group(
         lock,
         group.evidence,
@@ -421,6 +445,19 @@ def test_receiver_only_target_swap_isolates_the_counterfactual_context() -> None
         for row in first.swapped_decisions
         if row.turn == world.state.turn
     }
+    control_actual = {
+        (row.agent_id, row.phase): row
+        for row in control.evidence.replicas[0].decisions
+        if row.turn == world.state.turn
+    }
+    assert actual[(critical.sender, "BROADCAST")].sampling_key != control_actual[
+        (critical.sender, "BROADCAST")
+    ].sampling_key
+    assert all(
+        actual[key].sampling_key == control_actual[key].sampling_key
+        for key in actual
+        if key != (critical.sender, "BROADCAST")
+    )
     assert actual[(critical.sender, "BROADCAST")].sampling_key == swapped[
         (critical.sender, "BROADCAST")
     ].sampling_key
