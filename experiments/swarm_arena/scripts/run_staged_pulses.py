@@ -88,6 +88,13 @@ def _validate_step_zero_control_config(config: dict) -> None:
         raise ValueError("step-zero candidate and baseline rosters must be identical")
 
 
+def _target_swap_scope_args(shared_return_baseline: str) -> list[str]:
+    """Keep checkpoint evaluation intervention scope identical to training."""
+    if shared_return_baseline == "paired_receiver_target_swap":
+        return ["--receiver-isolated-target-swap"]
+    return []
+
+
 def _validate_summary(path: Path, *, step: int) -> dict:
     summary = json.loads(path.read_text(encoding="utf-8"))
     if summary.get("version") != PROGRESS_EVAL_V5_VERSION:
@@ -321,6 +328,7 @@ def main() -> None:
                     command.extend(("--opponent-model", value))
                 for pair_index in pair_indices:
                     command.extend(("--pair-index", str(pair_index)))
+                command.extend(_target_swap_scope_args(plan.shared_return_baseline))
             else:
                 command = [
                     sys.executable,

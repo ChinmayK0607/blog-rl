@@ -28,6 +28,7 @@ from scripts.run_progress_eval_v4 import (
 )
 from scripts.run_staged_pulses import (
     _candidate_models,
+    _target_swap_scope_args,
     _validate_pair7_summary,
     _validate_step_zero_control_config,
     _validate_training_pair_summary,
@@ -77,6 +78,13 @@ def test_step_zero_control_requires_identical_four_model_rosters() -> None:
     config["candidate"]["models"][3] = "blue-3"
     with pytest.raises(ValueError, match="rosters must be identical"):
         _validate_step_zero_control_config(config)
+
+
+def test_staged_pulse_matches_receiver_isolated_training_scope() -> None:
+    assert _target_swap_scope_args("paired_receiver_target_swap") == [
+        "--receiver-isolated-target-swap"
+    ]
+    assert _target_swap_scope_args("paired_target_swap") == []
 
 
 def test_frozen_tier_requires_exact_design_digest() -> None:
