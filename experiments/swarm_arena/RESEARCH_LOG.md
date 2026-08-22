@@ -5113,6 +5113,16 @@ no more critical-specific than decoy-specific. Therefore:
   evaluation setting, but its new source commit must be recorded for updates
   after the recovery boundary rather than pretending the original source alone
   executed the complete trajectory.
+- Recovery retry diagnosis: the hash-verified resume reproduced the same
+  ineligible sender output at the same scheduled group, proving the failure was
+  deterministic. The next recovery therefore enables a bounded sender-only
+  eligibility retry: only the frozen sender's BROADCAST sampling namespace is
+  changed; state, prompt permutation, receiver sampling key, other agents,
+  opponent, terminal reward, and curriculum ordinal remain fixed. Retries are
+  hash-chained in `audit/target_swap_sender_retries.jsonl` and never condition
+  on receiver action or return. This changes the estimand to receiver learning
+  conditional on a defined factual handoff and cannot support a claim that the
+  sender itself learned to communicate.
 
 ## Future entry template
 

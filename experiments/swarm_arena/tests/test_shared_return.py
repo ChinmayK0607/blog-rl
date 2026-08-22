@@ -380,6 +380,7 @@ def test_receiver_only_target_swap_isolates_the_counterfactual_context() -> None
             message_swap_turn=world.state.turn,
             message_swap_targets=critical.candidate_targets,
             message_swap_active_target=world.active_target,
+            message_swap_sender_sampling_namespace="sender-eligibility-retry-1",
         )
     )
     approve_shared_return_group(
@@ -420,6 +421,9 @@ def test_receiver_only_target_swap_isolates_the_counterfactual_context() -> None
         for row in first.swapped_decisions
         if row.turn == world.state.turn
     }
+    assert actual[(critical.sender, "BROADCAST")].sampling_key == swapped[
+        (critical.sender, "BROADCAST")
+    ].sampling_key
     assert actual[(critical.receiver, "ACT")].context_sha256 != swapped[
         (critical.receiver, "ACT")
     ].context_sha256

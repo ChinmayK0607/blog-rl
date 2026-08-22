@@ -473,6 +473,9 @@ async def rollout_branch(
     independently_sampled_agent: str | None = None,
     prompt_namespace: str | None = None,
     focused_action_prompt_agent: str | None = None,
+    broadcast_sampling_override_agent: str | None = None,
+    broadcast_sampling_override_turn: int | None = None,
+    broadcast_sampling_override_namespace: str | None = None,
 ) -> BranchRollout:
     interventions = sum(
         value is not None for value in (replaced_agent, message_drop_agent, message_swap_agent)
@@ -495,8 +498,24 @@ async def rollout_branch(
         raise ValueError("receiver-only message swap requires distinct sender and receiver")
     if (common_sampling_namespace is None) != (independently_sampled_agent is None):
         raise ValueError("focused sampling requires a common namespace and one independent agent")
+    override_fields = (
+        broadcast_sampling_override_agent,
+        broadcast_sampling_override_turn,
+        broadcast_sampling_override_namespace,
+    )
+    if any(value is not None for value in override_fields) != all(
+        value is not None for value in override_fields
+    ):
+        raise ValueError("broadcast sampling override requires agent, turn, and namespace")
 
     def decision_namespace(agent_id: str, turn: int, phase: Phase) -> str:
+        if (
+            phase == "BROADCAST"
+            and agent_id == broadcast_sampling_override_agent
+            and turn == broadcast_sampling_override_turn
+        ):
+            assert broadcast_sampling_override_namespace is not None
+            return broadcast_sampling_override_namespace
         independently_sampled = (
             independently_sampled_agent == agent_id
             and phase in sample_phases
@@ -930,6 +949,7 @@ async def build_live_shared_return_group(
     message_swap_turn: int | None = None,
     message_swap_targets: tuple[str, str] | None = None,
     message_swap_active_target: str | None = None,
+    message_swap_sender_sampling_namespace: str | None = None,
 ) -> LiveSharedReturnGroup:
     """Sample joint trajectories for shared or focused LOO terminal-return credit."""
     spec.validate()
@@ -980,6 +1000,8 @@ async def build_live_shared_return_group(
         )
     ):
         raise ValueError("non-swap credit cannot name a target-swap intervention")
+    if message_swap_sender_sampling_namespace is not None and message_swap_agent is None:
+        raise ValueError("sender sampling override requires a target-swap intervention")
     base_namespace = sampling_namespace or group_id
     common_sampling_namespace = f"{base_namespace}:common" if spec.credit_assignment == "focused_agent" else None
     focused_action_prompt_agent = (
@@ -1012,6 +1034,13 @@ async def build_live_shared_return_group(
                     independently_sampled_agent=focused_agent,
                     prompt_namespace=common_sampling_namespace,
                     focused_action_prompt_agent=focused_action_prompt_agent,
+                    broadcast_sampling_override_agent=(
+                        message_swap_agent if message_swap_sender_sampling_namespace is not None else None
+                    ),
+                    broadcast_sampling_override_turn=(
+                        message_swap_turn if message_swap_sender_sampling_namespace is not None else None
+                    ),
+                    broadcast_sampling_override_namespace=message_swap_sender_sampling_namespace,
                 )
                 for index in range(spec.replicas)
             )
@@ -1076,6 +1105,13 @@ async def build_live_shared_return_group(
                         independently_sampled_agent=focused_agent,
                         prompt_namespace=common_sampling_namespace,
                         focused_action_prompt_agent=focused_action_prompt_agent,
+                        broadcast_sampling_override_agent=(
+                            message_swap_agent if message_swap_sender_sampling_namespace is not None else None
+                        ),
+                        broadcast_sampling_override_turn=(
+                            message_swap_turn if message_swap_sender_sampling_namespace is not None else None
+                        ),
+                        broadcast_sampling_override_namespace=message_swap_sender_sampling_namespace,
                     )
                     for index in range(spec.replicas)
                 )

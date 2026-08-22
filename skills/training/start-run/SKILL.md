@@ -86,6 +86,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   identities in the sender's delivered facts and candidate-target intent, then
   independently replays both branches. Require the generated sender message to
   contain the active candidate fact; missing/uncertified facts fail the group.
+  A receiver-learnability run may explicitly enable bounded sender-only
+  eligibility retries. Such a retry changes only that sender's broadcast
+  sampling key while keeping state, prompts, receiver sampling, teammate and
+  opponent decisions, and reward fixed. Log every retry and never condition on
+  action or return. This measures receiver learning conditional on a defined
+  factual handoff; it is not evidence that the sender learned to communicate.
   Center actual-minus-swapped verified terminal returns across replicas and
   route only the actual receiver ACT spans. Ordinary preservation groups under
   the same plan use the ordinary leave-one-out terminal-return baseline; never

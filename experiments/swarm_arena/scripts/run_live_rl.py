@@ -36,6 +36,7 @@ from swarm_ctf_eval.live_rl_rollout import (
     protocol_constraint_sha256,
 )
 from swarm_ctf_eval.message_credit_audit import message_credit_audit_record
+from swarm_ctf_eval.message_interventions import TargetSwapIneligibleError
 from swarm_ctf_eval.multi_policy_contract import AgentPolicy
 from swarm_ctf_eval.prime_multi_run_router import (
     PolicyRunRoute,
@@ -384,6 +385,15 @@ async def main() -> None:
             "the trainer's matching stable four-policy broadcast"
         ),
     )
+    parser.add_argument(
+        "--target-swap-sender-retries",
+        type=int,
+        default=0,
+        help=(
+            "boundedly resample only the frozen sender broadcast when a paired "
+            "target-swap counterfactual is undefined"
+        ),
+    )
     parser.add_argument("--rollout-only", action="store_true")
     parser.add_argument(
         "--horizon",
@@ -408,6 +418,8 @@ async def main() -> None:
         parser.error("the vLLM actor requires at least one --base-url")
     if args.curriculum_offset < 0:
         parser.error("curriculum offset cannot be negative")
+    if args.target_swap_sender_retries < 0:
+        parser.error("target-swap sender retries cannot be negative")
     if args.horizon is not None and args.horizon < 1:
         parser.error("horizon must be positive")
     if args.rollout_only and args.steps != 1:
@@ -505,6 +517,14 @@ async def main() -> None:
                 else args.shared_return_action_prompt_profile
             ),
         )
+    if args.target_swap_sender_retries and (
+        shared_return_spec is None
+        or shared_return_spec.baseline not in {
+            "paired_target_swap",
+            "paired_receiver_target_swap",
+        }
+    ):
+        parser.error("target-swap sender retries require a paired target-swap baseline")
     data_binding = resolve_task_data_binding(args.data_dir, args.task_data_version)
     base_urls = tuple(args.base_url)
     key = signing_key(args.output_dir / "control" / "supervisor.key")
@@ -908,62 +928,83 @@ async def main() -> None:
                 )
                 if args.credit_estimator == "shared_return":
                     assert group_shared_return_spec is not None
-                    group = await build_live_shared_return_group(
-                        generator,
-                        group_id=game_id,
-                        seed=seed,
-                        size=size,
-                        config=episode_config,
-                        spec=group_shared_return_spec,
-                        bindings=bindings,
-                        policies=policies,
-                        run_lock_sha256=lock.sha256,
-                        initial_state=initial_state,
-                        sampling_namespace=sampling_namespace,
-                        focused_agent=focused_agent,
-                        message_drop_agent=(
-                            str(scenario_metadata["sender"])
-                            if group_shared_return_spec.baseline == "paired_message_drop"
-                            else None
-                        ),
-                        message_drop_turn=(
-                            initial_state.turn
-                            if group_shared_return_spec.baseline == "paired_message_drop"
-                            else None
-                        ),
-                        message_swap_agent=(
-                            str(scenario_metadata["sender"])
-                            if group_shared_return_spec.baseline in {
-                                "paired_target_swap",
-                                "paired_receiver_target_swap",
-                            }
-                            else None
-                        ),
-                        message_swap_turn=(
-                            initial_state.turn
-                            if group_shared_return_spec.baseline in {
-                                "paired_target_swap",
-                                "paired_receiver_target_swap",
-                            }
-                            else None
-                        ),
-                        message_swap_targets=(
-                            tuple(str(value) for value in scenario_metadata["candidate_targets"])
-                            if group_shared_return_spec.baseline in {
-                                "paired_target_swap",
-                                "paired_receiver_target_swap",
-                            }
-                            else None
-                        ),
-                        message_swap_active_target=(
-                            str(scenario_metadata["active_target"])
-                            if group_shared_return_spec.baseline in {
-                                "paired_target_swap",
-                                "paired_receiver_target_swap",
-                            }
-                            else None
-                        ),
-                    )
+                    sender_retry = 0
+                    while True:
+                        sender_sampling_namespace = (
+                            None
+                            if sender_retry == 0
+                            else f"{sampling_namespace}:target-swap-sender-retry-{sender_retry}"
+                        )
+                        try:
+                            group = await build_live_shared_return_group(
+                                generator,
+                                group_id=game_id,
+                                seed=seed,
+                                size=size,
+                                config=episode_config,
+                                spec=group_shared_return_spec,
+                                bindings=bindings,
+                                policies=policies,
+                                run_lock_sha256=lock.sha256,
+                                initial_state=initial_state,
+                                sampling_namespace=sampling_namespace,
+                                focused_agent=focused_agent,
+                                message_drop_agent=(
+                                    str(scenario_metadata["sender"])
+                                    if group_shared_return_spec.baseline == "paired_message_drop"
+                                    else None
+                                ),
+                                message_drop_turn=(
+                                    initial_state.turn
+                                    if group_shared_return_spec.baseline == "paired_message_drop"
+                                    else None
+                                ),
+                                message_swap_agent=(
+                                    str(scenario_metadata["sender"])
+                                    if group_shared_return_spec.baseline
+                                    in {"paired_target_swap", "paired_receiver_target_swap"}
+                                    else None
+                                ),
+                                message_swap_turn=(
+                                    initial_state.turn
+                                    if group_shared_return_spec.baseline
+                                    in {"paired_target_swap", "paired_receiver_target_swap"}
+                                    else None
+                                ),
+                                message_swap_targets=(
+                                    tuple(str(value) for value in scenario_metadata["candidate_targets"])
+                                    if group_shared_return_spec.baseline
+                                    in {"paired_target_swap", "paired_receiver_target_swap"}
+                                    else None
+                                ),
+                                message_swap_active_target=(
+                                    str(scenario_metadata["active_target"])
+                                    if group_shared_return_spec.baseline
+                                    in {"paired_target_swap", "paired_receiver_target_swap"}
+                                    else None
+                                ),
+                                message_swap_sender_sampling_namespace=sender_sampling_namespace,
+                            )
+                        except TargetSwapIneligibleError as error:
+                            if sender_retry >= args.target_swap_sender_retries:
+                                raise
+                            sender_retry += 1
+                            append_hash_chained_record(
+                                args.output_dir / "audit" / "target_swap_sender_retries.jsonl",
+                                {
+                                    "game_id": game_id,
+                                    "reason": str(error),
+                                    "retry": sender_retry,
+                                    "sender": scenario_metadata["sender"],
+                                    "sender_sampling_namespace": (
+                                        f"{sampling_namespace}:target-swap-sender-retry-{sender_retry}"
+                                    ),
+                                    "step": step,
+                                },
+                            )
+                            continue
+                        break
+                    scenario_metadata["target_swap_sender_retries"] = sender_retry
                     approvals = approve_shared_return_group(lock, group.evidence, bindings, "BLUE", key)
                     replica_routes = tuple(
                         route_approved_samples(
