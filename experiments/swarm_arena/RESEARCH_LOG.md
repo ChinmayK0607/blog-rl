@@ -5123,6 +5123,49 @@ no more critical-specific than decoy-specific. Therefore:
   on receiver action or return. This changes the estimand to receiver learning
   conditional on a defined factual handoff and cannot support a claim that the
   sender itself learned to communicate.
+- Recovery completion: source `952bd50e80049e4cef9667e616790c0239c6494b`
+  resumed from the four hash-verified step-24 adapters. The failed scheduled
+  sender needed three bounded broadcast-only retries before producing the
+  certified fact. Update 25 then committed atomically; all four rollout/trainer
+  parity checks passed (maximum mean mismatch KL `0.000713372`). No further
+  eligibility retry, OOM, NaN, parity rejection, or controller failure occurred.
+- Final v10 result: all 60 optimizer updates and the 128-row update-60 pulse
+  completed. All checkpoints `[10, 20, 30, 40, 50, 60]` are present in the
+  healthy public mirror, and the controller synced four W&B files plus eleven
+  artifact files. The step-60 ready-record SHA-256 is
+  `afc862ba67241f5f30b6a9ddc5efd858c4d0d61fdab09bc0b4c64e60fa4d1547`.
+  Final adapter SHA-256 values are blue-0 `7d26d4bf27af3fd5791bd8fa20fab50fa5cecadc63d2b6ba588eb57902150382`,
+  blue-1 `aa36c3f6ed1de5d1303eefaf1433a38be38ed2860fa0c8f2ca23c780dbd592b9`,
+  blue-2 `f6e4da9e76c0b55a423c6c7af1a944c71cc286837acd8b6912dea243c929be4e`,
+  and blue-3 `6c8be5ba5dde74221f616cf3284be8dc8b6ce58d28c01caf881ac7042f136b8e`.
+- Checkpoint trajectory (`update | normal return | normal-drop | normal-shuffle |
+  normal-target-swap | normal target rate | swapped target rate | drop
+  specificity | swap specificity`):
+
+  ```text
+   0 | +.01759 | +.00142 | +.02230 | -.01526 | .6250 | .7000 | +.00348 | -.00313
+  10 | +.02322 | +.01073 | -.00697 | -.02090 | .6250 | .3000 | -.01240 | +.00373
+  20 | +.01353 | +.01365 | -.02377 | -.05983 | .6250 | .4545 | +.00896 | -.03446
+  30 | +.02903 | +.02546 | -.01642 | -.04853 | .6875 | .2000 | -.00153 | -.01176
+  40 | +.04202 | +.03189 | +.02504 | -.02925 | .6875 | .2000 | +.04716 | +.04280
+  50 | +.01799 | +.00419 | -.01610 | -.02650 | .6875 | .2000 | -.01644 | -.00312
+  60 | -.00359 | +.00660 | -.01618 | -.01212 | .6875 | .4545 | -.01518 | -.04286
+  ```
+- Selection and interpretation: update 40 is the preregistered-development
+  winner, not the final checkpoint. It is the only checkpoint where normal
+  return, drop lift, shuffle lift, and both matched-decoy specificity measures
+  are simultaneously positive; receiver target selection is `.6875` normally
+  versus `.2000` under the receiver-only swapped fact. This is promising
+  evidence of a transient learned message-conditioned coordination policy, but
+  it is not yet confirmatory: normal-minus-target-swapped terminal return stays
+  negative (`-.02925`), the development screen has only 16 critical units, and
+  performance regresses after update 40. The held-out frozen evaluation must
+  compare the selected update-40 checkpoint against update 0/SFT without
+  selecting again on held-out outcomes. The late collapse also makes early
+  stopping and broader pair coverage necessary in the next run.
+- Public logging: W&B controller run
+  `https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v10-receiver-isolated4b60-d25505dc-controller-v1`;
+  public artifact repo `CK0607/swarm-arena-live-runs`.
 
 ## Future entry template
 
