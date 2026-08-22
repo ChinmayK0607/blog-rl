@@ -639,6 +639,85 @@ def test_final_eval_runner_applies_certified_target_swap() -> None:
     assert sender["delivered_message"]["facts"][0]["node"] == other_target
 
 
+def test_final_eval_runner_can_isolate_target_swap_to_receiver() -> None:
+    class ExposedFactModel:
+        def __init__(self, name: str) -> None:
+            self.name = name
+
+        def respond(self, messages: list[dict[str, str]], oracle_target: str) -> str:
+            del oracle_target
+            body = json.loads(messages[-1]["content"])
+            if body["phase"] == "ACT":
+                return '{"action_id":"A0"}'
+            exposed = next(
+                (
+                    fact
+                    for fact in body["observation"]["known_nodes"]
+                    if fact["status"] == "EXPOSED"
+                ),
+                None,
+            )
+            return json.dumps(
+                {
+                    "facts": [exposed] if exposed is not None else [],
+                    "intent": None,
+                    "request_resource": 0,
+                },
+                separators=(",", ":"),
+            )
+
+    root = Path(__file__).resolve().parents[1]
+    manifest = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    scenario = reconstruct_handoff_manifest_scenario(manifest["pairs"][12]["critical"])
+    world = scenario.worlds[0]
+    identity = FinalEvalIdentity(
+        "receiver-target-swap-smoke",
+        "handoff_critical",
+        "candidate_rl",
+        "candidate-revision",
+        "identity",
+        "identity",
+        "canonical",
+        "opponent",
+        "opponent-revision",
+        "sample-receiver-only",
+    )
+    focal = tuple(ExposedFactModel(f"focal-{index}") for index in range(4))
+    opponents = tuple(ExposedFactModel(f"opponent-{index}") for index in range(4))
+    row, raw = evaluate_final_case(
+        focal,
+        opponents,
+        (scenario.seed, scenario.size, world.state.turn + 1),
+        identity,
+        focal_side="BLUE",
+        condition="target_swapped",
+        initial_state=world.state,
+        critical_target=world.active_target,
+        target_swap_sender=scenario.sender,
+        target_swap_targets=scenario.candidate_targets,
+        target_swap_active_target=world.active_target,
+        target_swap_receiver=scenario.receiver,
+    )
+    other_target = next(
+        target for target in scenario.candidate_targets if target != world.active_target
+    )
+    sender = next(
+        item for item in raw["turns"][0]["broadcasts"] if item["agent_id"] == scenario.sender
+    )
+    assert row["target_swap_scope"] == "receiver_only"
+    assert sender["accepted_message"] == sender["delivered_message"]
+    receiver_action = next(
+        item for item in raw["turns"][0]["actions"] if item["agent_id"] == scenario.receiver
+    )
+    receiver_prompt = json.loads(receiver_action["prompt_messages"][-1]["content"])
+    sender_inbox = next(
+        item
+        for item in receiver_prompt["observation"]["inbox"]
+        if item["sender"] == scenario.sender
+    )
+    assert sender_inbox["broadcast"]["facts"][0]["node"] == other_target
+
+
 def test_final_eval_runner_records_ineligible_target_swap_without_fabricating_fact() -> None:
     class EmptyFactModel:
         def __init__(self, name: str) -> None:

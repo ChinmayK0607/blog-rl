@@ -466,6 +466,7 @@ async def rollout_branch(
     message_swap_turn: int | None = None,
     message_swap_targets: tuple[str, str] | None = None,
     message_swap_active_target: str | None = None,
+    message_swap_receiver: str | None = None,
     sample_phases: frozenset[Phase] = frozenset({"BROADCAST", "ACT"}),
     sample_turns: frozenset[int] | None = None,
     common_sampling_namespace: str | None = None,
@@ -488,6 +489,10 @@ async def rollout_branch(
     )
     if any(value is not None for value in swap_fields) != all(value is not None for value in swap_fields):
         raise ValueError("message swap requires sender, turn, candidates, and active target")
+    if message_swap_receiver is not None and message_swap_agent is None:
+        raise ValueError("receiver-only message swap requires a sender intervention")
+    if message_swap_receiver is not None and message_swap_receiver == message_swap_agent:
+        raise ValueError("receiver-only message swap requires distinct sender and receiver")
     if (common_sampling_namespace is None) != (independently_sampled_agent is None):
         raise ValueError("focused sampling requires a common namespace and one independent agent")
 
@@ -589,6 +594,7 @@ async def rollout_branch(
             trajectory_index += 1
 
         delivered = dict(broadcasts)
+        receiver_delivery_overrides: dict[str, dict[str, Broadcast]] = {}
         if message_drop_agent is not None and turn == message_drop_turn:
             if message_drop_agent not in delivered:
                 raise ValueError(f"unknown message-drop sender: {message_drop_agent}")
@@ -597,12 +603,22 @@ async def rollout_branch(
             if message_swap_agent not in delivered:
                 raise ValueError(f"unknown message-swap sender: {message_swap_agent}")
             assert message_swap_targets is not None and message_swap_active_target is not None
-            delivered[message_swap_agent] = target_swapped_broadcast(
+            swapped_message = target_swapped_broadcast(
                 delivered[message_swap_agent],
                 candidate_targets=message_swap_targets,
                 active_target=message_swap_active_target,
             )
-        phase = env.broadcast_phase(broadcasts, delivered_broadcasts=delivered)
+            if message_swap_receiver is None:
+                delivered[message_swap_agent] = swapped_message
+            else:
+                receiver_delivery_overrides = {
+                    message_swap_receiver: {message_swap_agent: swapped_message}
+                }
+        phase = env.broadcast_phase(
+            broadcasts,
+            delivered_broadcasts=delivered,
+            receiver_delivery_overrides=receiver_delivery_overrides,
+        )
         action_contexts = env.action_observations()
         action_jobs = []
         action_metadata = []
@@ -682,6 +698,10 @@ async def rollout_branch(
                 tuple(sorted(actions.items())),
                 pre_state_sha256,
                 _state_sha256(env._require_state()),
+                tuple(
+                    (receiver, tuple(sorted(overrides.items())))
+                    for receiver, overrides in sorted(receiver_delivery_overrides.items())
+                ),
             )
         )
         if final.terminated or final.truncated:
@@ -937,7 +957,7 @@ async def build_live_shared_return_group(
             raise ValueError("paired message-drop credit requires a distinct trainable sender")
         if message_drop_turn is None:
             raise ValueError("paired message-drop credit requires an intervention turn")
-    elif spec.baseline == "paired_target_swap":
+    elif spec.baseline in {"paired_target_swap", "paired_receiver_target_swap"}:
         if message_swap_agent not in trainable_agents or message_swap_agent == focused_agent:
             raise ValueError("paired target-swap credit requires a distinct trainable sender")
         if (
@@ -950,7 +970,7 @@ async def build_live_shared_return_group(
         message_drop_agent is not None or message_drop_turn is not None
     ):
         raise ValueError("non-drop credit cannot name a message-drop intervention")
-    if spec.baseline != "paired_target_swap" and any(
+    if spec.baseline not in {"paired_target_swap", "paired_receiver_target_swap"} and any(
         value is not None
         for value in (
             message_swap_agent,
@@ -1036,11 +1056,20 @@ async def build_live_shared_return_group(
                         policies=policy_by_id,
                         replacement_policy_id=None,
                         replaced_agent=None,
-                        sampling_namespace=f"{replica_namespaces[index]}:swap",
+                        sampling_namespace=(
+                            replica_namespaces[index]
+                            if spec.baseline == "paired_receiver_target_swap"
+                            else f"{replica_namespaces[index]}:swap"
+                        ),
                         message_swap_agent=message_swap_agent,
                         message_swap_turn=message_swap_turn,
                         message_swap_targets=message_swap_targets,
                         message_swap_active_target=message_swap_active_target,
+                        message_swap_receiver=(
+                            focused_agent
+                            if spec.baseline == "paired_receiver_target_swap"
+                            else None
+                        ),
                         sample_phases=phases,
                         sample_turns=absolute_turns,
                         common_sampling_namespace=common_sampling_namespace,
@@ -1051,7 +1080,7 @@ async def build_live_shared_return_group(
                     for index in range(spec.replicas)
                 )
             )
-            if spec.baseline == "paired_target_swap"
+            if spec.baseline in {"paired_target_swap", "paired_receiver_target_swap"}
             else (None,) * spec.replicas
         )
 

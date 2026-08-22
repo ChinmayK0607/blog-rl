@@ -83,6 +83,7 @@ def evaluate_final_case(
     target_swap_sender: str | None = None,
     target_swap_targets: tuple[str, str] | None = None,
     target_swap_active_target: str | None = None,
+    target_swap_receiver: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     if condition not in {*COMMUNICATION_CONDITIONS, "target_swapped"}:
         raise ValueError(f"unknown final-eval condition: {condition}")
@@ -91,6 +92,8 @@ def evaluate_final_case(
         raise ValueError("target-swapped evaluation requires complete intervention metadata")
     if condition != "target_swapped" and any(value is not None for value in swap_fields):
         raise ValueError("non-swap evaluation cannot bind a target-swap intervention")
+    if target_swap_receiver is not None and condition != "target_swapped":
+        raise ValueError("non-swap evaluation cannot bind a target-swap receiver")
     handoff_suites = {"critical", "decoy", "handoff_critical", "handoff_decoy"}
     if identity.suite in handoff_suites and initial_state is None:
         raise ValueError("critical and decoy evaluation require a frozen initial state")
@@ -134,6 +137,10 @@ def evaluate_final_case(
     if target_swap_sender is not None:
         sender_index = int(target_swap_sender.split("-", 1)[1])
         resolved_swap_sender = f"{focal_side.lower()}-{role_assignment[sender_index]}"
+    resolved_swap_receiver = None
+    if target_swap_receiver is not None:
+        receiver_index = int(target_swap_receiver.split("-", 1)[1])
+        resolved_swap_receiver = f"{focal_side.lower()}-{role_assignment[receiver_index]}"
     raw = evaluate_crossplay(
         blue,
         red,
@@ -154,6 +161,11 @@ def evaluate_final_case(
                 )
             }
             if condition == "target_swapped"
+            else None
+        ),
+        target_swap_receivers=(
+            {focal_side: resolved_swap_receiver}
+            if resolved_swap_receiver is not None
             else None
         ),
     )
@@ -182,6 +194,9 @@ def evaluate_final_case(
         "option_order": identity.option_order,
         "condition": condition,
         "target_swap_eligible": raw["target_swap_eligibility"][focal_side],
+        "target_swap_scope": (
+            "receiver_only" if target_swap_receiver is not None else "team"
+        ) if condition == "target_swapped" else None,
         "sampling_key": identity.sampling_key,
         "terminal_return": raw["metrics"][focal_side]["terminal_return"],
         "messages_nonempty": nonempty,

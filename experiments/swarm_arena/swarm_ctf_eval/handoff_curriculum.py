@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import itertools
 import json
 import statistics
 from collections import defaultdict
@@ -466,6 +467,81 @@ def matched_pair_audit(
         **_mechanical_invariants(critical),
     }
     return result
+
+
+def exhaustive_receiver_target_separation(scenario: HandoffScenario) -> dict[str, object]:
+    """Certify the one-turn value of the informed target under every teammate action.
+
+    The opponent remains one of the three immutable deterministic audit styles. The
+    other same-team agents range over every legal joint action. Only the receiver's
+    action changes between the factual and target-swapped branches, matching the
+    receiver-isolated rollout intervention.
+    """
+    if scenario.kind != "critical":
+        raise ValueError("terminal target separation is defined only for critical scenarios")
+    rows = []
+    for world in scenario.worlds:
+        alternate_target = next(
+            target for target in scenario.candidate_targets if target != world.active_target
+        )
+        teammate_ids = sorted(
+            agent.id
+            for agent in world.state.agents.values()
+            if agent.team == scenario.team and agent.id != scenario.receiver
+        )
+        teammate_action_sets = tuple(
+            legal_actions(world.state, agent_id) for agent_id in teammate_ids
+        )
+        for teammate_actions in itertools.product(*teammate_action_sets):
+            fixed_teammates = dict(zip(teammate_ids, teammate_actions, strict=True))
+            for style in OPPONENT_STYLES:
+                rival_actions = deterministic_policy(
+                    world.state,
+                    opponent(scenario.team),
+                    style,
+                )
+                factual = step(
+                    world.state,
+                    {
+                        **rival_actions,
+                        **fixed_teammates,
+                        scenario.receiver: Action("CAPTURE", world.active_target),
+                    },
+                )
+                swapped = step(
+                    world.state,
+                    {
+                        **rival_actions,
+                        **fixed_teammates,
+                        scenario.receiver: Action("CAPTURE", alternate_target),
+                    },
+                )
+                factual_value = terminal_control_delta(
+                    world.state,
+                    factual.state,
+                    scenario.team,
+                )
+                swapped_value = terminal_control_delta(
+                    world.state,
+                    swapped.state,
+                    scenario.team,
+                )
+                rows.append(
+                    {
+                        "world": world.label,
+                        "opponent_style": style,
+                        "advantage": factual_value - swapped_value,
+                    }
+                )
+    advantages = tuple(float(row["advantage"]) for row in rows)
+    return {
+        "joint_action_evaluations": len(rows),
+        "minimum_advantage": min(advantages),
+        "maximum_advantage": max(advantages),
+        "all_strictly_positive": all(value > 1e-12 for value in advantages),
+        "worlds": sorted({str(row["world"]) for row in rows}),
+        "opponent_styles": sorted({str(row["opponent_style"]) for row in rows}),
+    }
 
 
 def generate_pair(

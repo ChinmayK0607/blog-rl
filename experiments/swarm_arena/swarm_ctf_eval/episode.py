@@ -49,6 +49,7 @@ class BroadcastPhase:
     inboxes: dict[str, tuple[dict[str, Any], ...]]
     accepted: dict[str, Broadcast]
     delivered: dict[str, Broadcast]
+    receiver_deliveries: dict[str, dict[str, Broadcast]]
     errors: dict[str, tuple[str, ...]]
     message_units: dict[str, int]
     remaining_budget: dict[str, int]
@@ -170,6 +171,7 @@ class ArenaEpisodeEnv:
         broadcasts: dict[str, Broadcast],
         *,
         delivered_broadcasts: dict[str, Broadcast] | None = None,
+        receiver_delivery_overrides: dict[str, dict[str, Broadcast]] | None = None,
     ) -> BroadcastPhase:
         state = self._require_state()
         if self._phase is not None:
@@ -220,13 +222,38 @@ class ArenaEpisodeEnv:
                 agent_id: delivered_broadcasts.get(agent_id, EMPTY_BROADCAST) for agent_id in sorted(state.agents)
             }
 
+        receiver_deliveries = {
+            receiver: dict(delivered) for receiver in sorted(state.agents)
+        }
+        if receiver_delivery_overrides is not None:
+            unknown_receivers = set(receiver_delivery_overrides) - set(state.agents)
+            if unknown_receivers:
+                raise ValueError(
+                    "receiver delivery overrides contain unknown agents: "
+                    f"{sorted(unknown_receivers)}"
+                )
+            for receiver, overrides in receiver_delivery_overrides.items():
+                unknown_senders = set(overrides) - set(state.agents)
+                if unknown_senders:
+                    raise ValueError(
+                        "receiver delivery overrides contain unknown senders: "
+                        f"{sorted(unknown_senders)}"
+                    )
+                receiver_team = state.agents[receiver].team
+                for sender, message in overrides.items():
+                    if not isinstance(message, Broadcast):
+                        raise TypeError("receiver delivery overrides must contain Broadcast values")
+                    if sender == receiver or state.agents[sender].team != receiver_team:
+                        raise ValueError("receiver delivery overrides must name a same-team peer")
+                    receiver_deliveries[receiver][sender] = message
+
         shared_fact_updates = {agent_id: 0 for agent_id in state.agents}
         for receiver, receiver_state in sorted(state.agents.items()):
             memory = state.knowledge[receiver]
             for sender, sender_state in sorted(state.agents.items()):
                 if sender == receiver or sender_state.team != receiver_state.team:
                     continue
-                for fact in delivered[sender].facts:
+                for fact in receiver_deliveries[receiver][sender].facts:
                     previous = memory.get(fact.node)
                     if previous is None or fact.observed_turn > previous.observed_turn:
                         memory[fact.node] = fact
@@ -235,16 +262,17 @@ class ArenaEpisodeEnv:
         inboxes = {}
         for receiver, receiver_state in sorted(state.agents.items()):
             inboxes[receiver] = tuple(
-                {"sender": sender, "broadcast": delivered[sender].to_dict()}
+                {"sender": sender, "broadcast": receiver_deliveries[receiver][sender].to_dict()}
                 for sender, sender_state in sorted(state.agents.items())
                 if sender_state.team == receiver_state.team
                 and sender != receiver
-                and delivered[sender] != EMPTY_BROADCAST
+                and receiver_deliveries[receiver][sender] != EMPTY_BROADCAST
             )
         self._phase = BroadcastPhase(
             inboxes,
             accepted,
             delivered,
+            receiver_deliveries,
             errors,
             units,
             dict(self.remaining_budget),

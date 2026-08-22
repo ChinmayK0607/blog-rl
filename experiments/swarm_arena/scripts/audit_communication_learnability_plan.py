@@ -7,6 +7,10 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from swarm_ctf_eval.handoff_curriculum import (
+    exhaustive_receiver_target_separation,
+    reconstruct_manifest_scenario,
+)
 from swarm_ctf_eval.rl_production import (
     CurriculumMix,
     CurriculumStage,
@@ -48,6 +52,14 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
     )
     replicas = int(curriculum.get("runtime", {}).get("shared_return_replicas", 4))
     baseline = str(curriculum.get("runtime", {}).get("shared_return_baseline", "leave_one_out_mean"))
+    require_receiver_isolation = bool(
+        curriculum.get("runtime", {}).get("require_receiver_isolation", False)
+    )
+    remaining_turns = tuple(
+        int(row["handoff_remaining_turns"])
+        for row in curriculum["stages"]
+        if row.get("handoff_remaining_turns") is not None
+    )
     selected_pairs = sorted({row.pair_index for row in schedule if row.pair_index is not None})
     pair_rows = []
     for pair_index in selected_pairs:
@@ -55,6 +67,9 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         critical = pair["critical"]
         decoy = pair["decoy"]
         audit_row = pair["matched_pair_audit"]
+        separation = exhaustive_receiver_target_separation(
+            reconstruct_manifest_scenario(critical)
+        )
         worlds = {world["label"]: world["active_target"] for world in critical["worlds"]}
         pair_rows.append(
             {
@@ -73,6 +88,7 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
                 ),
                 "legal_actions_match": bool(audit_row["receiver_action_sets_match_across_worlds"]),
                 "message_does_not_unlock_action": bool(audit_row["message_does_not_change_receiver_legal_actions"]),
+                "receiver_isolated_one_turn_separation": separation,
             }
         )
 
@@ -99,7 +115,24 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
     valid = (
         len(schedule) == total_updates * groups_per_update
         and counts.get("critical", 0) > 0
-        and baseline in {"leave_one_out_mean", "paired_message_drop", "paired_target_swap"}
+        and baseline in {
+            "leave_one_out_mean",
+            "paired_message_drop",
+            "paired_target_swap",
+            "paired_receiver_target_swap",
+        }
+        and (
+            not require_receiver_isolation
+            or baseline == "paired_receiver_target_swap"
+        )
+        and (
+            not require_receiver_isolation
+            or (
+                remaining_turns
+                and remaining_turns[0] == 1
+                and tuple(sorted(remaining_turns)) == remaining_turns
+            )
+        )
         and role_balance
         and world_balance
         and all_policy_slots
@@ -109,11 +142,14 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
             and row["message_does_not_unlock_action"]
             and row["minimum_certified_terminal_advantage"] > 0
             and row["decoy_maximum_certified_advantage"] == 0
+            and bool(
+                row["receiver_isolated_one_turn_separation"]["all_strictly_positive"]
+            )
             for row in pair_rows
         )
     )
     return {
-        "version": "swarm-communication-learnability-plan-audit-v2",
+        "version": "swarm-communication-learnability-plan-audit-v3",
         "status": "passed" if valid else "failed",
         "curriculum": str(curriculum_path),
         "curriculum_sha256": _sha256(curriculum_path),
@@ -126,6 +162,8 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         "ordinary_preservation_samples": counts.get("ordinary", 0) * replicas,
         "action_prompt_profile": curriculum.get("runtime", {}).get("action_prompt_profile", "full"),
         "shared_return_baseline": baseline,
+        "receiver_isolation_required": require_receiver_isolation,
+        "handoff_remaining_turns": list(remaining_turns),
         "selected_cases": sorted(expected_cases),
         "receiver_policy_slot_counts": dict(sorted(receiver_counts.items())),
         "sender_policy_slot_counts": dict(sorted(sender_counts.items())),
@@ -140,6 +178,9 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         "interpretation": (
             "This certifies task construction, role/world balance, private-world "
             "indistinguishability, unchanged legal actions, and terminal-reward opportunity. "
+            "When receiver isolation is required, it additionally exhausts every legal "
+            "same-team joint action under all three opponent audit styles and requires a "
+            "strict one-turn factual-target advantage. "
             "A non-zero sampled policy advantage remains model-dependent and must pass the "
             "first-update diagnostic before a long GPU run."
         ),

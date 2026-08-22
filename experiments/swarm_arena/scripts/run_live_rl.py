@@ -801,7 +801,10 @@ async def main() -> None:
                     scenario_metadata["focused_phase"] = focused_phase
                 if (
                     group_shared_return_spec is not None
-                    and group_shared_return_spec.baseline == "paired_target_swap"
+                    and group_shared_return_spec.baseline in {
+                        "paired_target_swap",
+                        "paired_receiver_target_swap",
+                    }
                     and scenario_metadata["source"] == "ordinary"
                 ):
                     group_shared_return_spec = replace(
@@ -844,22 +847,34 @@ async def main() -> None:
                         ),
                         message_swap_agent=(
                             str(scenario_metadata["sender"])
-                            if group_shared_return_spec.baseline == "paired_target_swap"
+                            if group_shared_return_spec.baseline in {
+                                "paired_target_swap",
+                                "paired_receiver_target_swap",
+                            }
                             else None
                         ),
                         message_swap_turn=(
                             initial_state.turn
-                            if group_shared_return_spec.baseline == "paired_target_swap"
+                            if group_shared_return_spec.baseline in {
+                                "paired_target_swap",
+                                "paired_receiver_target_swap",
+                            }
                             else None
                         ),
                         message_swap_targets=(
                             tuple(str(value) for value in scenario_metadata["candidate_targets"])
-                            if group_shared_return_spec.baseline == "paired_target_swap"
+                            if group_shared_return_spec.baseline in {
+                                "paired_target_swap",
+                                "paired_receiver_target_swap",
+                            }
                             else None
                         ),
                         message_swap_active_target=(
                             str(scenario_metadata["active_target"])
-                            if group_shared_return_spec.baseline == "paired_target_swap"
+                            if group_shared_return_spec.baseline in {
+                                "paired_target_swap",
+                                "paired_receiver_target_swap",
+                            }
                             else None
                         ),
                     )

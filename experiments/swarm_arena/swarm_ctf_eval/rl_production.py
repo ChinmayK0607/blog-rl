@@ -375,7 +375,10 @@ class ProductionPlan:
     shared_return_replicas: int = 4
     action_prompt_profile: Literal["full", "focused_handoff_compact"] = "full"
     shared_return_baseline: Literal[
-        "leave_one_out_mean", "paired_message_drop", "paired_target_swap"
+        "leave_one_out_mean",
+        "paired_message_drop",
+        "paired_target_swap",
+        "paired_receiver_target_swap",
     ] = "leave_one_out_mean"
 
     def validate(self) -> None:
@@ -436,9 +439,14 @@ class ProductionPlan:
             "leave_one_out_mean",
             "paired_message_drop",
             "paired_target_swap",
+            "paired_receiver_target_swap",
         }:
             raise ValueError("production plan contains an unknown shared-return baseline")
-        if self.shared_return_baseline in {"paired_message_drop", "paired_target_swap"} and (
+        if self.shared_return_baseline in {
+            "paired_message_drop",
+            "paired_target_swap",
+            "paired_receiver_target_swap",
+        } and (
             self.trainable_phases != ("ACT",)
         ):
             raise ValueError("paired message-intervention plans require receiver ACT-only training")

@@ -208,6 +208,11 @@ def main() -> None:
         choices=("full", "focused_handoff_compact"),
         default="full",
     )
+    parser.add_argument(
+        "--receiver-isolated-target-swap",
+        action="store_true",
+        help="deliver the swapped fact only to the certified receiver",
+    )
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
     if len(args.focal_model) != 4 or len(args.opponent_model) != 4:
@@ -236,6 +241,9 @@ def main() -> None:
         "repetitions": args.repetitions,
         "temperature": args.temperature,
         "receiver_action_prompt_profile": args.receiver_action_prompt_profile,
+        "target_swap_scope": (
+            "receiver_only" if args.receiver_isolated_target_swap else "team"
+        ),
         "claim_boundary": "training-pair learnability, not held-out communication generalization",
     }
     bound = {**body, "sha256": _digest(body)}
@@ -314,6 +322,12 @@ def main() -> None:
                             ),
                             target_swap_active_target=(
                                 world.active_target if condition == "target_swapped" else None
+                            ),
+                            target_swap_receiver=(
+                                scenario.receiver
+                                if condition == "target_swapped"
+                                and args.receiver_isolated_target_swap
+                                else None
                             ),
                         )
                         broadcast = _turn_zero(raw, "broadcasts", scenario.sender)

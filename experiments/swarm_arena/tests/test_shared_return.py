@@ -344,6 +344,117 @@ def test_paired_target_swap_is_replayed_and_routes_only_the_receiver() -> None:
         )
 
 
+def test_receiver_only_target_swap_isolates_the_counterfactual_context() -> None:
+    root = Path(__file__).resolve().parents[1]
+    manifest = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    critical = reconstruct_manifest_scenario(manifest["pairs"][12]["critical"])
+    world = critical.worlds[0]
+    spec = SharedReturnSpec(
+        replicas=2,
+        trainable_phases=("ACT",),
+        trainable_turn_offsets=(0,),
+        baseline="paired_receiver_target_swap",
+        credit_assignment="focused_agent",
+        action_prompt_profile="focused_handoff_compact",
+    )
+    lock = _lock(spec)
+    group = asyncio.run(
+        build_live_shared_return_group(
+            ExposedFactGenerator(),  # type: ignore[arg-type]
+            group_id="paired-receiver-only-swap",
+            seed=critical.seed,
+            size=critical.size,
+            config=EpisodeConfig(
+                horizon=world.state.turn + 1,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            ),
+            spec=spec,
+            bindings=_bindings(),
+            policies=_endpoints(),
+            run_lock_sha256=lock.sha256,
+            initial_state=world.state,
+            focused_agent=critical.receiver,
+            message_swap_agent=critical.sender,
+            message_swap_turn=world.state.turn,
+            message_swap_targets=critical.candidate_targets,
+            message_swap_active_target=world.active_target,
+        )
+    )
+    approve_shared_return_group(
+        lock,
+        group.evidence,
+        _bindings(),
+        "BLUE",
+        b"shared-return-test-signing-key-32-bytes",
+    )
+
+    first = group.evidence.replicas[0]
+    assert first.swapped_replay is not None
+    actual_turn = first.replay.turns[0]
+    swapped_turn = first.swapped_replay.turns[0]
+    assert swapped_turn.delivered_broadcasts == actual_turn.delivered_broadcasts
+    overrides = {
+        receiver: dict(values)
+        for receiver, values in swapped_turn.receiver_delivery_overrides
+    }
+    actual_sender_message = dict(actual_turn.delivered_broadcasts)[critical.sender]
+    assert overrides == {
+        critical.receiver: {
+            critical.sender: target_swapped_broadcast(
+                actual_sender_message,
+                candidate_targets=critical.candidate_targets,
+                active_target=world.active_target,
+            )
+        }
+    }
+
+    actual = {
+        (row.agent_id, row.phase): row
+        for row in first.decisions
+        if row.turn == world.state.turn
+    }
+    swapped = {
+        (row.agent_id, row.phase): row
+        for row in first.swapped_decisions
+        if row.turn == world.state.turn
+    }
+    assert actual[(critical.receiver, "ACT")].context_sha256 != swapped[
+        (critical.receiver, "ACT")
+    ].context_sha256
+    assert actual[(critical.receiver, "ACT")].sampling_key == swapped[
+        (critical.receiver, "ACT")
+    ].sampling_key
+    assert all(
+        actual[key].context_sha256 == swapped[key].context_sha256
+        and actual[key].output_sha256 == swapped[key].output_sha256
+        for key in actual
+        if key != (critical.receiver, "ACT")
+    )
+    tampered_replica = replace(
+        first,
+        swapped_replay=replace(
+            first.swapped_replay,
+            turns=(
+                replace(swapped_turn, receiver_delivery_overrides=()),
+                *first.swapped_replay.turns[1:],
+            ),
+        ),
+    )
+    with pytest.raises(ValueError):
+        approve_shared_return_group(
+            lock,
+            replace(
+                group.evidence,
+                replicas=(tampered_replica, *group.evidence.replicas[1:]),
+            ),
+            _bindings(),
+            "BLUE",
+            b"shared-return-test-signing-key-32-bytes",
+        )
+
+
 def test_compact_prompt_profile_is_bound_without_changing_legacy_spec_identity() -> None:
     legacy = SharedReturnSpec(replicas=4)
     assert legacy.sha256 == canonical_sha256(

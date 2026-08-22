@@ -33,6 +33,11 @@ def test_information_changes_choice_without_unlocking_actions() -> None:
             actions[world.label] == Action("CAPTURE", world.active_target).to_dict()
             for world in critical.worlds
         )
+    separation = handoff_curriculum.exhaustive_receiver_target_separation(critical)
+    assert separation["all_strictly_positive"] is True
+    assert separation["minimum_advantage"] > 0
+    assert separation["worlds"] == ["left_exposed", "right_exposed"]
+    assert separation["opponent_styles"] == ["aggressive", "balanced", "defensive"]
 
 
 def test_manifest_balances_all_ordered_roles_on_hard_maps() -> None:

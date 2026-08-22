@@ -1,0 +1,53 @@
+{
+  "version": "swarm-communication-learnability-plan-audit-v3-compact",
+  "status": "passed",
+  "curriculum": "experiments/swarm_arena/data/rl_v4/staged_curriculum_v10_4b_receiver_isolated_60.json",
+  "curriculum_sha256": "ed6a7e1074403233c6ef78dc57137df61197f8b25ec278082bb8655f19922bfb",
+  "handoff_manifest_sha256": "a5c3eba07055f1afb7129a031e0954a454fa3a4f1b31704174b699b54c77967b",
+  "updates": 60,
+  "groups_per_update": 4,
+  "group_counts": {
+    "critical": 228,
+    "ordinary": 12
+  },
+  "shared_return_replicas": 4,
+  "focused_receiver_samples": 912,
+  "ordinary_preservation_samples": 48,
+  "shared_return_baseline": "paired_receiver_target_swap",
+  "receiver_isolation_required": true,
+  "handoff_remaining_turns": [1, 2, 3],
+  "selected_pair_indices": [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+  "selected_worlds_per_pair": ["left_exposed", "right_exposed"],
+  "receiver_policy_slot_counts": {
+    "blue-0": 57,
+    "blue-1": 57,
+    "blue-2": 57,
+    "blue-3": 57
+  },
+  "sender_policy_slot_counts": {
+    "blue-0": 57,
+    "blue-1": 57,
+    "blue-2": 57,
+    "blue-3": 57
+  },
+  "world_counts": {
+    "left_exposed": 114,
+    "right_exposed": 114
+  },
+  "mechanical_invariants": {
+    "private_worlds_indistinguishable_without_message": true,
+    "receiver_action_sets_match_across_worlds": true,
+    "message_does_not_change_receiver_legal_actions": true,
+    "matched_decoy_certified_advantage_zero": true
+  },
+  "receiver_isolated_one_turn_certificate": {
+    "all_12_pairs_pass": true,
+    "legal_teammate_joint_action_and_opponent_evaluations": 492,
+    "opponent_styles": ["aggressive", "balanced", "defensive"],
+    "global_minimum_factual_target_advantage": 0.10256410256410256,
+    "global_maximum_factual_target_advantage": 0.15999999999999998,
+    "all_strictly_positive": true
+  },
+  "claim": "For the one-turn warmup, changing only the credited receiver's inbox from the factual target to the alternate target creates a strictly positive terminal-value contrast for every legal teammate joint action and every frozen opponent audit style.",
+  "non_claim": "This construction certificate does not assert that sampled model actions provide nonzero advantages at every update or that longer-horizon communication learning will generalize."
+}

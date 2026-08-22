@@ -251,6 +251,7 @@ def evaluate_crossplay(
     turn_zero_required_facts: dict[str, NodeObservation] | None = None,
     action_prompt_profiles: dict[str, ActionPromptProfile] | None = None,
     target_swap_interventions: dict[Team, tuple[str, tuple[str, str], str]] | None = None,
+    target_swap_receivers: dict[Team, str] | None = None,
 ) -> dict[str, Any]:
     if blue_condition not in CONDITIONS or red_condition not in CONDITIONS:
         raise ValueError("unknown communication condition")
@@ -383,6 +384,7 @@ def evaluate_crossplay(
 
         preview = _preview_accepted(env, parsed_messages)
         delivered: dict[str, Broadcast] = {}
+        receiver_delivery_overrides: dict[str, dict[str, Broadcast]] = {}
         for team in TEAMS:
             members = _members(env, team)
             team_delivered = _delivered_for_team(
@@ -395,7 +397,7 @@ def evaluate_crossplay(
                 if sender not in team_delivered:
                     raise ValueError("target-swapped condition names an unknown sender")
                 try:
-                    team_delivered[sender] = target_swapped_broadcast(
+                    swapped_message = target_swapped_broadcast(
                         team_delivered[sender],
                         candidate_targets=targets,
                         active_target=active_target,
@@ -407,8 +409,27 @@ def evaluate_crossplay(
                     target_swap_eligibility[team] = False
                 else:
                     target_swap_eligibility[team] = True
+                    receiver = (
+                        target_swap_receivers.get(team)
+                        if target_swap_receivers is not None
+                        else None
+                    )
+                    if receiver is None:
+                        team_delivered[sender] = swapped_message
+                    else:
+                        if receiver not in members or receiver == sender:
+                            raise ValueError(
+                                "receiver-only target swap names an invalid teammate"
+                            )
+                        receiver_delivery_overrides[receiver] = {
+                            sender: swapped_message
+                        }
             delivered.update(team_delivered)
-        phase = env.broadcast_phase(parsed_messages, delivered_broadcasts=delivered)
+        phase = env.broadcast_phase(
+            parsed_messages,
+            delivered_broadcasts=delivered,
+            receiver_delivery_overrides=receiver_delivery_overrides,
+        )
         previous_accepted = dict(phase.accepted)
         for row in broadcast_rows:
             agent_id = row["agent_id"]

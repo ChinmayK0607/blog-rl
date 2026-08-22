@@ -4978,6 +4978,60 @@ no more critical-specific than decoy-specific. Therefore:
 - Instance decommissioned: ready after `2026-08-21T13:16:36Z`; training,
   evaluation, public checkpoint preservation, and W&B sync complete.
 
+### 2026-08-22 — v10 receiver-isolated semantic curriculum
+
+- Status: CPU implementation and construction audit passed; GPU learnability
+  smoke test not yet run.
+- Diagnosis addressed: v9b changed the sender's delivered fact for the entire
+  team but routed the resulting terminal contrast only to one focused receiver.
+  The rollout review showed why that was insufficient: 32/36 receiver choices
+  reacted to the fact, yet only 4/36 terminal returns changed, and those four
+  changes were mediated by teammates while the focused action stayed fixed.
+- Intervention fix: added the versioned
+  `paired_receiver_target_swap` baseline. The accepted broadcast remains
+  factual for the simulator and every other teammate; only the certified
+  receiver's inbox receives the well-formed alternate-target fact. At the
+  intervention turn, the supervisor now requires every non-receiver private
+  context and decoded output to be byte-identical across branches, while the
+  receiver ACT context must differ. The receiver uses the same sampling key in
+  both branches, removing sampling noise from the paired contrast. Replay
+  verification reconstructs the receiver-specific delivery rather than
+  trusting rollout metadata.
+- Reward contract: unchanged verified terminal team return only. There is no
+  message reward, target-action reward, heuristic shaping, or supervised
+  broadcast target. Only the receiver's factual-branch ACT tokens are trained;
+  the target-swapped branch supplies a paired terminal-return baseline.
+- Terminal distinguishability: added an exhaustive one-turn certificate over
+  every legal joint action of the other three BLUE agents and the frozen
+  balanced/aggressive/defensive opponent policies. All 12 selected directed
+  sender/receiver pairs passed all 492 joint-action/style evaluations. The
+  factual-target action beats the alternate-target action in every cell, with
+  minimum advantage `0.1025641` and maximum `0.16`.
+- Curriculum: v10 uses 10 one-turn warmup updates, 20 two-turn transfer
+  updates, and 30 three-turn transfer updates. Across 60 updates it contains
+  228 critical groups and 12 ordinary preservation groups, four replicas per
+  group, exact left/right world balance (`114/114`), and exact sender and
+  receiver policy-slot balance (`57` critical groups per slot). Matched decoys
+  remain evaluation-only, preventing the optimizer from learning a decoy
+  classification shortcut.
+- Evaluation: the development runner now supports an explicitly bound
+  receiver-only target-swap scope. The old global target-swap behavior remains
+  available for reproducing v9b, and the frozen OOD data was not edited.
+- Verification: all 139 Linux-independent Swarm Arena tests passed locally,
+  including receiver-only inbox delivery, replay reconstruction, supervisor
+  isolation checks, final-eval routing, exhaustive terminal separation, and
+  all legacy behavior. The disposable macOS test environment lived under
+  `/private/tmp`; no model/checkpoint artifacts were added to the Mac.
+- Frozen preparation artifacts:
+  `data/rl_v4/staged_curriculum_v10_4b_receiver_isolated_60.json` and its
+  compact audit. Curriculum SHA-256:
+  `ed6a7e1074403233c6ef78dc57137df61197f8b25ec278082bb8655f19922bfb`.
+- Next action: run a short 4B rollout-only/update-0 screen and 10-update
+  learnability test. Proceed to the full 60-update schedule only if the
+  receiver-isolated contrast yields nonzero policy advantages and improves
+  unseen-pair receiver action and terminal-return endpoints without ordinary
+  regression.
+
 ## Future entry template
 
 Copy this block for each material run:
