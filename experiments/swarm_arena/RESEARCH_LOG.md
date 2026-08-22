@@ -5090,6 +5090,29 @@ no more critical-specific than decoy-specific. Therefore:
   every ten updates, and the controller logs online to W&B run
   `rl-v10-receiver-isolated4b60-d25505dc-controller-v1`. A detached recurring
   watcher checks process/GPU/log/mirror health without modifying the run.
+- Update-24 controller failure: 24 atomic optimizer updates completed and the
+  four stable trainer broadcasts at step 24 remained coherent, but the next
+  scheduled group failed before trainer admission because its sampled sender
+  message omitted the certified active candidate fact. The supervised
+  `paired_receiver_target_swap` path correctly raised
+  `TargetSwapIneligibleError`; no partial update 25 was applied. The pulse
+  worker later timed out waiting for step 30 as a secondary consequence.
+  Failure evidence was preserved under
+  `audit/failures/20260822T074348Z-step24-target-swap-ineligible/`; the preserved
+  progress SHA-256 is
+  `5f298a0a68a33c764904cb74db1bd92556916ca24e1788d33cb6534ff8a0a226`.
+  Public checkpoints 10 and 20 remain valid. The detached watcher detected the
+  missing controller but only logged it, leaving resident GPU allocations idle;
+  that is an operational failure, not a scientific result.
+- Prospective recovery: add an explicit controller resume mode that accepts
+  only contiguous durable progress, verifies all four recorded policy hashes
+  against the trainer's matching stable broadcast, rebinds live serving aliases
+  to those exact adapters, and resumes at the next curriculum ordinal. Archive
+  incomplete step-24 rescore files and retain the failed group records. The
+  recovery changes no model, optimizer, reward, curriculum, intervention, or
+  evaluation setting, but its new source commit must be recorded for updates
+  after the recovery boundary rather than pretending the original source alone
+  executed the complete trajectory.
 
 ## Future entry template
 

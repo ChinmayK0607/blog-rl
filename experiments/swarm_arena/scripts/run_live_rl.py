@@ -78,6 +78,57 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def load_resume_progress(output_dir: Path, *, total_steps: int) -> list[dict[str, object]]:
+    progress_path = output_dir / "live_rl_progress.json"
+    if not progress_path.is_file():
+        raise FileNotFoundError(f"resume progress does not exist: {progress_path}")
+    rows = json.loads(progress_path.read_text(encoding="utf-8"))
+    if not isinstance(rows, list) or not rows:
+        raise ValueError("resume progress must contain at least one completed update")
+    expected_steps = list(range(len(rows)))
+    actual_steps = [row.get("step") if isinstance(row, dict) else None for row in rows]
+    if actual_steps != expected_steps:
+        raise ValueError("resume progress steps must be contiguous from zero")
+    if len(rows) >= total_steps:
+        raise ValueError("resume progress already reached the requested update count")
+    policy_hashes = rows[-1].get("policy_adapter_sha256")
+    if not isinstance(policy_hashes, dict) or set(policy_hashes) != {
+        "blue-0",
+        "blue-1",
+        "blue-2",
+        "blue-3",
+    }:
+        raise ValueError("resume progress is missing the complete four-policy adapter set")
+    if any(not isinstance(value, str) or len(value) != 64 for value in policy_hashes.values()):
+        raise ValueError("resume progress contains an invalid policy adapter digest")
+    return rows
+
+
+def resume_adapter_paths(
+    output_dir: Path,
+    *,
+    completed_steps: int,
+    expected_sha256: dict[str, str],
+) -> dict[str, Path]:
+    paths = {
+        f"blue-{index}": get_step_path(
+            get_broadcast_dir(output_dir / f"run_blue_{index}"),
+            completed_steps,
+        )
+        for index in range(4)
+    }
+    for name, path in paths.items():
+        if not (path / "STABLE").is_file():
+            raise FileNotFoundError(f"resume adapter is not stable for {name}: {path}")
+        actual = sha256_file(path / "adapter_model.safetensors")
+        if actual != expected_sha256[name]:
+            raise ValueError(
+                f"resume adapter checksum mismatch for {name}: "
+                f"expected {expected_sha256[name]}, got {actual}"
+            )
+    return paths
+
+
 def signing_key(path: Path) -> bytes:
     if path.exists():
         key = path.read_bytes()
@@ -325,6 +376,14 @@ async def main() -> None:
         default="alternating",
     )
     parser.add_argument("--curriculum-offset", type=int, default=0)
+    parser.add_argument(
+        "--resume-existing-progress",
+        action="store_true",
+        help=(
+            "resume a stopped controller from its contiguous progress file and "
+            "the trainer's matching stable four-policy broadcast"
+        ),
+    )
     parser.add_argument("--rollout-only", action="store_true")
     parser.add_argument(
         "--horizon",
@@ -353,6 +412,8 @@ async def main() -> None:
         parser.error("horizon must be positive")
     if args.rollout_only and args.steps != 1:
         parser.error("rollout-only diagnostics require exactly one controller step")
+    if args.rollout_only and args.resume_existing_progress:
+        parser.error("rollout-only diagnostics cannot resume optimizer progress")
     if (args.checkpoint_barrier_dir is None) != (args.checkpoint_barrier_interval is None):
         parser.error("checkpoint barrier directory and interval must be provided together")
     if args.checkpoint_barrier_interval is not None and (
@@ -449,6 +510,21 @@ async def main() -> None:
     key = signing_key(args.output_dir / "control" / "supervisor.key")
     initial_revision = args.initial_policy_revision
     initial_adapter_sha256 = sha256_file(args.initial_adapter / "adapter_model.safetensors")
+    result_rows: list[dict[str, object]] = []
+    start_step = 0
+    resume_paths: dict[str, Path] = {}
+    if args.resume_existing_progress:
+        result_rows = load_resume_progress(args.output_dir, total_steps=args.steps)
+        start_step = len(result_rows)
+        resumed_hashes = {
+            str(name): str(value)
+            for name, value in dict(result_rows[-1]["policy_adapter_sha256"]).items()
+        }
+        resume_paths = resume_adapter_paths(
+            args.output_dir,
+            completed_steps=start_step,
+            expected_sha256=resumed_hashes,
+        )
     adapter_names = tuple(f"blue-{index}" for index in range(4)) + ("sft-opponent",)
     if production_plan is not None:
         adapter_names = tuple(f"blue-{index}" for index in range(4)) + tuple(
@@ -460,7 +536,11 @@ async def main() -> None:
         adapter_names += (args.replacement_model_name,)
     if args.actor == "vllm":
         for name in tuple(f"blue-{index}" for index in range(4)):
-            await replace_adapter(base_urls, name, args.initial_adapter)
+            await replace_adapter(
+                base_urls,
+                name,
+                resume_paths[name] if args.resume_existing_progress else args.initial_adapter,
+            )
         if production_plan is None:
             await replace_adapter(base_urls, "sft-opponent", args.initial_adapter)
         else:
@@ -564,7 +644,6 @@ async def main() -> None:
             args.async_rescore_dir,
             timeout=args.async_rescore_timeout,
         )
-    result_rows = []
     curriculum = None
     if args.scenario_source == "curriculum" or production_plan is not None:
         manifest_path = args.data_dir / data_binding.curriculum_manifest(args.curriculum_split)
@@ -572,9 +651,16 @@ async def main() -> None:
         if not curriculum.get("pairs"):
             raise ValueError(f"empty curriculum manifest: {manifest_path}")
     async with generator_context as generator:
-        policy_revisions = {f"blue-{index}": initial_revision for index in range(4)}
-        policy_adapter_sha256 = {f"blue-{index}": initial_adapter_sha256 for index in range(4)}
-        if args.checkpoint_barrier_dir is not None:
+        if args.resume_existing_progress:
+            policy_adapter_sha256 = {
+                str(name): str(value)
+                for name, value in dict(result_rows[-1]["policy_adapter_sha256"]).items()
+            }
+            policy_revisions = dict(policy_adapter_sha256)
+        else:
+            policy_revisions = {f"blue-{index}": initial_revision for index in range(4)}
+            policy_adapter_sha256 = {f"blue-{index}": initial_adapter_sha256 for index in range(4)}
+        if args.checkpoint_barrier_dir is not None and not args.resume_existing_progress:
             assert production_plan is not None
             await checkpoint_barrier(
                 args.checkpoint_barrier_dir,
@@ -585,7 +671,7 @@ async def main() -> None:
                 policy_revision=canonical_sha256(policy_revisions),
                 timeout=args.checkpoint_barrier_timeout,
             )
-        for step in range(args.steps):
+        for step in range(start_step, args.steps):
             if production_plan is not None:
                 assert args.async_rescore_dir is not None
                 write_current_snapshot_manifest(

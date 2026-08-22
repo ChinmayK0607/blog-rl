@@ -44,6 +44,14 @@ upload only an explicit safe allowlist, and anonymously download and hash-check
 every complete adapter checkpoint. Do not include credentials, logs, W&B files,
 or unresolved configs in a public upload.
 
+For a paid Swarm Arena run, a missing controller session plus unchanged durable
+progress for two watcher intervals is actionable downtime, even when trainer
+and inference processes remain resident and no CUDA fault appears. Preserve the
+traceback and progress hashes immediately, classify whether the failure occurred
+before or after an atomic optimizer update, and execute the already authorized
+recovery path. A watcher that only increments an error count while GPUs remain
+allocated is not a recovery system.
+
 ### Evaluation completion and summary recovery
 
 Treat durable row generation and summary aggregation as separate milestones.

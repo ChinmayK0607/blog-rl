@@ -90,6 +90,16 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   route only the actual receiver ACT spans. Ordinary preservation groups under
   the same plan use the ordinary leave-one-out terminal-return baseline; never
   fabricate a target swap for an ordinary map.
+- A long-lived Swarm controller may be resumed only with
+  `--resume-existing-progress`. The controller requires a non-empty contiguous
+  `live_rl_progress.json`, verifies all four recorded adapter SHA-256 values
+  against the trainer's stable broadcast at the completed update, and rebinds
+  every live serving alias to those exact paths before generating the next
+  scheduled update. Never restart the ordinary controller command after a
+  failure: it reloads the common SFT initializer and starts the curriculum at
+  zero. Archive incomplete rescore requests/responses and the exact failure
+  evidence before resuming; retain duplicate/retried group records as rejected
+  audit evidence rather than overwriting them.
 - Certify constrained-policy parity on the exact serving and trainer stacks
   before admitting a run. Require identical token IDs, allowed-token masks and
   policy routing, then gate the unavoidable vLLM/FSDP kernel drift with the
