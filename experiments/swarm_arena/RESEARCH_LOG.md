@@ -5032,6 +5032,65 @@ no more critical-specific than decoy-specific. Therefore:
   unseen-pair receiver action and terminal-return endpoints without ordinary
   regression.
 
+### 2026-08-22 — v10 receiver-isolated 4B live launch and update-10 result
+
+- Live run: `rl-v10-receiver-isolated4b60-d25505dc` on four NVIDIA L40S
+  GPUs, source `d25505dc41485e547f06a8c217eddce6ec051897`. The trainer
+  uses the checked-in rank-32 LoRA config at LR `5e-6`; three independent vLLM
+  workers serve rollouts and GPU 0 trains four separate receiver-policy
+  adapters. The immutable production-plan SHA-256 is
+  `654f672c6c19240cb0be6c836287de4659e2400916aaf6817b479ddb664df007`.
+- Exact inputs: public Qwen3-4B-Instruct-2507 revision
+  `cdbee75f17c01a7cc42f958dc650907174af0554`; public SFT revision
+  `d1a55d5594c8b544121e546e14229268c8c26bae`; adapter SHA-256
+  `168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2`.
+  All `139/139` Linux Swarm Arena tests passed. The single 32-decision
+  calibration passed with mean absolute log-probability error `0.00105693`,
+  p99 `0.00138824`, mean mismatch KL `0.000148966`, and four-policy optimizer
+  isolation; runtime-certificate SHA-256 is
+  `59598e86fe8e3b7341c37de4eda58fe36d31335a46cb7d2cdd2ff6cd71981af3`.
+- Integration fix before launch: the staged pulse process now forwards
+  `--receiver-isolated-target-swap` whenever the bound production plan uses
+  `paired_receiver_target_swap`. Its focused test passed `17/17`; the complete
+  Linux suite had already passed. Thus training and every checkpoint pulse use
+  the same receiver-only intervention rather than silently evaluating the old
+  team-wide v9 intervention.
+- Startup recovery: the generic tmux launcher inherited the existing tmux
+  server environment and initially selected `/root/.cache/uv` for the trainer.
+  This was detected while GPU 0 was still unused and before any rollout or
+  optimizer update. The exact log was preserved; only the trainer session was
+  replaced using the already calibrated interpreter under
+  `/workspace/.uv-cache/environments-v2/prime-rl-cp3.12.3-3b50a7203453f896`.
+  The plan, data, weights, reward, gates, and run identity did not change.
+- Update-0 receiver-only baseline: 128/128 rows, all action/broadcast/grounding
+  validity `1.0`. Critical normal return `+.01759`; normal-minus-dropped
+  `+.00142`; normal-minus-shuffled `+.02230`; normal-minus-target-swapped
+  `-.01526`; receiver target action `.625` normally versus `.700` under the
+  swapped fact; target-swap specificity `-.00313`. This was unsaturated and
+  left room for semantic receiver learning.
+- Five-update learnability screen: all four independent policy slots received
+  nonzero receiver-attributable advantages. Counts over 80 slot samples each
+  were blue-0 `8`, blue-1 `4`, blue-2 `8`, and blue-3 `4`. The first update's
+  one-slot sparsity was therefore transient sampling/within-group-centering
+  sparsity, not a dead estimator. The verified factual-minus-swapped terminal
+  contrast was nonzero for every receiver role.
+- Update-10 checkpoint: all four adapters were uploaded to the public live-run
+  mirror before evaluation. The 128-row receiver-only pulse remained fully
+  protocol-valid. Normal target choice stayed `.625`, while swapped-fact target
+  choice fell from the baseline `.700` to `.300`, moving the causal action gap
+  from `-.075` to `+.325`. Normal return rose to `+.02322`, and
+  normal-minus-dropped rose to `+.01073`. Terminal outcome alignment is not yet
+  achieved: normal-minus-target-swapped was `-.02090`; swap specificity was
+  only slightly positive at `+.00373`, with material per-pair heterogeneity.
+  Interpretation: receiver-only RL has learned a clean content-conditioned
+  behavioral response, but has not yet converted it into a reliable team-return
+  gain. Continue the unchanged preregistered run to update 20; do not retune or
+  claim success from update 10.
+- Preservation: compact progress is mirrored every update, complete adapters
+  every ten updates, and the controller logs online to W&B run
+  `rl-v10-receiver-isolated4b60-d25505dc-controller-v1`. A detached recurring
+  watcher checks process/GPU/log/mirror health without modifying the run.
+
 ## Future entry template
 
 Copy this block for each material run:
