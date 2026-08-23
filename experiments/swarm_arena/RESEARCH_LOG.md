@@ -5197,6 +5197,82 @@ no more critical-specific than decoy-specific. Therefore:
   or basic message following; it is producing broadly outcome-relevant private
   facts and stable receiver credit across maps/opponents.
 
+### 2026-08-23 — v10 clean held-out package frozen
+
+- Status: CPU preparation completed; GPU evaluation not yet run.
+- Verdict: mechanically ready. No held-out outcome from the clean remainder has
+  been observed.
+- Hypothesis: the development-selected v10 update-40 four-policy checkpoint
+  improves ordinary gameplay and learns outcome-relevant use of a teammate's
+  private fact, beyond both the SFT initializer and generic coordination on a
+  matched decoy.
+- Scientific correction: the earlier v8 exploratory screen opened frozen
+  handoff source pairs 4 and 17, hard cases `ordinary-hard-003` and
+  `ordinary-hard-018`, and legacy seed `3000003`. The original complete suite
+  is therefore not untouched. The new lock excludes all of those independent
+  units, including every option order of the legacy seed, and labels the
+  analysis accurately as the **clean unexposed frozen remainder**.
+- Selection: update 40 was selected once from the repeated v10 development
+  trajectory in source `3168b59db45bdfdb6ec3c9ece5c62a026e81b4bf`.
+  Held-out results may confirm or reject it but may not select another
+  checkpoint.
+- Frozen inputs: 22 two-world handoff bundles, 22 hard ordinary maps, and 23
+  legacy seeds under three option orders; both focal sides and base, SFT, and
+  historical-league labels. The exact matrix is 4,260 deterministic games.
+- Lock: `data/rl_v4/v10_clean_holdout_lock.json`, canonical body SHA-256
+  `1a5bb75f165cbf320e9f9761064d2baa9d000533c537ad367e45a7518a9ffb32`.
+  It binds both frozen file and manifest-body hashes, the immutable Qwen base
+  revision, SFT revision/adapter hash, all four update-40 adapter hashes, the
+  public artifact revision, and every opponent revision.
+- Matrix hashes: config
+  `dbcbaa632cfc4cbf87921e96c4efbab83c1823d30e307eaf23d18de1daf6bbe2`;
+  ordinary case IDs
+  `fbd539e8fe1e527073881978ca375e265f39f931ee013be08c377577872dc95e`;
+  handoff case IDs
+  `6fd4623074c811fe5233e8e015cc7966b551fabefe8236031be0a2f861faccca`.
+- Semantic estimand: intention-to-treat. A target-swap row whose sender omits
+  the active fact remains an eligible evaluation observation with a
+  zero-strength intervention; it is never retried or discarded. The swap is
+  applied only to the designated receiver.
+- Predeclared semantic endpoints: candidate critical normal-minus-swapped
+  return; candidate-minus-SFT semantic lift; critical-minus-matched-decoy
+  specificity; receiver target-action gap; eligibility; and per-opponent
+  effects. Existing dropped, shuffled, delayed, zero-budget, capability,
+  protocol, regression, and collapse endpoints remain in the final summary.
+- Reproducibility: the evaluator is resumable and writes raw traces before
+  compact rows with `fsync`. Its mirror uploads a stable compact-row prefix and
+  immutable compressed raw shards every 100 rows. It matches raw records by
+  evaluation ID, so a crash-created orphan or duplicate trace cannot misalign
+  resumed shards. Each public commit is anonymously downloaded and SHA-256
+  checked before mirror state advances. Logs, credentials, caches, and model
+  weights are excluded from this mirror.
+- CPU verification: Ruff passed; all affected modules compiled; focused tests
+  passed `25/25` in `6.97s`; the fail-closed audit reproduced the exact counts
+  and hashes above. A dedicated test simulates an orphan raw record and verifies
+  correct resumed sharding.
+- Post-evaluation diagnostics are also frozen: a balanced 32-decision legal
+  constraint probe, per-policy candidate-to-SFT KL, and a raw-trajectory
+  collapse audit. Limits are speaking extremes `.02/.98`, action/message-target
+  concentration `.95` after at least 20 observations, constrained KL mean
+  `.08`, and p99 `.30`. The public mirror will not declare completion until
+  these three artifacts are present and anonymously verified.
+- GPU estimate: one 4xL40S inference node, approximately 9 hours plus setup and
+  final publication; provider auto-termination at 11 hours. At `$2/hour`,
+  expected cost is `$18–22`. No GPU is currently active or accruing cost for
+  this preparation.
+- Operational runbook: `V10_CLEAN_HOLDOUT.md`. The GPU host prepares artifacts
+  by anonymous immutable downloads and verifies the SFT plus all four candidate
+  adapter hashes before any request. Completion requires 4,260 rows, summary
+  and `COMPLETE`, a healthy fully caught-up public mirror, and an anonymously
+  verified final revision.
+- Limitation fixed in advance: the `historical_league` label intentionally uses
+  the same frozen SFT adapter revision as the v10 preregistration. It is not an
+  independent historical policy family, so results must not claim three unique
+  opponent policies.
+- Next action: commit and publish this frozen preparation, then request one
+  fresh 4xL40S SSH endpoint and execute the once-only evaluation without
+  changing the lock or selecting on held-out outcomes.
+
 ## Future entry template
 
 Copy this block for each material run:

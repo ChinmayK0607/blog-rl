@@ -1,7 +1,14 @@
 from __future__ import annotations
 
+import json
+
 import pytest
-from scripts.audit_final_eval_collapse import _behavior_summary, _evaluation_metrics
+from scripts.audit_final_eval_collapse import (
+    _behavior_summary,
+    _digest,
+    _evaluation_metrics,
+    _load_aligned_records,
+)
 
 
 def test_behavior_summary_detects_action_and_speaking_collapse() -> None:
@@ -26,12 +33,7 @@ def test_behavior_summary_detects_action_and_speaking_collapse() -> None:
         "turns": [{"broadcasts": broadcasts, "actions": actions}] * 20,
     }
     kl = {
-        "per_policy": {
-            f"blue-{index}": {
-                "candidate_to_baseline_kl": {"mean": 0.01, "p99": 0.02}
-            }
-            for index in range(4)
-        }
+        "per_policy": {f"blue-{index}": {"candidate_to_baseline_kl": {"mean": 0.01, "p99": 0.02}} for index in range(4)}
     }
     report = _behavior_summary([({"side": "BLUE"}, raw)], kl)
     assert all(item["never_speaking"] for item in report.values())
@@ -41,9 +43,7 @@ def test_behavior_summary_detects_action_and_speaking_collapse() -> None:
 
 def test_behavior_summary_maps_explicit_served_policy_aliases() -> None:
     raw = {
-        "blue_agent_models": {
-            f"blue-{index}": f"served-step3-blue-{index}" for index in range(4)
-        },
+        "blue_agent_models": {f"blue-{index}": f"served-step3-blue-{index}" for index in range(4)},
         "turns": [
             {
                 "broadcasts": [
@@ -70,16 +70,9 @@ def test_behavior_summary_maps_explicit_served_policy_aliases() -> None:
         ],
     }
     kl = {
-        "per_policy": {
-            f"blue-{index}": {
-                "candidate_to_baseline_kl": {"mean": 0.01, "p99": 0.02}
-            }
-            for index in range(4)
-        }
+        "per_policy": {f"blue-{index}": {"candidate_to_baseline_kl": {"mean": 0.01, "p99": 0.02}} for index in range(4)}
     }
-    aliases = {
-        f"served-step3-blue-{index}": f"blue-{index}" for index in range(4)
-    }
+    aliases = {f"served-step3-blue-{index}": f"blue-{index}" for index in range(4)}
     report = _behavior_summary(
         [({"side": "BLUE"}, raw)],
         kl,
@@ -141,3 +134,25 @@ def test_evaluation_metrics_reject_incomplete_pairs() -> None:
                 }
             ]
         )
+
+
+def test_collapse_loader_ignores_orphans_but_verifies_selected_raw(
+    tmp_path,
+) -> None:
+    raw_record = {"evaluation_id": "kept", "raw": {"turns": []}}
+    row = {
+        "evaluation_id": "kept",
+        "raw_sha256": _digest(raw_record),
+    }
+    (tmp_path / "rows.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    (tmp_path / "raw.jsonl").write_text(
+        json.dumps({"evaluation_id": "orphan", "raw": {}}) + "\n" + json.dumps(raw_record) + "\n",
+        encoding="utf-8",
+    )
+    rows, raw, orphans = _load_aligned_records(
+        tmp_path / "rows.jsonl",
+        tmp_path / "raw.jsonl",
+    )
+    assert set(rows) == {"kept"}
+    assert raw == {"kept": {"turns": []}}
+    assert orphans == 1

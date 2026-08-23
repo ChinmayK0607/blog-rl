@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import statistics
 from collections import Counter, defaultdict
@@ -10,12 +11,46 @@ from typing import Any
 VERSION = "arena-development-collapse-audit-v1"
 
 
+def _digest(value: object) -> str:
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def _load_aligned_records(
+    rows_path: Path, raw_path: Path
+) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]], int]:
+    rows: dict[str, dict[str, Any]] = {}
+    for line in rows_path.read_text(encoding="utf-8").splitlines():
+        if not line:
+            continue
+        row = json.loads(line)
+        evaluation_id = str(row["evaluation_id"])
+        if evaluation_id in rows:
+            raise ValueError(f"duplicate compact evaluation row: {evaluation_id}")
+        rows[evaluation_id] = row
+    raw: dict[str, dict[str, Any]] = {}
+    orphans = 0
+    for line in raw_path.read_text(encoding="utf-8").splitlines():
+        if not line:
+            continue
+        record = json.loads(line)
+        evaluation_id = str(record["evaluation_id"])
+        row = rows.get(evaluation_id)
+        if row is None:
+            orphans += 1
+            continue
+        if _digest(record) != row.get("raw_sha256"):
+            raise ValueError(f"raw trajectory hash mismatch: {evaluation_id}")
+        raw[evaluation_id] = record["raw"]
+    missing = set(rows) - set(raw)
+    if missing:
+        raise ValueError(f"evaluation raw trajectories are incomplete: {sorted(missing)[:3]}")
+    return rows, raw, orphans
+
+
 def _policy_alias(raw: str) -> tuple[str, str]:
     served, separator, policy = raw.partition("=")
     if not separator or not served or not policy:
-        raise argparse.ArgumentTypeError(
-            "policy aliases must use SERVED_MODEL=POLICY_ID"
-        )
+        raise argparse.ArgumentTypeError("policy aliases must use SERVED_MODEL=POLICY_ID")
     return served, policy
 
 
@@ -38,9 +73,7 @@ def _message_target(message: dict[str, Any]) -> str | None:
 
 def _is_nonempty(message: dict[str, Any]) -> bool:
     return bool(
-        message.get("facts")
-        or message.get("intent") is not None
-        or int(message.get("request_resource", 0)) > 0
+        message.get("facts") or message.get("intent") is not None or int(message.get("request_resource", 0)) > 0
     )
 
 
@@ -78,9 +111,7 @@ def _behavior_summary(
                     continue
                 served_model = str(agent_models[action["agent_id"]])
                 policy = aliases.get(served_model, served_model)
-                actions[policy].append(
-                    json.dumps(action["selected_action"], sort_keys=True, separators=(",", ":"))
-                )
+                actions[policy].append(json.dumps(action["selected_action"], sort_keys=True, separators=(",", ":")))
 
     per_policy = {}
     expected = set(kl_report["per_policy"])
@@ -108,8 +139,7 @@ def _behavior_summary(
             and action_concentration >= concentration_limit,
             "reference_state_kl_mean": float(kl["mean"]),
             "reference_state_kl_p99": float(kl["p99"]),
-            "excessive_kl": float(kl["mean"]) > kl_mean_limit
-            or float(kl["p99"]) > kl_p99_limit,
+            "excessive_kl": float(kl["mean"]) > kl_mean_limit or float(kl["p99"]) > kl_p99_limit,
         }
     return per_policy
 
@@ -158,23 +188,14 @@ def _evaluation_metrics(
     opponent_values: dict[str, list[float]] = defaultdict(list)
     for key, cell in ordinary.items():
         opponent_values[key[1]].append(cell["candidate_rl"])
-    opponent_returns = {
-        opponent: statistics.mean(values)
-        for opponent, values in sorted(opponent_values.items())
-    }
-    return_gain = statistics.mean(
-        cell["candidate_rl"] - cell["sft_init"] for cell in ordinary.values()
-    )
-    message_gain = statistics.mean(
-        cell["normal"] - cell["dropped"] for cell in critical.values()
-    )
+    opponent_returns = {opponent: statistics.mean(values) for opponent, values in sorted(opponent_values.items())}
+    return_gain = statistics.mean(cell["candidate_rl"] - cell["sft_init"] for cell in ordinary.values())
+    message_gain = statistics.mean(cell["normal"] - cell["dropped"] for cell in critical.values())
     return opponent_returns, return_gain, message_gain
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Audit a completed development evaluation for policy collapse."
-    )
+    parser = argparse.ArgumentParser(description="Audit a completed development evaluation for policy collapse.")
     parser.add_argument("--eval-dir", type=Path, required=True)
     parser.add_argument("--policy-kl", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -189,18 +210,10 @@ def main() -> None:
     if args.output.exists():
         raise FileExistsError(f"refusing to overwrite collapse audit: {args.output}")
 
-    rows = {
-        str(row["evaluation_id"]): row
-        for line in (args.eval_dir / "rows.jsonl").read_text(encoding="utf-8").splitlines()
-        if line and (row := json.loads(line))
-    }
-    raw = {
-        str(record["evaluation_id"]): record["raw"]
-        for line in (args.eval_dir / "raw.jsonl").read_text(encoding="utf-8").splitlines()
-        if line and (record := json.loads(line))
-    }
-    if set(rows) != set(raw):
-        raise ValueError("evaluation rows and raw trajectories are incomplete or misaligned")
+    rows, raw, orphan_raw_records = _load_aligned_records(
+        args.eval_dir / "rows.jsonl",
+        args.eval_dir / "raw.jsonl",
+    )
     selected = [
         (row, raw[evaluation_id])
         for evaluation_id, row in sorted(rows.items())
@@ -223,12 +236,9 @@ def main() -> None:
     opponent_returns, return_gain, message_gain = _evaluation_metrics(list(rows.values()))
     flags = {
         "always_or_never_speaking": any(
-            item["always_speaking"] or item["never_speaking"]
-            for item in per_policy.values()
+            item["always_speaking"] or item["never_speaking"] for item in per_policy.values()
         ),
-        "repeated_target_collapse": any(
-            item["repeated_target_collapse"] for item in per_policy.values()
-        ),
+        "repeated_target_collapse": any(item["repeated_target_collapse"] for item in per_policy.values()),
         "action_collapse": any(item["action_collapse"] for item in per_policy.values()),
         "excessive_kl": any(item["excessive_kl"] for item in per_policy.values()),
         "performance_against_only_one_opponent": len(opponent_returns) >= 3
@@ -242,6 +252,7 @@ def main() -> None:
         "mean_critical_normal_minus_dropped": message_gain,
         "mean_return_by_opponent": opponent_returns,
         "flags": flags,
+        "orphan_raw_records_ignored": orphan_raw_records,
         "passed": not any(flags.values()),
         "scope": "development diagnostic stop/inspect gates; never reward terms",
     }

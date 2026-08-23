@@ -72,7 +72,8 @@ async def main() -> None:
     async with httpx.AsyncClient(base_url=args.base_url, timeout=120.0) as client:
         for sample_index in range(args.samples):
             seed = 17 + sample_index // 2
-            agent_id = f"blue-{sample_index % 4}"
+            policy_slot = sample_index % 4
+            agent_id = f"blue-{policy_slot}"
             env = ArenaRLEnv(seed=seed, size=12)
             env.reset()
             if sample_index % 2 == 0:
@@ -94,8 +95,7 @@ async def main() -> None:
             choice = response["choices"][0]
             completion_ids = list(choice["token_ids"])
             choice_token_ids = [
-                [*tokenizer.encode(value, add_special_tokens=False), tokenizer.eos_token_id]
-                for value in choices
+                [*tokenizer.encode(value, add_special_tokens=False), tokenizer.eos_token_id] for value in choices
             ]
             rows.append(
                 {
@@ -105,7 +105,9 @@ async def main() -> None:
                     "completion": tokenizer.decode(completion_ids, skip_special_tokens=False),
                     "completion_ids": completion_ids,
                     "completion_logprobs": [item["logprob"] for item in choice["logprobs"]["content"]],
+                    "decision_id": f"constrained-probe-{sample_index:04d}",
                     "phase": phase,
+                    "policy_slot": policy_slot,
                     "prompt_ids": prompt_ids,
                     "seed": seed,
                 }

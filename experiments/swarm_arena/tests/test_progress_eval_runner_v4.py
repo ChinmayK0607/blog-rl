@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 from pathlib import Path
@@ -23,6 +24,7 @@ from scripts.run_progress_eval_v4 import (
     _distributed_roster,
     _handoff_worlds,
     _import_cached_baseline,
+    _load_manifest,
     _ordinary_cases,
     _validate_frozen_confirmation,
 )
@@ -34,7 +36,16 @@ from scripts.run_staged_pulses import (
     _validate_training_pair_summary,
     _wait_retained_checkpoints,
 )
+from scripts.run_v10_clean_holdout import (
+    _clean_handoff_worlds,
+    _clean_ordinary_cases,
+    _expected_rows,
+    _load_lock,
+    _validate_bindings,
+)
+from scripts.run_v10_holdout_mirror import _snapshot_rows, _write_raw_shard
 from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
+from swarm_ctf_eval.semantic_holdout import summarize_semantic_holdout
 
 
 def test_tier_plans_keep_final_large_and_development_small() -> None:
@@ -81,9 +92,7 @@ def test_step_zero_control_requires_identical_four_model_rosters() -> None:
 
 
 def test_staged_pulse_matches_receiver_isolated_training_scope() -> None:
-    assert _target_swap_scope_args("paired_receiver_target_swap") == [
-        "--receiver-isolated-target-swap"
-    ]
+    assert _target_swap_scope_args("paired_receiver_target_swap") == ["--receiver-isolated-target-swap"]
     assert _target_swap_scope_args("paired_target_swap") == []
 
 
@@ -118,6 +127,85 @@ def test_runner_expands_both_handoff_worlds_and_hard_cases() -> None:
         "ordinary_legacy",
         "ordinary_hard",
     }
+
+
+def test_v10_clean_holdout_excludes_every_previously_opened_unit() -> None:
+    data_dir = Path(__file__).parents[1] / "data" / "rl_v4"
+    lock = _load_lock(data_dir / "v10_clean_holdout_lock.json")
+    handoff = _load_manifest(data_dir / "handoff_frozen_ood.json")
+    ordinary = _load_manifest(data_dir / "ordinary_hard_frozen_ood.json")
+    handoff_rows = _clean_handoff_worlds(lock, handoff)
+    ordinary_rows = _clean_ordinary_cases(lock, ordinary)
+
+    assert len({row[1] for row in handoff_rows}) == 22
+    assert not {
+        "handoff-bundle-004",
+        "handoff-bundle-017",
+    } & {row[1] for row in handoff_rows}
+    assert len({row[1] for row in ordinary_rows if row[3] == "ordinary_hard"}) == 22
+    assert not {
+        "ordinary-hard-003",
+        "ordinary-hard-018",
+    } & {row[0] for row in ordinary_rows}
+    assert "legacy-seed-3000003" not in {row[1] for row in ordinary_rows}
+    assert _expected_rows(ordinary_rows, handoff_rows, 3) == 4260
+
+    config = json.loads(
+        (Path(__file__).parents[1] / "configs" / "v10_clean_holdout_4b.json").read_text(encoding="utf-8")
+    )
+    _validate_bindings(
+        lock=lock,
+        config=config,
+        data_dir=data_dir,
+        hard_manifest=ordinary,
+        handoff_manifest=handoff,
+        ordinary=ordinary_rows,
+        handoffs=handoff_rows,
+    )
+    config["opponents"][0]["revision"] = "mutated"
+    with pytest.raises(ValueError, match="opponent revisions"):
+        _validate_bindings(
+            lock=lock,
+            config=config,
+            data_dir=data_dir,
+            hard_manifest=ordinary,
+            handoff_manifest=handoff,
+            ordinary=ordinary_rows,
+            handoffs=handoff_rows,
+        )
+
+
+def test_v10_mirror_skips_orphan_raw_records_and_snapshots_a_stable_prefix(
+    tmp_path: Path,
+) -> None:
+    rows_path = tmp_path / "rows.jsonl"
+    rows_path.write_text(
+        "".join(json.dumps({"evaluation_id": name}) + "\n" for name in ("game-a", "game-b")),
+        encoding="utf-8",
+    )
+    snapshot_path = tmp_path / "snapshot.jsonl"
+    assert _snapshot_rows(rows_path, snapshot_path, 2) == ["game-a", "game-b"]
+    assert len(snapshot_path.read_text(encoding="utf-8").splitlines()) == 2
+
+    raw_path = tmp_path / "raw.jsonl"
+    raw_path.write_text(
+        "".join(
+            json.dumps({"evaluation_id": name, "raw": {"name": name}}) + "\n"
+            for name in ("orphan", "game-a", "game-a", "game-b")
+        ),
+        encoding="utf-8",
+    )
+    shard_path = tmp_path / "raw.jsonl.gz"
+    end = _write_raw_shard(
+        raw_path=raw_path,
+        output_path=shard_path,
+        start_offset=0,
+        expected_evaluation_ids=["game-a", "game-b"],
+    )
+    assert end == raw_path.stat().st_size
+    with gzip.open(shard_path, "rt", encoding="utf-8") as handle:
+        mirrored = [json.loads(line)["evaluation_id"] for line in handle]
+    assert mirrored == ["game-a", "game-b"]
 
 
 def test_cached_baseline_copies_only_required_sft_rows_and_raw_records(
@@ -222,13 +310,9 @@ def test_rl_specific_summary_requires_gain_over_sft_and_decoy() -> None:
                         "condition": condition,
                         "terminal_return": effect if condition == "normal" else 0.0,
                         "critical_capture": (
-                            suite == "handoff_critical"
-                            and variant == "candidate_rl"
-                            and condition == "normal"
+                            suite == "handoff_critical" and variant == "candidate_rl" and condition == "normal"
                         ),
-                        "sender_target_fact": (
-                            suite == "handoff_critical" and condition == "normal"
-                        ),
+                        "sender_target_fact": (suite == "handoff_critical" and condition == "normal"),
                     }
                 )
     rows.append(
@@ -253,12 +337,10 @@ def test_rl_specific_summary_requires_gain_over_sft_and_decoy() -> None:
     assert summary["critical_minus_decoy_specificity"]["mean_difference"] == pytest.approx(0.3)
     assert summary["handoff_capability_rl_minus_sft"]["mean_difference"] == pytest.approx(0.3)
     assert summary["overall_gameplay_rl_minus_sft"]["mean_difference"] == pytest.approx(0.3)
-    assert summary["communication_mechanism"]["candidate_sender_target_fact_rate"][
-        "mean_difference"
-    ] == pytest.approx(1.0)
-    assert summary["communication_mechanism"]["rl_specific_capture_lift"][
-        "mean_difference"
-    ] == pytest.approx(1.0)
+    assert summary["communication_mechanism"]["candidate_sender_target_fact_rate"]["mean_difference"] == pytest.approx(
+        1.0
+    )
+    assert summary["communication_mechanism"]["rl_specific_capture_lift"]["mean_difference"] == pytest.approx(1.0)
     assert summary["candidate_protocol"]["broadcast_protocol_rate"] == pytest.approx(1.0)
     assert summary["candidate_protocol_denominators"]["broadcast_protocol_rate"] == {
         "defined_rows": 6,
@@ -267,6 +349,42 @@ def test_rl_specific_summary_requires_gain_over_sft_and_decoy() -> None:
     metrics = summarize_evaluation(summary)
     assert metrics["eval/rl_specific_communication_lift"] == pytest.approx(0.3)
     assert metrics["eval/overall_gameplay_rl_minus_sft"] == pytest.approx(0.3)
+
+
+def test_semantic_holdout_uses_itt_and_separates_sft_and_decoy_effects() -> None:
+    rows = []
+    for unit in ("bundle-a", "bundle-b"):
+        for suite, variant, normal, swapped in (
+            ("handoff_critical", "candidate_rl", 0.6, 0.1),
+            ("handoff_critical", "sft_init", 0.3, 0.2),
+            ("handoff_decoy", "candidate_rl", 0.2, 0.1),
+        ):
+            for condition, value, target_action in (
+                ("normal", normal, True),
+                ("target_swapped", swapped, False),
+            ):
+                rows.append(
+                    {
+                        "independent_id": unit,
+                        "suite": suite,
+                        "policy_variant": variant,
+                        "opponent_id": "sft",
+                        "opponent_revision": "sft-revision",
+                        "side": "BLUE",
+                        "condition": condition,
+                        "terminal_return": value,
+                        "receiver_target_action": target_action,
+                        "target_swap_eligible": condition == "target_swapped",
+                        "sender_target_fact": True,
+                    }
+                )
+    summary = summarize_semantic_holdout(rows)
+    assert summary["candidate_critical_normal_minus_target_swapped"]["mean_difference"] == pytest.approx(0.5)
+    assert summary["rl_specific_semantic_lift"]["mean_difference"] == pytest.approx(0.4)
+    assert summary["critical_minus_decoy_semantic_specificity"]["mean_difference"] == pytest.approx(0.4)
+    assert summary["receiver_target_action_gap"]["mean_difference"] == pytest.approx(1.0)
+    assert summary["claim_checks"]["rl_specific_semantic_interval_positive"]
+    assert summary["claim_checks"]["critical_specificity_interval_positive"]
 
 
 def test_wandb_controller_summary_exposes_curriculum_and_opponent_metrics() -> None:
@@ -462,11 +580,7 @@ def test_multipair_summary_preserves_per_pair_signal(tmp_path: Path) -> None:
         for kind in ("critical", "decoy"):
             for condition in ("normal", "dropped", "sender_shuffled", "target_swapped"):
                 for world in ("left", "right"):
-                    terminal_return = (
-                        lift
-                        if kind == "critical" and condition == "normal"
-                        else 0.0
-                    )
+                    terminal_return = lift if kind == "critical" and condition == "normal" else 0.0
                     rows.append(
                         {
                             "pair_index": pair_index,
@@ -486,12 +600,8 @@ def test_multipair_summary_preserves_per_pair_signal(tmp_path: Path) -> None:
     summary = summarize_pair7(rows, (7, 9))
     assert summary["version"] == "multipair-semantic-communication-eval-v4"
     assert summary["critical"]["normal_minus_dropped_return"] == pytest.approx(0.4)
-    assert summary["by_pair"]["7"]["critical"][
-        "normal_minus_dropped_return"
-    ] == pytest.approx(0.6)
-    assert summary["by_pair"]["9"]["critical"][
-        "normal_minus_dropped_return"
-    ] == pytest.approx(0.2)
+    assert summary["by_pair"]["7"]["critical"]["normal_minus_dropped_return"] == pytest.approx(0.6)
+    assert summary["by_pair"]["9"]["critical"]["normal_minus_dropped_return"] == pytest.approx(0.2)
     output = tmp_path / "summary.json"
     output.write_text(json.dumps(summary))
     _validate_training_pair_summary(
@@ -525,17 +635,13 @@ def test_semantic_summary_excludes_ineligible_target_swap_units() -> None:
                         "condition": condition,
                         "world": world,
                         "repeat": 0,
-                        "terminal_return": (
-                            1.0 if condition == "normal" else 0.0
-                        ),
+                        "terminal_return": (1.0 if condition == "normal" else 0.0),
                         "receiver_target_action": condition == "normal",
                         "sender_target_fact": condition == "normal",
                         "broadcast_valid": 1.0,
                         "broadcast_grounded": 1.0,
                         "action_valid": 1.0,
-                        "target_swap_eligible": (
-                            eligible if condition == "target_swapped" else None
-                        ),
+                        "target_swap_eligible": (eligible if condition == "target_swapped" else None),
                     }
                 )
     summary = summarize_pair7(rows)
