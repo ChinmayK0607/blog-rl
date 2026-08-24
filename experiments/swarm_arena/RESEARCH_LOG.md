@@ -5359,6 +5359,78 @@ no more critical-specific than decoy-specific. Therefore:
   the RTX 3090 audit node was idle and decommission-ready after these compact
   artifacts were copied. No model weights or raw traces were copied to the Mac.
 
+### 2026-08-24 — v11 diverse receiver scale-up preparation
+
+- Status: CPU preparation completed; no GPU run started.
+- Verdict: mechanical and construction pass. This is a launch candidate, not a
+  learning result.
+- Hypothesis: the positive v10 message-use effect can become RL-specific and
+  critical-specific when training covers many independent topologies and
+  retains ordinary capability, instead of repeating twelve small maps.
+- Decision unlocked: request a four-GPU node for runtime binding and the
+  180-update scale-up after this preparation commit is public.
+- Source commit: `e15b6388`.
+- Base / adapter / opponent revisions: Qwen3-4B base `cdbee75f`; SFT initializer
+  `d1a55d55` / weight SHA-256 `168c9f9c...`; historical opponent is the
+  development-selected v10 update-40 blue-0 adapter, weight SHA-256
+  `4afed7f7...`. V11 still initializes from SFT, never from v10 RL.
+- Data split and manifest SHA-256: combined train/development manifest body
+  `41c6caa00b7d2854c3667058feb52256dbeff67515c7976636c5636e38b5f364`;
+  frozen manifest body
+  `6a6ad15bd7619e390587bff26b0b2ad1cf54d1065a53884e3616a98f7023c50c`;
+  curriculum file SHA-256
+  `99f3efa8bad862d661a1ae9c9fae84336473d700768afb4866465577c0bc0864`;
+  schedule SHA-256
+  `1f4a518bae9551572b3c3ec81d322b06cb437163f20cfcc33b539cfdeac5a458`.
+- GPU, wall time, and estimated cost: no GPU used. Local deterministic manifest
+  generation took about 16 seconds and the exhaustive audit about 11 seconds.
+  Based on v10 throughput, the eventual 180-update 4xL40S run plus scheduled
+  evaluation is estimated at 18–22 hours; refine after the first 20 updates.
+- Exact launcher/config: trainer
+  `configs/rl_v11_4b_diverse_receiver_180.toml`; base plan
+  `configs/rl_v11_4b_base_plan.json`; curriculum and evaluation design under
+  `data/rl_v11/`; operational notes in `V11_DIVERSE_SCALEUP.md`.
+- Predeclared gates: the headline evaluation is limited to semantic message use,
+  RL-over-SFT semantic lift, critical-over-decoy specificity, receiver target
+  switching, and ordinary/overall capability. Drop/delay/shuffle/zero-budget
+  remain reported diagnostics rather than four extra promotion gates. Protocol,
+  constrained KL, collapse, and artifact completeness remain mechanical
+  requirements.
+- Results: 96 independent training bundles, 24 independent development bundles,
+  and 36 independent frozen bundles. Every directed sender/receiver role has
+  eight training bundles and covers sizes 12/14/16/18/20 plus all seven source
+  horizons. The 180-update schedule contains 540 critical and 180 ordinary
+  groups, producing 2,160 focused receiver replicas and 720 ordinary replicas.
+  Every policy is receiver and sender in exactly 135 critical groups; both
+  latent worlds appear exactly 270 times.
+- Construction audit: passed 3,870 exhaustive legal teammate-joint-action and
+  three-opponent-style comparisons over all 96 training bundles. The global
+  minimum factual-target terminal advantage is `.08`, all critical comparisons
+  are strictly positive, and every matched decoy advantage is exactly zero.
+  Private worlds are indistinguishable without the message, legal actions do
+  not change, and train/development/frozen state hashes are disjoint.
+- Failures and retries: the first generated schedule failed its receiver balance
+  check because pair-major left/right ordering skewed stage boundaries. The
+  second schedule balanced receiver slots but the exact audit caught a 240/300
+  left/right skew. The final ordering uses complete four-receiver blocks with
+  complementary latent worlds; it passes exact 135-per-policy and 270/270 world
+  balance. Failed generated schedules were never admitted or committed.
+- CPU verification: deterministic regeneration matched every builder-owned
+  artifact; Ruff passed; focused tests passed `18/18` in `7.36s`; both the
+  structural data audit and exact communication-learnability audit pass.
+- Artifact paths and hashes: `data/rl_v11/`,
+  `V11_DIVERSE_SCALEUP.md`, and the trainer/base-plan configs. Total new data is
+  about 1.6 MB; no model, checkpoint, or rollout artifact was stored on the Mac.
+- Interpretation: this removes the clearest data-design confound and scales the
+  number of training topologies eightfold while quadrupling ordinary anchors.
+  It guarantees clean learning opportunity, not that sampled 4B rollouts will
+  exploit it. Development and frozen outcomes remain unseen.
+- Next action: commit/publish, then on a fresh 4xL40S node download and
+  hash-check the base/SFT/v10 opponent, repair only the historical adapter's
+  stale metadata view, create a fresh runtime certificate, bind the production
+  plan, start public mirroring at update zero, and launch.
+- Instance decommissioned: not applicable; no GPU instance was used.
+
 ## Future entry template
 
 Copy this block for each material run:
