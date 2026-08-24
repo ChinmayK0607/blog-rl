@@ -70,6 +70,15 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   checks the digest before and after loading, requires an exact tensor-key and
   shape match, and initializes every new run before its optimizer is created.
   A resumed native run checkpoint takes precedence over this common seed.
+- Before a post-hoc PEFT audit loads an exported Swarm adapter, verify that its
+  `adapter_config.json` rank agrees with every LoRA A/B tensor and with the
+  frozen trainer config. The v10 update-40 export demonstrated that a valid
+  rank-32 checkpoint can be accompanied by stale rank-16 metadata. Never alter
+  the safetensors or silently coerce shapes. Use the fail-closed metadata-repair
+  utility to create a weight-identical view, record original and repaired
+  config hashes plus the unchanged weight hash, and point the audit at that
+  view. Keep audit-only PEFT dependencies in a `--no-deps` target overlay so
+  dependency resolution cannot replace the validated Torch/CUDA stack.
 - Swarm Arena rollout workers never write to the trainer queue. Route complete
   shared-return evidence through `safety_supervisor.py`; require independent
   state replay, terminal-reward recomputation, exact private-context hashes,
