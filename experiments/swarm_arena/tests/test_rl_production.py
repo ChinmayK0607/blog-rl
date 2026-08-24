@@ -308,6 +308,8 @@ def test_v11_curriculum_scales_diversity_without_role_or_world_imbalance() -> No
         (data_dir / "staged_curriculum_v11_4b_diverse_receiver_180.json").read_text()
     )
     manifest = json.loads((data_dir / "handoff_train.json").read_text())
+    development = json.loads((data_dir / "handoff_development.json").read_text())
+    index = json.loads((data_dir / "index.json").read_text())
     stages = tuple(
         CurriculumStage(
             name=stage["name"],
@@ -344,6 +346,13 @@ def test_v11_curriculum_scales_diversity_without_role_or_world_imbalance() -> No
     ) == {f"blue-{index}": 135 for index in range(4)}
     assert max(row.pair_index for row in critical) == 95
     assert min(curriculum["online_eval_pair_indices"]) == 96
+    assert development["pair_count"] == 24
+    assert development["source_pair_start"] == 96
+    assert development["pairs"] == manifest["pairs"][96:120]
+    assert index["handoff"]["development"]["sha256"] == development["sha256"]
+    assert (data_dir / "curriculum.json").read_bytes() == (
+        data_dir / "staged_curriculum_v11_4b_diverse_receiver_180.json"
+    ).read_bytes()
 
 
 def test_joint_curriculum_balances_sender_receiver_focus_and_retains_ordinary_play() -> None:

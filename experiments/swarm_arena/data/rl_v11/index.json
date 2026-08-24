@@ -1,0 +1,31 @@
+{
+  "handoff": {
+    "development": {
+      "manifest": "handoff_development.json",
+      "pair_count": 24,
+      "sha256": "9044dd060b185771fc341be9cfe93641e2b466934a9085ab52a9334029fd52f6"
+    },
+    "frozen_ood": {
+      "manifest": "handoff_frozen_ood.json",
+      "pair_count": 36,
+      "sha256": "6a6ad15bd7619e390587bff26b0b2ad1cf54d1065a53884e3616a98f7023c50c"
+    },
+    "train": {
+      "manifest": "handoff_train.json",
+      "pair_count": 120,
+      "sha256": "41c6caa00b7d2854c3667058feb52256dbeff67515c7976636c5636e38b5f364"
+    }
+  },
+  "ordinary": {
+    "development": {
+      "case_count": 24,
+      "manifest": "ordinary_hard_development.json",
+      "sha256": "ca41177c862ee48055df8f2171ff28e1d324d8527a7e286f8e2d5e409c41ee76"
+    },
+    "frozen_ood": {
+      "case_count": 36,
+      "manifest": "ordinary_hard_frozen_ood.json",
+      "sha256": "ae6f86bcb6eb5c124d48edd848f8e316be2225db69ec2a8c1188928bd30d6640"
+    }
+  }
+}

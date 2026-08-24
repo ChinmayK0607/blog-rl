@@ -5431,6 +5431,64 @@ no more critical-specific than decoy-specific. Therefore:
   plan, start public mirroring at update zero, and launch.
 - Instance decommissioned: not applicable; no GPU instance was used.
 
+### 2026-08-24 — v11 independent launch-route recheck
+
+- Status: completed; no GPU run started.
+- Verdict: two CPU integration defects were found and fixed before they could
+  consume paid compute. The regenerated curriculum and exact learnability
+  result remain unchanged.
+- Hypothesis: a deterministic data package is not launch-ready unless the paid
+  preflight and the semantic selection/frozen evaluators can consume that exact
+  package without falling back to v4 filenames or endpoints.
+- Decision unlocked: v11 is eligible for host-specific runtime calibration and
+  production-plan binding after this fix is committed and published.
+- Source commit: pending this entry's publication commit.
+- Data split and manifest SHA-256: v11 task index file
+  `544bb787ac496a393ae442ce6621e47dc201ed29c789e39deaeba75728eaee2f`;
+  separate development handoff file
+  `52591c48c6a36ad01643720fcb5d7935aea11cea9a36f3902aed37ef7458189f`;
+  progress-eval design file
+  `0001bee19eba3c3ffc322fd31cf7e1126a6ff9d8bc85af577d3304547e7eff81`.
+- GPU, wall time, and estimated cost: no GPU used and no paid node active. The
+  CPU recheck took minutes. Retain the prior 18–22 hour 4xL40S estimate and set
+  a 22-hour initial termination deadline, then revise it from measured update-20
+  throughput.
+- Exact launcher/config: unchanged v11 trainer/base plan and
+  `scripts/launch_staged_rl.sh`; it must receive `SWARM_DATA_DIR=data/rl_v11`.
+- Results: independent regeneration matched every builder-owned byte. The v4
+  production binding now resolves distinct train/development/final hashes; the
+  development evaluator expands global bundle IDs 96–107; the frozen evaluator
+  expands all 36 independent handoff bundles; both selection and frozen routes
+  include the receiver-only `target_swapped` endpoint and semantic summary.
+  Exact curriculum audit still passes 3,870 legal joint-action/opponent-style
+  comparisons with minimum advantage `.08`, balanced 135-per-policy receiver
+  allocation, and 270/270 latent worlds.
+- Failures and retries: the first recheck found that v11 omitted the v4-compatible
+  `index.json`, `curriculum.json`, and `handoff_development.json`, so paid
+  preflight would have failed before update zero. It also found the generic
+  selection runner omitted the primary target-swap endpoint and defaulted the
+  frozen route to 24 rather than the declared 36 handoff bundles. These were
+  integration bugs, not model/data failures. A sandboxed test-tool download
+  initially failed DNS and was repeated with the approved pinned-tool network
+  path; the first test import then exposed a missing test-only
+  `huggingface-hub` dependency, which was added only to the ephemeral uv test
+  environment.
+- CPU verification: deterministic byte comparison passed; exact audit matched
+  the committed result apart from its expected path string; Ruff passed; 40
+  focused production-binding, schedule, evaluator, mirror, and semantic tests
+  passed in 11.18 seconds.
+- Artifact paths: `data/rl_v11/index.json`,
+  `data/rl_v11/handoff_development.json`, `data/rl_v11/curriculum.json`, and the
+  updated builder/evaluator/tests. No weights, checkpoints, raw traces, or uv
+  caches were added to the repository or retained as Mac project data.
+- Interpretation: this second pass was necessary and useful: without it the
+  GPU launch would have stopped at preflight, and a later evaluation could not
+  have tested the stated causal claim. It does not add evidence that RL learns;
+  that remains the purpose of the 180-update run.
+- Next action: publish the fix, then request one 4xL40S/4xL40 node for exact
+  runtime calibration and the v11 training run.
+- Instance decommissioned: not applicable; no GPU instance was used.
+
 ## Future entry template
 
 Copy this block for each material run:

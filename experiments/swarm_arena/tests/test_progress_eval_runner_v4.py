@@ -6,6 +6,9 @@ import json
 from pathlib import Path
 
 import pytest
+from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
+from swarm_ctf_eval.semantic_holdout import summarize_semantic_holdout
+
 from scripts.log_live_rl_wandb import (
     summarize_evaluation,
     summarize_logical_update,
@@ -44,8 +47,6 @@ from scripts.run_v10_clean_holdout import (
     _validate_bindings,
 )
 from scripts.run_v10_holdout_mirror import _snapshot_rows, _write_raw_shard
-from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
-from swarm_ctf_eval.semantic_holdout import summarize_semantic_holdout
 
 
 def test_tier_plans_keep_final_large_and_development_small() -> None:
@@ -58,6 +59,8 @@ def test_tier_plans_keep_final_large_and_development_small() -> None:
     assert TIER_PLANS["frozen"].handoff_pairs == 24
     assert len(TIER_PLANS["frozen"].legacy_option_orders) == 3
     assert TIER_PLANS["online"].critical_conditions == ("normal", "dropped")
+    assert TIER_PLANS["selection"].critical_conditions[-1] == "target_swapped"
+    assert TIER_PLANS["frozen"].critical_conditions[-1] == "target_swapped"
     assert TIER_PLANS["online"].sides == ("BLUE", "RED")
     distributed = _distributed_roster(
         ("http://actor-1/v1", "http://actor-2/v1", "http://actor-3/v1"),
@@ -127,6 +130,29 @@ def test_runner_expands_both_handoff_worlds_and_hard_cases() -> None:
         "ordinary_legacy",
         "ordinary_hard",
     }
+
+
+def test_v11_eval_route_preserves_global_development_ids_and_all_frozen_pairs() -> None:
+    data_dir = Path(__file__).parents[1] / "data" / "rl_v11"
+    design = json.loads((data_dir / "progress_eval_design.json").read_text())
+    development = _load_manifest(data_dir / "handoff_development.json")
+    frozen = _load_manifest(data_dir / "handoff_frozen_ood.json")
+
+    selection = _handoff_worlds(
+        "selection",
+        development,
+        pair_count=len(design["development_selection"]["handoff_pair_indices"]),
+    )
+    final = _handoff_worlds(
+        "frozen",
+        frozen,
+        pair_count=design["frozen_final"]["handoff_pairs"],
+    )
+
+    assert {row[1] for row in selection} == {
+        f"handoff-bundle-{index:03d}" for index in range(96, 108)
+    }
+    assert len({row[1] for row in final}) == 36
 
 
 def test_v10_clean_holdout_excludes_every_previously_opened_unit() -> None:

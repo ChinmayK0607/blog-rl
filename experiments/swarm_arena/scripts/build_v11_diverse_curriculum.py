@@ -27,6 +27,31 @@ def _digest(value: object) -> str:
     ).hexdigest()
 
 
+def _slice_handoff_manifest(
+    manifest: dict[str, object],
+    *,
+    start: int,
+    stop: int,
+) -> dict[str, object]:
+    """Create a self-hashed manifest view over an immutable pair range."""
+    pairs = list(manifest["pairs"])  # type: ignore[arg-type]
+    selected = pairs[start:stop]
+    if len(selected) != stop - start:
+        raise ValueError("handoff manifest slice exceeds the generated pair range")
+    body = {
+        "version": manifest["version"],
+        "seed_start": manifest["seed_start"],
+        "sizes": manifest["sizes"],
+        "horizons": manifest["horizons"],
+        "pair_count": len(selected),
+        "source_pair_start": start,
+        "source_pair_stop": stop,
+        "pairs": selected,
+    }
+    body["sha256"] = _digest(body)
+    return body
+
+
 def _cases(stop: int) -> list[dict[str, object]]:
     if stop % 12:
         raise ValueError("role-balanced handoff case sets require complete 12-pair blocks")
@@ -175,6 +200,7 @@ def _role_coverage(manifest: dict, pair_indices: range) -> dict[str, object]:
 def _evaluation_design(
     *,
     train_manifest_sha256: str,
+    development_manifest_sha256: str,
     frozen_manifest_sha256: str,
     ordinary_development_sha256: str,
     ordinary_frozen_sha256: str,
@@ -188,6 +214,7 @@ def _evaluation_design(
         },
         "data_bindings": {
             "train_and_development": train_manifest_sha256,
+            "development_handoff": development_manifest_sha256,
             "frozen_handoff": frozen_manifest_sha256,
             "development_ordinary": ordinary_development_sha256,
             "frozen_ordinary": ordinary_frozen_sha256,
@@ -273,6 +300,11 @@ def main() -> None:
         seed_start=15_000_083,
         sizes=(12, 14, 16, 18, 20),
         horizons=(4, 5, 6, 8, 10, 12, 14),
+    )
+    development = _slice_handoff_manifest(
+        train_and_development,
+        start=TRAIN_PAIR_STOP,
+        stop=DEVELOPMENT_PAIR_STOP,
     )
     frozen = generate_manifest(
         count=36,
@@ -366,17 +398,52 @@ def main() -> None:
 
     outputs = {
         "handoff_train.json": train_and_development,
+        "handoff_development.json": development,
         "handoff_frozen_ood.json": frozen,
         "ordinary_hard_development.json": ordinary_development,
         "ordinary_hard_frozen_ood.json": ordinary_frozen,
         "staged_curriculum_v11_4b_diverse_receiver_180.json": curriculum,
+        # The v4-compatible task binding intentionally uses this stable alias.
+        "curriculum.json": curriculum,
         "v11_diverse_data_audit.json": audit,
         "progress_eval_design.json": _evaluation_design(
             train_manifest_sha256=train_and_development["sha256"],
+            development_manifest_sha256=development["sha256"],
             frozen_manifest_sha256=frozen["sha256"],
             ordinary_development_sha256=ordinary_development["sha256"],
             ordinary_frozen_sha256=ordinary_frozen["sha256"],
         ),
+    }
+    outputs["index.json"] = {
+        "handoff": {
+            "train": {
+                "manifest": "handoff_train.json",
+                "pair_count": train_and_development["pair_count"],
+                "sha256": train_and_development["sha256"],
+            },
+            "development": {
+                "manifest": "handoff_development.json",
+                "pair_count": development["pair_count"],
+                "sha256": development["sha256"],
+            },
+            "frozen_ood": {
+                "manifest": "handoff_frozen_ood.json",
+                "pair_count": frozen["pair_count"],
+                "sha256": frozen["sha256"],
+            },
+        },
+        "ordinary": {
+            "development": {
+                "manifest": "ordinary_hard_development.json",
+                "case_count": ordinary_development["case_count"],
+                "sha256": ordinary_development["sha256"],
+            },
+            "frozen_ood": {
+                "manifest": "ordinary_hard_frozen_ood.json",
+                "case_count": ordinary_frozen["case_count"],
+                "sha256": ordinary_frozen["sha256"],
+            },
+        },
     }
     for name, payload in outputs.items():
         (args.output_dir / name).write_text(

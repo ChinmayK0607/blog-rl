@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from scripts.run_final_eval_development import _prepare_output, _roster, _served_model
 from swarm_ctf_eval.arena_eval import ArenaModel
 from swarm_ctf_eval.crossplay_eval import FROZEN_CROSSPLAY_CASES, development_cases
 from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
@@ -19,6 +18,9 @@ from swarm_ctf_eval.progress_eval_v4 import (
     summarize_progress_eval,
 )
 from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
+from swarm_ctf_eval.semantic_holdout import summarize_semantic_holdout
+
+from scripts.run_final_eval_development import _prepare_output, _roster, _served_model
 
 Tier = Literal["pulse", "online", "selection", "frozen"]
 
@@ -63,7 +65,7 @@ TIER_PLANS = {
         12,
         "all",
         ("canonical",),
-        COMMUNICATION_CONDITIONS,
+        (*COMMUNICATION_CONDITIONS, "target_swapped"),
         ("BLUE", "RED"),
     ),
     "frozen": TierPlan(
@@ -73,7 +75,7 @@ TIER_PLANS = {
         24,
         "all",
         ("canonical", "permuted-1", "permuted-2"),
-        COMMUNICATION_CONDITIONS,
+        (*COMMUNICATION_CONDITIONS, "target_swapped"),
         ("BLUE", "RED"),
     ),
 }
@@ -208,10 +210,17 @@ def _ordinary_cases(
 def _handoff_worlds(
     tier: Tier,
     handoff_manifest: dict[str, Any],
+    *,
+    pair_count: int | None = None,
 ) -> tuple[tuple[str, str, str, Any, Any], ...]:
     rows = []
-    for pair_index, pair in enumerate(handoff_manifest["pairs"][: TIER_PLANS[tier].handoff_pairs]):
-        independent_id = f"handoff-bundle-{pair_index:03d}"
+    limit = TIER_PLANS[tier].handoff_pairs if pair_count is None else pair_count
+    if limit > int(handoff_manifest["pair_count"]):
+        raise ValueError(f"{tier} requests {limit} handoff pairs from a {handoff_manifest['pair_count']}-pair manifest")
+    source_start = int(handoff_manifest.get("source_pair_start", 0))
+    for pair_index, pair in enumerate(handoff_manifest["pairs"][:limit]):
+        source_pair_index = source_start + pair_index
+        independent_id = f"handoff-bundle-{source_pair_index:03d}"
         for kind in ("critical", "decoy"):
             scenario = reconstruct_manifest_scenario(pair[kind])
             for world in scenario.worlds:
@@ -310,7 +319,24 @@ def main() -> None:
         args.monitor_opponent_id,
     )
     ordinary = _ordinary_cases(tier, hard_manifest)
-    handoffs = _handoff_worlds(tier, handoff_manifest)
+    design_tier = design["frozen_final" if tier == "frozen" else "development_selection"]
+    designed_handoff_pairs = (
+        int(design_tier["handoff_pairs"])
+        if tier == "frozen"
+        else len(design_tier["handoff_pair_indices"])
+        if tier == "selection"
+        else None
+    )
+    handoffs = _handoff_worlds(
+        tier,
+        handoff_manifest,
+        pair_count=designed_handoff_pairs,
+    )
+    decoy_conditions = (
+        ("normal", "dropped", "target_swapped")
+        if "target_swapped" in plan.critical_conditions
+        else ("normal", "dropped")
+    )
     source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     manifest = {
         "version": PROGRESS_EVAL_VERSION,
@@ -325,7 +351,7 @@ def main() -> None:
         "ordinary_case_ids": [row[0] for row in ordinary],
         "handoff_case_ids": [row[0] for row in handoffs],
         "critical_conditions": list(plan.critical_conditions),
-        "decoy_conditions": ["normal", "dropped"],
+        "decoy_conditions": list(decoy_conditions),
         "sides": list(plan.sides),
         "generation": {"temperature": 0.0, "max_tokens": 160, "structured": True},
         "rl_specific_communication": args.rl_specific_communication,
@@ -374,6 +400,8 @@ def main() -> None:
         initial_state: Any | None = None,
         critical_target: str | None = None,
         handoff_sender: str | None = None,
+        handoff_receiver: str | None = None,
+        candidate_targets: tuple[str, str] | None = None,
     ) -> None:
         evaluation_id = ":".join(
             (
@@ -401,6 +429,7 @@ def main() -> None:
             opponent_revision,
             sampling_key,
         )
+        semantic = condition == "target_swapped"
         row, raw = evaluate_final_case(
             focal,
             opponent,
@@ -409,19 +438,25 @@ def main() -> None:
             focal_side=side,  # type: ignore[arg-type]
             condition=condition,
             initial_state=initial_state,
-            critical_target=critical_target,
+            critical_target=(critical_target if suite == "handoff_critical" else None),
+            target_swap_sender=handoff_sender if semantic else None,
+            target_swap_targets=candidate_targets if semantic else None,
+            target_swap_active_target=critical_target if semantic else None,
+            target_swap_receiver=handoff_receiver if semantic else None,
         )
         row = {
             **row,
             "independent_id": independent_id,
             "evaluation_id": evaluation_id,
         }
-        if handoff_sender is not None and critical_target is not None:
-            sender = (
-                handoff_sender
-                if side == "BLUE"
-                else handoff_sender.replace("blue-", "red-", 1)
-            )
+        if (
+            handoff_sender is not None
+            and handoff_receiver is not None
+            and critical_target is not None
+        ):
+            prefix = side.lower()
+            sender = f"{prefix}-{handoff_sender.split('-', 1)[1]}"
+            receiver = f"{prefix}-{handoff_receiver.split('-', 1)[1]}"
             sender_broadcasts = [
                 broadcast
                 for broadcast in raw["turns"][0]["broadcasts"]
@@ -438,6 +473,14 @@ def main() -> None:
                 "intent": None,
                 "request_resource": 0,
             }
+            receiver_action = next(
+                action
+                for action in raw["turns"][0]["actions"]
+                if action["agent_id"] == receiver
+            )
+            row["receiver_target_action"] = (
+                receiver_action["selected_action"].get("target") == critical_target
+            )
         raw_record = {"evaluation_id": evaluation_id, "raw": raw}
         row["raw_sha256"] = _digest(raw_record)
         with raw_path.open("a", encoding="utf-8") as handle:
@@ -477,7 +520,7 @@ def main() -> None:
 
     candidate_revision = str(config["candidate"]["revision"])
     for case_id, independent_id, suite, scenario, world in handoffs:
-        conditions = plan.critical_conditions if suite == "handoff_critical" else ("normal", "dropped")
+        conditions = plan.critical_conditions if suite == "handoff_critical" else decoy_conditions
         for opponent_id, (opponent_revision, opponent) in opponents.items():
             for side in plan.sides:
                 for condition in conditions:
@@ -497,10 +540,17 @@ def main() -> None:
                         initial_state=world.state,
                         critical_target=world.active_target,
                         handoff_sender=scenario.sender,
+                        handoff_receiver=scenario.receiver,
+                        candidate_targets=scenario.candidate_targets,
                     )
                 if args.rl_specific_communication and suite == "handoff_critical":
                     baseline_revision = str(config["baseline"]["revision"])
-                    for condition in ("normal", "dropped"):
+                    baseline_conditions = (
+                        ("normal", "dropped", "target_swapped")
+                        if "target_swapped" in plan.critical_conditions
+                        else ("normal", "dropped")
+                    )
+                    for condition in baseline_conditions:
                         run_one(
                             case_id=case_id,
                             independent_id=independent_id,
@@ -517,14 +567,25 @@ def main() -> None:
                             initial_state=world.state,
                             critical_target=world.active_target,
                             handoff_sender=scenario.sender,
+                            handoff_receiver=scenario.receiver,
+                            candidate_targets=scenario.candidate_targets,
                         )
 
     rows = [json.loads(line) for line in rows_path.read_text(encoding="utf-8").splitlines() if line]
     summarize = summarize_rl_specific_progress_eval if args.rl_specific_communication else summarize_progress_eval
+    standard_rows = [row for row in rows if row["condition"] != "target_swapped"]
     summary = summarize(
-        rows,
-        intervention_conditions=tuple(condition for condition in plan.critical_conditions if condition != "normal"),
+        standard_rows,
+        intervention_conditions=tuple(
+            condition
+            for condition in plan.critical_conditions
+            if condition not in {"normal", "target_swapped"}
+        ),
     )
+    if "target_swapped" in plan.critical_conditions:
+        if not args.rl_specific_communication:
+            raise ValueError("semantic selection/frozen evaluation requires --rl-specific-communication")
+        summary["semantic"] = summarize_semantic_holdout(rows)
     summary["tier"] = tier
     summary["scope"] = (
         "frozen final; run once" if tier == "frozen" else f"{tier} development evaluation; not a final research claim"

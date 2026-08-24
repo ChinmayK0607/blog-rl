@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -28,6 +29,23 @@ def test_binds_all_v4_task_and_evaluation_inputs() -> None:
     assert binding.curriculum_manifest("development") == "handoff_development.json"
     assert binding.curriculum_manifest("frozen_ood") == "handoff_frozen_ood.json"
     assert len({binding.train_sha256, binding.development_sha256, binding.final_sha256}) == 3
+
+
+def test_v11_package_is_accepted_by_the_paid_run_data_binding() -> None:
+    data_dir = DATA_ROOT / "rl_v11"
+    binding = resolve_task_data_binding(data_dir, "v4")
+
+    assert binding.curriculum_manifest("train") == "handoff_train.json"
+    assert binding.curriculum_manifest("development") == "handoff_development.json"
+    assert binding.curriculum_manifest("frozen_ood") == "handoff_frozen_ood.json"
+    assert len({binding.train_sha256, binding.development_sha256, binding.final_sha256}) == 3
+
+    development = json.loads(
+        (data_dir / binding.curriculum_manifest("development")).read_text()
+    )
+    assert development["pair_count"] == 24
+    assert development["source_pair_start"] == 96
+    assert development["source_pair_stop"] == 120
 
 
 def test_rejects_unknown_task_generation_or_split() -> None:

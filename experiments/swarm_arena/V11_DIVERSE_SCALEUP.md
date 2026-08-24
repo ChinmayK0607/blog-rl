@@ -66,6 +66,15 @@ receivers every 20 updates. Broader development selection runs at updates 60,
 120, and 180 over twelve role-complete bundles, 24 hard ordinary cases, and
 base/SFT/v10-update40 opponents.
 
+The paid-run preflight binds the v11 package through its checked-in
+`index.json`. Development pair IDs 96–119 are exposed to evaluation through a
+separate self-hashed `handoff_development.json`; the optimizer schedule remains
+restricted to pair IDs 0–95. The selection and frozen evaluators include the
+receiver-only target swap, preserve global development IDs 96–107, and expand
+all 36 frozen handoff bundles. Checkpoints 60, 120, and 180 are permanently
+retained so the broader selection jobs can be run without extending or
+restarting training.
+
 The headline is deliberately small:
 
 1. factual versus receiver-only target-swapped return;
@@ -83,8 +92,9 @@ final is opened once for the development-selected checkpoint.
 Do not rent a node until the source commit, manifests, trainer config, opponent
 pool, runtime certificate, and launch plan are bound together. The intended
 node is 4xL40S (or 4xL40) with at least 200 GB free disk. Set auto-termination
-to 16 hours initially; refine the deadline after the first ten updates establish
-the measured throughput. Public compact mirroring must start at update zero.
+to 22 hours initially; refine the deadline after the first twenty updates
+establish the measured throughput. Public compact mirroring must start at
+update zero.
 
 The staged launcher must receive:
 
