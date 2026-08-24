@@ -55,3 +55,21 @@ def test_manifest_balances_all_ordered_roles_on_hard_maps() -> None:
     assert all(
         all(pair["matched_pair_audit"].values()) for pair in manifest["pairs"]
     )
+
+
+def test_coprime_size_cycle_breaks_role_size_correlation() -> None:
+    sizes = (12, 14, 16, 18, 20)
+    manifest = handoff_curriculum.generate_manifest(
+        count=60,
+        seed_start=15_000_083,
+        sizes=sizes,
+        horizons=(4, 5, 6, 8, 10, 12, 14),
+    )
+    sizes_by_role: dict[tuple[str, str], set[int]] = {}
+    for pair in manifest["pairs"]:
+        critical = pair["critical"]
+        role = (critical["sender"], critical["receiver"])
+        sizes_by_role.setdefault(role, set()).add(critical["size"])
+
+    assert len(sizes_by_role) == 12
+    assert all(role_sizes == set(sizes) for role_sizes in sizes_by_role.values())

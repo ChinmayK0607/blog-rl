@@ -15,7 +15,7 @@ set -euo pipefail
 
 swarm_uv=${SWARM_UV:-/root/.local/bin/uv}
 swarm_inference_config=${SWARM_INFERENCE_CONFIG:-$SWARM_REPO_ROOT/experiments/swarm_arena/configs/inference_1_7b_l40s.toml}
-swarm_data_dir=$SWARM_REPO_ROOT/experiments/swarm_arena/data/rl_v4
+swarm_data_dir=${SWARM_DATA_DIR:-$SWARM_REPO_ROOT/experiments/swarm_arena/data/rl_v4}
 swarm_eval_root=$SWARM_RUN_DIR/evaluations
 swarm_barrier_dir=$SWARM_RUN_DIR/control/checkpoint_barriers
 swarm_rescore_dir=$SWARM_RUN_DIR/control/rescore

@@ -105,6 +105,14 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   route only the actual receiver ACT spans. Ordinary preservation groups under
   the same plan use the ordinary leave-one-out terminal-return baseline; never
   fabricate a target swap for an ordinary map.
+- When scaling a handoff curriculum, audit diversity jointly with role routing.
+  A graph-size or horizon cycle that shares a divisor with the 12 ordered
+  sender/receiver roles can silently bind particular roles to particular map
+  sizes. Use coprime cycles or an explicit balanced design, then require every
+  directed role to cover every intended size/horizon. Order selected latent
+  worlds in complete four-receiver blocks so stage boundaries cannot skew a
+  policy slot or one hidden world. Freeze independent development and final
+  seeds, and verify zero state-hash overlap before paid rollout.
 - A long-lived Swarm controller may be resumed only with
   `--resume-existing-progress`. The controller requires a non-empty contiguous
   `live_rl_progress.json`, verifies all four recorded adapter SHA-256 values

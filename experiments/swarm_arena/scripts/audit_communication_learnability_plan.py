@@ -191,8 +191,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Audit a communication-learnability curriculum before paid rollout.")
     parser.add_argument("--curriculum", type=Path, required=True)
     parser.add_argument("--handoff-manifest", type=Path, required=True)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     result = audit(args.curriculum, args.handoff_manifest)
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(
+            json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
     print(json.dumps(result, indent=2, sort_keys=True))
     if result["status"] != "passed":
         raise SystemExit(1)

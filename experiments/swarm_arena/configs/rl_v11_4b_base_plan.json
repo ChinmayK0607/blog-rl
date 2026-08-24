@@ -1,0 +1,94 @@
+{
+  "version": "arena-rl-v4-production-plan-v1",
+  "curriculum_mix": {
+    "ordinary": 1,
+    "critical": 3,
+    "decoy": 0
+  },
+  "trainable_spans": {
+    "phases": [
+      "ACT"
+    ],
+    "turn_offsets": [
+      0
+    ]
+  },
+  "opponent_pool": {
+    "rotation_seed": 20260824,
+    "snapshots": [
+      {
+        "opponent_id": "base-qwen3-4b",
+        "family": "base",
+        "model_name": "/workspace/models/qwen3-4b-cdbee75f",
+        "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+        "adapter_sha256": null,
+        "adapter_path": null,
+        "update_index": 0
+      },
+      {
+        "opponent_id": "sft-v2",
+        "family": "sft",
+        "model_name": "sft-opponent",
+        "revision": "d1a55d5594c8b544121e546e14229268c8c26bae",
+        "adapter_sha256": "168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2",
+        "adapter_path": "/workspace/artifacts/qwen3-4b-sft-v2-d1a55d55",
+        "update_index": 0
+      },
+      {
+        "opponent_id": "v10-update40-blue0",
+        "family": "historical",
+        "model_name": "historical-opponent",
+        "revision": "5f848f3f35efce6da41831163f0e34b9df6e425cf081bbc9e962a070ee909919",
+        "adapter_sha256": "4afed7f74424ea1956f5ce2838811d4f86f575827e5c03e4cfd52f9f826adf53",
+        "adapter_path": "/workspace/artifacts/v10-u40-repaired/blue-0",
+        "update_index": 40
+      },
+      {
+        "opponent_id": "current-blue0",
+        "family": "current",
+        "model_name": "current-template",
+        "revision": "d1a55d5594c8b544121e546e14229268c8c26bae",
+        "adapter_sha256": "168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2",
+        "adapter_path": null,
+        "update_index": 0
+      }
+    ]
+  },
+  "async_admission": {
+    "backend": {
+      "name": "vllm",
+      "version": "0.22.0",
+      "kernel_config_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "calibration_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "limits": {
+      "max_policy_lag": 1,
+      "max_mean_abs_log_ratio": 0.05,
+      "max_mean_mismatch_kl": 0.002,
+      "max_p99_abs_log_ratio": null,
+      "max_symmetric_importance_ratio": null,
+      "max_p99_probability_error": null,
+      "probability_tail_threshold": 0.05,
+      "max_probability_tail_fraction": null
+    }
+  },
+  "groups_per_update": 4,
+  "rollout_queue_capacity": 8,
+  "schedule": {
+    "shuffle_seed": 20260824,
+    "pair_offset": 0,
+    "ordinary_seed_base": 18000107,
+    "ordinary_sizes": [
+      12,
+      14,
+      16,
+      18
+    ],
+    "ordinary_horizons": [
+      4,
+      6,
+      8,
+      10
+    ]
+  }
+}

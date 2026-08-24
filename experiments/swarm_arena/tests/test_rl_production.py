@@ -301,6 +301,51 @@ def test_partial_decoy_mix_uses_only_matched_critical_cases() -> None:
     assert decoy < critical
 
 
+def test_v11_curriculum_scales_diversity_without_role_or_world_imbalance() -> None:
+    root = Path(__file__).resolve().parents[1]
+    data_dir = root / "data" / "rl_v11"
+    curriculum = json.loads(
+        (data_dir / "staged_curriculum_v11_4b_diverse_receiver_180.json").read_text()
+    )
+    manifest = json.loads((data_dir / "handoff_train.json").read_text())
+    stages = tuple(
+        CurriculumStage(
+            name=stage["name"],
+            updates=stage["updates"],
+            update_pattern=tuple(CurriculumMix(**mix) for mix in stage["update_pattern"]),
+            ordinary_sizes=tuple(stage["ordinary_sizes"]),
+            ordinary_horizons=tuple(stage["ordinary_horizons"]),
+            handoff_focus_roles=tuple(stage["handoff_focus_roles"]),
+            handoff_cases=tuple(
+                (case["pair_index"], case["world"]) for case in stage["handoff_cases"]
+            ),
+            handoff_remaining_turns=stage["handoff_remaining_turns"],
+        )
+        for stage in curriculum["stages"]
+    )
+    schedule = exact_staged_curriculum_schedule(
+        stages,
+        groups_per_update=4,
+        pair_offset=0,
+        ordinary_seed_base=18_000_107,
+        shuffle_seed=20_260_824,
+    )
+    critical = [row for row in schedule if row.kind == "critical"]
+
+    assert len(schedule) == 720
+    assert Counter(row.kind for row in schedule) == {"critical": 540, "ordinary": 180}
+    assert Counter(row.handoff_world for row in critical) == {
+        "left_exposed": 270,
+        "right_exposed": 270,
+    }
+    assert Counter(
+        manifest["pairs"][row.pair_index]["critical"]["receiver"]
+        for row in critical
+    ) == {f"blue-{index}": 135 for index in range(4)}
+    assert max(row.pair_index for row in critical) == 95
+    assert min(curriculum["online_eval_pair_indices"]) == 96
+
+
 def test_joint_curriculum_balances_sender_receiver_focus_and_retains_ordinary_play() -> None:
     root = Path(__file__).resolve().parents[1]
     curriculum = json.loads(
