@@ -5273,6 +5273,92 @@ no more critical-specific than decoy-specific. Therefore:
   fresh 4xL40S SSH endpoint and execute the once-only evaluation without
   changing the lock or selecting on held-out outcomes.
 
+### 2026-08-24 — v10 clean held-out update-40 result and post-audits
+
+- Status: completed.
+- Verdict: promising causal message-use signal; the strict confirmatory
+  RL-specific communication claim is rejected narrowly. Protocol, constrained
+  KL, and collapse diagnostics pass.
+- Hypothesis: the development-selected v10 update-40 policies use a teammate's
+  private target fact to improve receiver behavior and terminal return, beyond
+  SFT and beyond generic coordination on matched decoys.
+- Decision unlocked: preserve update 40 as positive but non-confirmatory
+  evidence. The next run should improve critical-versus-decoy specificity and
+  ordinary capability rather than extend the same curriculum blindly.
+- Source commit: `54f325284f944237031de218db077c0615984f8f` for the
+  clean held-out runner; the selected policies were trained from v10 source
+  `3168b59db45bdfdb6ec3c9ece5c62a026e81b4bf`.
+- Base / adapter / opponent revisions: Qwen3-4B base `cdbee75f`; SFT revision
+  `d1a55d55` with weight SHA-256 `168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2`;
+  four update-40 policy hashes are frozen in the lock and result manifest. The
+  historical-league label intentionally resolves to the preregistered SFT
+  revision and is not claimed as an independent policy family.
+- Data split and manifest SHA-256: clean held-out lock body
+  `1a5bb75f165cbf320e9f9761064d2baa9d000533c537ad367e45a7518a9ffb32`;
+  4,260 compact rows SHA-256
+  `d599e0ad15d532df8f00f78f1dc278566c5ae9563f0f9252e29aef87d1b20c6f`;
+  reconstructed raw rows SHA-256 begins `dd05d07c` and contains exactly 4,260
+  evaluation IDs.
+- GPU, wall time, and estimated cost: the once-only evaluation used four L40S
+  GPUs from 2026-08-23 until provider auto-termination; the exact billed amount
+  is not available in the artifacts. The independent post-audit reproduction
+  used one RTX 3090 from approximately 04:55–05:16 UTC on 2026-08-24; its exact
+  provider rate is unknown. No GPU is required to inspect the compact result.
+- Exact launcher/config: `V10_CLEAN_HOLDOUT.md`; config SHA-256
+  `dbcbaa632cfc4cbf87921e96c4efbab83c1823d30e307eaf23d18de1daf6bbe2`.
+- Predeclared gates: semantic normal-minus-receiver-target-swap; RL-minus-SFT
+  semantic lift; critical-minus-decoy specificity; receiver target-action gap;
+  per-opponent direction; ordinary/capability regression; action, broadcast,
+  and grounding validity; speaking/action/target collapse; candidate-to-SFT
+  constrained KL mean at most `.08` and p99 at most `.30`.
+- Results: candidate semantic normal-minus-target-swapped terminal return
+  `+.0320811`, 95% CI `[+.0157342,+.0506818]`, `n=22`. Receiver target action
+  was `.7803` normally and `.2121` when only the receiver's fact was swapped;
+  paired gap `+.5682`, 95% CI `[+.3939,+.7348]`. The direction was positive
+  against every labelled opponent. Sender target-fact and intervention
+  eligibility were both `.8826`. RL-minus-SFT semantic sensitivity was
+  `+.0194063`, 95% CI `[-.0003998,+.0386262]`; critical-minus-matched-decoy
+  specificity was `+.0131639`, 95% CI `[-.0022569,+.0290604]`. Delayed and
+  shuffled messages caused significant degradation; dropped and zero-budget
+  intervals crossed zero. Overall RL-minus-SFT gameplay was `+.005213`, 95% CI
+  `[-.005165,+.015588]`. Every defined protocol metric was `1.0`.
+- Post-audit results: the frozen 32-decision probe produced 1,339 token rows
+  with 154 branching tokens. Candidate-to-SFT KL mean was `.0013960` and p99
+  `.0027070`, passing both frozen limits. One isolated token reached `1.5688`
+  and remains reported. The full 4,260-trajectory collapse audit passed: policy
+  speaking rates `.2947–.3132`, action concentration `.2549–.2856`, message
+  target concentration `.0394–.0484`, zero orphan rows, and every registered
+  collapse flag false.
+- Failures and retries: the first clean audit environment lacked PEFT. A generic
+  temporary resolver attempted to pull a separate CUDA 13/Torch stack and was
+  stopped before model loading; the successful audit used a no-dependency
+  `peft==0.20.0` / `accelerate==1.13.0` overlay on the frozen Torch environment.
+  The next load exposed a real export bug: public candidate configs declared
+  rank 16 / alpha 32 although all immutable tensors and the frozen trainer
+  config establish rank 32 / alpha 64. The repair utility created
+  metadata-corrected views, symlinked the unchanged weights, verified every
+  tensor rank/target module/hash, and retained a manifest. No scientific
+  threshold, case, checkpoint, weight byte, or held-out row changed.
+- Artifact paths and hashes: compact bundle
+  `results/v10_clean_holdout_u40/`; summary `13c7f787e3930d0893f52b1f26290ccd63ca49b00b722aedbd7f0ecd7c39aee2`;
+  probe `db525f1201775febc4fb8933758c16e4821fd7e1d2e9a524db0a650cc7142edb`;
+  KL `09673097fcef7b8e30106f58aafcef77020bdab51bf1ab7bbb4e2c15bd3008ae`;
+  collapse `54f72bd078f2371e0be52f4f57aa151b7876a86fc5b03cc4d397c7af67025be6`;
+  metadata repair `91243fadb80cb7441e23a9353610f34a0f8a2aeb5b687676e35aa49c0847b3b4`.
+  Public held-out rows and compressed traces:
+  `https://huggingface.co/CK0607/swarm-arena-live-runs/tree/main/runs/rl-v10-clean-holdout-u40`.
+- Interpretation: this is real evidence that the learned policies condition
+  receiver behavior and return on teammate message content. It is not yet
+  evidence that RL created a broadly communication-specific capability: both
+  decisive RL-over-SFT and critical-over-decoy confidence intervals narrowly
+  include zero, and overall gameplay improvement is not significant.
+- Next action: train on counterfactual units where the critical receiver action
+  changes terminal outcome but the matched decoy does not; maintain ordinary
+  anchors and select on a joint semantic-specificity/capability criterion.
+- Instance decommissioned: the original 4xL40S evaluation node auto-terminated;
+  the RTX 3090 audit node was idle and decommission-ready after these compact
+  artifacts were copied. No model weights or raw traces were copied to the Mac.
+
 ## Future entry template
 
 Copy this block for each material run:

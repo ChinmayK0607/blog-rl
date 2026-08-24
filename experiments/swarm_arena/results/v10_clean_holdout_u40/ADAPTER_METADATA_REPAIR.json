@@ -1,0 +1,62 @@
+{
+  "adapters": {
+    "blue-0": {
+      "original_alpha": 32.0,
+      "original_config_sha256": "c485aa89d4b2e87a55c37c440b2f57d6b8126c905fbbd7468bdc73e2bd393deb",
+      "original_rank": 16,
+      "repaired_alpha": 64.0,
+      "repaired_config_sha256": "4083db4154f80c578d382888685c385cb034c4268f9e51a73c2ba58cab023997",
+      "repaired_rank": 32,
+      "source": "/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-0",
+      "tensor_rank": 32,
+      "weights_sha256": "4afed7f74424ea1956f5ce2838811d4f86f575827e5c03e4cfd52f9f826adf53"
+    },
+    "blue-1": {
+      "original_alpha": 32.0,
+      "original_config_sha256": "c485aa89d4b2e87a55c37c440b2f57d6b8126c905fbbd7468bdc73e2bd393deb",
+      "original_rank": 16,
+      "repaired_alpha": 64.0,
+      "repaired_config_sha256": "4083db4154f80c578d382888685c385cb034c4268f9e51a73c2ba58cab023997",
+      "repaired_rank": 32,
+      "source": "/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-1",
+      "tensor_rank": 32,
+      "weights_sha256": "b1e4948e9821ed17751c3820a938530416e7dab51aaa3b578fe8cf2d8c1bf5d8"
+    },
+    "blue-2": {
+      "original_alpha": 32.0,
+      "original_config_sha256": "c485aa89d4b2e87a55c37c440b2f57d6b8126c905fbbd7468bdc73e2bd393deb",
+      "original_rank": 16,
+      "repaired_alpha": 64.0,
+      "repaired_config_sha256": "4083db4154f80c578d382888685c385cb034c4268f9e51a73c2ba58cab023997",
+      "repaired_rank": 32,
+      "source": "/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-2",
+      "tensor_rank": 32,
+      "weights_sha256": "e784622127e9a6b93345fee877526d1996b66285dc68e04b71118153ef56b1da"
+    },
+    "blue-3": {
+      "original_alpha": 32.0,
+      "original_config_sha256": "c485aa89d4b2e87a55c37c440b2f57d6b8126c905fbbd7468bdc73e2bd393deb",
+      "original_rank": 16,
+      "repaired_alpha": 64.0,
+      "repaired_config_sha256": "4083db4154f80c578d382888685c385cb034c4268f9e51a73c2ba58cab023997",
+      "repaired_rank": 32,
+      "source": "/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-3",
+      "tensor_rank": 32,
+      "weights_sha256": "e5c2ede182723ca7781399f820d67b9be80326380ae68959f98aff173a3bab7f"
+    }
+  },
+  "expected_dropout": 0.0,
+  "expected_target_modules": [
+    "down_proj",
+    "gate_proj",
+    "k_proj",
+    "o_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+  ],
+  "scope": "metadata-only repair; adapter safetensors are symlinked and unchanged",
+  "trainer_config": "experiments/swarm_arena/configs/rl_v10_4b_receiver_isolated_60.toml",
+  "trainer_config_sha256": "42464407820d87c3c1135760187fe16cea2541e23e583349f3e902d8da0f9b9f",
+  "version": "swarm-v10-kl-adapter-metadata-repair-v1"
+}

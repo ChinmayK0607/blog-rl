@@ -166,17 +166,47 @@ choice probe from the frozen SFT alias:
 
 After the 4,260-row evaluation is complete, stop only the GPU-0 inference
 server and measure the four selected adapters against the SFT initializer on
-that frozen probe:
+that frozen probe. The public update-40 export has an adapter-metadata defect:
+its immutable tensors are rank 32 and the frozen trainer used rank 32 / alpha
+64, but each exported `adapter_config.json` declares rank 16 / alpha 32. Create
+metadata-corrected views first. The utility fails closed unless all four tensor
+ranks and target modules agree with the frozen trainer config; it symlinks the
+unchanged weight files and records every source/config/weight hash.
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 /workspace/uv-bootstrap/bin/uv run python \
+/workspace/uv-bootstrap/bin/uv run \
+  experiments/swarm_arena/scripts/repair_v10_kl_adapter_metadata.py \
+  --trainer-config experiments/swarm_arena/configs/rl_v10_4b_receiver_isolated_60.toml \
+  --adapter blue-0=/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-0 \
+  --adapter blue-1=/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-1 \
+  --adapter blue-2=/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-2 \
+  --adapter blue-3=/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-3 \
+  --output-root /workspace/runs/v10-clean-holdout-u40/repaired_adapters
+```
+
+The frozen project environment does not include PEFT because inference is
+served by vLLM. Install the exact audit-only packages into an isolated overlay
+without resolving or replacing the project's Torch/CUDA stack:
+
+```bash
+/workspace/uv-bootstrap/bin/uv pip install \
+  --target /workspace/audit-overlay \
+  --no-deps \
+  peft==0.20.0 accelerate==1.13.0
+```
+
+Then run the audit through the frozen project environment plus that overlay:
+
+```bash
+PYTHONPATH=/workspace/audit-overlay CUDA_VISIBLE_DEVICES=0 \
+/workspace/uv-bootstrap/bin/uv run --no-sync python \
   experiments/swarm_arena/scripts/measure_constrained_policy_kl.py \
   --model /workspace/models/qwen3-4b-cdbee75f \
   --baseline-adapter /workspace/artifacts/qwen3-4b-sft-v2-d1a55d55 \
-  --candidate-adapter blue-0=/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-0 \
-  --candidate-adapter blue-1=/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-1 \
-  --candidate-adapter blue-2=/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-2 \
-  --candidate-adapter blue-3=/workspace/artifacts/swarm-arena-live-runs/runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40/policy-blue-3 \
+  --candidate-adapter blue-0=/workspace/runs/v10-clean-holdout-u40/repaired_adapters/blue-0 \
+  --candidate-adapter blue-1=/workspace/runs/v10-clean-holdout-u40/repaired_adapters/blue-1 \
+  --candidate-adapter blue-2=/workspace/runs/v10-clean-holdout-u40/repaired_adapters/blue-2 \
+  --candidate-adapter blue-3=/workspace/runs/v10-clean-holdout-u40/repaired_adapters/blue-3 \
   --probe /workspace/runs/v10-clean-holdout-u40/policy_kl_probe.json \
   --output /workspace/runs/v10-clean-holdout-u40/policy_kl.json
 ```
