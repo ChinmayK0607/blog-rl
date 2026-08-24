@@ -5442,7 +5442,8 @@ no more critical-specific than decoy-specific. Therefore:
   package without falling back to v4 filenames or endpoints.
 - Decision unlocked: v11 is eligible for host-specific runtime calibration and
   production-plan binding after this fix is committed and published.
-- Source commit: pending this entry's publication commit.
+- Source commit: `cf98c342` for the launch/evaluator fix; the following
+  documentation-only commit records that immutable identifier.
 - Data split and manifest SHA-256: v11 task index file
   `544bb787ac496a393ae442ce6621e47dc201ed29c789e39deaeba75728eaee2f`;
   separate development handoff file
