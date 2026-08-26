@@ -5707,13 +5707,34 @@ no more critical-specific than decoy-specific. Therefore:
   Linux command passed **163/163 tests** with two import deprecation warnings in
   40.48 seconds. No test, threshold, data file, or scientific config was removed
   or relaxed to obtain the pass.
+- Launch-route recheck then found that the generic staged launcher did not pass
+  V12's `swarm-distinct-policy-warmstart-v1` manifest to the controller. The
+  trainer had the correct four per-run paths, but the controller would otherwise
+  have initialized serving aliases from the common SFT path. Correction commit
+  `9779f3976ce77ff59c15a85e8e50c51f6a68e6e6` makes preflight validate the
+  controller manifest against all four trainer paths, hashes, revisions, and
+  unique adapter bytes; passes the same file to the controller; includes it in
+  the safe mirror allowlist; and preserves the dedicated uv cache in all tmux
+  children. The actual generated V12 manifest passed this check at SHA-256
+  `67ae25d29e5b8b2be0d8536e93e0e1fabc765f77df060b0e4f26028fd0595190`.
+  Bash syntax and Ruff passed, and the complete Linux suite again passed
+  **163/163 tests** in 40.82 seconds. No inference or optimizer process had
+  started when this gap was found.
+- Public input preparation: the base Qwen3-4B, SFT baseline, V10 historical
+  opponent, and all four V11 update-180 policy adapters were downloaded
+  anonymously and hash-checked on the pod. The public V11 manifest SHA-256 is
+  `b4e1559d23fac93869b0ed47d2c6c11b029e95b4b734bdf7e97959c9113e2c75`;
+  the distinct V11 policy hashes are `2b6078b3...b304`, `2b1338f2...53b3`,
+  `2aae96b4...4a3f`, and `a03e6ce8...e29d`. Generated V12 trainer TOML SHA-256
+  is `aba301c2c60bdba34c3a01dc9acf861df45c5bac0b5ad3c5166fe3e028bd51b9`.
 - Artifact/storage status: only source, test logs, and the CUDA environment are
   on the paid pod. No base model, SFT/V10 opponent, V11 warm-start adapter,
   rollout, checkpoint, or model artifact has been copied to the Mac. Public HF
   mirroring is not yet enabled because optimizer launch remains prohibited.
 - Next action: publish the narrow source correction, update the pod to that
-  immutable commit, then proceed to public artifact hashing and the update-0/1
-  signed-credit smoke only because all 163 Linux tests passed.
+  immutable launch-route commit, then proceed to inference/runtime parity and
+  the update-0/1 signed-credit smoke only because all 163 Linux tests passed and
+  all four distinct public adapters matched.
 - Instance decommissioned: no; pod is active under the bounded TTL.
 
 ## Future entry template
