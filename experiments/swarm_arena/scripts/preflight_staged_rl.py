@@ -220,6 +220,10 @@ def main() -> None:
         raise ValueError("runtime certificate does not bind the public base revision")
     if certificate["trainer_config_sha256"] != _sha256_file(trainer_path):
         raise ValueError("runtime certificate does not bind the resolved trainer config")
+    if certificate.get("initial_policy_adapter_manifest_sha256") != (
+        initial_policy_adapter_manifest_sha256
+    ):
+        raise ValueError("runtime certificate does not bind the policy warm-start manifest")
     if (
         certificate["parity_report"]["trainer_parity_gate_sha256"]
         != prepare["trainer_parity_gate_sha256"]

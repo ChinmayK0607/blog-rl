@@ -5735,6 +5735,28 @@ no more critical-specific than decoy-specific. Therefore:
   immutable launch-route commit, then proceed to inference/runtime parity and
   the update-0/1 signed-credit smoke only because all 163 Linux tests passed and
   all four distinct public adapters matched.
+- Runtime-certificate correction: the legacy parity probe loaded one common
+  adapter into every serving alias and required the four trainer slots to have
+  identical initial state. That is invalid for V12, whose blue policies resume
+  from four distinct V11 update-180 adapters. Before any optimizer launch, the
+  certificate path was extended to load the policy-matched adapter for each
+  probe sample; verify each manifest path, revision, and safetensors SHA-256;
+  require four distinct initial trainer-state digests; and bind the manifest
+  plus exact four-policy hash map through probe, trainer report, runtime
+  certificate, and staged preflight. The common SFT adapter remains separately
+  bound as the immutable baseline/opponent input. This changes no curriculum,
+  reward, parity threshold, or training hyperparameter.
+- Runtime-certificate validation: Ruff and Python compilation passed. The first
+  streamed pytest attempt ended without a final process result at 44% and was
+  not counted as evidence. A fresh bounded Linux run completed with **163/163
+  tests passed** (two import deprecation warnings) in 39.97 seconds. All three
+  L40S inference servers then reported HTTP 200 health with about 40.9 GiB
+  allocated each; GPU0 remained empty for exact trainer-side certification.
+- Serving-launch retry: the first loop-generated tmux command lost its shell
+  port substitutions and each inference config rejected the empty port before
+  loading a model. Those logs are preserved. The explicit literal-port relaunch
+  on GPUs 1--3 (8001--8003, isolated compile caches/RPC ports) loaded cleanly.
+  No optimizer or rollout was started by either failed setup attempt.
 - Instance decommissioned: no; pod is active under the bounded TTL.
 
 ## Future entry template

@@ -127,6 +127,7 @@ def main() -> None:
     parser.add_argument("--adapter", type=Path, required=True)
     parser.add_argument("--adapter-sha256", required=True)
     parser.add_argument("--trainer-config", type=Path)
+    parser.add_argument("--initial-policy-adapter-manifest", type=Path)
     parser.add_argument("--probe", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
@@ -151,6 +152,7 @@ def main() -> None:
 
     setup_torch_distributed()
     trainer_config_sha256 = None
+    initial_policy_adapter_manifest_sha256 = None
     if args.trainer_config is None:
         config = TrainerConfig.model_validate(
             {
@@ -197,6 +199,58 @@ def main() -> None:
             raise ValueError("trainer config adapter path does not match --adapter")
         if config.model.lora.initial_adapter_sha256 != args.adapter_sha256:
             raise ValueError("trainer config adapter digest does not match --adapter-sha256")
+        per_run_paths = config.model.lora.initial_adapter_paths_by_run
+        per_run_hashes = config.model.lora.initial_adapter_sha256_by_run
+        if per_run_paths:
+            if args.initial_policy_adapter_manifest is None:
+                raise ValueError("distinct parity requires the policy adapter manifest")
+            manifest = json.loads(
+                args.initial_policy_adapter_manifest.read_text(encoding="utf-8")
+            )
+            if manifest.get("version") != "swarm-distinct-policy-warmstart-v1":
+                raise ValueError("unsupported distinct-policy warm-start manifest")
+            policies = manifest.get("policies")
+            if not isinstance(policies, dict) or set(policies) != {
+                f"blue-{index}" for index in range(4)
+            }:
+                raise ValueError("distinct parity manifest must bind four policies")
+            expected_paths = {
+                f"run_blue_{index}": Path(str(policies[f"blue-{index}"]["path"])).resolve()
+                for index in range(4)
+            }
+            expected_hashes = {
+                f"run_blue_{index}": str(policies[f"blue-{index}"]["sha256"])
+                for index in range(4)
+            }
+            for index in range(4):
+                policy_id = f"blue-{index}"
+                if str(policies[policy_id].get("revision")) != expected_hashes[
+                    f"run_blue_{index}"
+                ]:
+                    raise ValueError(f"warm-start revision mismatch for {policy_id}")
+                actual = sha256_file(
+                    expected_paths[f"run_blue_{index}"] / "adapter_model.safetensors"
+                )
+                if actual != expected_hashes[f"run_blue_{index}"]:
+                    raise ValueError(f"warm-start adapter mismatch for {policy_id}")
+            if per_run_paths != expected_paths or per_run_hashes != expected_hashes:
+                raise ValueError("trainer and parity manifest disagree on policy adapters")
+            if len(set(expected_hashes.values())) != 4:
+                raise ValueError("distinct parity cannot clone one adapter across slots")
+            initial_policy_adapter_manifest_sha256 = sha256_file(
+                args.initial_policy_adapter_manifest
+            )
+            if probe.get("initial_policy_adapter_manifest_sha256") != (
+                initial_policy_adapter_manifest_sha256
+            ):
+                raise ValueError("parity probe did not bind the policy adapter manifest")
+            if probe.get("policy_adapter_sha256") != {
+                run_id.replace("run_blue_", "blue-"): digest
+                for run_id, digest in sorted(expected_hashes.items())
+            }:
+                raise ValueError("parity probe policy hashes differ from trainer bindings")
+        elif args.initial_policy_adapter_manifest is not None:
+            raise ValueError("policy adapter manifest supplied without trainer per-run bindings")
     parity_gate = config.rollout_parity_gate
     if parity_gate is None:
         raise ValueError("trainer config is missing the rollout parity gate")
@@ -227,8 +281,11 @@ def main() -> None:
         run_id: adapter_digest(manager.get_state_dict_for_run(index))
         for run_id, index in sorted(manager.id_2_idx.items())
     }
-    if len(set(slot_digests_before.values())) != 1:
-        raise RuntimeError("four policy slots did not start from identical pinned adapters")
+    expected_initial_slot_digests = 4 if initial_policy_adapter_manifest_sha256 else 1
+    if len(set(slot_digests_before.values())) != expected_initial_slot_digests:
+        raise RuntimeError(
+            "trainer policy slots do not match the declared warm-start identity"
+        )
 
     all_inference = []
     all_trainer = []
@@ -441,6 +498,10 @@ def main() -> None:
         "adapter_sha256": args.adapter_sha256,
         "probe_sha256": sha256_file(args.probe),
         "trainer_config_sha256": trainer_config_sha256,
+        "initial_policy_adapter_manifest_sha256": (
+            initial_policy_adapter_manifest_sha256
+        ),
+        "policy_adapter_sha256": probe.get("policy_adapter_sha256", {}),
         "trainer_parity_gate_sha256": trainer_parity_gate_sha256,
         "trainer_model_impl": config.model.impl,
         "trainer_attention": config.model.attn,

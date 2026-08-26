@@ -54,6 +54,7 @@ def main() -> None:
     parser.add_argument("--base-revision", required=True)
     parser.add_argument("--adapter", type=Path, required=True)
     parser.add_argument("--trainer-config", type=Path, required=True)
+    parser.add_argument("--initial-policy-adapter-manifest", type=Path)
     parser.add_argument("--inference-config", type=Path, required=True)
     parser.add_argument("--serving-probe", type=Path, required=True)
     parser.add_argument("--parity-probe", type=Path, required=True)
@@ -79,6 +80,11 @@ def main() -> None:
     serving = json.loads(args.serving_probe.read_text(encoding="utf-8"))
     parity = json.loads(args.parity_report.read_text(encoding="utf-8"))
     parity_probe = json.loads(args.parity_probe.read_text(encoding="utf-8"))
+    initial_policy_adapter_manifest_sha256 = (
+        _sha256_file(args.initial_policy_adapter_manifest)
+        if args.initial_policy_adapter_manifest is not None
+        else None
+    )
     if serving.get("status") != "passed" or serving.get("servers") != 3:
         raise ValueError("serving probe must pass against exactly three rollout servers")
     if serving.get("adapter_sha256") != adapter_sha256:
@@ -103,6 +109,18 @@ def main() -> None:
         raise ValueError("parity report does not bind the supplied runtime probe")
     if parity.get("trainer_config_sha256") != trainer_sha256:
         raise ValueError("parity report was not produced from the resolved trainer config")
+    if parity.get("initial_policy_adapter_manifest_sha256") != (
+        initial_policy_adapter_manifest_sha256
+    ):
+        raise ValueError("parity report did not bind the policy adapter manifest")
+    if parity_probe.get("initial_policy_adapter_manifest_sha256") != (
+        initial_policy_adapter_manifest_sha256
+    ):
+        raise ValueError("parity probe did not bind the policy adapter manifest")
+    if parity.get("policy_adapter_sha256") != parity_probe.get(
+        "policy_adapter_sha256"
+    ):
+        raise ValueError("parity report and runtime probe bind different policy adapters")
 
     body = {
         "version": "swarm-runtime-certificate-v1",
@@ -112,6 +130,10 @@ def main() -> None:
         "adapter_sha256": adapter_sha256,
         "trainer_config_sha256": trainer_sha256,
         "inference_config_sha256": inference_sha256,
+        "initial_policy_adapter_manifest_sha256": (
+            initial_policy_adapter_manifest_sha256
+        ),
+        "policy_adapter_sha256": parity.get("policy_adapter_sha256", {}),
         "backend": {
             "name": "vllm",
             "version": importlib.metadata.version("vllm"),
