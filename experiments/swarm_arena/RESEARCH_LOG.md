@@ -5832,6 +5832,34 @@ no more critical-specific than decoy-specific. Therefore:
   `/workspace/runs/rl-v12-smoke5-07ca6848`; no optimizer step was started.
 - Instance decommissioned: no; pod is active under the bounded TTL.
 
+### 2026-08-26 — V12 update-0 evaluator schema failure and source-honest restart
+
+- Status: failed before optimization; narrow correction implemented for a fresh
+  source-bound relaunch.
+- Verdict: evaluator integration failure, not a model or RL result.
+- Failure: the first full V12 launch reached the update-0 pulse barrier, where
+  `run_progress_eval_v4.py --tier pulse` incorrectly indexed the legacy V11
+  `development_selection` design key. V12 intentionally names its larger
+  count-based section `development`, so the pulse daemon exited with
+  `KeyError: 'development_selection'`. No optimizer update or policy progress
+  record existed. Exact logs/configs/hashes were preserved under
+  `audit/failures/20260826T160421Z-update0-eval-schema`; only training-side
+  sessions were stopped and the three healthy inference servers stayed hot.
+- Correction: pulse and online tiers now use their fixed compact tier plans and
+  never inspect selection metadata. Selection accepts both the V11 indexed
+  schema (12 handoff pairs / 24 ordinary cases) and the V12 count schema
+  (36 / 36); V12's 36 ordinary cases are deterministically balanced as 18
+  legacy plus 18 hard cases. Tests bind both schema routes and preserve the
+  existing pulse/online sizes. Ruff passed, the focused evaluator suite passed
+  **24/24**, and a fresh detached full Linux run passed **157/157 tests** in
+  39.75 seconds (two import deprecation warnings).
+- Scientific handling: the failed run directory will not be resumed or
+  relabelled because its source commit predates the evaluator fix. A fresh run
+  must be prepared, recertified, preflighted, and launched from the correction
+  commit. V12 curricula, reward signs, admission gates, optimizer settings,
+  model inputs, and checkpoint-selection rules are unchanged.
+- Instance decommissioned: no; the authorized bounded pod remains active.
+
 ## Future entry template
 
 Copy this block for each material run:

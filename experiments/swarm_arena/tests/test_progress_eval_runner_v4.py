@@ -6,9 +6,6 @@ import json
 from pathlib import Path
 
 import pytest
-from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
-from swarm_ctf_eval.semantic_holdout import summarize_semantic_holdout
-
 from scripts.log_live_rl_wandb import (
     summarize_evaluation,
     summarize_logical_update,
@@ -29,6 +26,7 @@ from scripts.run_progress_eval_v4 import (
     _import_cached_baseline,
     _load_manifest,
     _ordinary_cases,
+    _selection_design_counts,
     _validate_frozen_confirmation,
 )
 from scripts.run_staged_pulses import (
@@ -47,6 +45,8 @@ from scripts.run_v10_clean_holdout import (
     _validate_bindings,
 )
 from scripts.run_v10_holdout_mirror import _snapshot_rows, _write_raw_shard
+from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
+from swarm_ctf_eval.semantic_holdout import summarize_semantic_holdout
 
 
 def test_tier_plans_keep_final_large_and_development_small() -> None:
@@ -130,6 +130,33 @@ def test_runner_expands_both_handoff_worlds_and_hard_cases() -> None:
         "ordinary_legacy",
         "ordinary_hard",
     }
+
+
+def test_selection_design_counts_support_v11_and_v12_schemas() -> None:
+    data_root = Path(__file__).parents[1] / "data"
+    v11 = json.loads((data_root / "rl_v11" / "progress_eval_design.json").read_text())
+    v12 = json.loads((data_root / "rl_v12" / "progress_eval_design.json").read_text())
+
+    assert _selection_design_counts(v11) == (12, 24)
+    assert _selection_design_counts(v12) == (36, 36)
+
+
+def test_v12_selection_expands_all_36_ordinary_cases() -> None:
+    data_dir = Path(__file__).parents[1] / "data" / "rl_v12"
+    ordinary = _load_manifest(data_dir / "ordinary_hard_development.json")
+    rows = _ordinary_cases("selection", ordinary, total_cases=36)
+
+    assert len(rows) == 36
+    assert sum(row[3] == "ordinary_legacy" for row in rows) == 18
+    assert sum(row[3] == "ordinary_hard" for row in rows) == 18
+
+
+def test_pulse_and_online_do_not_require_selection_metadata() -> None:
+    data_dir = Path(__file__).parents[1] / "data" / "rl_v12"
+    ordinary = _load_manifest(data_dir / "ordinary_hard_development.json")
+
+    assert len(_ordinary_cases("pulse", ordinary)) == 12
+    assert len(_ordinary_cases("online", ordinary)) == 8
 
 
 def test_v11_eval_route_preserves_global_development_ids_and_all_frozen_pairs() -> None:

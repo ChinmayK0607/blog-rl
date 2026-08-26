@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
+from scripts.run_final_eval_development import _prepare_output, _roster, _served_model
 from swarm_ctf_eval.arena_eval import ArenaModel
 from swarm_ctf_eval.crossplay_eval import FROZEN_CROSSPLAY_CASES, development_cases
 from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
@@ -19,8 +20,6 @@ from swarm_ctf_eval.progress_eval_v4 import (
 )
 from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
 from swarm_ctf_eval.semantic_holdout import summarize_semantic_holdout
-
-from scripts.run_final_eval_development import _prepare_output, _roster, _served_model
 
 Tier = Literal["pulse", "online", "selection", "frozen"]
 
@@ -178,11 +177,22 @@ def _validate_frozen_confirmation(
 def _ordinary_cases(
     tier: Tier,
     hard_manifest: dict[str, Any],
+    *,
+    total_cases: int | None = None,
 ) -> tuple[tuple[str, str, tuple[int, int, int], str, str], ...]:
     plan = TIER_PLANS[tier]
-    legacy = FROZEN_CROSSPLAY_CASES if tier == "frozen" else development_cases(plan.legacy_cases)
+    if total_cases is not None:
+        if tier != "selection":
+            raise ValueError("an explicit ordinary-case total is valid only for selection")
+        if total_cases <= 0 or total_cases % 2:
+            raise ValueError("selection ordinary-case total must be positive and even")
+        legacy_cases = hard_cases = total_cases // 2
+    else:
+        legacy_cases = plan.legacy_cases
+        hard_cases = plan.hard_cases
+    legacy = FROZEN_CROSSPLAY_CASES if tier == "frozen" else development_cases(legacy_cases)
     rows = []
-    for seed, size, horizon in legacy[: plan.legacy_cases]:
+    for seed, size, horizon in legacy[:legacy_cases]:
         for option_order in plan.legacy_option_orders:
             rows.append(
                 (
@@ -193,7 +203,12 @@ def _ordinary_cases(
                     option_order,
                 )
             )
-    for case in hard_manifest["cases"][: plan.hard_cases]:
+    if hard_cases > len(hard_manifest["cases"]):
+        raise ValueError(
+            f"{tier} requests {hard_cases} hard ordinary cases from a "
+            f"{len(hard_manifest['cases'])}-case manifest"
+        )
+    for case in hard_manifest["cases"][:hard_cases]:
         seed = int(case["seed"])
         rows.append(
             (
@@ -205,6 +220,27 @@ def _ordinary_cases(
             )
         )
     return tuple(rows)
+
+
+def _selection_design_counts(design: dict[str, Any]) -> tuple[int, int]:
+    """Resolve legacy V11 and count-based V12 development-selection schemas."""
+    if isinstance(design.get("development_selection"), dict):
+        selection = design["development_selection"]
+    elif isinstance(design.get("development"), dict):
+        selection = design["development"]
+    else:
+        raise ValueError("evaluation design has no development selection section")
+
+    if "handoff_pair_indices" in selection:
+        handoff_pairs = len(selection["handoff_pair_indices"])
+    else:
+        handoff_pairs = int(selection["handoff_pairs"])
+    ordinary_cases = int(selection["ordinary_cases"])
+    if handoff_pairs <= 0:
+        raise ValueError("development selection must contain at least one handoff pair")
+    if ordinary_cases <= 0 or ordinary_cases % 2:
+        raise ValueError("development selection ordinary-case count must be positive and even")
+    return handoff_pairs, ordinary_cases
 
 
 def _handoff_worlds(
@@ -318,14 +354,15 @@ def main() -> None:
         args.api_key,
         args.monitor_opponent_id,
     )
-    ordinary = _ordinary_cases(tier, hard_manifest)
-    design_tier = design["frozen_final" if tier == "frozen" else "development_selection"]
+    selection_handoff_pairs = None
+    selection_ordinary_cases = None
+    if tier == "selection":
+        selection_handoff_pairs, selection_ordinary_cases = _selection_design_counts(design)
+    ordinary = _ordinary_cases(tier, hard_manifest, total_cases=selection_ordinary_cases)
     designed_handoff_pairs = (
-        int(design_tier["handoff_pairs"])
+        int(design["frozen_final"]["handoff_pairs"])
         if tier == "frozen"
-        else len(design_tier["handoff_pair_indices"])
-        if tier == "selection"
-        else None
+        else selection_handoff_pairs
     )
     handoffs = _handoff_worlds(
         tier,
