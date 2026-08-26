@@ -508,6 +508,15 @@ async def rollout_branch(
         value is not None for value in override_fields
     ):
         raise ValueError("broadcast sampling override requires agent, turn, and namespace")
+    branch_kind = (
+        "replacement"
+        if replaced_agent is not None
+        else "message_drop"
+        if message_drop_agent is not None
+        else "message_swap"
+        if message_swap_agent is not None
+        else "actual"
+    )
     if collect_training_samples is None:
         collect_training_samples = branch_kind == "actual"
     if collect_training_samples and branch_kind not in {"actual", "message_swap"}:
@@ -540,15 +549,6 @@ async def rollout_branch(
     final = None
     resolved_prompt_namespace = prompt_namespace or game_id
     intervention_agent = replaced_agent or message_drop_agent or message_swap_agent
-    branch_kind = (
-        "replacement"
-        if replaced_agent is not None
-        else "message_drop"
-        if message_drop_agent is not None
-        else "message_swap"
-        if message_swap_agent is not None
-        else "actual"
-    )
 
     for turn in range(initial_state.turn, initial_state.turn + config.horizon):
         pre_state_sha256 = _state_sha256(env._require_state())

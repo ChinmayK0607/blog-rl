@@ -45,6 +45,14 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   `SWARM_EVAL_RUNTIME`, an isolated `pip --target` directory containing only
   `peft==0.19.1` and `accelerate==1.13.0`, both installed with `--no-deps` and
   prepended to `PYTHONPATH`. This leaves the Prime-RL environment unchanged.
+- On a fresh public GPU host, rewrite SSH-form submodule URLs to HTTPS for the
+  checkout command (for example with
+  `git -c url.https://github.com/.insteadOf=git@github.com: submodule update`)
+  instead of accepting a GitHub SSH prompt or copying GitHub credentials.
+- If a paid run uses a dedicated `UV_CACHE_DIR`, export the same absolute cache
+  path for every `uv sync` and `uv run` invocation. Omitting it later can make
+  uv resolve a second environment and repoint the repository `.venv` symlink.
+  Use `uv run --no-sync` for verification after the frozen sync completes.
 - Environment packages: before launching a config with a non-core verifier env id,
   verify the package imports under `uv run` (for example
   `uv run python -c "import importlib.util; print(importlib.util.find_spec('rlm_swe'))"`).
