@@ -5490,6 +5490,112 @@ no more critical-specific than decoy-specific. Therefore:
   runtime calibration and the v11 training run.
 - Instance decommissioned: not applicable; no GPU instance was used.
 
+### 2026-08-26 — V11 conclusion and V12 counterfactual-robustness CPU freeze
+
+- Status: V11 completed/rejected; V12 CPU preparation completed; no V12 GPU run
+  started.
+- Verdict: V11 is promising mechanistic evidence but failed its exact
+  development selector. V12 is a mechanical/construction pass, not a learning
+  result.
+- Hypothesis: V11 learned real message-conditioned receiver behavior but became
+  too literal and slightly regressed on legacy ordinary play. Directly training
+  the misleading-message receiver branch on privately observable matched decoys,
+  while front-loading ordinary terminal-return groups, can repair both defects
+  without an additive communication reward.
+- Decision unlocked: request a fresh four-GPU Linux node for the update-0/1
+  smoke and, only if distinct-adapter loading plus nonzero challenge credit pass,
+  continue the 160-update V12 run.
+- Source commit: V12 implementation `80d67a047b64de371c8aab728f39467480ff7f9a`.
+- V11 result being acted on: update 60 passed semantic return `+.03755064`,
+  specificity `+.01456961`, and hard ordinary `+.00562644`, but failed legacy
+  ordinary at `-.04781285`; update 120 failed specificity `-.00936699` and
+  legacy `-.01713771`; update 180 passed semantic `+.04534265`, specificity
+  `+.02927313`, and hard ordinary `+.03410836`, but failed legacy ordinary at
+  `-.00938840`. No V11 checkpoint was selected and frozen evaluation was never
+  opened. Protocol validity remained `1.0`; rollout diagnosis found
+  over-literal response to swapped teammate targets rather than formatting or
+  action collapse.
+- Initializer decision: by explicit user direction, V12 continues from all four
+  separate public V11 update-180 policy adapters rather than repeating SFT
+  learning. This is a warm-start choice, not retroactive V11 admission. New
+  trainer/controller support binds one path/hash to each `run_blue_0..3` and
+  fails closed if any policy is missing, cloned, corrupt, or mismatched.
+- Reward and credit design: reward remains independently replay-verified terminal
+  team control delta only. Critical handoffs train the factual receiver ACT
+  branch on centered `factual - target-swapped` return. Matched decoy challenges
+  train only the misleading-message receiver ACT branch on centered
+  `target-swapped - factual` return. There is no message, truthfulness, target,
+  action, capture, validity, or oracle bonus.
+- Curriculum: 160 updates / 640 groups: 260 ordinary retention, 220 factual
+  critical handoffs, and 160 matched challenge decoys. Critical receiver counts
+  are exactly 55 per policy; challenge counts are exactly 40 per policy. The
+  first 40 updates use two ordinary groups per update; later stages alternate
+  retention-heavy and transfer-heavy batches at one-, two-, and four-turn
+  handoff horizons.
+- Opponents: every update contains base, SFT, V10 historical, and current-policy
+  opponents once each. Scenario-kind/family counts are decorrelated to maximum
+  deviation two from exact balance: ordinary 64/65/66/65, critical
+  54/55/55/56, challenge 42/40/39/39 across the four families.
+- Data split and hashes: fresh 36-bundle development file
+  `46046fdeb4e4d121fdc235b812044d2ced5d4e8d5f8b36a57a692ff323817931`;
+  fresh 36-case ordinary development
+  `7041ccc936dcae100695ec43c054657392f42a6540a77d9f7ac62321ae292320`.
+  The never-opened V11 frozen handoff and ordinary files are reused byte-for-byte
+  at `c2ae30275fb626688c971a9e807dabea4047b6faf6a94edb0ac82fb2ba1714b5`
+  and `544998349b3f7b24ce5ef5ec44cd8c0f28ee5f6e5a072b68d8380d79c2e830b9`.
+  Curriculum file SHA-256 is
+  `b0d7b69b9b7413ce85c13d3edecf1ee24954b809b8a5cef9ef8ab31af6701c2f`;
+  schedule SHA-256 is
+  `3bd30f26d3ba448fc2eb86ae714fed84bd8103cc3fe9501d34be608f83c4d756`.
+- Selection and fail-fast rules: candidates are 20/40/80/120/160. The earliest
+  candidate requires positive semantic mean, positive critical-minus-decoy
+  specificity mean, and clustered 95% lower bounds at least `-0.02` for both
+  legacy and hard ordinary return. The non-inferiority margin is fixed before
+  V12 observations and is not retroactive to V11. Stop after update 40 only if
+  updates 20 and 40 both show no ordinary-retention improvement, no specificity
+  improvement, and non-positive semantic return. Frozen runs once after formal
+  selection.
+- Exact configs: trainer
+  `configs/rl_v12_4b_robust_communication_160.toml` (rank 32, LR `3e-6`,
+  checkpoint interval 20); plan `configs/rl_v12_4b_base_plan.json`; data and
+  evaluation design under `data/rl_v12/`; operational rationale in
+  `V12_COUNTERFACTUAL_ROBUSTNESS.md`.
+- CPU verification: deterministic regeneration matched every builder-owned byte;
+  task binding and 640-group plan load passed; exhaustive learnability audit
+  passed over all 96 training pairs; all train/development/frozen state hashes
+  are disjoint; every challenge is a matched critical case; legal actions are
+  unchanged; decoy worlds are privately distinguishable; critical worlds are
+  privately indistinguishable; 24 lightweight selector/plan/warm-start/fail-fast
+  tests passed in `0.33s`; Ruff and compileall passed. Local TrainerConfig
+  validation of the new per-run mapping passed. Full Torch/xgrammar/vLLM tests
+  are deliberately deferred to the next Linux node because installing that
+  stack on the Mac would waste local storage.
+- Failures and retries: the first challenge schedule covered all policies but
+  gave decoy counts 40/48/33/39; rotating the final-stage case order produced
+  exact 40/40/40/40. The original shuffle seed correlated scenario type with
+  opponent family by as many as 14 groups; a pre-result seed search reduced the
+  maximum deviation to two. The local checkout lacked the pinned
+  `pydantic-config` submodule; the exact 460-KB submodule was initialized instead
+  of installing the full CUDA stack. Failed schedules were never admitted.
+- GPU, wall time, cost, and storage: no GPU used and no pod cost incurred for
+  this preparation. CPU generation/audits/tests took minutes. Expected training
+  is roughly 12–16 four-L40S hours, with a paid stop decision at update 40;
+  development/frozen duration is measured separately after checkpoint
+  selection. Only about 2 MB of manifests/code were added to the Mac; no model,
+  checkpoint, rollout trace, or CUDA environment was copied locally.
+- Interpretation: V12 now supplies the missing negative credit on the exact
+  misleading-message receiver action while retaining V11's learned communication
+  behavior and separate policy identities. Construction guarantees a clean,
+  balanced opportunity to learn; it cannot guarantee the 4B policy samples a
+  nonzero advantage. That is the only substantive GPU-side unknown before the
+  long run.
+- Next action: on Linux, anonymously download/hash all four public V11-u180
+  adapters, run `prepare_v12_distinct_warmstart.py`, execute full tests and one
+  update-0/1 challenge smoke, verify every policy slot receives nonzero challenge
+  coverage plus trainer/serving parity, then start public mirroring before any
+  long optimizer run.
+- Instance decommissioned: not applicable; no V12 instance was rented.
+
 ## Future entry template
 
 Copy this block for each material run:
