@@ -210,6 +210,76 @@ def test_admission_checks_only_the_signed_trainable_span_selection() -> None:
     assert result.metrics["decisions"] == 1
 
 
+def test_admission_can_select_signed_message_swap_counterfactual_spans() -> None:
+    behavior = _snapshot("blue-0-policy", "step-4", 4, trainable=True, adapter_sha256=SHA_A)
+    opponent = _snapshot("red-policy", "frozen", 0, trainable=False, adapter_sha256=SHA_B)
+    header = AsyncRolloutHeader(
+        "rollout-message-swap",
+        "vllm",
+        "0.10.2",
+        SHA_C,
+        SHA_D,
+        (behavior, opponent),
+    )
+    swapped = replace(
+        _decision("blue-0-policy", "step-4"),
+        branch="message_swap",
+        replaced_agent="blue-1",
+    )
+    red = _decision("red-policy", "frozen", agent_id="red-0", team="RED")
+    kwargs = {
+        "trainable_decision_ids": frozenset({swapped.decision_id}),
+        "allowed_backend_calibrations": frozenset({("vllm", "0.10.2", SHA_C, SHA_D)}),
+        "allowed_constraint_sha256s": frozenset({SHA_C}),
+        "limits": _limits(),
+    }
+
+    with pytest.raises(ValueError, match="ineligible spans"):
+        admit_async_rollout(
+            header,
+            (swapped, red),
+            (behavior, opponent),
+            {swapped.decision_id: swapped.rollout_logprobs},
+            **kwargs,
+        )
+
+    result = admit_async_rollout(
+        header,
+        (swapped, red),
+        (behavior, opponent),
+        {swapped.decision_id: swapped.rollout_logprobs},
+        trainable_branch="message_swap",
+        **kwargs,
+    )
+    assert result.accepted
+    assert result.metrics["decisions"] == 1
+
+
+def test_admission_rejects_unknown_trainable_branch() -> None:
+    with pytest.raises(ValueError, match="must be actual or message_swap"):
+        _admit_with_trainable_branch("invented")
+
+
+def _admit_with_trainable_branch(trainable_branch: str):
+    behavior = _snapshot("blue-0-policy", "step-4", 4, trainable=True, adapter_sha256=SHA_A)
+    opponent = _snapshot("red-policy", "frozen", 0, trainable=False, adapter_sha256=SHA_B)
+    header = AsyncRolloutHeader(
+        "rollout-branch-validation", "vllm", "0.10.2", SHA_C, SHA_D, (behavior, opponent)
+    )
+    action = _decision("blue-0-policy", "step-4")
+    red = _decision("red-policy", "frozen", agent_id="red-0", team="RED")
+    return admit_async_rollout(
+        header,
+        (action, red),
+        (behavior, opponent),
+        {action.decision_id: action.rollout_logprobs},
+        trainable_branch=trainable_branch,
+        allowed_backend_calibrations=frozenset({("vllm", "0.10.2", SHA_C, SHA_D)}),
+        allowed_constraint_sha256s=frozenset({SHA_C}),
+        limits=_limits(),
+    )
+
+
 def test_atomic_queue_never_routes_a_partial_four_policy_group(tmp_path) -> None:
     behavior = tuple(
         _snapshot(

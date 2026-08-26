@@ -5799,6 +5799,22 @@ no more critical-specific than decoy-specific. Therefore:
   cover both actual and message-swap identities; Ruff passed and the complete
   Linux suite passed **167/167 tests** in 40.65 seconds. No optimizer step was
   started, and the failed smoke evidence was not overwritten.
+- Counterfactual-admission smoke result: after the identity fix, the same
+  critical group again passed end to end and produced a nonzero focused
+  blue-1 advantage of `+0.121212` in two of four replicas. All four distinct
+  policy batches were admitted; lag, rescore log-ratio, and rescore mismatch KL
+  were exactly zero over 16 selected decisions / 128 tokens. The matched-decoy
+  challenge also completed generation and lag-zero rescore, but failed closed
+  at admission because that layer still hard-coded `branch == "actual"` while
+  challenge credit intentionally signs the `message_swap` counterfactual
+  branch. The failure is therefore plumbing, not zero reward signal or model
+  collapse. Admission now takes an explicit audited trainable branch restricted
+  to `actual` or `message_swap`; the controller selects `message_swap` only for
+  the preregistered challenge baseline, while all existing paths default to
+  `actual`. Focused tests passed **38/38**, Ruff passed, and the complete Linux
+  suite passed **154/154** in 39.94 seconds. The earlier failed smoke directory,
+  request/response, traceback, admissions, and signed evidence remain intact;
+  no optimizer step was started.
 - Instance decommissioned: no; pod is active under the bounded TTL.
 
 ## Future entry template

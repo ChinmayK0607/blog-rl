@@ -129,6 +129,7 @@ def admit_async_rollout(
     trainer_logprobs: dict[str, tuple[float, ...]],
     *,
     trainable_decision_ids: frozenset[str] | None = None,
+    trainable_branch: str = "actual",
     allowed_backend_calibrations: frozenset[tuple[str, str, str, str]],
     allowed_constraint_sha256s: frozenset[str],
     limits: AsyncAdmissionLimits,
@@ -141,6 +142,8 @@ def admit_async_rollout(
     """
     header.validate()
     limits.validate()
+    if trainable_branch not in {"actual", "message_swap"}:
+        raise ValueError("async admission trainable branch must be actual or message_swap")
     if not decisions:
         raise ValueError("async admission requires rollout decisions")
     if not allowed_backend_calibrations or not allowed_constraint_sha256s:
@@ -186,7 +189,7 @@ def admit_async_rollout(
     eligible = tuple(
         decision
         for decision in decisions
-        if decision.branch == "actual" and behavior_by_policy[decision.policy_id].trainable
+        if decision.branch == trainable_branch and behavior_by_policy[decision.policy_id].trainable
     )
     eligible_ids = {decision.decision_id for decision in eligible}
     if trainable_decision_ids is None:
@@ -196,11 +199,11 @@ def admit_async_rollout(
             raise ValueError("trainable decision selection is empty or contains ineligible spans")
         selected = tuple(decision for decision in eligible if decision.decision_id in trainable_decision_ids)
     if not selected:
-        raise ValueError("async admission requires actual decisions from trainable policies")
+        raise ValueError(f"async admission requires {trainable_branch} decisions from trainable policies")
     selected_policy_ids = {decision.policy_id for decision in selected}
     trainable_policy_ids = {policy_id for policy_id, snapshot in behavior_by_policy.items() if snapshot.trainable}
     if selected_policy_ids != trainable_policy_ids:
-        raise ValueError("actual decisions do not cover every trainable policy")
+        raise ValueError(f"{trainable_branch} decisions do not cover every trainable policy")
     expected_logprob_ids = {decision.decision_id for decision in selected}
     if set(trainer_logprobs) != expected_logprob_ids:
         raise ValueError("current-policy log-prob rows do not exactly match trainable decisions")

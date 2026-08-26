@@ -1201,6 +1201,7 @@ async def main() -> None:
                             header=header,
                             decisions=all_decisions,
                             trainable_decision_ids=trainable_decision_ids,
+                            trainable_branch=("message_swap" if challenge_baseline else "actual"),
                             current_snapshots=current_snapshots,
                             current_policy_logprobs=current_logprobs,
                             routed_batches=routed_group,
