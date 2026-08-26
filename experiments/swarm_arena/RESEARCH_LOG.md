@@ -5660,6 +5660,62 @@ no more critical-specific than decoy-specific. Therefore:
   signed per-policy advantages before authorizing the 160-update trajectory.
 - Instance decommissioned: not applicable; no V12 instance was rented.
 
+### 2026-08-26 — V12 paid Linux gate started and caught rollout integration failure
+
+- Status: setup and Linux validation in progress; no inference server,
+  `torchrun`, optimizer update, or V12 model result yet.
+- Verdict: operational recovery plus genuine code-gate failure. The paid gate
+  prevented a live run whose paired/focused rollout construction would have
+  crashed before inference.
+- Hypothesis: unchanged from the V12 absolute paired-contrast plan. This entry
+  records runtime readiness only and makes no learning claim.
+- Decision unlocked: fix the single branch-classification ordering defect,
+  publish the corrected source, and require the entire Linux suite to pass
+  before model download, serving, parity certification, or optimizer smoke.
+- Source at provisioning: `ee3f8323e7a0c3bf29848e7e81c35b694191e567`.
+  Narrow source correction
+  `ff14648a5bb752a09fab1fa9900cfcab9a8f73b2` moves `branch_kind`
+  construction before its `collect_training_samples` validation; scientific
+  configs, data, hashes, reward, gates, and curriculum are unchanged.
+- GPU allocation: Lium pod `lunar-fox-bc`, immutable pod ID
+  `5d5f4e96-8d14-4832-b5dc-3f6df8f5d5a4`, 4x L40S with 49,140 MiB per GPU,
+  283 GiB RAM, and about 2.3 TiB free disk. Price is `$1.52/hour`; a 39-hour
+  hard TTL caps scheduled spend at `$59.28`, below the user-authorized `$60`
+  maximum. Removal is scheduled for `2026-08-28T04:34:07.509466` as reported
+  by the provider. All four GPUs were idle during setup/testing.
+- Setup evidence: the first public clone paused because two submodules use
+  `git@github.com:` URLs on a credential-free host. The blocked setup pane and
+  log were preserved, then only setup was restarted with an HTTPS URL rewrite;
+  no GitHub credential was copied. The frozen environment installed under
+  `/workspace/.uv-cache` with uv `0.12.6`, Torch `2.11.0+cu128`, CUDA visible on
+  four GPUs, and FlashAttention `2.8.3`.
+- Setup retry: one verification command omitted the dedicated `UV_CACHE_DIR`,
+  started a redundant uv resolution, and repointed `.venv` to the secondary
+  cache. That exact resolver was terminated, the frozen sync was rerun with
+  `/workspace/.uv-cache`, and `.venv` again points at the canonical
+  environment. The training skill now records both this cache requirement and
+  the public-submodule HTTPS rule.
+- Test evidence: the first pytest command omitted the required experiment-local
+  `PYTHONPATH` and failed collection with 21 import errors; its log is retained
+  as invocation evidence. The unchanged corrected command collected the suite
+  and produced **155 passed, 8 failed** in 44.48 seconds. All eight failures are
+  the same `UnboundLocalError`: `rollout_branch` checked `branch_kind` before
+  assigning it. Existing tests cover ordinary focused credit, paired message
+  drop, factual target swap, receiver-only target swap, and the V12 challenge
+  branch, so this is a real live-path blocker rather than a missing test.
+- Post-fix validation: Ruff passed on the changed module and the entire same
+  Linux command passed **163/163 tests** with two import deprecation warnings in
+  40.48 seconds. No test, threshold, data file, or scientific config was removed
+  or relaxed to obtain the pass.
+- Artifact/storage status: only source, test logs, and the CUDA environment are
+  on the paid pod. No base model, SFT/V10 opponent, V11 warm-start adapter,
+  rollout, checkpoint, or model artifact has been copied to the Mac. Public HF
+  mirroring is not yet enabled because optimizer launch remains prohibited.
+- Next action: publish the narrow source correction, update the pod to that
+  immutable commit, then proceed to public artifact hashing and the update-0/1
+  signed-credit smoke only because all 163 Linux tests passed.
+- Instance decommissioned: no; pod is active under the bounded TTL.
+
 ## Future entry template
 
 Copy this block for each material run:
