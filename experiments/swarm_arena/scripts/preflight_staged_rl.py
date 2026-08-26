@@ -29,6 +29,50 @@ def _read_toml(path: Path) -> dict:
         return tomllib.load(handle)
 
 
+def _verify_initial_policy_adapter_manifest(
+    trainer: dict, manifest_path: Path | None
+) -> str | None:
+    lora = trainer["model"]["lora"]
+    configured_paths = lora.get("initial_adapter_paths_by_run", {})
+    configured_hashes = lora.get("initial_adapter_sha256_by_run", {})
+    if manifest_path is None:
+        if configured_paths or configured_hashes:
+            raise ValueError(
+                "distinct trainer warm starts require an initial-policy adapter manifest"
+            )
+        return None
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("version") != "swarm-distinct-policy-warmstart-v1":
+        raise ValueError("unsupported distinct-policy warm-start manifest")
+    policies = manifest.get("policies")
+    expected_policies = {f"blue-{index}" for index in range(4)}
+    if not isinstance(policies, dict) or set(policies) != expected_policies:
+        raise ValueError("warm-start manifest must bind exactly blue-0 through blue-3")
+    expected_paths = {}
+    expected_hashes = {}
+    for index in range(4):
+        policy_id = f"blue-{index}"
+        run_id = f"run_blue_{index}"
+        row = policies[policy_id]
+        if not isinstance(row, dict):
+            raise ValueError(f"invalid warm-start row for {policy_id}")
+        path = Path(str(row["path"])).resolve()
+        digest = str(row["sha256"])
+        if str(row.get("revision")) != digest:
+            raise ValueError(f"warm-start revision mismatch for {policy_id}")
+        if _sha256_file(path / "adapter_model.safetensors") != digest:
+            raise ValueError(f"warm-start adapter mismatch for {policy_id}")
+        expected_paths[run_id] = str(path)
+        expected_hashes[run_id] = digest
+    if len(set(expected_hashes.values())) != 4:
+        raise ValueError("distinct warm start cannot clone one adapter across policies")
+    if configured_paths != expected_paths:
+        raise ValueError("trainer warm-start paths disagree with controller manifest")
+    if configured_hashes != expected_hashes:
+        raise ValueError("trainer warm-start hashes disagree with controller manifest")
+    return _sha256_file(manifest_path)
+
+
 def _server_json(base_url: str, suffix: str) -> object:
     with urlopen(f"{base_url.rstrip('/')}{suffix}", timeout=15) as response:  # noqa: S310
         if response.status != 200:
@@ -101,6 +145,7 @@ def main() -> None:
     parser.add_argument("--runtime-certificate", type=Path, required=True)
     parser.add_argument("--data-dir", type=Path, required=True)
     parser.add_argument("--initial-adapter", type=Path, required=True)
+    parser.add_argument("--initial-policy-adapter-manifest", type=Path)
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--base-url", action="append", default=[])
     parser.add_argument("--expected-updates", type=int, default=120)
@@ -140,6 +185,11 @@ def main() -> None:
     trainer_path = args.run_dir / "trainer.toml"
     prepare = json.loads(prepare_path.read_text(encoding="utf-8"))
     trainer = _read_toml(trainer_path)
+    initial_policy_adapter_manifest_sha256 = (
+        _verify_initial_policy_adapter_manifest(
+            trainer, args.initial_policy_adapter_manifest
+        )
+    )
     inference = _read_toml(args.inference_config)
     certificate = json.loads(args.runtime_certificate.read_text(encoding="utf-8"))
     certificate_body = {
@@ -382,6 +432,9 @@ def main() -> None:
             ),
         },
         "adapter_sha256": adapter_sha256,
+        "initial_policy_adapter_manifest_sha256": (
+            initial_policy_adapter_manifest_sha256
+        ),
         "checkpoint_interval": args.checkpoint_interval,
         "free_gib": free_gib,
         "gpus": gpu_inventory,

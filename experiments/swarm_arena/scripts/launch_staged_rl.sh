@@ -14,6 +14,9 @@ set -euo pipefail
 : "${SWARM_DEADLINE_EPOCH:?set SWARM_DEADLINE_EPOCH to the pod termination Unix timestamp}"
 
 swarm_uv=${SWARM_UV:-/root/.local/bin/uv}
+if [[ -n "${SWARM_UV_CACHE_DIR:-}" ]]; then
+  export UV_CACHE_DIR=$SWARM_UV_CACHE_DIR
+fi
 swarm_inference_config=${SWARM_INFERENCE_CONFIG:-$SWARM_REPO_ROOT/experiments/swarm_arena/configs/inference_1_7b_l40s.toml}
 swarm_data_dir=${SWARM_DATA_DIR:-$SWARM_REPO_ROOT/experiments/swarm_arena/data/rl_v4}
 swarm_eval_root=$SWARM_RUN_DIR/evaluations
@@ -35,6 +38,20 @@ swarm_final_sync_margin=${SWARM_FINAL_SYNC_MARGIN:-2700}
 swarm_pulse_mode=${SWARM_PULSE_MODE:-$(jq -r '.runtime.online_evaluation_mode // "full"' "$swarm_curriculum_artifact")}
 swarm_communication_eval_turns=${SWARM_COMMUNICATION_EVAL_TURNS:-$(jq -r '.runtime.online_eval_remaining_turns // 2' "$swarm_curriculum_artifact")}
 swarm_mirror_interval_steps=${SWARM_MIRROR_INTERVAL_STEPS:-1}
+swarm_initial_policy_args=()
+swarm_initial_policy_mirror_args=()
+if [[ -n "${SWARM_INITIAL_POLICY_ADAPTER_MANIFEST:-}" ]]; then
+  if [[ ! -f "$SWARM_INITIAL_POLICY_ADAPTER_MANIFEST" ]]; then
+    echo "SWARM_INITIAL_POLICY_ADAPTER_MANIFEST is not a file" >&2
+    exit 1
+  fi
+  swarm_initial_policy_args=(
+    --initial-policy-adapter-manifest "$SWARM_INITIAL_POLICY_ADAPTER_MANIFEST"
+  )
+  swarm_initial_policy_mirror_args=(
+    --artifact "$SWARM_INITIAL_POLICY_ADAPTER_MANIFEST"
+  )
+fi
 swarm_multipair_args=()
 while IFS= read -r swarm_pair_index; do
   if [[ -n "$swarm_pair_index" ]]; then
@@ -72,6 +89,7 @@ export PYTHONPATH=$SWARM_REPO_ROOT/experiments/swarm_arena
   --runtime-certificate "$SWARM_RUNTIME_CERTIFICATE" \
   --data-dir "$swarm_data_dir" \
   --initial-adapter "$SWARM_INITIAL_ADAPTER" \
+  "${swarm_initial_policy_args[@]}" \
   --model "$SWARM_MODEL" \
   --base-url http://127.0.0.1:8001 \
   --base-url http://127.0.0.1:8002 \
@@ -97,6 +115,7 @@ mkdir -p "$SWARM_RUN_DIR/logs" "$swarm_eval_root" "$swarm_rescore_dir"
   --artifact "$SWARM_PRODUCTION_PLAN" \
   --artifact "$SWARM_RUNTIME_CERTIFICATE" \
   --artifact "$swarm_curriculum_artifact" \
+  "${swarm_initial_policy_mirror_args[@]}" \
   --preflight-only \
   > "$SWARM_RUN_DIR/logs/mirror-preflight.log" 2>&1
 
@@ -120,7 +139,7 @@ tmux new-session -d -s "$swarm_session_prefix-wandb" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/log_live_rl_wandb.py --progress $SWARM_RUN_DIR/live_rl_progress.json --eval-root $swarm_eval_root --expected-updates $swarm_expected_updates --finish-marker $swarm_eval_root/COMPLETE --project swarm-arena-rl --group $swarm_wandb_group --run-name $SWARM_RUN_ID-controller --run-id $SWARM_RUN_ID-controller-v1 --tag $swarm_wandb_model_tag --tag causal-communication --tag development ${swarm_wandb_mode_arg[*]} --compact-artifact $SWARM_PRODUCTION_PLAN --compact-artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/wandb.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-mirror" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_artifact_mirror.py --repo-id $SWARM_LIVE_HF_REPO --run-id $SWARM_RUN_ID --run-dir $SWARM_RUN_DIR --deadline-epoch $SWARM_DEADLINE_EPOCH --final-sync-margin $swarm_final_sync_margin --compact-interval-steps $swarm_mirror_interval_steps --artifact $SWARM_PRODUCTION_PLAN --artifact $SWARM_RUNTIME_CERTIFICATE --artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/mirror.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_artifact_mirror.py --repo-id $SWARM_LIVE_HF_REPO --run-id $SWARM_RUN_ID --run-dir $SWARM_RUN_DIR --deadline-epoch $SWARM_DEADLINE_EPOCH --final-sync-margin $swarm_final_sync_margin --compact-interval-steps $swarm_mirror_interval_steps --artifact $SWARM_PRODUCTION_PLAN --artifact $SWARM_RUNTIME_CERTIFICATE --artifact $swarm_curriculum_artifact ${swarm_initial_policy_mirror_args[*]} > $SWARM_RUN_DIR/logs/mirror.log 2>&1"
 
 sleep 15
 if ! tmux has-session -t "$swarm_session_prefix-trainer" 2>/dev/null; then
@@ -129,7 +148,7 @@ if ! tmux has-session -t "$swarm_session_prefix-trainer" 2>/dev/null; then
 fi
 
 tmux new-session -d -s "$swarm_session_prefix-controller" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_rl.py --output-dir $SWARM_RUN_DIR --trainer-config $SWARM_RUN_DIR/trainer.toml --inference-config $swarm_inference_config --data-dir $swarm_data_dir --task-data-version v4 --tokenizer $SWARM_MODEL --initial-adapter $SWARM_INITIAL_ADAPTER --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --actor vllm --run-id $SWARM_RUN_ID --source-commit $swarm_source_commit --base-revision $SWARM_BASE_REVISION --initial-policy-revision $SWARM_INITIAL_POLICY_REVISION --credit-estimator shared_return --shared-return-replicas $swarm_shared_return_replicas --shared-return-credit-assignment $swarm_credit_assignment --shared-return-action-prompt-profile $swarm_action_prompt_profile --production-plan $SWARM_PRODUCTION_PLAN --async-rescore-dir $swarm_rescore_dir --async-rescore-timeout 600 --steps $swarm_expected_updates --groups-per-step 4 --scenario-source curriculum --curriculum-split train --update-timeout 1200 --checkpoint-barrier-dir $swarm_barrier_dir --checkpoint-barrier-interval $swarm_checkpoint_interval --checkpoint-barrier-timeout 7200 > $SWARM_RUN_DIR/logs/controller.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec $swarm_uv run python experiments/swarm_arena/scripts/run_live_rl.py --output-dir $SWARM_RUN_DIR --trainer-config $SWARM_RUN_DIR/trainer.toml --inference-config $swarm_inference_config --data-dir $swarm_data_dir --task-data-version v4 --tokenizer $SWARM_MODEL --initial-adapter $SWARM_INITIAL_ADAPTER ${swarm_initial_policy_args[*]} --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --actor vllm --run-id $SWARM_RUN_ID --source-commit $swarm_source_commit --base-revision $SWARM_BASE_REVISION --initial-policy-revision $SWARM_INITIAL_POLICY_REVISION --credit-estimator shared_return --shared-return-replicas $swarm_shared_return_replicas --shared-return-credit-assignment $swarm_credit_assignment --shared-return-action-prompt-profile $swarm_action_prompt_profile --production-plan $SWARM_PRODUCTION_PLAN --async-rescore-dir $swarm_rescore_dir --async-rescore-timeout 600 --steps $swarm_expected_updates --groups-per-step 4 --scenario-source curriculum --curriculum-split train --update-timeout 1200 --checkpoint-barrier-dir $swarm_barrier_dir --checkpoint-barrier-interval $swarm_checkpoint_interval --checkpoint-barrier-timeout 7200 > $SWARM_RUN_DIR/logs/controller.log 2>&1"
 
 sleep 10
 for swarm_role in trainer rescore pulses wandb mirror controller; do

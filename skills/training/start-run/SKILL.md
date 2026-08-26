@@ -82,10 +82,13 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   agent adapter into all four slots. Bind `model.lora.initial_adapter_paths_by_run`
   and `initial_adapter_sha256_by_run` for exactly `run_blue_0` through
   `run_blue_3`, and pass the matching `swarm-distinct-policy-warmstart-v1`
-  controller manifest. Trainer discovery loads each checksum-pinned adapter into
-  only its isolated run slot; the controller loads the corresponding serving
-  alias and initializes policy revisions from those four hashes. Any missing,
-  duplicate, corrupt, or trainer/controller-disagreeing binding is a hard stop.
+  controller manifest. For `launch_staged_rl.sh`, set
+  `SWARM_INITIAL_POLICY_ADAPTER_MANIFEST` to that manifest so preflight,
+  off-node mirroring, and the controller all bind the same file. Trainer
+  discovery loads each checksum-pinned adapter into only its isolated run slot;
+  the controller loads the corresponding serving alias and initializes policy
+  revisions from those four hashes. Any missing, duplicate, corrupt, or
+  trainer/controller-disagreeing binding is a hard stop.
   For counterfactual robustness, critical handoffs may train factual receiver
   ACT spans with `paired_receiver_target_swap`, while matched decoys use
   `paired_receiver_target_swap_challenge`: the latter trains only the
