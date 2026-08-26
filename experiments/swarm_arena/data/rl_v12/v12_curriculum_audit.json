@@ -15,6 +15,7 @@
     "decoy": 160,
     "ordinary": 260
   },
+  "paired_contrast_centering": "none",
   "receiver_counts": {
     "critical": {
       "blue-0": 55,
@@ -47,5 +48,20 @@
   "schedule_sha256": "3bd30f26d3ba448fc2eb86ae714fed84bd8103cc3fe9501d34be608f83c4d756",
   "split_state_hashes_disjoint": true,
   "status": "passed",
+  "uniform_contrast_signal_check": {
+    "challenge_swapped_minus_factual": [
+      -0.4,
+      -0.4,
+      -0.4,
+      -0.4
+    ],
+    "critical_factual_minus_swapped": [
+      0.4,
+      0.4,
+      0.4,
+      0.4
+    ],
+    "uniform_signal_preserved": true
+  },
   "version": "arena-rl-v12-curriculum-audit-v1"
 }

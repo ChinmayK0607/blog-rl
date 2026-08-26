@@ -155,6 +155,7 @@ def test_rollout_runtime_changes_plan_identity_without_changing_legacy_default(
                 "rollout_runtime": {
                     "shared_return_replicas": 4,
                     "action_prompt_profile": "full",
+                    "paired_contrast_centering": "replica_mean",
                 },
             }
         )
@@ -427,6 +428,9 @@ def test_v12_curriculum_balances_counterfactual_challenges_and_preserves_frozen(
     assert curriculum["runtime"]["decoy_shared_return_baseline"] == (
         "paired_receiver_target_swap_challenge"
     )
+    assert curriculum["runtime"]["paired_contrast_centering"] == "none"
+    production, _ = load_production_plan(root / "configs" / "rl_v12_4b_base_plan.json")
+    assert production.paired_contrast_centering == "none"
     assert (data_dir / "handoff_frozen_ood.json").read_bytes() == (
         root / "data" / "rl_v11" / "handoff_frozen_ood.json"
     ).read_bytes()

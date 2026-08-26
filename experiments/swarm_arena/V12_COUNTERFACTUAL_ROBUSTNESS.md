@@ -21,13 +21,17 @@ The reward remains verified terminal team return. There is no communication,
 truthfulness, target-action, capture, or validity bonus.
 
 - Critical handoffs keep the existing receiver-only target-swap contrast. The
-  factual receiver ACT branch is trained on centered
+  factual receiver ACT branch is trained on the absolute paired
   `factual_return - swapped_return`.
 - Matched decoys use a new challenge contrast. The receiver can already infer
   the world privately, so the misleading-message receiver ACT branch is trained
-  on centered `swapped_return - factual_return`. Blind obedience can therefore
+  on the absolute paired `swapped_return - factual_return`. Blind obedience can therefore
   receive negative policy-gradient credit on the exact action tokens that caused
   it, without exposing the oracle target as a supervised label.
+- V12 does not center these paired differences across the four replicas. If all
+  four receivers make the same good or bad choice, all four retain the same
+  positive or negative verified terminal-return signal instead of collapsing
+  to zero. Legacy runs retain their original replica-mean centering semantics.
 - Ordinary games keep leave-one-out terminal-return training and occupy 260 of
   640 groups. The first 40 updates use two ordinary groups per update to repair
   V11's small legacy regression before longer-horizon consolidation.

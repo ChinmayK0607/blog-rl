@@ -10,7 +10,7 @@
     "blue-3": 40
   },
   "curriculum": "experiments/swarm_arena/data/rl_v12/curriculum.json",
-  "curriculum_sha256": "b0d7b69b9b7413ce85c13d3edecf1ee24954b809b8a5cef9ef8ab31af6701c2f",
+  "curriculum_sha256": "3898680505b61f60591167d3d6b41776433846fd2d97848399a01e2e40bf27c7",
   "decoy_shared_return_baseline": "paired_receiver_target_swap_challenge",
   "focused_receiver_samples": 880,
   "group_counts": {
@@ -28,6 +28,7 @@
   "interpretation": "This certifies task construction, role/world balance, private-world indistinguishability, unchanged legal actions, and terminal-reward opportunity. When receiver isolation is required, it additionally exhausts every legal same-team joint action under all three opponent audit styles and requires a strict one-turn factual-target advantage. Challenge decoys additionally prove that the receiver can identify the factual world privately while a swapped inbox changes no legal action; their policy gradient therefore trains the misleading-message branch without a shaped reward. A non-zero sampled policy advantage remains model-dependent and must pass the first-update diagnostic before a long GPU run.",
   "message_reward": null,
   "ordinary_preservation_samples": 1040,
+  "paired_contrast_centering": "none",
   "pairs": [
     {
       "decoy_maximum_certified_advantage": 0.0,
@@ -3683,6 +3684,21 @@
   "shared_return_baseline": "paired_receiver_target_swap",
   "shared_return_replicas": 4,
   "status": "passed",
+  "uniform_contrast_signal_check": {
+    "challenge_swapped_minus_factual": [
+      -0.4,
+      -0.4,
+      -0.4,
+      -0.4
+    ],
+    "critical_factual_minus_swapped": [
+      0.4,
+      0.4,
+      0.4,
+      0.4
+    ],
+    "uniform_signal_preserved": true
+  },
   "updates": 160,
   "version": "swarm-communication-learnability-plan-audit-v3",
   "world_balance_passed": true,

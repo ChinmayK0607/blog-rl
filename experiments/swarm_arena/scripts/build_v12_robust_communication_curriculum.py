@@ -63,8 +63,8 @@ def curriculum() -> dict[str, Any]:
         "message_reward": None,
         "initializer": "four_distinct_public_v11_update180_policy_adapters",
         "credit_assignment": {
-            "critical": "receiver_ACT_centered_factual_minus_receiver_only_target_swap",
-            "decoy": "receiver_ACT_centered_target_swap_challenge_minus_factual",
+            "critical": "receiver_ACT_absolute_factual_minus_receiver_only_target_swap",
+            "decoy": "receiver_ACT_absolute_target_swap_challenge_minus_factual",
             "ordinary": "shared_terminal_return_leave_one_out",
         },
         "principles": [
@@ -119,6 +119,7 @@ def curriculum() -> dict[str, Any]:
             "action_prompt_profile": "full",
             "shared_return_baseline": "paired_receiver_target_swap",
             "decoy_shared_return_baseline": "paired_receiver_target_swap_challenge",
+            "paired_contrast_centering": "none",
             "require_receiver_isolation": True,
             "target_swap_sender_retries": 8,
         },
@@ -240,6 +241,12 @@ def main() -> None:
             "challenge": counts["decoy"] * plan["runtime"]["shared_return_replicas"],
             "ordinary": counts["ordinary"] * plan["runtime"]["shared_return_replicas"],
         },
+        "paired_contrast_centering": plan["runtime"]["paired_contrast_centering"],
+        "uniform_contrast_signal_check": {
+            "critical_factual_minus_swapped": [0.4, 0.4, 0.4, 0.4],
+            "challenge_swapped_minus_factual": [-0.4, -0.4, -0.4, -0.4],
+            "uniform_signal_preserved": plan["runtime"]["paired_contrast_centering"] == "none",
+        },
     }
     if counts != Counter({"ordinary": 260, "critical": 220, "decoy": 160}):
         raise ValueError(f"unexpected V12 group counts: {counts}")
@@ -252,6 +259,8 @@ def main() -> None:
         raise ValueError("critical and challenge schedules must cover every receiver policy")
     if max(receiver_counts["decoy"].values()) != min(receiver_counts["decoy"].values()):
         raise ValueError("challenge decoys must balance all receiver policy slots exactly")
+    if plan["runtime"]["paired_contrast_centering"] != "none":
+        raise ValueError("V12 must preserve absolute paired terminal-return contrasts")
 
     progress_eval_design = {
         "version": "arena-rl-v12-progress-eval-v1",

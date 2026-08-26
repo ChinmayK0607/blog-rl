@@ -1889,6 +1889,7 @@
   "rollout_runtime": {
     "action_prompt_profile": "full",
     "decoy_shared_return_baseline": "paired_receiver_target_swap_challenge",
+    "paired_contrast_centering": "none",
     "require_receiver_isolation": true,
     "shared_return_baseline": "paired_receiver_target_swap",
     "shared_return_replicas": 4,

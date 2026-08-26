@@ -180,6 +180,7 @@ class SharedReturnSpec:
     reward: Literal["verified_terminal_team_return"] = "verified_terminal_team_return"
     credit_assignment: Literal["shared_team", "focused_agent"] = "shared_team"
     action_prompt_profile: Literal["full", "focused_handoff_compact"] = "full"
+    paired_contrast_centering: Literal["replica_mean", "none"] = "replica_mean"
 
     def validate(self) -> None:
         if self.replicas < 2 or self.replicas > 32:
@@ -209,6 +210,8 @@ class SharedReturnSpec:
             raise ValueError("shared-return spec contains an unsupported credit assignment")
         if self.action_prompt_profile not in {"full", "focused_handoff_compact"}:
             raise ValueError("shared-return spec contains an unsupported action prompt profile")
+        if self.paired_contrast_centering not in {"replica_mean", "none"}:
+            raise ValueError("shared-return spec contains an unsupported paired-contrast centering")
         if self.action_prompt_profile == "focused_handoff_compact" and (
             self.credit_assignment != "focused_agent" or self.trainable_phases != ("ACT",)
         ):
@@ -227,6 +230,13 @@ class SharedReturnSpec:
             self.credit_assignment != "focused_agent" or self.trainable_phases != ("ACT",)
         ):
             raise ValueError("paired message intervention credit requires focused-agent ACT credit")
+        if self.paired_contrast_centering == "none" and self.baseline not in {
+            "paired_message_drop",
+            "paired_target_swap",
+            "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
+        }:
+            raise ValueError("uncentered paired contrast requires a paired intervention baseline")
 
     @property
     def sha256(self) -> str:
@@ -236,6 +246,8 @@ class SharedReturnSpec:
             # Preserve the immutable identity of completed runs created before
             # prompt profiles were introduced.
             payload.pop("action_prompt_profile")
+        if self.paired_contrast_centering == "replica_mean":
+            payload.pop("paired_contrast_centering")
         return canonical_sha256(payload)
 
 
@@ -978,23 +990,39 @@ def leave_one_out_advantages(returns: tuple[float, ...]) -> tuple[float, ...]:
 def paired_terminal_contrast_advantages(
     actual_returns: tuple[float, ...],
     counterfactual_returns: tuple[float, ...],
+    *,
+    centering: Literal["replica_mean", "none"] = "replica_mean",
 ) -> tuple[float, ...]:
-    """Center verified actual-minus-counterfactual terminal effects across replicas."""
+    """Compute verified actual-minus-counterfactual terminal effects."""
     if len(actual_returns) != len(counterfactual_returns):
         raise ValueError("paired terminal-return contrasts must have equal lengths")
+    if len(actual_returns) < 2:
+        raise ValueError("paired terminal-return contrasts require at least two replicas")
+    if centering not in {"replica_mean", "none"}:
+        raise ValueError("unsupported paired terminal-return contrast centering")
     effects = tuple(
         actual - counterfactual
         for actual, counterfactual in zip(actual_returns, counterfactual_returns, strict=True)
     )
+    if not all(math.isfinite(value) for value in effects):
+        raise ValueError("paired terminal-return contrasts must be finite")
+    if centering == "none":
+        return effects
     return leave_one_out_advantages(effects)
 
 
 def paired_message_drop_advantages(
     normal_returns: tuple[float, ...],
     dropped_returns: tuple[float, ...],
+    *,
+    centering: Literal["replica_mean", "none"] = "replica_mean",
 ) -> tuple[float, ...]:
-    """Center verified normal-minus-dropped terminal-return effects across replicas."""
-    return paired_terminal_contrast_advantages(normal_returns, dropped_returns)
+    """Compute verified normal-minus-dropped terminal-return effects."""
+    return paired_terminal_contrast_advantages(
+        normal_returns,
+        dropped_returns,
+        centering=centering,
+    )
 
 
 def approve_shared_return_group(
@@ -1331,6 +1359,7 @@ def approve_shared_return_group(
         paired_message_drop_advantages(
             tuple(row.terminal_return for row in verifications),
             tuple(row.terminal_return for row in dropped_verifications),
+            centering=evidence.spec.paired_contrast_centering,
         )
         if evidence.spec.baseline == "paired_message_drop"
         else paired_terminal_contrast_advantages(
@@ -1346,6 +1375,7 @@ def approve_shared_return_group(
                     verifications if challenge_baseline else swapped_verifications
                 )
             ),
+            centering=evidence.spec.paired_contrast_centering,
         )
         if evidence.spec.baseline in {
             "paired_target_swap",

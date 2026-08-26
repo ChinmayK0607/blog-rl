@@ -573,6 +573,11 @@ async def main() -> None:
                 if production_plan is not None
                 else args.shared_return_action_prompt_profile
             ),
+            paired_contrast_centering=(
+                production_plan.paired_contrast_centering
+                if production_plan is not None
+                else "replica_mean"
+            ),
         )
     if args.target_swap_sender_retries and (
         shared_return_spec is None
@@ -1004,6 +1009,7 @@ async def main() -> None:
                     group_shared_return_spec = replace(
                         group_shared_return_spec,
                         baseline="leave_one_out_mean",
+                        paired_contrast_centering="replica_mean",
                     )
                 lock = run_lock(
                     args,

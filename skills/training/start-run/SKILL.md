@@ -81,10 +81,13 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   For counterfactual robustness, critical handoffs may train factual receiver
   ACT spans with `paired_receiver_target_swap`, while matched decoys use
   `paired_receiver_target_swap_challenge`: the latter trains only the
-  receiver's misleading-message ACT branch on centered
-  `swapped_return - factual_return`. Both branches are independently replayed
-  and use verified terminal team return only; never add a message-obedience,
-  truthfulness, action, or capture bonus.
+  receiver's misleading-message ACT branch on
+  `swapped_return - factual_return`. For V12-style counterfactual robustness,
+  bind `paired_contrast_centering = "none"` so uniform success or failure across
+  replicas retains its absolute paired terminal-return signal; the default
+  `replica_mean` mode preserves completed-run identities. Both branches are
+  independently replayed and use verified terminal team return only; never add
+  a message-obedience, truthfulness, action, or capture bonus.
 - Before a post-hoc PEFT audit loads an exported Swarm adapter, verify that its
   `adapter_config.json` rank agrees with every LoRA A/B tensor and with the
   frozen trainer config. The v10 update-40 export demonstrated that a valid

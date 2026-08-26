@@ -384,6 +384,7 @@ class ProductionPlan:
     decoy_shared_return_baseline: Literal[
         "paired_receiver_target_swap_challenge",
     ] | None = None
+    paired_contrast_centering: Literal["replica_mean", "none"] = "replica_mean"
 
     def validate(self) -> None:
         if self.version not in {
@@ -465,6 +466,15 @@ class ProductionPlan:
             mix.decoy for stage in self.stages for mix in stage.update_pattern
         ):
             raise ValueError("a decoy challenge baseline requires scheduled decoy groups")
+        if self.paired_contrast_centering not in {"replica_mean", "none"}:
+            raise ValueError("production plan contains an unknown paired-contrast centering")
+        if self.paired_contrast_centering == "none" and self.shared_return_baseline not in {
+            "paired_message_drop",
+            "paired_target_swap",
+            "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
+        }:
+            raise ValueError("uncentered paired contrast requires a paired intervention baseline")
 
     @property
     def sha256(self) -> str:
@@ -478,6 +488,8 @@ class ProductionPlan:
             payload.pop("shared_return_baseline")
         if self.decoy_shared_return_baseline is None:
             payload.pop("decoy_shared_return_baseline")
+        if self.paired_contrast_centering == "replica_mean":
+            payload.pop("paired_contrast_centering")
         if self.version == RL_PRODUCTION_PLAN_VERSION:
             # Preserve byte-for-byte run-lock identity for every completed v4 run.
             payload.pop("stages")
@@ -587,6 +599,9 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         ),
         decoy_shared_return_baseline=raw.get("rollout_runtime", {}).get(
             "decoy_shared_return_baseline"
+        ),
+        paired_contrast_centering=str(
+            raw.get("rollout_runtime", {}).get("paired_contrast_centering", "replica_mean")
         ),
     )
     plan.validate()

@@ -1,7 +1,7 @@
 {
   "credit_assignment": {
-    "critical": "receiver_ACT_centered_factual_minus_receiver_only_target_swap",
-    "decoy": "receiver_ACT_centered_target_swap_challenge_minus_factual",
+    "critical": "receiver_ACT_absolute_factual_minus_receiver_only_target_swap",
+    "decoy": "receiver_ACT_absolute_target_swap_challenge_minus_factual",
     "ordinary": "shared_terminal_return_leave_one_out"
   },
   "development_candidates": [
@@ -40,6 +40,7 @@
   "runtime": {
     "action_prompt_profile": "full",
     "decoy_shared_return_baseline": "paired_receiver_target_swap_challenge",
+    "paired_contrast_centering": "none",
     "require_receiver_isolation": true,
     "shared_return_baseline": "paired_receiver_target_swap",
     "shared_return_replicas": 4,

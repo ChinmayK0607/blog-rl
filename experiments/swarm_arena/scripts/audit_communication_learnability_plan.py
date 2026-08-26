@@ -54,6 +54,9 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
     replicas = int(curriculum.get("runtime", {}).get("shared_return_replicas", 4))
     baseline = str(curriculum.get("runtime", {}).get("shared_return_baseline", "leave_one_out_mean"))
     decoy_baseline = curriculum.get("runtime", {}).get("decoy_shared_return_baseline")
+    paired_contrast_centering = str(
+        curriculum.get("runtime", {}).get("paired_contrast_centering", "replica_mean")
+    )
     require_receiver_isolation = bool(
         curriculum.get("runtime", {}).get("require_receiver_isolation", False)
     )
@@ -165,6 +168,7 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
             not decoy_assignments
             or decoy_baseline == "paired_receiver_target_swap_challenge"
         )
+        and paired_contrast_centering in {"replica_mean", "none"}
         and all(
             row["private_worlds_indistinguishable"]
             and row["decoy_worlds_distinguishable"]
@@ -193,6 +197,12 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         "action_prompt_profile": curriculum.get("runtime", {}).get("action_prompt_profile", "full"),
         "shared_return_baseline": baseline,
         "decoy_shared_return_baseline": decoy_baseline,
+        "paired_contrast_centering": paired_contrast_centering,
+        "uniform_contrast_signal_check": {
+            "critical_factual_minus_swapped": [0.4] * replicas,
+            "challenge_swapped_minus_factual": [-0.4] * replicas,
+            "uniform_signal_preserved": paired_contrast_centering == "none",
+        },
         "receiver_isolation_required": require_receiver_isolation,
         "handoff_remaining_turns": list(remaining_turns),
         "selected_cases": sorted(expected_cases),

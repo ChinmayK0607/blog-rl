@@ -509,6 +509,7 @@ def test_receiver_target_swap_challenge_trains_only_the_counterfactual_receiver(
         baseline="paired_receiver_target_swap_challenge",
         credit_assignment="focused_agent",
         action_prompt_profile="focused_handoff_compact",
+        paired_contrast_centering="none",
     )
     lock = _lock(spec)
     group = asyncio.run(
@@ -551,7 +552,11 @@ def test_receiver_target_swap_challenge_trains_only_the_counterfactual_receiver(
         for replica in group.evidence.replicas
         if replica.swapped_replay is not None
     )
-    expected = paired_terminal_contrast_advantages(swapped_returns, factual_returns)
+    expected = paired_terminal_contrast_advantages(
+        swapped_returns,
+        factual_returns,
+        centering="none",
+    )
     assert len(approvals) == spec.replicas
     assert tuple(
         next(
@@ -605,6 +610,26 @@ def test_compact_prompt_profile_is_bound_without_changing_legacy_spec_identity()
     assert compact.sha256 != replace(compact, action_prompt_profile="full").sha256
     with pytest.raises(ValueError, match="focused-agent ACT"):
         replace(compact, credit_assignment="shared_team").validate()
+
+
+def test_uncentered_paired_contrast_preserves_uniform_success_and_failure_signal() -> None:
+    factual = (0.2, 0.2, 0.2, 0.2)
+    misleading = (-0.2, -0.2, -0.2, -0.2)
+
+    assert paired_terminal_contrast_advantages(
+        factual,
+        misleading,
+        centering="none",
+    ) == (0.4, 0.4, 0.4, 0.4)
+    assert paired_terminal_contrast_advantages(
+        misleading,
+        factual,
+        centering="none",
+    ) == (-0.4, -0.4, -0.4, -0.4)
+    assert all(
+        math.isclose(value, 0.0, abs_tol=1e-12)
+        for value in paired_terminal_contrast_advantages(factual, misleading)
+    )
 
 
 def test_shared_return_group_is_replayed_signed_and_routed_fail_closed() -> None:
