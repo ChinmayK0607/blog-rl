@@ -5815,6 +5815,21 @@ no more critical-specific than decoy-specific. Therefore:
   suite passed **154/154** in 39.94 seconds. The earlier failed smoke directory,
   request/response, traceback, admissions, and signed evidence remain intact;
   no optimizer step was started.
+- Final source-honest rollout smoke: public source `07ca6848` was bound to the
+  existing 32-decision hardware certificate, and the exact one-update prefix
+  completed all four groups without an optimizer. The critical receiver group
+  admitted the signed `actual` span with blue-1 advantage `+0.121212` in all
+  four replicas; the matched-decoy challenge admitted the signed
+  `message_swap` span with blue-1 advantage `-0.121212` in all four replicas.
+  Each group covered all four policy slots and admitted 16 decisions / 128
+  tokens at lag zero, zero mean rescore log-ratio, and zero mismatch KL. The two
+  ordinary groups also completed and were admitted; their identical replica
+  returns correctly yielded zero (or floating-point-zero) centered advantage.
+  This is the preregistered balanced counterfactual signal V12 requires: reward
+  the factual receiver action on critical states, penalize the corresponding
+  message-conditioned action on matched decoys, and do not invent ordinary
+  gradients when all replicas tie. Smoke run artifacts are under
+  `/workspace/runs/rl-v12-smoke5-07ca6848`; no optimizer step was started.
 - Instance decommissioned: no; pod is active under the bounded TTL.
 
 ## Future entry template
