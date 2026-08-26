@@ -1,6 +1,6 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-17
+Last updated: 2026-08-26
 Branch: `exp/swarm-arena-4b`  
 Current public development checkpoint: focused atomic update 50, Hugging Face
 revision `049e95062903501a8a50efac09d1b2caab393364` (not admitted).
@@ -5594,6 +5594,70 @@ no more critical-specific than decoy-specific. Therefore:
   update-0/1 challenge smoke, verify every policy slot receives nonzero challenge
   coverage plus trainer/serving parity, then start public mirroring before any
   long optimizer run.
+- Instance decommissioned: not applicable; no V12 instance was rented.
+
+### 2026-08-26 — V12 absolute paired-contrast correction
+
+- Status: CPU implementation and audit completed; no V12 GPU run started.
+- Verdict: mechanical pass. This supersedes only the V12 credit-centering
+  choice recorded above; the V11 evidence, V12 data split, schedule, reward,
+  policy warm start, selection rule, and unopened frozen suite are unchanged.
+- Hypothesis: replica-mean centering can erase precisely the uniform behavior
+  V12 must repair. If all four factual receivers succeed equally, or all four
+  misleading-message receivers fail equally, their paired effects are equal
+  and the centered advantages become zero. Preserving the raw paired terminal
+  return difference supplies the missing positive/negative signal without an
+  additive reward.
+- Decision unlocked: V12 may proceed to its Linux update-0/1 smoke using
+  absolute paired contrasts. A long GPU run remains prohibited until the smoke
+  proves nonzero challenge credit for every policy slot and passes the existing
+  distinct-adapter, replay, legality, parity, and artifact checks.
+- Source commit:
+  `68fdc1835d43d2e0bc703777ba6874eb88ab13a6`.
+- Implementation: `SharedReturnSpec` and `ProductionPlan` now bind
+  `paired_contrast_centering` as either legacy `replica_mean` or `none`.
+  Defaults are omitted from immutable hashes, preserving every completed-run
+  identity. V12 alone sets `none`; critical groups route
+  `factual_return - swapped_return` to factual receiver ACT spans, and challenge
+  groups route `swapped_return - factual_return` to misleading receiver ACT
+  spans. Ordinary groups explicitly revert to leave-one-out return credit and
+  legacy centering metadata.
+- Uniform-signal audit: factual returns `(0.2, 0.2, 0.2, 0.2)` versus swapped
+  returns `(-0.2, -0.2, -0.2, -0.2)` retain four `+0.4` critical advantages;
+  the reverse retains four `-0.4` challenge advantages. Under the old default,
+  the same uniform effects remain centered to numerical zero, proving backward
+  compatibility and the repaired V12 distinction.
+- Data/config identity: the 640-group schedule SHA-256 remains
+  `3bd30f26d3ba448fc2eb86ae714fed84bd8103cc3fe9501d34be608f83c4d756`.
+  Updated curriculum file SHA-256 is
+  `3898680505b61f60591167d3d6b41776433846fd2d97848399a01e2e40bf27c7`;
+  production-plan file SHA-256 is
+  `725862d1ed4d9d8f0857868241aa641415241e13aab739277f3a6e7364702556`;
+  semantic production-plan SHA-256 is
+  `5abab026b99fb5ee6f0a1554438441ed7f2309a7645ed9745dbbae756ffb8062`.
+  Builder audit SHA-256 is
+  `05d41f6955084f91562e46873f1a71374b1d49012a74e9e807efe3125e68059c`;
+  exhaustive learnability-audit SHA-256 is
+  `d734200ac9d9a42d711624a61aa0b040b7e452224a1436d5f237a71e7ab6c34f`.
+- CPU verification: deterministic regeneration matched every builder-owned
+  artifact byte-for-byte; 26 dependency-light production, task-binding,
+  selector, and fail-fast tests passed in `0.16s`; the pure estimator/hash
+  smoke passed; Ruff, compileall, and `git diff --check` passed. The full
+  receiver/challenge integration module remains a mandatory Linux gate because
+  importing it requires the intentionally Mac-absent Torch/live rollout stack.
+- Reward/safety interpretation: this is a paired counterfactual control
+  variate over independently replay-verified terminal team return, not a
+  truthfulness, obedience, target, capture, or communication bonus. The
+  counterfactual branch is never relabelled as oracle supervision. Uniform
+  negative challenge outcomes can now reduce the sampled misleading ACT
+  behavior rather than disappearing from the optimizer batch.
+- GPU, wall time, cost, and storage: no GPU allocated and zero GPU cost. Only
+  compact code/config/audit changes were added; no model, checkpoint, rollout,
+  CUDA environment, or large cache was stored on the Mac.
+- Next action: on a fresh four-GPU Linux node, anonymously hash all four V11
+  update-180 adapters, generate the distinct warm-start binding, run the full
+  suite, and execute one critical plus challenge rollout/update smoke. Inspect
+  signed per-policy advantages before authorizing the 160-update trajectory.
 - Instance decommissioned: not applicable; no V12 instance was rented.
 
 ## Future entry template
