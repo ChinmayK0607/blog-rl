@@ -5784,6 +5784,21 @@ no more critical-specific than decoy-specific. Therefore:
   passed **165/165 tests** in 40.72 seconds. The corrected smoke and V12 launch
   use `SWARM_SHARED_RETURN_CREDIT_ASSIGNMENT=focused_agent`; reward,
   counterfactuals, schedule, and thresholds are unchanged.
+- Focused smoke live-path result: the corrected launcher completed and admitted
+  the first critical group with 16 selected ACT decisions (128 tokens), all
+  four distinct policy snapshots, lag zero, and exact zero rescore KL/log-ratio.
+  Replay, supervisor signatures, four-policy routing, and the atomic admission
+  record passed. The subsequent matched decoy challenge then stopped before
+  queue admission because the lag-zero worker reconstructed response keys from
+  raw `branch` and omitted `replaced_agent`; `message_swap` therefore returned
+  `...:message_swap:...` while the immutable `RolloutDecision.decision_id` was
+  `...:swap-message-blue-0:...`. The preserved request and response each had 16
+  unique rows, proving a pure identity-construction mismatch rather than missing
+  inference or numerical data. The worker now delegates key construction to
+  `RolloutDecision.decision_id`, exactly as the requesting rescorer does. Tests
+  cover both actual and message-swap identities; Ruff passed and the complete
+  Linux suite passed **167/167 tests** in 40.65 seconds. No optimizer step was
+  started, and the failed smoke evidence was not overwritten.
 - Instance decommissioned: no; pod is active under the bounded TTL.
 
 ## Future entry template

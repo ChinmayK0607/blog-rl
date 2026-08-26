@@ -8,6 +8,7 @@ from pathlib import Path
 
 from swarm_ctf_eval.async_admission import PolicySnapshot
 from swarm_ctf_eval.async_rescore import ASYNC_RESCORE_PROTOCOL_VERSION
+from swarm_ctf_eval.prime_rl_bridge import RolloutDecision
 from swarm_ctf_eval.safety_supervisor import canonical_sha256
 
 
@@ -19,6 +20,10 @@ def _atomic_json(path: Path, payload: dict[str, object]) -> None:
         encoding="utf-8",
     )
     os.replace(temporary, path)
+
+
+def _rescore_decision_id(row: dict[str, object]) -> str:
+    return RolloutDecision(**row).decision_id
 
 
 def process_request(
@@ -79,10 +84,7 @@ def process_request(
             for snapshot in current
         ],
         "current_policy_logprobs": {
-            (
-                f"{row['game_id']}:{row['branch']}:{row['agent_id']}:"
-                f"{row['turn']}:{row['phase']}"
-            ): row["rollout_logprobs"]
+            _rescore_decision_id(row): row["rollout_logprobs"]
             for row in request["decisions"]
         },
     }
