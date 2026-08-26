@@ -379,7 +379,11 @@ class ProductionPlan:
         "paired_message_drop",
         "paired_target_swap",
         "paired_receiver_target_swap",
+        "paired_receiver_target_swap_challenge",
     ] = "leave_one_out_mean"
+    decoy_shared_return_baseline: Literal[
+        "paired_receiver_target_swap_challenge",
+    ] | None = None
 
     def validate(self) -> None:
         if self.version not in {
@@ -440,16 +444,27 @@ class ProductionPlan:
             "paired_message_drop",
             "paired_target_swap",
             "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
         }:
             raise ValueError("production plan contains an unknown shared-return baseline")
         if self.shared_return_baseline in {
             "paired_message_drop",
             "paired_target_swap",
             "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
         } and (
             self.trainable_phases != ("ACT",)
         ):
             raise ValueError("paired message-intervention plans require receiver ACT-only training")
+        if self.decoy_shared_return_baseline not in {
+            None,
+            "paired_receiver_target_swap_challenge",
+        }:
+            raise ValueError("production plan contains an unknown decoy baseline")
+        if self.decoy_shared_return_baseline is not None and not any(
+            mix.decoy for stage in self.stages for mix in stage.update_pattern
+        ):
+            raise ValueError("a decoy challenge baseline requires scheduled decoy groups")
 
     @property
     def sha256(self) -> str:
@@ -461,6 +476,8 @@ class ProductionPlan:
             payload.pop("action_prompt_profile")
         if self.shared_return_baseline == "leave_one_out_mean":
             payload.pop("shared_return_baseline")
+        if self.decoy_shared_return_baseline is None:
+            payload.pop("decoy_shared_return_baseline")
         if self.version == RL_PRODUCTION_PLAN_VERSION:
             # Preserve byte-for-byte run-lock identity for every completed v4 run.
             payload.pop("stages")
@@ -567,6 +584,9 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         action_prompt_profile=str(raw.get("rollout_runtime", {}).get("action_prompt_profile", "full")),
         shared_return_baseline=str(
             raw.get("rollout_runtime", {}).get("shared_return_baseline", "leave_one_out_mean")
+        ),
+        decoy_shared_return_baseline=raw.get("rollout_runtime", {}).get(
+            "decoy_shared_return_baseline"
         ),
     )
     plan.validate()

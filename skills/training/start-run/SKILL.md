@@ -70,6 +70,21 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   checks the digest before and after loading, requires an exact tensor-key and
   shape match, and initializes every new run before its optimizer is created.
   A resumed native run checkpoint takes precedence over this common seed.
+- When continuing a genuinely separate four-policy checkpoint, never clone one
+  agent adapter into all four slots. Bind `model.lora.initial_adapter_paths_by_run`
+  and `initial_adapter_sha256_by_run` for exactly `run_blue_0` through
+  `run_blue_3`, and pass the matching `swarm-distinct-policy-warmstart-v1`
+  controller manifest. Trainer discovery loads each checksum-pinned adapter into
+  only its isolated run slot; the controller loads the corresponding serving
+  alias and initializes policy revisions from those four hashes. Any missing,
+  duplicate, corrupt, or trainer/controller-disagreeing binding is a hard stop.
+  For counterfactual robustness, critical handoffs may train factual receiver
+  ACT spans with `paired_receiver_target_swap`, while matched decoys use
+  `paired_receiver_target_swap_challenge`: the latter trains only the
+  receiver's misleading-message ACT branch on centered
+  `swapped_return - factual_return`. Both branches are independently replayed
+  and use verified terminal team return only; never add a message-obedience,
+  truthfulness, action, or capture bonus.
 - Before a post-hoc PEFT audit loads an exported Swarm adapter, verify that its
   `adapter_config.json` rank agrees with every LoRA A/B tensor and with the
   frozen trainer config. The v10 update-40 export demonstrated that a valid

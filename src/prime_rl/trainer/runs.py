@@ -133,7 +133,14 @@ class MultiRunManager:
         self._adapter_state_dict_converter: Callable[[dict[str, torch.Tensor]], dict[str, torch.Tensor]] | None = None
         self._initial_adapter_path = lora_config.initial_adapter_path if lora_config is not None else None
         self._initial_adapter_sha256 = lora_config.initial_adapter_sha256 if lora_config is not None else None
+        self._initial_adapter_paths_by_run = (
+            dict(lora_config.initial_adapter_paths_by_run) if lora_config is not None else {}
+        )
+        self._initial_adapter_sha256_by_run = (
+            dict(lora_config.initial_adapter_sha256_by_run) if lora_config is not None else {}
+        )
         self._initial_adapter_state: dict[str, torch.Tensor] | None = None
+        self._initial_adapter_state_by_run: dict[str, dict[str, torch.Tensor]] = {}
 
         # Initialize lora globals on device so runs.* ARE the global tensors
         from prime_rl.trainer.models.layers.lora import (
@@ -286,8 +293,17 @@ class MultiRunManager:
             module.reset_parameters(idx)
 
     @torch.no_grad()
-    def load_initial_adapter(self, idx: int) -> None:
+    def load_initial_adapter(self, idx: int, run_id: str | None = None) -> None:
         """Initialize one run from the trainer-owned, checksum-pinned PEFT adapter."""
+        if run_id is not None and run_id in self._initial_adapter_paths_by_run:
+            path = self._initial_adapter_paths_by_run[run_id]
+            expected_sha256 = self._initial_adapter_sha256_by_run[run_id]
+            if run_id not in self._initial_adapter_state_by_run:
+                self._initial_adapter_state_by_run[run_id] = load_initial_adapter_state(
+                    path, expected_sha256
+                )
+            self._load_adapter_state(idx, self._initial_adapter_state_by_run[run_id])
+            return
         if self._initial_adapter_path is None or self._initial_adapter_sha256 is None:
             return
         self.load_adapter(idx, self._initial_adapter_path, self._initial_adapter_sha256)
@@ -306,6 +322,11 @@ class MultiRunManager:
             source = self._initial_adapter_state
         else:
             source = load_initial_adapter_state(path, expected_sha256)
+        self._load_adapter_state(idx, source)
+
+    @torch.no_grad()
+    def _load_adapter_state(self, idx: int, source: dict[str, torch.Tensor]) -> None:
+        """Copy one already checksum-verified PEFT state into an isolated run slot."""
         target = dict(self.get_named_parameters_for_run(idx))
         missing = sorted(set(target) - set(source))
         unexpected = sorted(set(source) - set(target))
@@ -426,7 +447,7 @@ class MultiRunManager:
     def _create_run_hooks(self, new_id: int, new_run: str) -> None:
         """Reset parameters and call creation hooks for a run."""
         self.reset_run_parameters(new_id)
-        self.load_initial_adapter(new_id)
+        self.load_initial_adapter(new_id, new_run)
         for hook in self._creation_hooks:
             hook(new_id, new_run)
 

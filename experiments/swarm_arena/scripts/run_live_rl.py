@@ -79,6 +79,37 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def load_initial_policy_adapter_manifest(
+    path: Path | None,
+) -> dict[str, tuple[Path, str, str]]:
+    """Load a hash-pinned distinct warm start for each of the four policies."""
+    if path is None:
+        return {}
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    if raw.get("version") != "swarm-distinct-policy-warmstart-v1":
+        raise ValueError("unsupported distinct-policy warm-start manifest")
+    policies = raw.get("policies")
+    expected = {f"blue-{index}" for index in range(4)}
+    if not isinstance(policies, dict) or set(policies) != expected:
+        raise ValueError("warm-start manifest must bind exactly blue-0 through blue-3")
+    result = {}
+    for policy_id, row in policies.items():
+        if not isinstance(row, dict):
+            raise ValueError(f"invalid warm-start row for {policy_id}")
+        adapter_path = Path(str(row["path"])).resolve()
+        sha256 = str(row["sha256"])
+        revision = str(row["revision"])
+        if len(sha256) != 64 or any(character not in "0123456789abcdef" for character in sha256):
+            raise ValueError(f"invalid warm-start SHA-256 for {policy_id}")
+        if not revision:
+            raise ValueError(f"missing warm-start revision for {policy_id}")
+        adapter_file = adapter_path / "adapter_model.safetensors"
+        if not adapter_file.is_file() or sha256_file(adapter_file) != sha256:
+            raise ValueError(f"warm-start adapter mismatch for {policy_id}")
+        result[policy_id] = (adapter_path, sha256, revision)
+    return result
+
+
 def load_resume_progress(output_dir: Path, *, total_steps: int) -> list[dict[str, object]]:
     progress_path = output_dir / "live_rl_progress.json"
     if not progress_path.is_file():
@@ -312,6 +343,11 @@ async def main() -> None:
     parser.add_argument("--task-data-version", choices=("v3", "v4"), default="v3")
     parser.add_argument("--tokenizer", required=True)
     parser.add_argument("--initial-adapter", type=Path, required=True)
+    parser.add_argument(
+        "--initial-policy-adapter-manifest",
+        type=Path,
+        help="optional four-policy hash-pinned warm start; overrides the common adapter",
+    )
     parser.add_argument("--base-url", action="append", default=[])
     parser.add_argument(
         "--actor",
@@ -461,6 +497,27 @@ async def main() -> None:
 
     with args.trainer_config.open("rb") as handle:
         config = TrainerConfig.model_validate(tomli.load(handle))
+    try:
+        initial_policy_adapters = load_initial_policy_adapter_manifest(
+            args.initial_policy_adapter_manifest
+        )
+    except (KeyError, TypeError, ValueError) as error:
+        parser.error(str(error))
+    if initial_policy_adapters:
+        if config.model.lora is None:
+            parser.error("distinct policy warm starts require trainer LoRA")
+        expected_paths = {
+            f"run_blue_{index}": initial_policy_adapters[f"blue-{index}"][0]
+            for index in range(4)
+        }
+        expected_hashes = {
+            f"run_blue_{index}": initial_policy_adapters[f"blue-{index}"][1]
+            for index in range(4)
+        }
+        if config.model.lora.initial_adapter_paths_by_run != expected_paths:
+            parser.error("trainer per-run warm-start paths do not match the controller manifest")
+        if config.model.lora.initial_adapter_sha256_by_run != expected_hashes:
+            parser.error("trainer per-run warm-start hashes do not match the controller manifest")
     if config.max_steps is not None:
         parser.error(
             "Swarm multi-run trainer max_steps must be omitted because it counts "
@@ -522,6 +579,7 @@ async def main() -> None:
         or shared_return_spec.baseline not in {
             "paired_target_swap",
             "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
         }
     ):
         parser.error("target-swap sender retries require a paired target-swap baseline")
@@ -559,7 +617,11 @@ async def main() -> None:
             await replace_adapter(
                 base_urls,
                 name,
-                resume_paths[name] if args.resume_existing_progress else args.initial_adapter,
+                resume_paths[name]
+                if args.resume_existing_progress
+                else initial_policy_adapters[name][0]
+                if initial_policy_adapters
+                else args.initial_adapter,
             )
         if production_plan is None:
             await replace_adapter(base_urls, "sft-opponent", args.initial_adapter)
@@ -678,8 +740,22 @@ async def main() -> None:
             }
             policy_revisions = dict(policy_adapter_sha256)
         else:
-            policy_revisions = {f"blue-{index}": initial_revision for index in range(4)}
-            policy_adapter_sha256 = {f"blue-{index}": initial_adapter_sha256 for index in range(4)}
+            policy_revisions = {
+                f"blue-{index}": (
+                    initial_policy_adapters[f"blue-{index}"][2]
+                    if initial_policy_adapters
+                    else initial_revision
+                )
+                for index in range(4)
+            }
+            policy_adapter_sha256 = {
+                f"blue-{index}": (
+                    initial_policy_adapters[f"blue-{index}"][1]
+                    if initial_policy_adapters
+                    else initial_adapter_sha256
+                )
+                for index in range(4)
+            }
         if args.checkpoint_barrier_dir is not None and not args.resume_existing_progress:
             assert production_plan is not None
             await checkpoint_barrier(
@@ -907,9 +983,21 @@ async def main() -> None:
                     scenario_metadata["focused_phase"] = focused_phase
                 if (
                     group_shared_return_spec is not None
+                    and production_plan is not None
+                    and assignment is not None
+                    and assignment.kind == "decoy"
+                    and production_plan.decoy_shared_return_baseline is not None
+                ):
+                    group_shared_return_spec = replace(
+                        group_shared_return_spec,
+                        baseline=production_plan.decoy_shared_return_baseline,
+                    )
+                if (
+                    group_shared_return_spec is not None
                     and group_shared_return_spec.baseline in {
                         "paired_target_swap",
                         "paired_receiver_target_swap",
+                        "paired_receiver_target_swap_challenge",
                     }
                     and scenario_metadata["source"] == "ordinary"
                 ):
@@ -962,25 +1050,41 @@ async def main() -> None:
                                 message_swap_agent=(
                                     str(scenario_metadata["sender"])
                                     if group_shared_return_spec.baseline
-                                    in {"paired_target_swap", "paired_receiver_target_swap"}
+                                    in {
+                                        "paired_target_swap",
+                                        "paired_receiver_target_swap",
+                                        "paired_receiver_target_swap_challenge",
+                                    }
                                     else None
                                 ),
                                 message_swap_turn=(
                                     initial_state.turn
                                     if group_shared_return_spec.baseline
-                                    in {"paired_target_swap", "paired_receiver_target_swap"}
+                                    in {
+                                        "paired_target_swap",
+                                        "paired_receiver_target_swap",
+                                        "paired_receiver_target_swap_challenge",
+                                    }
                                     else None
                                 ),
                                 message_swap_targets=(
                                     tuple(str(value) for value in scenario_metadata["candidate_targets"])
                                     if group_shared_return_spec.baseline
-                                    in {"paired_target_swap", "paired_receiver_target_swap"}
+                                    in {
+                                        "paired_target_swap",
+                                        "paired_receiver_target_swap",
+                                        "paired_receiver_target_swap_challenge",
+                                    }
                                     else None
                                 ),
                                 message_swap_active_target=(
                                     str(scenario_metadata["active_target"])
                                     if group_shared_return_spec.baseline
-                                    in {"paired_target_swap", "paired_receiver_target_swap"}
+                                    in {
+                                        "paired_target_swap",
+                                        "paired_receiver_target_swap",
+                                        "paired_receiver_target_swap_challenge",
+                                    }
                                     else None
                                 ),
                                 message_swap_sender_sampling_namespace=sender_sampling_namespace,
@@ -1051,8 +1155,18 @@ async def main() -> None:
                                 trainable=False,
                             ),
                         )
+                        challenge_baseline = (
+                            group.evidence.spec.baseline
+                            == "paired_receiver_target_swap_challenge"
+                        )
                         all_decisions = tuple(
-                            decision for replica in group.evidence.replicas for decision in replica.decisions
+                            decision
+                            for replica in group.evidence.replicas
+                            for decision in (
+                                replica.swapped_decisions
+                                if challenge_baseline
+                                else replica.decisions
+                            )
                         )
                         trainable_decision_ids = frozenset(
                             decision_id
@@ -1142,11 +1256,26 @@ async def main() -> None:
                                         if replica.swapped_replay is not None
                                         else None
                                     ),
+                                    "challenge_effect": (
+                                        replica.swapped_replay.terminal_return
+                                        - replica.replay.terminal_return
+                                        if group.evidence.spec.baseline
+                                        == "paired_receiver_target_swap_challenge"
+                                        and replica.swapped_replay is not None
+                                        else None
+                                    ),
                                     "advantages": {
                                         envelope.agent_id: envelope.advantage for envelope in approval.envelopes
                                     },
                                     "focused_action": (
-                                        dict(replica.replay.turns[0].actions)[focused_agent].to_dict()
+                                        dict(
+                                            (
+                                                replica.swapped_replay
+                                                if group.evidence.spec.baseline
+                                                == "paired_receiver_target_swap_challenge"
+                                                else replica.replay
+                                            ).turns[0].actions
+                                        )[focused_agent].to_dict()
                                         if focused_agent is not None
                                         and scenario_metadata.get("focused_phase") == "ACT"
                                         else None

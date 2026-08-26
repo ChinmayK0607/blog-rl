@@ -112,10 +112,28 @@ class LoRAConfig(BaseConfig):
     initial_adapter_sha256: str | None = Field(None, pattern=r"^[0-9a-f]{64}$")
     """Required SHA-256 digest of the initial adapter safetensors file."""
 
+    initial_adapter_paths_by_run: dict[str, Path] = Field(default_factory=dict)
+    """Optional per-run PEFT adapters for distinct multi-policy warm starts."""
+
+    initial_adapter_sha256_by_run: dict[str, str] = Field(default_factory=dict)
+    """SHA-256 digests paired one-to-one with ``initial_adapter_paths_by_run``."""
+
     @model_validator(mode="after")
     def validate_initial_adapter(self):
         if (self.initial_adapter_path is None) != (self.initial_adapter_sha256 is None):
             raise ValueError("initial_adapter_path and initial_adapter_sha256 must be set together")
+        if set(self.initial_adapter_paths_by_run) != set(self.initial_adapter_sha256_by_run):
+            raise ValueError("per-run initial adapter paths and checksums must have identical keys")
+        if any(
+            not run_id.startswith("run_") or "/" in run_id or run_id in {"run_", "run_.."}
+            for run_id in self.initial_adapter_paths_by_run
+        ):
+            raise ValueError("per-run initial adapters require fixed run_* identifiers")
+        if any(
+            len(value) != 64 or any(character not in "0123456789abcdef" for character in value)
+            for value in self.initial_adapter_sha256_by_run.values()
+        ):
+            raise ValueError("per-run initial adapter checksums must be lowercase SHA-256")
         return self
 
 

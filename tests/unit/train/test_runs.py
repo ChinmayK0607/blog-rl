@@ -140,6 +140,62 @@ def test_lora_config_can_disable_grouped_mm() -> None:
     assert config.use_grouped_mm is False
 
 
+def test_per_run_initial_adapters_preserve_distinct_policy_warm_starts(tmp_path: Path) -> None:
+    paths = {}
+    digests = {}
+    sources = {}
+    for index, offset in enumerate((0, 10)):
+        run_id = f"run_blue_{index}"
+        adapter_dir = tmp_path / f"adapter-{index}"
+        adapter_dir.mkdir()
+        source = {
+            "base_model.model.proj.lora_A.weight": (
+                torch.arange(6, dtype=torch.float32).reshape(2, 3) + offset
+            ),
+            "base_model.model.proj.lora_B.weight": (
+                torch.arange(8, dtype=torch.float32).reshape(4, 2) + offset
+            ),
+        }
+        weights_path = adapter_dir / "adapter_model.safetensors"
+        save_file(source, weights_path)
+        paths[run_id] = adapter_dir
+        digests[run_id] = hashlib.sha256(weights_path.read_bytes()).hexdigest()
+        sources[run_id] = source
+
+    manager = MultiRunManager(
+        output_dir=tmp_path / "runs",
+        max_runs=2,
+        lora_config=LoRAConfig(
+            rank=2,
+            target_modules=["proj"],
+            initial_adapter_paths_by_run=paths,
+            initial_adapter_sha256_by_run=digests,
+        ),
+    )
+    layer = MultiLoRALinear(
+        torch.nn.Linear(3, 4, bias=False), rank=2, n_adapters=2, alpha=4
+    )
+    manager.register_module("proj", layer)
+    manager.load_initial_adapter(0, "run_blue_0")
+    manager.load_initial_adapter(1, "run_blue_1")
+
+    for index in (0, 1):
+        loaded = dict(manager.get_named_parameters_for_run(index))
+        source = sources[f"run_blue_{index}"]
+        assert torch.equal(
+            loaded["proj.lora_A.weight"],
+            source["base_model.model.proj.lora_A.weight"],
+        )
+
+
+def test_per_run_initial_adapter_maps_fail_closed() -> None:
+    with pytest.raises(ValueError, match="identical keys"):
+        LoRAConfig(
+            initial_adapter_paths_by_run={"run_blue_0": Path("/tmp/adapter")},
+            initial_adapter_sha256_by_run={},
+        )
+
+
 def test_peft_adapter_state_dict_prefixes_keys_and_rejects_mixed_input() -> None:
     tensor = torch.ones(2, 3)
     raw = {"model.layers.0.self_attn.q_proj.lora_A.weight": tensor}

@@ -1,0 +1,48 @@
+{
+  "claim_rule": "clustered intervals for message-use, RL-specific effect, and critical-minus-decoy specificity are positive; ordinary lower bounds exceed -0.02; all opponents/sides reported",
+  "development": {
+    "critical_conditions": [
+      "normal",
+      "dropped",
+      "sender_shuffled",
+      "delayed",
+      "zero_budget",
+      "target_swapped"
+    ],
+    "decoy_conditions": [
+      "normal",
+      "dropped",
+      "target_swapped"
+    ],
+    "handoff_pairs": 36,
+    "opponents": [
+      "base",
+      "sft",
+      "v10-update40",
+      "v11-update180"
+    ],
+    "ordinary_cases": 36,
+    "sides": [
+      "BLUE",
+      "RED"
+    ]
+  },
+  "development_candidates": [
+    20,
+    40,
+    80,
+    120,
+    160
+  ],
+  "development_rule": "earliest candidate with positive semantic return, positive specificity, and both ordinary clustered lower bounds at least -0.02",
+  "frozen_final": {
+    "handoff_file_sha256": "c2ae30275fb626688c971a9e807dabea4047b6faf6a94edb0ac82fb2ba1714b5",
+    "ordinary_file_sha256": "544998349b3f7b24ce5ef5ec44cd8c0f28ee5f6e5a072b68d8380d79c2e830b9",
+    "run_policy": "once for the earliest development-selected checkpoint",
+    "source": "unchanged V11 frozen suite"
+  },
+  "ordinary_noninferiority_margin": -0.02,
+  "ordinary_noninferiority_statistic": "clustered_95_percent_lower_bound",
+  "status": "frozen_before_v12_rl",
+  "version": "arena-rl-v12-progress-eval-v1"
+}

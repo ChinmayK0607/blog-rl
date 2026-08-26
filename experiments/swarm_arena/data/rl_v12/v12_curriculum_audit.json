@@ -1,0 +1,51 @@
+{
+  "decoys_are_matched_critical_subset": true,
+  "every_update_uses_all_four_opponents": true,
+  "expected_nonzero_signal": {
+    "challenge": 640,
+    "critical": 880,
+    "ordinary": 1040
+  },
+  "frozen_handoff_file_sha256": "c2ae30275fb626688c971a9e807dabea4047b6faf6a94edb0ac82fb2ba1714b5",
+  "frozen_ordinary_file_sha256": "544998349b3f7b24ce5ef5ec44cd8c0f28ee5f6e5a072b68d8380d79c2e830b9",
+  "frozen_reused_byte_for_byte": true,
+  "frozen_unopened": true,
+  "group_counts": {
+    "critical": 220,
+    "decoy": 160,
+    "ordinary": 260
+  },
+  "receiver_counts": {
+    "critical": {
+      "blue-0": 55,
+      "blue-1": 55,
+      "blue-2": 55,
+      "blue-3": 55
+    },
+    "decoy": {
+      "blue-0": 40,
+      "blue-1": 40,
+      "blue-2": 40,
+      "blue-3": 40
+    }
+  },
+  "scenario_opponent_family_counts": {
+    "critical:base": 54,
+    "critical:current": 56,
+    "critical:historical": 55,
+    "critical:sft": 55,
+    "decoy:base": 42,
+    "decoy:current": 39,
+    "decoy:historical": 39,
+    "decoy:sft": 40,
+    "ordinary:base": 64,
+    "ordinary:current": 65,
+    "ordinary:historical": 66,
+    "ordinary:sft": 65
+  },
+  "scenario_opponent_max_count_deviation": 2,
+  "schedule_sha256": "3bd30f26d3ba448fc2eb86ae714fed84bd8103cc3fe9501d34be608f83c4d756",
+  "split_state_hashes_disjoint": true,
+  "status": "passed",
+  "version": "arena-rl-v12-curriculum-audit-v1"
+}

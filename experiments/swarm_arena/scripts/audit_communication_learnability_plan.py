@@ -43,15 +43,17 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
     stages = tuple(_stage(row) for row in curriculum["stages"])
     groups_per_update = int(curriculum["groups_per_update"])
     total_updates = int(curriculum["total_updates"])
+    schedule_config = curriculum.get("schedule", {})
     schedule = exact_staged_curriculum_schedule(
         stages,
         groups_per_update=groups_per_update,
-        pair_offset=0,
-        ordinary_seed_base=8_000_000,
-        shuffle_seed=17,
+        pair_offset=int(schedule_config.get("pair_offset", 0)),
+        ordinary_seed_base=int(schedule_config.get("ordinary_seed_base", 8_000_000)),
+        shuffle_seed=int(schedule_config.get("shuffle_seed", 17)),
     )
     replicas = int(curriculum.get("runtime", {}).get("shared_return_replicas", 4))
     baseline = str(curriculum.get("runtime", {}).get("shared_return_baseline", "leave_one_out_mean"))
+    decoy_baseline = curriculum.get("runtime", {}).get("decoy_shared_return_baseline")
     require_receiver_isolation = bool(
         curriculum.get("runtime", {}).get("require_receiver_isolation", False)
     )
@@ -86,6 +88,9 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
                 "private_worlds_indistinguishable": bool(
                     audit_row["critical_receiver_worlds_indistinguishable_without_message"]
                 ),
+                "decoy_worlds_distinguishable": bool(
+                    audit_row["decoy_receiver_worlds_distinguishable_without_message"]
+                ),
                 "legal_actions_match": bool(audit_row["receiver_action_sets_match_across_worlds"]),
                 "message_does_not_unlock_action": bool(audit_row["message_does_not_change_receiver_legal_actions"]),
                 "receiver_isolated_one_turn_separation": separation,
@@ -95,6 +100,7 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
     expected_cases = {(row.pair_index, row.handoff_world) for row in schedule if row.kind == "critical"}
     counts = Counter(row.kind for row in schedule)
     critical_assignments = [row for row in schedule if row.kind == "critical"]
+    decoy_assignments = [row for row in schedule if row.kind == "decoy"]
     receiver_counts = Counter(
         handoff["pairs"][row.pair_index]["critical"]["receiver"]
         for row in critical_assignments
@@ -112,6 +118,19 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
     )
     world_balance = world_counts and max(world_counts.values()) - min(world_counts.values()) <= 1
     all_policy_slots = set(receiver_counts) == {f"blue-{index}" for index in range(4)}
+    decoy_receiver_counts = Counter(
+        handoff["pairs"][row.pair_index]["decoy"]["receiver"]
+        for row in decoy_assignments
+        if row.pair_index is not None
+    )
+    challenge_cases = {
+        (row.pair_index, row.handoff_world) for row in decoy_assignments
+    }
+    challenge_cases_matched = challenge_cases <= expected_cases
+    challenge_slots_covered = (
+        not decoy_assignments
+        or set(decoy_receiver_counts) == {f"blue-{index}" for index in range(4)}
+    )
     valid = (
         len(schedule) == total_updates * groups_per_update
         and counts.get("critical", 0) > 0
@@ -120,10 +139,14 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
             "paired_message_drop",
             "paired_target_swap",
             "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
         }
         and (
             not require_receiver_isolation
-            or baseline == "paired_receiver_target_swap"
+            or baseline in {
+                "paired_receiver_target_swap",
+                "paired_receiver_target_swap_challenge",
+            }
         )
         and (
             not require_receiver_isolation
@@ -136,8 +159,15 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         and role_balance
         and world_balance
         and all_policy_slots
+        and challenge_cases_matched
+        and challenge_slots_covered
+        and (
+            not decoy_assignments
+            or decoy_baseline == "paired_receiver_target_swap_challenge"
+        )
         and all(
             row["private_worlds_indistinguishable"]
+            and row["decoy_worlds_distinguishable"]
             and row["legal_actions_match"]
             and row["message_does_not_unlock_action"]
             and row["minimum_certified_terminal_advantage"] > 0
@@ -162,6 +192,7 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         "ordinary_preservation_samples": counts.get("ordinary", 0) * replicas,
         "action_prompt_profile": curriculum.get("runtime", {}).get("action_prompt_profile", "full"),
         "shared_return_baseline": baseline,
+        "decoy_shared_return_baseline": decoy_baseline,
         "receiver_isolation_required": require_receiver_isolation,
         "handoff_remaining_turns": list(remaining_turns),
         "selected_cases": sorted(expected_cases),
@@ -172,6 +203,9 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
         "role_balance_passed": role_balance,
         "world_balance_passed": bool(world_balance),
         "all_receiver_policy_slots_covered": all_policy_slots,
+        "challenge_receiver_policy_slot_counts": dict(sorted(decoy_receiver_counts.items())),
+        "challenge_cases_matched_to_critical": challenge_cases_matched,
+        "all_challenge_receiver_policy_slots_covered": challenge_slots_covered,
         "pairs": pair_rows,
         "reward_contract": curriculum["reward"],
         "message_reward": curriculum["message_reward"],
@@ -181,6 +215,9 @@ def audit(curriculum_path: Path, handoff_path: Path) -> dict[str, Any]:
             "When receiver isolation is required, it additionally exhausts every legal "
             "same-team joint action under all three opponent audit styles and requires a "
             "strict one-turn factual-target advantage. "
+            "Challenge decoys additionally prove that the receiver can identify the factual "
+            "world privately while a swapped inbox changes no legal action; their policy "
+            "gradient therefore trains the misleading-message branch without a shaped reward. "
             "A non-zero sampled policy advantage remains model-dependent and must pass the "
             "first-update diagnostic before a long GPU run."
         ),

@@ -476,6 +476,7 @@ async def rollout_branch(
     broadcast_sampling_override_agent: str | None = None,
     broadcast_sampling_override_turn: int | None = None,
     broadcast_sampling_override_namespace: str | None = None,
+    collect_training_samples: bool | None = None,
 ) -> BranchRollout:
     interventions = sum(
         value is not None for value in (replaced_agent, message_drop_agent, message_swap_agent)
@@ -507,6 +508,10 @@ async def rollout_branch(
         value is not None for value in override_fields
     ):
         raise ValueError("broadcast sampling override requires agent, turn, and namespace")
+    if collect_training_samples is None:
+        collect_training_samples = branch_kind == "actual"
+    if collect_training_samples and branch_kind not in {"actual", "message_swap"}:
+        raise ValueError("training samples can come only from actual or message-swap branches")
 
     def decision_namespace(agent_id: str, turn: int, phase: Phase) -> str:
         if (
@@ -604,7 +609,7 @@ async def rollout_branch(
                 )
             )
             if (
-                branch_kind == "actual"
+                collect_training_samples
                 and binding.trainable
                 and "BROADCAST" in sample_phases
                 and (sample_turns is None or turn in sample_turns)
@@ -700,7 +705,7 @@ async def rollout_branch(
                 )
             )
             if (
-                branch_kind == "actual"
+                collect_training_samples
                 and binding.trainable
                 and "ACT" in sample_phases
                 and (sample_turns is None or turn in sample_turns)
@@ -977,7 +982,11 @@ async def build_live_shared_return_group(
             raise ValueError("paired message-drop credit requires a distinct trainable sender")
         if message_drop_turn is None:
             raise ValueError("paired message-drop credit requires an intervention turn")
-    elif spec.baseline in {"paired_target_swap", "paired_receiver_target_swap"}:
+    elif spec.baseline in {
+        "paired_target_swap",
+        "paired_receiver_target_swap",
+        "paired_receiver_target_swap_challenge",
+    }:
         if message_swap_agent not in trainable_agents or message_swap_agent == focused_agent:
             raise ValueError("paired target-swap credit requires a distinct trainable sender")
         if (
@@ -990,7 +999,11 @@ async def build_live_shared_return_group(
         message_drop_agent is not None or message_drop_turn is not None
     ):
         raise ValueError("non-drop credit cannot name a message-drop intervention")
-    if spec.baseline not in {"paired_target_swap", "paired_receiver_target_swap"} and any(
+    if spec.baseline not in {
+        "paired_target_swap",
+        "paired_receiver_target_swap",
+        "paired_receiver_target_swap_challenge",
+    } and any(
         value is not None
         for value in (
             message_swap_agent,
@@ -1013,6 +1026,7 @@ async def build_live_shared_return_group(
         else frozenset(initial_state.turn + offset for offset in spec.trainable_turn_offsets)
     )
     phases = frozenset(spec.trainable_phases)
+    challenge_baseline = spec.baseline == "paired_receiver_target_swap_challenge"
     replica_game_ids = tuple(f"{group_id}:replica-{index}" for index in range(spec.replicas))
     replica_namespaces = tuple(f"{base_namespace}:replica-{index}" for index in range(spec.replicas))
     async with _coalesced_request_group(generator):
@@ -1034,6 +1048,7 @@ async def build_live_shared_return_group(
                     independently_sampled_agent=focused_agent,
                     prompt_namespace=common_sampling_namespace,
                     focused_action_prompt_agent=focused_action_prompt_agent,
+                    collect_training_samples=not challenge_baseline,
                     broadcast_sampling_override_agent=(
                         message_swap_agent if message_swap_sender_sampling_namespace is not None else None
                     ),
@@ -1087,7 +1102,10 @@ async def build_live_shared_return_group(
                         replaced_agent=None,
                         sampling_namespace=(
                             replica_namespaces[index]
-                            if spec.baseline == "paired_receiver_target_swap"
+                            if spec.baseline in {
+                                "paired_receiver_target_swap",
+                                "paired_receiver_target_swap_challenge",
+                            }
                             else f"{replica_namespaces[index]}:swap"
                         ),
                         message_swap_agent=message_swap_agent,
@@ -1096,7 +1114,10 @@ async def build_live_shared_return_group(
                         message_swap_active_target=message_swap_active_target,
                         message_swap_receiver=(
                             focused_agent
-                            if spec.baseline == "paired_receiver_target_swap"
+                            if spec.baseline in {
+                                "paired_receiver_target_swap",
+                                "paired_receiver_target_swap_challenge",
+                            }
                             else None
                         ),
                         sample_phases=phases,
@@ -1112,25 +1133,33 @@ async def build_live_shared_return_group(
                             message_swap_turn if message_swap_sender_sampling_namespace is not None else None
                         ),
                         broadcast_sampling_override_namespace=message_swap_sender_sampling_namespace,
+                        collect_training_samples=challenge_baseline,
                     )
                     for index in range(spec.replicas)
                 )
             )
-            if spec.baseline in {"paired_target_swap", "paired_receiver_target_swap"}
+            if spec.baseline in {
+                "paired_target_swap",
+                "paired_receiver_target_swap",
+                "paired_receiver_target_swap_challenge",
+            }
             else (None,) * spec.replicas
         )
 
+    training_branches = swapped_branches if challenge_baseline else branches
     binding_by_agent = {row.agent_id: row for row in bindings}
     owned_by_replica = []
     replicas = []
-    for index, branch in enumerate(branches):
+    for index, training_branch in enumerate(training_branches):
+        if training_branch is None:
+            raise ValueError("challenge baseline omitted its trainable swapped branch")
         by_agent: dict[str, list[TrainingSample]] = {agent_id: [] for agent_id in trainable_agents}
-        for agent_id, sample in branch.samples:
+        for agent_id, sample in training_branch.samples:
             by_agent[agent_id].append(sample)
         decision_ids_by_agent = {
             agent_id: tuple(
                 row.decision_id
-                for row in branch.decisions
+                for row in training_branch.decisions
                 if row.agent_id == agent_id
                 and row.phase in phases
                 and (absolute_turns is None or row.turn in absolute_turns)
@@ -1140,7 +1169,7 @@ async def build_live_shared_return_group(
         owned_by_replica.append(
             tuple(
                 OwnedAgentSamples(
-                    replica_game_ids[index],
+                    next(iter(training_branch.decisions)).game_id,
                     agent_id,
                     binding_by_agent[agent_id].policy_id,
                     decision_ids_by_agent[agent_id],
@@ -1154,8 +1183,8 @@ async def build_live_shared_return_group(
                 index,
                 replica_game_ids[index],
                 replica_namespaces[index],
-                branch.replay,
-                branch.decisions,
+                branches[index].replay,
+                branches[index].decisions,
                 dropped_branches[index].replay if dropped_branches[index] is not None else None,
                 dropped_branches[index].decisions if dropped_branches[index] is not None else (),
                 swapped_branches[index].replay if swapped_branches[index] is not None else None,

@@ -180,6 +180,37 @@ def test_rollout_runtime_changes_plan_identity_without_changing_legacy_default(
     assert compact.sha256 != legacy.sha256
 
 
+def test_decoy_counterfactual_challenge_requires_a_decoy_curriculum(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    raw = json.loads((root / "configs" / "rl_v11_4b_base_plan.json").read_text())
+    curriculum = json.loads(
+        (root / "data" / "rl_v11" / "staged_curriculum_v11_4b_diverse_receiver_180.json").read_text()
+    )
+    curriculum["stages"][0]["update_pattern"] = [
+        {"ordinary": 2, "critical": 1, "decoy": 1}
+    ]
+    raw["version"] = "arena-rl-v4-staged-production-plan-v1"
+    raw["curriculum_stages"] = curriculum["stages"]
+    raw["rollout_runtime"] = {
+        "shared_return_replicas": 4,
+        "action_prompt_profile": "full",
+        "shared_return_baseline": "paired_receiver_target_swap",
+        "decoy_shared_return_baseline": "paired_receiver_target_swap_challenge",
+    }
+    path = tmp_path / "challenge.json"
+    path.write_text(json.dumps(raw))
+    plan, _ = load_production_plan(path)
+    assert plan.decoy_shared_return_baseline == "paired_receiver_target_swap_challenge"
+
+    curriculum["stages"][0]["update_pattern"] = [
+        {"ordinary": 1, "critical": 3, "decoy": 0}
+    ]
+    raw["curriculum_stages"] = curriculum["stages"]
+    path.write_text(json.dumps(raw))
+    with pytest.raises(ValueError, match="requires scheduled decoy groups"):
+        load_production_plan(path)
+
+
 def test_staged_schedule_is_exact_paired_and_deterministic_per_update() -> None:
     tactical = CurriculumMix(ordinary=2, critical=1, decoy=1)
     communication = CurriculumMix(ordinary=0, critical=2, decoy=2)
@@ -352,6 +383,55 @@ def test_v11_curriculum_scales_diversity_without_role_or_world_imbalance() -> No
     assert index["handoff"]["development"]["sha256"] == development["sha256"]
     assert (data_dir / "curriculum.json").read_bytes() == (
         data_dir / "staged_curriculum_v11_4b_diverse_receiver_180.json"
+    ).read_bytes()
+
+
+def test_v12_curriculum_balances_counterfactual_challenges_and_preserves_frozen() -> None:
+    root = Path(__file__).resolve().parents[1]
+    data_dir = root / "data" / "rl_v12"
+    curriculum = json.loads((data_dir / "curriculum.json").read_text())
+    manifest = json.loads((data_dir / "handoff_train.json").read_text())
+    stages = tuple(
+        CurriculumStage(
+            name=stage["name"],
+            updates=stage["updates"],
+            update_pattern=tuple(CurriculumMix(**mix) for mix in stage["update_pattern"]),
+            ordinary_sizes=tuple(stage["ordinary_sizes"]),
+            ordinary_horizons=tuple(stage["ordinary_horizons"]),
+            handoff_focus_roles=("receiver",),
+            handoff_cases=tuple(
+                (case["pair_index"], case["world"]) for case in stage["handoff_cases"]
+            ),
+            handoff_remaining_turns=stage["handoff_remaining_turns"],
+        )
+        for stage in curriculum["stages"]
+    )
+    schedule = exact_staged_curriculum_schedule(
+        stages,
+        groups_per_update=4,
+        pair_offset=curriculum["schedule"]["pair_offset"],
+        ordinary_seed_base=curriculum["schedule"]["ordinary_seed_base"],
+        shuffle_seed=curriculum["schedule"]["shuffle_seed"],
+    )
+    assert Counter(row.kind for row in schedule) == {
+        "ordinary": 260,
+        "critical": 220,
+        "decoy": 160,
+    }
+    for kind, expected in (("critical", 55), ("decoy", 40)):
+        assert Counter(
+            manifest["pairs"][row.pair_index][kind]["receiver"]
+            for row in schedule
+            if row.kind == kind
+        ) == {f"blue-{index}": expected for index in range(4)}
+    assert curriculum["runtime"]["decoy_shared_return_baseline"] == (
+        "paired_receiver_target_swap_challenge"
+    )
+    assert (data_dir / "handoff_frozen_ood.json").read_bytes() == (
+        root / "data" / "rl_v11" / "handoff_frozen_ood.json"
+    ).read_bytes()
+    assert (data_dir / "ordinary_hard_frozen_ood.json").read_bytes() == (
+        root / "data" / "rl_v11" / "ordinary_hard_frozen_ood.json"
     ).read_bytes()
 
 

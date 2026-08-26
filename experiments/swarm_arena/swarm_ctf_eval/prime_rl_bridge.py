@@ -289,6 +289,8 @@ def build_shared_return_training_envelopes(
     trainable_phases: frozenset[Phase],
     trainable_turns: frozenset[int] | None,
     focused_agent: str | None = None,
+    expected_branch: BranchKind = "actual",
+    expected_replaced_agent: str | None = None,
 ) -> tuple[PolicyTrainingEnvelope, ...]:
     """Route selected spans, optionally assigning credit only to one causal actor."""
     validate_policy_roster(bindings, trainable_team)
@@ -298,14 +300,21 @@ def build_shared_return_training_envelopes(
         raise ValueError("shared-return routing requires phases and either all or explicit turns")
     if not decisions:
         raise ValueError("a shared-return replica requires rollout decisions")
+    if expected_branch not in {"actual", "message_swap"}:
+        raise ValueError("shared-return training supports only actual or message-swap branches")
+    if (expected_branch == "actual") != (expected_replaced_agent is None):
+        raise ValueError("message-swap training must name exactly one replaced sender")
     for decision in decisions:
         _validate_decision(decision)
-        if decision.branch != "actual" or decision.replaced_agent is not None:
-            raise ValueError("shared-return evidence can contain only actual decisions")
+        if (
+            decision.branch != expected_branch
+            or decision.replaced_agent != expected_replaced_agent
+        ):
+            raise ValueError("shared-return evidence contains the wrong training branch")
     game_ids = {decision.game_id for decision in decisions}
     if len(game_ids) != 1:
         raise ValueError("a shared-return envelope cannot mix games")
-    _decision_schedule(decisions, branch="shared-return actual")
+    _decision_schedule(decisions, branch=f"shared-return {expected_branch}")
 
     binding_by_agent = {binding.agent_id: binding for binding in bindings}
     expected_agents = {binding.agent_id for binding in bindings if binding.trainable and binding.team == trainable_team}

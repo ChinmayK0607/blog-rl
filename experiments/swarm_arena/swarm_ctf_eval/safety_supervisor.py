@@ -175,6 +175,7 @@ class SharedReturnSpec:
         "paired_message_drop",
         "paired_target_swap",
         "paired_receiver_target_swap",
+        "paired_receiver_target_swap_challenge",
     ] = "leave_one_out_mean"
     reward: Literal["verified_terminal_team_return"] = "verified_terminal_team_return"
     credit_assignment: Literal["shared_team", "focused_agent"] = "shared_team"
@@ -199,6 +200,7 @@ class SharedReturnSpec:
             "paired_message_drop",
             "paired_target_swap",
             "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
         }:
             raise ValueError("shared-return spec contains an unsupported baseline")
         if self.reward != "verified_terminal_team_return":
@@ -220,6 +222,7 @@ class SharedReturnSpec:
             "paired_message_drop",
             "paired_target_swap",
             "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
         } and (
             self.credit_assignment != "focused_agent" or self.trainable_phases != ("ACT",)
         ):
@@ -366,6 +369,7 @@ def shared_return_evidence_payload(evidence: SharedReturnGroupEvidence) -> dict[
     elif evidence.spec.baseline in {
         "paired_target_swap",
         "paired_receiver_target_swap",
+        "paired_receiver_target_swap_challenge",
     }:
         payload["message_swap_agent"] = evidence.message_swap_agent
         payload["message_swap_turn"] = evidence.message_swap_turn
@@ -1063,6 +1067,7 @@ def approve_shared_return_group(
     elif evidence.spec.baseline in {
         "paired_target_swap",
         "paired_receiver_target_swap",
+        "paired_receiver_target_swap_challenge",
     }:
         same_team_agents = {binding.agent_id for binding in bindings if binding.team == trainable_team}
         if evidence.message_swap_agent not in same_team_agents:
@@ -1224,6 +1229,7 @@ def approve_shared_return_group(
         if evidence.spec.baseline in {
             "paired_target_swap",
             "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
         }:
             if replica.swapped_replay is None or not replica.swapped_decisions:
                 raise ValueError("paired target-swap replica omits its swapped branch")
@@ -1259,7 +1265,10 @@ def approve_shared_return_group(
                 swapped_active_target=evidence.message_swap_active_target,
                 swapped_receiver=(
                     evidence.focused_agent
-                    if evidence.spec.baseline == "paired_receiver_target_swap"
+                    if evidence.spec.baseline in {
+                        "paired_receiver_target_swap",
+                        "paired_receiver_target_swap_challenge",
+                    }
                     else None
                 ),
             )
@@ -1269,7 +1278,10 @@ def approve_shared_return_group(
                 branch=f"replica-{replica.replica_index}-swap",
             )
             swapped_verifications.append(swapped_verification)
-            if evidence.spec.baseline == "paired_receiver_target_swap":
+            if evidence.spec.baseline in {
+                "paired_receiver_target_swap",
+                "paired_receiver_target_swap_challenge",
+            }:
                 assert evidence.focused_agent is not None
                 assert evidence.message_swap_turn is not None
                 actual_at_intervention = {
@@ -1312,6 +1324,9 @@ def approve_shared_return_group(
         )
     )
 
+    challenge_baseline = (
+        evidence.spec.baseline == "paired_receiver_target_swap_challenge"
+    )
     advantages = (
         paired_message_drop_advantages(
             tuple(row.terminal_return for row in verifications),
@@ -1319,24 +1334,39 @@ def approve_shared_return_group(
         )
         if evidence.spec.baseline == "paired_message_drop"
         else paired_terminal_contrast_advantages(
-            tuple(row.terminal_return for row in verifications),
-            tuple(row.terminal_return for row in swapped_verifications),
+            tuple(
+                row.terminal_return
+                for row in (
+                    swapped_verifications if challenge_baseline else verifications
+                )
+            ),
+            tuple(
+                row.terminal_return
+                for row in (
+                    verifications if challenge_baseline else swapped_verifications
+                )
+            ),
         )
         if evidence.spec.baseline in {
             "paired_target_swap",
             "paired_receiver_target_swap",
+            "paired_receiver_target_swap_challenge",
         }
         else leave_one_out_advantages(tuple(row.terminal_return for row in verifications))
     )
     envelopes = tuple(
         build_shared_return_training_envelopes(
-            replica.decisions,
+            replica.swapped_decisions if challenge_baseline else replica.decisions,
             bindings,
             trainable_team,
             advantage,
             trainable_phases=phases,
             trainable_turns=absolute_turns,
             focused_agent=evidence.focused_agent,
+            expected_branch=("message_swap" if challenge_baseline else "actual"),
+            expected_replaced_agent=(
+                evidence.message_swap_agent if challenge_baseline else None
+            ),
         )
         for replica, advantage in zip(
             sorted(evidence.replicas, key=lambda row: row.replica_index),
@@ -1367,7 +1397,9 @@ def approve_shared_return_group(
         expected_ids = {
             decision.decision_id
             for replica in evidence.replicas
-            for decision in replica.decisions
+            for decision in (
+                replica.swapped_decisions if challenge_baseline else replica.decisions
+            )
             if decision.policy_id in dict(lock.trainable_policy_revisions)
             and decision.phase in phases
             and (absolute_turns is None or decision.turn in absolute_turns)
@@ -1376,7 +1408,7 @@ def approve_shared_return_group(
             raise ValueError("trainer log-prob rows do not exactly match shared-return spans")
         parities = tuple(
             verify_trainer_logprob_parity(
-                replica.decisions,
+                replica.swapped_decisions if challenge_baseline else replica.decisions,
                 {
                     decision_id: values
                     for decision_id, values in evidence.trainer_logprobs.items()
@@ -1395,17 +1427,21 @@ def approve_shared_return_group(
         return None if value is None else float(value)
 
     approvals = []
+    training_verifications = (
+        swapped_verifications if challenge_baseline else verifications
+    )
     for replica, verification, replica_envelopes, parity in zip(
         sorted(evidence.replicas, key=lambda row: row.replica_index),
-        verifications,
+        training_verifications,
         envelopes,
         parities,
         strict=True,
     ):
+        approval_game_id = replica_envelopes[0].game_id
         unsigned = {
             "supervisor_version": SUPERVISOR_VERSION,
             "run_lock_sha256": lock.sha256,
-            "game_id": replica.game_id,
+            "game_id": approval_game_id,
             "evidence_sha256": evidence_sha256,
             "replay_return": verification.terminal_return,
             "logprob_max_abs_error": optional_float(parity["max_abs_error"]),
@@ -1429,7 +1465,7 @@ def approve_shared_return_group(
             Approval(
                 SUPERVISOR_VERSION,
                 lock.sha256,
-                replica.game_id,
+                approval_game_id,
                 evidence_sha256,
                 verification.terminal_return,
                 optional_float(parity["max_abs_error"]),

@@ -125,6 +125,16 @@ def main() -> None:
         raise ValueError("live RL requires trainer LoRA configuration")
     config.model.lora.initial_adapter_path = args.adapter
     config.model.lora.initial_adapter_sha256 = args.adapter_sha256
+    per_run_paths = config.model.lora.initial_adapter_paths_by_run
+    per_run_hashes = config.model.lora.initial_adapter_sha256_by_run
+    if per_run_paths:
+        expected_runs = {f"run_blue_{index}" for index in range(4)}
+        if set(per_run_paths) != expected_runs or set(per_run_hashes) != expected_runs:
+            raise ValueError("distinct warm start must bind exactly four run_blue_* adapters")
+        for run_id, adapter_path in sorted(per_run_paths.items()):
+            actual = sha256_file(adapter_path / "adapter_model.safetensors")
+            if actual != per_run_hashes[run_id]:
+                raise ValueError(f"distinct warm-start checksum mismatch for {run_id}")
     if config.rollout_parity_gate is None:
         raise ValueError("live RL requires a trainer pre-step parity gate")
     if args.checkpoint_interval is not None:

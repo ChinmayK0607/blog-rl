@@ -32,6 +32,7 @@ from swarm_ctf_eval.safety_supervisor import (
     canonical_sha256,
     leave_one_out_advantages,
     paired_message_drop_advantages,
+    paired_terminal_contrast_advantages,
 )
 from swarm_ctf_eval.shared_return_parity import build_shared_return_parity_probe
 from swarm_ctf_eval.structured_protocol import protocol_choices
@@ -494,6 +495,91 @@ def test_receiver_only_target_swap_isolates_the_counterfactual_context() -> None
             "BLUE",
             b"shared-return-test-signing-key-32-bytes",
         )
+
+
+def test_receiver_target_swap_challenge_trains_only_the_counterfactual_receiver() -> None:
+    root = Path(__file__).resolve().parents[1]
+    manifest = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    decoy = reconstruct_manifest_scenario(manifest["pairs"][12]["decoy"])
+    world = decoy.worlds[0]
+    spec = SharedReturnSpec(
+        replicas=3,
+        trainable_phases=("ACT",),
+        trainable_turn_offsets=(0,),
+        baseline="paired_receiver_target_swap_challenge",
+        credit_assignment="focused_agent",
+        action_prompt_profile="focused_handoff_compact",
+    )
+    lock = _lock(spec)
+    group = asyncio.run(
+        build_live_shared_return_group(
+            ExposedFactGenerator(),  # type: ignore[arg-type]
+            group_id="paired-receiver-swap-challenge",
+            seed=decoy.seed,
+            size=decoy.size,
+            config=EpisodeConfig(
+                horizon=world.state.turn + 1,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            ),
+            spec=spec,
+            bindings=_bindings(),
+            policies=_endpoints(),
+            run_lock_sha256=lock.sha256,
+            initial_state=world.state,
+            focused_agent=decoy.receiver,
+            message_swap_agent=decoy.sender,
+            message_swap_turn=world.state.turn,
+            message_swap_targets=decoy.candidate_targets,
+            message_swap_active_target=world.active_target,
+        )
+    )
+    approvals = approve_shared_return_group(
+        lock,
+        group.evidence,
+        _bindings(),
+        "BLUE",
+        b"shared-return-test-signing-key-32-bytes",
+    )
+
+    factual_returns = tuple(
+        replica.replay.terminal_return for replica in group.evidence.replicas
+    )
+    swapped_returns = tuple(
+        replica.swapped_replay.terminal_return
+        for replica in group.evidence.replicas
+        if replica.swapped_replay is not None
+    )
+    expected = paired_terminal_contrast_advantages(swapped_returns, factual_returns)
+    assert len(approvals) == spec.replicas
+    assert tuple(
+        next(
+            envelope.advantage
+            for envelope in approval.envelopes
+            if envelope.agent_id == decoy.receiver
+        )
+        for approval in approvals
+    ) == expected
+    assert all(approval.game_id.endswith(":swap") for approval in approvals)
+    assert all(
+        decision.branch == "message_swap"
+        for replica in group.evidence.replicas
+        for decision in replica.swapped_decisions
+    )
+    assert all(
+        envelope.advantage == 0.0
+        for approval in approvals
+        for envelope in approval.envelopes
+        if envelope.agent_id != decoy.receiver
+    )
+    assert all(
+        ":swap:" in decision_id
+        for approval in approvals
+        for envelope in approval.envelopes
+        if envelope.agent_id == decoy.receiver
+        for decision_id in envelope.decision_ids
+    )
 
 
 def test_compact_prompt_profile_is_bound_without_changing_legacy_spec_identity() -> None:
