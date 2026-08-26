@@ -13,6 +13,7 @@ from urllib.request import Request, urlopen
 
 from swarm_ctf_eval.handoff_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.rl_production import load_production_plan
+from swarm_ctf_eval.safety_supervisor import SharedReturnSpec
 from swarm_ctf_eval.task_data_binding import resolve_task_data_binding
 
 
@@ -130,6 +131,27 @@ def _gpu_inventory() -> list[dict[str, int | str]]:
             }
         )
     return inventory
+
+
+def _validate_shared_return_launcher(plan: object, credit_assignment: str) -> None:
+    trainable_phases = (
+        ("ACT",)
+        if credit_assignment == "focused_agent"
+        else plan.trainable_phases
+    )
+    baselines = [plan.shared_return_baseline]
+    if plan.decoy_shared_return_baseline is not None:
+        baselines.append(plan.decoy_shared_return_baseline)
+    for baseline in baselines:
+        SharedReturnSpec(
+            replicas=plan.shared_return_replicas,
+            trainable_phases=trainable_phases,
+            trainable_turn_offsets=plan.trainable_turn_offsets,
+            credit_assignment=credit_assignment,
+            baseline=baseline,
+            action_prompt_profile=plan.action_prompt_profile,
+            paired_contrast_centering=plan.paired_contrast_centering,
+        ).validate()
 
 
 def main() -> None:
@@ -301,6 +323,7 @@ def main() -> None:
         raise ValueError("launcher replica count does not match the immutable production plan")
     if args.action_prompt_profile != plan.action_prompt_profile:
         raise ValueError("launcher action prompt profile does not match the immutable production plan")
+    _validate_shared_return_launcher(plan, args.shared_return_credit_assignment)
     base_snapshots = [
         row for row in plan.opponent_pool.snapshots if row.family == "base"
     ]

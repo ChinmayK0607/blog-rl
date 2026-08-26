@@ -5757,6 +5757,33 @@ no more critical-specific than decoy-specific. Therefore:
   loading a model. Those logs are preserved. The explicit literal-port relaunch
   on GPUs 1--3 (8001--8003, isolated compile caches/RPC ports) loaded cleanly.
   No optimizer or rollout was started by either failed setup attempt.
+- Exact runtime certificate: a 32-decision constrained probe exercised every
+  policy slot and all three servers using its own V11 adapter. Trainer/serving
+  parity passed with mean absolute log-probability error `0.000625736`, p99
+  `0.00350731`, mean mismatch KL `0.0000395493`, and maximum mismatch KL
+  `0.0159705`. All four initial trainer-state digests and policy weight hashes
+  were distinct, all optimizer parameter sets were disjoint, and one test step
+  changed only `run_blue_0`. Runtime-certificate SHA-256 is
+  `d3881a716e1a6719b21a4b60d4cf0ae0fc51769f8d543d6395cace10f48ee873`.
+  The immutable 160-update production-plan SHA-256 is
+  `464bd77a44d8c2a2984ab06f83969e24b8b71e71ee32c1bd096ff1c4fc950321`;
+  it contains 220 critical, 160 matched-decoy, and 260 ordinary groups across
+  96 handoff pairs and 260 unique ordinary seeds. Full hardware/data/serving
+  preflight passed before temporary probe aliases were unloaded.
+- Rollout-smoke retry: the first diagnostic invocation correctly refused to
+  truncate the immutable 160-update plan to one update. A separate hash-bound
+  one-update prefix was then built (one critical challenge, one matched decoy,
+  two ordinary groups; all four opponent families). It stopped before model
+  rollout because the generic launcher value `shared_team` conflicts with
+  V12's paired receiver intervention, which requires `focused_agent` ACT
+  credit. This is a launch/preflight integration defect, not a model result;
+  both failed diagnostic directories and logs are retained, and no optimizer
+  update occurred. Preflight now constructs and validates the exact effective
+  critical and decoy `SharedReturnSpec`, so this mismatch fails before launch.
+  Two focused regressions passed, Ruff passed, and the complete Linux suite
+  passed **165/165 tests** in 40.72 seconds. The corrected smoke and V12 launch
+  use `SWARM_SHARED_RETURN_CREDIT_ASSIGNMENT=focused_agent`; reward,
+  counterfactuals, schedule, and thresholds are unchanged.
 - Instance decommissioned: no; pod is active under the bounded TTL.
 
 ## Future entry template
