@@ -5860,6 +5860,68 @@ no more critical-specific than decoy-specific. Therefore:
   model inputs, and checkpoint-selection rules are unchanged.
 - Instance decommissioned: no; the authorized bounded pod remains active.
 
+### 2026-08-27 — V12 live rollout-gap audit and V13 role-adaptive design
+
+- Status: CPU design and interim schedule audit completed; V12 GPU work left
+  untouched.
+- Verdict: V12 is repairing the intended behavior, but the remaining gap is
+  role-asymmetric and ordinary credit is too sparse for another uniform
+  scale-up. V13 is designed as an 80-update continuation rather than a restart.
+- Evidence source: anonymous public HF mirror
+  `CK0607/swarm-arena-live-runs/runs/rl-v12-counterfactual4b160-b9f6e7f3`,
+  source commit `b9f6e7f3a28106ac76d6fef350e1fc316ac8e819`, with 100 durable optimizer
+  updates available at audit time. Compact progress SHA-256 is
+  `531aa2a4d1fa709a2b356932d13f4bc2ff6780abcf1363d469a9fdcaaf52121c`.
+  Development rows through update 80 were included; the active/incomplete
+  update-100 rows were excluded from results.
+- Training-distribution findings: critical receivers selected the fact-supported
+  target in `95.77%` of 520 replicas and had mean factual counterfactual effect
+  `+0.09843`. Decoy private-supported target selection improved from `56.25%`
+  at updates 0--19 to `80.00%` at updates 80--99. Blue-0 remained the dominant
+  residual failure: it followed the misleading alternate in `60.00%` of its
+  update-80--99 decoy replicas. Ordinary focused advantages were nonzero in
+  only `14.41%` of replicas overall and in `0%` / `11.11%` for blue-0 / blue-3
+  at updates 80--99. Active/private-supported actions had mean paired effect
+  `+0.0674`; alternate/message-following actions had `-0.0910`, so the existing
+  reward direction is informative and no communication bonus is warranted.
+- Update-80 compact development result: critical normal-minus-dropped return
+  `+0.03152` (95% `[-0.03303,+0.09217]`), critical-minus-decoy specificity
+  `+0.04680` (`[-0.01646,+0.12089]`), and RL-specific communication lift
+  `+0.04797` (`[-0.00403,+0.11819]`). Ordinary hard / legacy RL-minus-SFT were
+  `+0.000003` / `-0.00583`; all intervals remain too wide for a final claim.
+- V13 design: 80 updates / 320 groups: 140 fresh ordinary, 80 misleading-message
+  challenges, 80 matched factual controls, and 20 extra hard factual rehearsals.
+  Decoy receiver quotas are blue-0/1/2/3 = `32/14/14/20`; every decoy is a
+  matched critical subset, all ordinary seeds are unique, all four policies
+  remain distinct, and reward remains verified terminal return only. Schedule
+  audit SHA-256 is
+  `554a017293ffc66607d175470178200888f6c47d1c00d27936339eb0c17a5c2f`.
+- Admission boundary: current V13 artifacts are explicitly interim and not
+  launch-ready. Before GPU use, regenerate the gap selection from completed V12,
+  bind the earliest formally selected V12 checkpoint, and run a training-only
+  ordinary pass@4 screen proving nonzero credit in every policy slot. Frozen
+  data was not opened.
+- New compact artifacts: audit script SHA-256
+  `1ff824840deebe9f553e1ca8b8778463c0c9c6fc8f270017b46678d4d85638f3`;
+  role-band selector `8d5faf2e2ceea8753f00fa014ce3d3ad2ab0313c649b85b12a429e1bccd1b1d1`;
+  curriculum builder `a71fbd28dee7a15c6a68ce81bf12f1e9242d81bcb26b30d4cfac6f784deb7f07`;
+  compact audit `4210a3870d9b0d23fd0fdba6a0ee00fdaa5395bd98dbf13024e44be679c5afa7`;
+  interim case selection
+  `1355bba167d82fc974663b2e56f4fe54004142299be7b6edca777974aea532f0`;
+  curriculum/audit files `48c41ff...993b` / `723e0ecb...6f42`.
+- Local verification: Ruff passed; Python compilation passed; six focused tests
+  passed. The first project-level `uv run` was blocked by a deliberately absent
+  editable dependency, then isolated `--no-project` testing initially lacked
+  network access; the approved temporary uv cache installed pytest/Ruff and the
+  final isolated checks passed. No package or model artifact was added to the
+  repository or Mac caches.
+- GPU/cost/decommission: no GPU command, process change, or decommission action
+  was performed in this audit; live V12 cost/state was not inferred beyond the
+  public mirrored progress.
+- Next action: let V12 finish, refresh these training-only bands, run the small
+  ordinary signal screen, freeze V13, then launch only if V12 yields an admitted
+  initializer.
+
 ## Future entry template
 
 Copy this block for each material run:

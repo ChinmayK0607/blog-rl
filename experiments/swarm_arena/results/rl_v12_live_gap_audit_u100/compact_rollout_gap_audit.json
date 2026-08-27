@@ -1,0 +1,5209 @@
+{
+  "evaluation": {
+    "0": {
+      "cells": {
+        "candidate_rl/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.6666666666666666,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.0,
+          "mean_duplicate_target_turn_rate": 0.27881944444444445,
+          "mean_nonempty_messages": 8.791666666666666,
+          "mean_terminal_return": 0.05287001874883602,
+          "rows": 24
+        },
+        "candidate_rl/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.708333333333332,
+          "mean_duplicate_target_turn_rate": 0.1673611111111111,
+          "mean_nonempty_messages": 8.25,
+          "mean_terminal_return": 0.011716856597741451,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.208333333333332,
+          "mean_duplicate_target_turn_rate": 0.19270833333333334,
+          "mean_nonempty_messages": 9.166666666666666,
+          "mean_terminal_return": 0.025916972899297747,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.5,
+          "mean_duplicate_target_turn_rate": 0.14652777777777778,
+          "mean_nonempty_messages": 8.208333333333334,
+          "mean_terminal_return": 0.019986560756966774,
+          "rows": 24
+        },
+        "candidate_rl/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.916666666666668,
+          "mean_duplicate_target_turn_rate": 0.30416666666666664,
+          "mean_nonempty_messages": 8.916666666666666,
+          "mean_terminal_return": -0.024678486259368613,
+          "rows": 12
+        },
+        "candidate_rl/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.083333333333332,
+          "mean_duplicate_target_turn_rate": 0.40277777777777773,
+          "mean_nonempty_messages": 9.0,
+          "mean_terminal_return": -0.012386128364389232,
+          "rows": 12
+        },
+        "sft_init/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.083333333333332,
+          "mean_duplicate_target_turn_rate": 0.26319444444444445,
+          "mean_nonempty_messages": 8.958333333333334,
+          "mean_terminal_return": 0.022359342299235817,
+          "rows": 24
+        },
+        "sft_init/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.1829861111111111,
+          "mean_nonempty_messages": 8.166666666666666,
+          "mean_terminal_return": 0.00590870186134856,
+          "rows": 24
+        },
+        "sft_init/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.27499999999999997,
+          "mean_nonempty_messages": 8.916666666666666,
+          "mean_terminal_return": 0.006410256410256408,
+          "rows": 12
+        },
+        "sft_init/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.0,
+          "mean_duplicate_target_turn_rate": 0.40277777777777773,
+          "mean_nonempty_messages": 9.083333333333334,
+          "mean_terminal_return": 0.004047619047619049,
+          "rows": 12
+        }
+      },
+      "rows": 192,
+      "rows_sha256": "78f49372b587a3b6ed2173529cf3b56b77740dfade2658497794a8b6f37a62dd"
+    },
+    "20": {
+      "cells": {
+        "candidate_rl/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.75,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.25,
+          "mean_duplicate_target_turn_rate": 0.2704861111111111,
+          "mean_nonempty_messages": 9.166666666666666,
+          "mean_terminal_return": 0.027033461371009176,
+          "rows": 24
+        },
+        "candidate_rl/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7916666666666666,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.5,
+          "mean_duplicate_target_turn_rate": 0.09444444444444444,
+          "mean_nonempty_messages": 8.291666666666666,
+          "mean_terminal_return": 0.04531132783195799,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 28.916666666666668,
+          "mean_duplicate_target_turn_rate": 0.14340277777777777,
+          "mean_nonempty_messages": 8.375,
+          "mean_terminal_return": 0.08023160939286313,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.333333333333332,
+          "mean_duplicate_target_turn_rate": 0.09756944444444444,
+          "mean_nonempty_messages": 8.458333333333334,
+          "mean_terminal_return": 0.043569760079832716,
+          "rows": 24
+        },
+        "candidate_rl/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.333333333333332,
+          "mean_duplicate_target_turn_rate": 0.37083333333333335,
+          "mean_nonempty_messages": 9.25,
+          "mean_terminal_return": 0.03374222679369738,
+          "rows": 12
+        },
+        "candidate_rl/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.0,
+          "mean_duplicate_target_turn_rate": 0.40972222222222227,
+          "mean_nonempty_messages": 9.5,
+          "mean_terminal_return": -0.031500554667721094,
+          "rows": 12
+        },
+        "sft_init/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.083333333333332,
+          "mean_duplicate_target_turn_rate": 0.26319444444444445,
+          "mean_nonempty_messages": 8.958333333333334,
+          "mean_terminal_return": 0.022359342299235817,
+          "rows": 24
+        },
+        "sft_init/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.1829861111111111,
+          "mean_nonempty_messages": 8.166666666666666,
+          "mean_terminal_return": 0.00590870186134856,
+          "rows": 24
+        },
+        "sft_init/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.27499999999999997,
+          "mean_nonempty_messages": 8.916666666666666,
+          "mean_terminal_return": 0.006410256410256408,
+          "rows": 12
+        },
+        "sft_init/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.0,
+          "mean_duplicate_target_turn_rate": 0.40277777777777773,
+          "mean_nonempty_messages": 9.083333333333334,
+          "mean_terminal_return": 0.004047619047619049,
+          "rows": 12
+        }
+      },
+      "rows": 192,
+      "rows_sha256": "abd74b0dadbf21e499e55970d0252f4fc06bc44ef2c6ae30fd0222275689ebc5"
+    },
+    "40": {
+      "cells": {
+        "candidate_rl/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.75,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.5,
+          "mean_duplicate_target_turn_rate": 0.24375,
+          "mean_nonempty_messages": 9.041666666666666,
+          "mean_terminal_return": 0.014178820327156194,
+          "rows": 24
+        },
+        "candidate_rl/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.75,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.0,
+          "mean_duplicate_target_turn_rate": 0.07256944444444445,
+          "mean_nonempty_messages": 8.5,
+          "mean_terminal_return": 0.05069879042808251,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 29.333333333333332,
+          "mean_duplicate_target_turn_rate": 0.16041666666666668,
+          "mean_nonempty_messages": 8.666666666666666,
+          "mean_terminal_return": 0.07144472432471262,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.25,
+          "mean_duplicate_target_turn_rate": 0.10104166666666665,
+          "mean_nonempty_messages": 8.583333333333334,
+          "mean_terminal_return": 0.060936703441689444,
+          "rows": 24
+        },
+        "candidate_rl/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.666666666666668,
+          "mean_duplicate_target_turn_rate": 0.3111111111111111,
+          "mean_nonempty_messages": 9.833333333333334,
+          "mean_terminal_return": 0.06544205970676559,
+          "rows": 12
+        },
+        "candidate_rl/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.75,
+          "mean_duplicate_target_turn_rate": 0.40277777777777773,
+          "mean_nonempty_messages": 9.75,
+          "mean_terminal_return": -0.044112874881240695,
+          "rows": 12
+        },
+        "sft_init/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.083333333333332,
+          "mean_duplicate_target_turn_rate": 0.26319444444444445,
+          "mean_nonempty_messages": 8.958333333333334,
+          "mean_terminal_return": 0.022359342299235817,
+          "rows": 24
+        },
+        "sft_init/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.1829861111111111,
+          "mean_nonempty_messages": 8.166666666666666,
+          "mean_terminal_return": 0.00590870186134856,
+          "rows": 24
+        },
+        "sft_init/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.27499999999999997,
+          "mean_nonempty_messages": 8.916666666666666,
+          "mean_terminal_return": 0.006410256410256408,
+          "rows": 12
+        },
+        "sft_init/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.0,
+          "mean_duplicate_target_turn_rate": 0.40277777777777773,
+          "mean_nonempty_messages": 9.083333333333334,
+          "mean_terminal_return": 0.004047619047619049,
+          "rows": 12
+        }
+      },
+      "rows": 192,
+      "rows_sha256": "4afadc3c3c77521fe1e27721f3a8c24be594cefb6764424b6c4653a58ae774d1"
+    },
+    "60": {
+      "cells": {
+        "candidate_rl/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.8333333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.75,
+          "mean_duplicate_target_turn_rate": 0.2704861111111111,
+          "mean_nonempty_messages": 9.166666666666666,
+          "mean_terminal_return": 0.018379205234913067,
+          "rows": 24
+        },
+        "candidate_rl/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.9166666666666666,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.875,
+          "mean_duplicate_target_turn_rate": 0.096875,
+          "mean_nonempty_messages": 8.458333333333334,
+          "mean_terminal_return": 0.058923107224206885,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 29.791666666666668,
+          "mean_duplicate_target_turn_rate": 0.1625,
+          "mean_nonempty_messages": 8.791666666666666,
+          "mean_terminal_return": 0.041071616142518017,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.25,
+          "mean_duplicate_target_turn_rate": 0.07604166666666666,
+          "mean_nonempty_messages": 8.458333333333334,
+          "mean_terminal_return": 0.06310126897331626,
+          "rows": 24
+        },
+        "candidate_rl/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.583333333333332,
+          "mean_duplicate_target_turn_rate": 0.3625,
+          "mean_nonempty_messages": 9.25,
+          "mean_terminal_return": 0.10870814819344231,
+          "rows": 12
+        },
+        "candidate_rl/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.0,
+          "mean_duplicate_target_turn_rate": 0.3680555555555556,
+          "mean_nonempty_messages": 9.666666666666666,
+          "mean_terminal_return": -0.04632982959069915,
+          "rows": 12
+        },
+        "sft_init/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.083333333333332,
+          "mean_duplicate_target_turn_rate": 0.26319444444444445,
+          "mean_nonempty_messages": 8.958333333333334,
+          "mean_terminal_return": 0.022359342299235817,
+          "rows": 24
+        },
+        "sft_init/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.1829861111111111,
+          "mean_nonempty_messages": 8.166666666666666,
+          "mean_terminal_return": 0.00590870186134856,
+          "rows": 24
+        },
+        "sft_init/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.27499999999999997,
+          "mean_nonempty_messages": 8.916666666666666,
+          "mean_terminal_return": 0.006410256410256408,
+          "rows": 12
+        },
+        "sft_init/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.0,
+          "mean_duplicate_target_turn_rate": 0.40277777777777773,
+          "mean_nonempty_messages": 9.083333333333334,
+          "mean_terminal_return": 0.004047619047619049,
+          "rows": 12
+        }
+      },
+      "rows": 192,
+      "rows_sha256": "3d957e399b27e143af36d50e05215b37ef201f32cfacbd723aec4454fceff946"
+    },
+    "80": {
+      "cells": {
+        "candidate_rl/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7916666666666666,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.458333333333332,
+          "mean_duplicate_target_turn_rate": 0.23263888888888887,
+          "mean_nonempty_messages": 9.041666666666666,
+          "mean_terminal_return": 0.0013221970804354252,
+          "rows": 24
+        },
+        "candidate_rl/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.8333333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.416666666666668,
+          "mean_duplicate_target_turn_rate": 0.10659722222222222,
+          "mean_nonempty_messages": 8.416666666666666,
+          "mean_terminal_return": 0.0328429760803098,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.125,
+          "mean_duplicate_target_turn_rate": 0.1534722222222222,
+          "mean_nonempty_messages": 9.166666666666666,
+          "mean_terminal_return": 0.05657840611914497,
+          "rows": 24
+        },
+        "candidate_rl/handoff_decoy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.458333333333332,
+          "mean_duplicate_target_turn_rate": 0.10208333333333335,
+          "mean_nonempty_messages": 8.375,
+          "mean_terminal_return": 0.04129812016936237,
+          "rows": 24
+        },
+        "candidate_rl/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.3423611111111111,
+          "mean_nonempty_messages": 9.583333333333334,
+          "mean_terminal_return": 0.006413025015966196,
+          "rows": 12
+        },
+        "candidate_rl/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.3194444444444445,
+          "mean_nonempty_messages": 9.416666666666666,
+          "mean_terminal_return": -0.0017841079460269894,
+          "rows": 12
+        },
+        "sft_init/handoff_critical/dropped": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.083333333333332,
+          "mean_duplicate_target_turn_rate": 0.26319444444444445,
+          "mean_nonempty_messages": 8.958333333333334,
+          "mean_terminal_return": 0.022359342299235817,
+          "rows": 24
+        },
+        "sft_init/handoff_critical/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.7083333333333334,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.1829861111111111,
+          "mean_nonempty_messages": 8.166666666666666,
+          "mean_terminal_return": 0.00590870186134856,
+          "rows": 24
+        },
+        "sft_init/ordinary_hard/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 30.833333333333332,
+          "mean_duplicate_target_turn_rate": 0.27499999999999997,
+          "mean_nonempty_messages": 8.916666666666666,
+          "mean_terminal_return": 0.006410256410256408,
+          "rows": 12
+        },
+        "sft_init/ordinary_legacy/normal": {
+          "action_validity": 1.0,
+          "broadcast_validity": 1.0,
+          "critical_capture_rate": 0.0,
+          "grounding": 1.0,
+          "mean_communication_spend": 31.0,
+          "mean_duplicate_target_turn_rate": 0.40277777777777773,
+          "mean_nonempty_messages": 9.083333333333334,
+          "mean_terminal_return": 0.004047619047619049,
+          "rows": 12
+        }
+      },
+      "rows": 192,
+      "rows_sha256": "eb65bda974ffba5285396ed34cbe9365b0b6c9c8aa890cb119f9cf4260671cb6"
+    }
+  },
+  "progress_sha256": "531aa2a4d1fa709a2b356932d13f4bc2ff6780abcf1363d469a9fdcaaf52121c",
+  "scope": "interim training-distribution and compact development evidence; not a held-out result or checkpoint selection",
+  "training": {
+    "by_20_update_window": {
+      "000-019/critical": {
+        "effect": {
+          "mean": 0.10148622810798938,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.925,
+          "positive_group_rate": 0.95,
+          "positive_rate": 0.925,
+          "uniform_replica_group_rate": 0.9
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10277086390682469,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9367088607594937,
+            "replicas": 79
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 1
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 79,
+          "alternate_target": 1
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9875,
+          "alternate_target": 0.0125
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 76,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10148622810798938,
+          "nonzero_rate": 0.925
+        },
+        "groups": 20,
+        "mean_terminal_return": 0.10148622810798938,
+        "replicas": 80
+      },
+      "000-019/decoy": {
+        "effect": {
+          "mean": -0.04405994426331032,
+          "negative_rate": 0.4125,
+          "nonzero_rate": 0.425,
+          "positive_group_rate": 0.05,
+          "positive_rate": 0.0125,
+          "uniform_replica_group_rate": 0.7
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.00022446689113355802,
+            "negative_rate": 0.022222222222222223,
+            "positive_rate": 0.022222222222222223,
+            "replicas": 45
+          },
+          "alternate_target": {
+            "mean": -0.10711807730805563,
+            "negative_rate": 0.9696969696969697,
+            "positive_rate": 0.0,
+            "replicas": 33
+          },
+          "other_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 45,
+          "alternate_target": 33,
+          "other_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.5625,
+          "alternate_target": 0.4125,
+          "other_target": 0.025
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 70,
+          "PROBE": 10
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.04709024729361335,
+          "nonzero_rate": 0.425
+        },
+        "groups": 20,
+        "mean_terminal_return": 0.1025731846297285,
+        "replicas": 80
+      },
+      "000-019/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 160
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 51,
+          "FORTIFY": 33,
+          "PROBE": 52,
+          "RECOVER": 24
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.005027100271002721,
+          "nonzero_rate": 0.075
+        },
+        "groups": 40,
+        "mean_terminal_return": 0.04635380319672801,
+        "replicas": 160
+      },
+      "020-039/critical": {
+        "effect": {
+          "mean": 0.10342936352099293,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.9375,
+          "positive_group_rate": 0.95,
+          "positive_rate": 0.9375,
+          "uniform_replica_group_rate": 0.95
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10342936352099293,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9375,
+            "replicas": 80
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 80
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 80
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10342936352099293,
+          "nonzero_rate": 0.9375
+        },
+        "groups": 20,
+        "mean_terminal_return": 0.10648797157960099,
+        "replicas": 80
+      },
+      "020-039/decoy": {
+        "effect": {
+          "mean": -0.043675137536741716,
+          "negative_rate": 0.4,
+          "nonzero_rate": 0.4,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.8
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": -0.0022675736961451248,
+            "negative_rate": 0.02040816326530612,
+            "positive_rate": 0.0,
+            "replicas": 49
+          },
+          "alternate_target": {
+            "mean": -0.10912580296220084,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 31
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 49,
+          "alternate_target": 31
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.6125,
+          "alternate_target": 0.3875
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 79,
+          "PROBE": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.043675137536741716,
+          "nonzero_rate": 0.4
+        },
+        "groups": 20,
+        "mean_terminal_return": 0.11033412542575483,
+        "replicas": 80
+      },
+      "020-039/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 160
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 48,
+          "FORTIFY": 40,
+          "PROBE": 59,
+          "RECOVER": 8,
+          "SCAN": 5
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.012561121254619709,
+          "nonzero_rate": 0.1875
+        },
+        "groups": 40,
+        "mean_terminal_return": 0.04304672043722367,
+        "replicas": 160
+      },
+      "040-059/critical": {
+        "effect": {
+          "mean": 0.09353962483094502,
+          "negative_rate": 0.016666666666666666,
+          "nonzero_rate": 0.8583333333333333,
+          "positive_group_rate": 0.8666666666666667,
+          "positive_rate": 0.8416666666666667,
+          "uniform_replica_group_rate": 0.9
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10573960121234181,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9351851851851852,
+            "replicas": 108
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 9
+          },
+          "other_target": {
+            "mean": -0.06504065040650407,
+            "negative_rate": 0.6666666666666666,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 108,
+          "alternate_target": 9,
+          "other_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9,
+          "alternate_target": 0.075,
+          "other_target": 0.025
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 120
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09679165735127022,
+          "nonzero_rate": 0.8583333333333333
+        },
+        "groups": 30,
+        "mean_terminal_return": 0.06018548962247135,
+        "replicas": 120
+      },
+      "040-059/decoy": {
+        "effect": {
+          "mean": -0.032694018443311545,
+          "negative_rate": 0.3625,
+          "nonzero_rate": 0.4125,
+          "positive_group_rate": 0.05,
+          "positive_rate": 0.05,
+          "uniform_replica_group_rate": 0.8
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.006323843545214275,
+            "negative_rate": 0.02127659574468085,
+            "positive_rate": 0.0851063829787234,
+            "replicas": 47
+          },
+          "alternate_target": {
+            "mean": -0.0882649127906059,
+            "negative_rate": 0.8484848484848485,
+            "positive_rate": 0.0,
+            "replicas": 33
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 47,
+          "alternate_target": 33
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.5875,
+          "alternate_target": 0.4125
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 79,
+          "PROBE": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.04245011600428716,
+          "nonzero_rate": 0.4125
+        },
+        "groups": 20,
+        "mean_terminal_return": 0.07240763683883537,
+        "replicas": 80
+      },
+      "040-059/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 120
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 16,
+          "FORTIFY": 28,
+          "PROBE": 48,
+          "RECOVER": 28
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.011673954813489703,
+          "nonzero_rate": 0.13333333333333333
+        },
+        "groups": 30,
+        "mean_terminal_return": 0.10048011050735907,
+        "replicas": 120
+      },
+      "060-079/critical": {
+        "effect": {
+          "mean": 0.09210662516433045,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.7666666666666667,
+          "positive_group_rate": 0.8666666666666667,
+          "positive_rate": 0.7666666666666667,
+          "uniform_replica_group_rate": 0.8333333333333334
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.09611126104104047,
+            "negative_rate": 0.0,
+            "positive_rate": 0.8,
+            "replicas": 115
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 5
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 115,
+          "alternate_target": 5
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9583333333333334,
+          "alternate_target": 0.041666666666666664
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 120
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09210662516433045,
+          "nonzero_rate": 0.7666666666666667
+        },
+        "groups": 30,
+        "mean_terminal_return": 0.07466552925179638,
+        "replicas": 120
+      },
+      "060-079/decoy": {
+        "effect": {
+          "mean": -0.022276711425275146,
+          "negative_rate": 0.175,
+          "nonzero_rate": 0.1875,
+          "positive_group_rate": 0.05,
+          "positive_rate": 0.0125,
+          "uniform_replica_group_rate": 0.85
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.001893939393939394,
+            "negative_rate": 0.0,
+            "positive_rate": 0.015625,
+            "replicas": 64
+          },
+          "alternate_target": {
+            "mean": -0.11895931470213329,
+            "negative_rate": 0.875,
+            "positive_rate": 0.0,
+            "replicas": 16
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 64,
+          "alternate_target": 16
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.8,
+          "alternate_target": 0.2
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 80
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.025307014455578175,
+          "nonzero_rate": 0.1875
+        },
+        "groups": 20,
+        "mean_terminal_return": 0.06818115089877333,
+        "replicas": 80
+      },
+      "060-079/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 120
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 38,
+          "FORTIFY": 24,
+          "PROBE": 42,
+          "RECOVER": 12,
+          "SCAN": 3,
+          "TRANSFER": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.008766444731357011,
+          "nonzero_rate": 0.13333333333333333
+        },
+        "groups": 30,
+        "mean_terminal_return": 0.07991299312344238,
+        "replicas": 120
+      },
+      "080-099/critical": {
+        "effect": {
+          "mean": 0.10428018698164765,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.95,
+          "positive_group_rate": 0.9666666666666667,
+          "positive_rate": 0.95,
+          "uniform_replica_group_rate": 0.9666666666666667
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10787605549825618,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9827586206896551,
+            "replicas": 116
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 4
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 116,
+          "alternate_target": 4
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9666666666666667,
+          "alternate_target": 0.03333333333333333
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 120
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10428018698164765,
+          "nonzero_rate": 0.95
+        },
+        "groups": 30,
+        "mean_terminal_return": 0.09219338063371575,
+        "replicas": 120
+      },
+      "080-099/decoy": {
+        "effect": {
+          "mean": -0.021600690390572705,
+          "negative_rate": 0.2,
+          "nonzero_rate": 0.2,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.85
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 64
+          },
+          "alternate_target": {
+            "mean": -0.10800345195286352,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 16
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 64,
+          "alternate_target": 16
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.8,
+          "alternate_target": 0.2
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 80
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.021600690390572705,
+          "nonzero_rate": 0.2
+        },
+        "groups": 20,
+        "mean_terminal_return": 0.0854933726329226,
+        "replicas": 80
+      },
+      "080-099/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "active_target": 1,
+          "other_target": 119
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.008333333333333333,
+          "other_target": 0.9916666666666667
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 28,
+          "FORTIFY": 19,
+          "PROBE": 34,
+          "RECOVER": 32,
+          "SCAN": 2,
+          "TRANSFER": 4,
+          "WAIT": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.011817998592784398,
+          "nonzero_rate": 0.2
+        },
+        "groups": 30,
+        "mean_terminal_return": 0.0025286730165873933,
+        "replicas": 120
+      }
+    },
+    "by_20_update_window_receiver": {
+      "000-019/blue-0/critical": {
+        "effect": {
+          "mean": 0.10154952598888525,
+          "negative_rate": 0.0,
+          "nonzero_rate": 1.0,
+          "positive_group_rate": 1.0,
+          "positive_rate": 1.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10154952598888525,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 20
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 20
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10154952598888525,
+          "nonzero_rate": 1.0
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.09720169990192873,
+        "replicas": 20
+      },
+      "000-019/blue-0/decoy": {
+        "effect": {
+          "mean": -0.04024844720496894,
+          "negative_rate": 0.4,
+          "nonzero_rate": 0.4,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 12
+          },
+          "alternate_target": {
+            "mean": -0.10062111801242235,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 8
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 12,
+          "alternate_target": 8
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.6,
+          "alternate_target": 0.4
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.04024844720496894,
+          "nonzero_rate": 0.4
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.10154952598888525,
+        "replicas": 20
+      },
+      "000-019/blue-0/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 24
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 8,
+          "FORTIFY": 4,
+          "RECOVER": 12
+        },
+        "focused_advantage": {
+          "mean_absolute": 1.3877787807814457e-17,
+          "nonzero_rate": 0.0
+        },
+        "groups": 6,
+        "mean_terminal_return": -0.06697639975530442,
+        "replicas": 24
+      },
+      "000-019/blue-1/critical": {
+        "effect": {
+          "mean": 0.09807754969045292,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.8,
+          "positive_group_rate": 0.8,
+          "positive_rate": 0.8,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.09807754969045292,
+            "negative_rate": 0.0,
+            "positive_rate": 0.8,
+            "replicas": 20
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 20
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 16,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09807754969045292,
+          "nonzero_rate": 0.8
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.09807754969045292,
+        "replicas": 20
+      },
+      "000-019/blue-1/decoy": {
+        "effect": {
+          "mean": -0.08000977517106549,
+          "negative_rate": 0.7,
+          "nonzero_rate": 0.75,
+          "positive_group_rate": 0.2,
+          "positive_rate": 0.05,
+          "uniform_replica_group_rate": 0.4
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.002020202020202022,
+            "negative_rate": 0.2,
+            "positive_rate": 0.2,
+            "replicas": 5
+          },
+          "alternate_target": {
+            "mean": -0.12386896257864,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 13
+          },
+          "other_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 5,
+          "alternate_target": 13,
+          "other_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.25,
+          "alternate_target": 0.65,
+          "other_target": 0.1
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 11,
+          "PROBE": 9
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09213098729227762,
+          "nonzero_rate": 0.75
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.09807754969045292,
+        "replicas": 20
+      },
+      "000-019/blue-1/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 36
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 13,
+          "FORTIFY": 8,
+          "PROBE": 15
+        },
+        "focused_advantage": {
+          "mean_absolute": 1.0022846750088219e-17,
+          "nonzero_rate": 0.0
+        },
+        "groups": 9,
+        "mean_terminal_return": 0.12081615199646671,
+        "replicas": 36
+      },
+      "000-019/blue-2/critical": {
+        "effect": {
+          "mean": 0.09457180500658761,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.9,
+          "positive_group_rate": 1.0,
+          "positive_rate": 0.9,
+          "uniform_replica_group_rate": 0.6
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.09954926842798696,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9473684210526315,
+            "replicas": 19
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 1
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 19,
+          "alternate_target": 1
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.95,
+          "alternate_target": 0.05
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09457180500658761,
+          "nonzero_rate": 0.9
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.09891963109354414,
+        "replicas": 20
+      },
+      "000-019/blue-2/decoy": {
+        "effect": {
+          "mean": -0.05598155467720685,
+          "negative_rate": 0.55,
+          "nonzero_rate": 0.55,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.4
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 8
+          },
+          "alternate_target": {
+            "mean": -0.09330259112867807,
+            "negative_rate": 0.9166666666666666,
+            "positive_rate": 0.0,
+            "replicas": 12
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 8,
+          "alternate_target": 12
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.4,
+          "alternate_target": 0.6
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 19,
+          "PROBE": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.05598155467720685,
+          "nonzero_rate": 0.55
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.09891963109354414,
+        "replicas": 20
+      },
+      "000-019/blue-2/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 52
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 21,
+          "FORTIFY": 13,
+          "PROBE": 14,
+          "RECOVER": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.011194496560350226,
+          "nonzero_rate": 0.15384615384615385
+        },
+        "groups": 13,
+        "mean_terminal_return": 0.10953062356251947,
+        "replicas": 52
+      },
+      "000-019/blue-3/critical": {
+        "effect": {
+          "mean": 0.11174603174603175,
+          "negative_rate": 0.0,
+          "nonzero_rate": 1.0,
+          "positive_group_rate": 1.0,
+          "positive_rate": 1.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.11174603174603175,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 20
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 20
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.11174603174603175,
+          "nonzero_rate": 1.0
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.11174603174603175,
+        "replicas": 20
+      },
+      "000-019/blue-3/decoy": {
+        "effect": {
+          "mean": 0.0,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.0,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 20
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 20
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.0,
+          "nonzero_rate": 0.0
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.11174603174603175,
+        "replicas": 20
+      },
+      "000-019/blue-3/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 48
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 9,
+          "FORTIFY": 8,
+          "PROBE": 23,
+          "RECOVER": 8
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.004629629629629644,
+          "nonzero_rate": 0.08333333333333333
+        },
+        "groups": 12,
+        "mean_terminal_return": -0.021269412323333892,
+        "replicas": 48
+      },
+      "020-039/blue-0/critical": {
+        "effect": {
+          "mean": 0.11056312108943689,
+          "negative_rate": 0.0,
+          "nonzero_rate": 1.0,
+          "positive_group_rate": 1.0,
+          "positive_rate": 1.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.11056312108943689,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 20
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 20
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.11056312108943689,
+          "nonzero_rate": 1.0
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.09517850570482149,
+        "replicas": 20
+      },
+      "020-039/blue-0/decoy": {
+        "effect": {
+          "mean": -0.05695006747638326,
+          "negative_rate": 0.55,
+          "nonzero_rate": 0.55,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.8
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 9
+          },
+          "alternate_target": {
+            "mean": -0.10354557722978774,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 11
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 9,
+          "alternate_target": 11
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.45,
+          "alternate_target": 0.55
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.05695006747638326,
+          "nonzero_rate": 0.55
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.11056312108943689,
+        "replicas": 20
+      },
+      "020-039/blue-0/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 40
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 14,
+          "FORTIFY": 4,
+          "PROBE": 22
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.007734204793028328,
+          "nonzero_rate": 0.2
+        },
+        "groups": 10,
+        "mean_terminal_return": 0.0334826026370144,
+        "replicas": 40
+      },
+      "020-039/blue-1/critical": {
+        "effect": {
+          "mean": 0.1044898557093679,
+          "negative_rate": 0.0,
+          "nonzero_rate": 1.0,
+          "positive_group_rate": 1.0,
+          "positive_rate": 1.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.1044898557093679,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 20
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 20
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.1044898557093679,
+          "nonzero_rate": 1.0
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.1044898557093679,
+        "replicas": 20
+      },
+      "020-039/blue-1/decoy": {
+        "effect": {
+          "mean": -0.03587856148831759,
+          "negative_rate": 0.35,
+          "nonzero_rate": 0.35,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.6
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": -0.007936507936507936,
+            "negative_rate": 0.07142857142857142,
+            "positive_rate": 0.0,
+            "replicas": 14
+          },
+          "alternate_target": {
+            "mean": -0.10107668644254013,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 6
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 14,
+          "alternate_target": 6
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.7,
+          "alternate_target": 0.3
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 19,
+          "PROBE": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.03587856148831759,
+          "nonzero_rate": 0.35
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.1044898557093679,
+        "replicas": 20
+      },
+      "020-039/blue-1/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 28
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 8,
+          "FORTIFY": 5,
+          "PROBE": 12,
+          "SCAN": 3
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.01990796318527411,
+          "nonzero_rate": 0.2857142857142857
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.026272023961099587,
+        "replicas": 28
+      },
+      "020-039/blue-2/critical": {
+        "effect": {
+          "mean": 0.07619047619047618,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.75,
+          "positive_group_rate": 0.8,
+          "positive_rate": 0.75,
+          "uniform_replica_group_rate": 0.8
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.07619047619047618,
+            "negative_rate": 0.0,
+            "positive_rate": 0.75,
+            "replicas": 20
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 20
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.07619047619047618,
+          "nonzero_rate": 0.75
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.1038095238095238,
+        "replicas": 20
+      },
+      "020-039/blue-2/decoy": {
+        "effect": {
+          "mean": -0.03142857142857143,
+          "negative_rate": 0.3,
+          "nonzero_rate": 0.3,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.8
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 14
+          },
+          "alternate_target": {
+            "mean": -0.10476190476190476,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 6
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 14,
+          "alternate_target": 6
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.7,
+          "alternate_target": 0.3
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.03142857142857143,
+          "nonzero_rate": 0.3
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.1038095238095238,
+        "replicas": 20
+      },
+      "020-039/blue-2/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 52
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 14,
+          "FORTIFY": 15,
+          "PROBE": 17,
+          "RECOVER": 4,
+          "SCAN": 2
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.021980543073660482,
+          "nonzero_rate": 0.2692307692307692
+        },
+        "groups": 13,
+        "mean_terminal_return": 0.033707272912214974,
+        "replicas": 52
+      },
+      "020-039/blue-3/critical": {
+        "effect": {
+          "mean": 0.12247400109469075,
+          "negative_rate": 0.0,
+          "nonzero_rate": 1.0,
+          "positive_group_rate": 1.0,
+          "positive_rate": 1.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.12247400109469075,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 20
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 20
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.12247400109469075,
+          "nonzero_rate": 1.0
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.12247400109469075,
+        "replicas": 20
+      },
+      "020-039/blue-3/decoy": {
+        "effect": {
+          "mean": -0.05044334975369458,
+          "negative_rate": 0.4,
+          "nonzero_rate": 0.4,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 12
+          },
+          "alternate_target": {
+            "mean": -0.12610837438423644,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 8
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 12,
+          "alternate_target": 8
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.6,
+          "alternate_target": 0.4
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.05044334975369458,
+          "nonzero_rate": 0.4
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.12247400109469075,
+        "replicas": 20
+      },
+      "020-039/blue-3/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 40
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 12,
+          "FORTIFY": 16,
+          "PROBE": 8,
+          "RECOVER": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 1.3877787807814458e-18,
+          "nonzero_rate": 0.0
+        },
+        "groups": 10,
+        "mean_terminal_return": 0.07649440755323109,
+        "replicas": 40
+      },
+      "040-059/blue-0/critical": {
+        "effect": {
+          "mean": 0.12709080047789725,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.875,
+          "positive_group_rate": 0.875,
+          "positive_rate": 0.875,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.14524662911759686,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 28
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 4
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 28,
+          "alternate_target": 4
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.875,
+          "alternate_target": 0.125
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 32
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.12709080047789725,
+          "nonzero_rate": 0.875
+        },
+        "groups": 8,
+        "mean_terminal_return": 0.0751194743130227,
+        "replicas": 32
+      },
+      "040-059/blue-0/decoy": {
+        "effect": {
+          "mean": -0.05830346475507766,
+          "negative_rate": 0.45,
+          "nonzero_rate": 0.45,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.8
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 7
+          },
+          "alternate_target": {
+            "mean": -0.08969763808473487,
+            "negative_rate": 0.6923076923076923,
+            "positive_rate": 0.0,
+            "replicas": 13
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 7,
+          "alternate_target": 13
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.35,
+          "alternate_target": 0.65
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.05830346475507766,
+          "nonzero_rate": 0.45
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.07407407407407407,
+        "replicas": 20
+      },
+      "040-059/blue-0/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 48
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 12,
+          "FORTIFY": 11,
+          "PROBE": 13,
+          "RECOVER": 12
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.00972222222222223,
+          "nonzero_rate": 0.08333333333333333
+        },
+        "groups": 12,
+        "mean_terminal_return": 0.13059966993790526,
+        "replicas": 48
+      },
+      "040-059/blue-1/critical": {
+        "effect": {
+          "mean": 0.10088794196478726,
+          "negative_rate": 0.0,
+          "nonzero_rate": 1.0,
+          "positive_group_rate": 1.0,
+          "positive_rate": 1.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10088794196478726,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 28
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 28
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 28
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10088794196478726,
+          "nonzero_rate": 1.0
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.06799486815285602,
+        "replicas": 28
+      },
+      "040-059/blue-1/decoy": {
+        "effect": {
+          "mean": -0.011455641688199828,
+          "negative_rate": 0.125,
+          "nonzero_rate": 0.125,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.6666666666666666
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 21
+          },
+          "alternate_target": {
+            "mean": -0.09164513350559862,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 21,
+          "alternate_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.875,
+          "alternate_target": 0.125
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 24
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.011455641688199828,
+          "nonzero_rate": 0.125
+        },
+        "groups": 6,
+        "mean_terminal_return": 0.08033846852413586,
+        "replicas": 24
+      },
+      "040-059/blue-1/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 20
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "FORTIFY": 6,
+          "PROBE": 6,
+          "RECOVER": 8
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.01880341880341881,
+          "nonzero_rate": 0.4
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.10300578486554098,
+        "replicas": 20
+      },
+      "040-059/blue-2/critical": {
+        "effect": {
+          "mean": 0.056640739567568835,
+          "negative_rate": 0.07142857142857142,
+          "nonzero_rate": 0.6428571428571429,
+          "positive_group_rate": 0.5714285714285714,
+          "positive_rate": 0.5714285714285714,
+          "uniform_replica_group_rate": 0.7142857142857143
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.08905313295557198,
+            "negative_rate": 0.0,
+            "positive_rate": 0.8,
+            "replicas": 20
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 5
+          },
+          "other_target": {
+            "mean": -0.06504065040650407,
+            "negative_rate": 0.6666666666666666,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 20,
+          "alternate_target": 5,
+          "other_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.7142857142857143,
+          "alternate_target": 0.17857142857142858,
+          "other_target": 0.10714285714285714
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 28
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.07057802179753399,
+          "nonzero_rate": 0.6428571428571429
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.08128908128908129,
+        "replicas": 28
+      },
+      "040-059/blue-2/decoy": {
+        "effect": {
+          "mean": 0.024390243902439025,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.25,
+          "positive_group_rate": 0.25,
+          "positive_rate": 0.25,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.026016260162601626,
+            "negative_rate": 0.0,
+            "positive_rate": 0.26666666666666666,
+            "replicas": 15
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 1
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 15,
+          "alternate_target": 1
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9375,
+          "alternate_target": 0.0625
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 16
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.024390243902439025,
+          "nonzero_rate": 0.25
+        },
+        "groups": 4,
+        "mean_terminal_return": 0.08249158249158249,
+        "replicas": 16
+      },
+      "040-059/blue-2/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 24
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "FORTIFY": 3,
+          "PROBE": 13,
+          "RECOVER": 8
+        },
+        "focused_advantage": {
+          "mean_absolute": 4.625929269271485e-18,
+          "nonzero_rate": 0.0
+        },
+        "groups": 6,
+        "mean_terminal_return": 0.09763285561282647,
+        "replicas": 24
+      },
+      "040-059/blue-3/critical": {
+        "effect": {
+          "mean": 0.085845196297335,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.90625,
+          "positive_group_rate": 1.0,
+          "positive_rate": 0.90625,
+          "uniform_replica_group_rate": 0.875
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.085845196297335,
+            "negative_rate": 0.0,
+            "positive_rate": 0.90625,
+            "replicas": 32
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 32
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 32
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.085845196297335,
+          "nonzero_rate": 0.90625
+        },
+        "groups": 8,
+        "mean_terminal_return": 0.019952656009549697,
+        "replicas": 32
+      },
+      "040-059/blue-3/decoy": {
+        "effect": {
+          "mean": -0.07823803411427996,
+          "negative_rate": 0.85,
+          "nonzero_rate": 0.85,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.8
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": -0.023255813953488372,
+            "negative_rate": 0.25,
+            "positive_rate": 0.0,
+            "replicas": 4
+          },
+          "alternate_target": {
+            "mean": -0.09198358915447785,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 16
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 4,
+          "alternate_target": 16
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.2,
+          "alternate_target": 0.8
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 19,
+          "PROBE": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.07823803411427996,
+          "nonzero_rate": 0.85
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.05315704505903841,
+        "replicas": 20
+      },
+      "040-059/blue-3/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 28
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 4,
+          "FORTIFY": 8,
+          "PROBE": 16
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.01993355481727575,
+          "nonzero_rate": 0.14285714285714285
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.04948303113732076,
+        "replicas": 28
+      },
+      "060-079/blue-0/critical": {
+        "effect": {
+          "mean": 0.13299297546069427,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.8571428571428571,
+          "positive_group_rate": 0.8571428571428571,
+          "positive_rate": 0.8571428571428571,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.13299297546069427,
+            "negative_rate": 0.0,
+            "positive_rate": 0.8571428571428571,
+            "replicas": 28
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 28
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 28
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.13299297546069427,
+          "nonzero_rate": 0.8571428571428571
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.07175091766196502,
+        "replicas": 28
+      },
+      "060-079/blue-0/decoy": {
+        "effect": {
+          "mean": -0.0659536541889483,
+          "negative_rate": 0.4,
+          "nonzero_rate": 0.4,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 12
+          },
+          "alternate_target": {
+            "mean": -0.16488413547237074,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 8
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 12,
+          "alternate_target": 8
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.6,
+          "alternate_target": 0.4
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.0659536541889483,
+          "nonzero_rate": 0.4
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.09334463718968741,
+        "replicas": 20
+      },
+      "060-079/blue-0/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 28
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 24,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 3.96508223080413e-18,
+          "nonzero_rate": 0.0
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.20971944019299268,
+        "replicas": 28
+      },
+      "060-079/blue-1/critical": {
+        "effect": {
+          "mean": 0.10413636583606095,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.875,
+          "positive_group_rate": 1.0,
+          "positive_rate": 0.875,
+          "uniform_replica_group_rate": 0.75
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10413636583606095,
+            "negative_rate": 0.0,
+            "positive_rate": 0.875,
+            "replicas": 32
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 32
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 32
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10413636583606095,
+          "nonzero_rate": 0.875
+        },
+        "groups": 8,
+        "mean_terminal_return": 0.0770064264157252,
+        "replicas": 32
+      },
+      "060-079/blue-1/decoy": {
+        "effect": {
+          "mean": -0.00844463801780875,
+          "negative_rate": 0.07142857142857142,
+          "nonzero_rate": 0.07142857142857142,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.7142857142857143
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 26
+          },
+          "alternate_target": {
+            "mean": -0.1182249322493225,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 26,
+          "alternate_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9285714285714286,
+          "alternate_target": 0.07142857142857142
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 28
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.00844463801780875,
+          "nonzero_rate": 0.07142857142857142
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.056878673494527146,
+        "replicas": 28
+      },
+      "060-079/blue-1/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 20
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 2,
+          "FORTIFY": 11,
+          "PROBE": 5,
+          "SCAN": 1,
+          "TRANSFER": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.03528265107212475,
+          "nonzero_rate": 0.4
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.14166175242026635,
+        "replicas": 20
+      },
+      "060-079/blue-2/critical": {
+        "effect": {
+          "mean": 0.06151960784313726,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.59375,
+          "positive_group_rate": 0.75,
+          "positive_rate": 0.59375,
+          "uniform_replica_group_rate": 0.75
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.06562091503267974,
+            "negative_rate": 0.0,
+            "positive_rate": 0.6333333333333333,
+            "replicas": 30
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 30,
+          "alternate_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9375,
+          "alternate_target": 0.0625
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 32
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.06151960784313726,
+          "nonzero_rate": 0.59375
+        },
+        "groups": 8,
+        "mean_terminal_return": 0.08381981580510993,
+        "replicas": 32
+      },
+      "060-079/blue-2/decoy": {
+        "effect": {
+          "mean": 0.0,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.0,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 16
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 16
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 16
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.0,
+          "nonzero_rate": 0.0
+        },
+        "groups": 4,
+        "mean_terminal_return": 0.05996732026143791,
+        "replicas": 16
+      },
+      "060-079/blue-2/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 44
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 4,
+          "FORTIFY": 13,
+          "PROBE": 23,
+          "RECOVER": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.0013774104683195608,
+          "nonzero_rate": 0.09090909090909091
+        },
+        "groups": 11,
+        "mean_terminal_return": 0.02811600478213427,
+        "replicas": 44
+      },
+      "060-079/blue-3/critical": {
+        "effect": {
+          "mean": 0.0724285910387811,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.75,
+          "positive_group_rate": 0.8571428571428571,
+          "positive_rate": 0.75,
+          "uniform_replica_group_rate": 0.8571428571428571
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.08112002196343485,
+            "negative_rate": 0.0,
+            "positive_rate": 0.84,
+            "replicas": 25
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 25,
+          "alternate_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.8928571428571429,
+          "alternate_target": 0.10714285714285714
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 28
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.0724285910387811,
+          "nonzero_rate": 0.75
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.06444278802192219,
+        "replicas": 28
+      },
+      "060-079/blue-3/decoy": {
+        "effect": {
+          "mean": -0.014163372859025032,
+          "negative_rate": 0.25,
+          "nonzero_rate": 0.3125,
+          "positive_group_rate": 0.25,
+          "positive_rate": 0.0625,
+          "uniform_replica_group_rate": 0.75
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.012121212121212121,
+            "negative_rate": 0.0,
+            "positive_rate": 0.1,
+            "replicas": 10
+          },
+          "alternate_target": {
+            "mean": -0.057971014492753624,
+            "negative_rate": 0.6666666666666666,
+            "positive_rate": 0.0,
+            "replicas": 6
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 10,
+          "alternate_target": 6
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.625,
+          "alternate_target": 0.375
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 16
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.029314888010540184,
+          "nonzero_rate": 0.3125
+        },
+        "groups": 4,
+        "mean_terminal_return": 0.06471995912989702,
+        "replicas": 16
+      },
+      "060-079/blue-3/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 28
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 8,
+          "PROBE": 10,
+          "RECOVER": 8,
+          "SCAN": 2
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.01020408163265306,
+          "nonzero_rate": 0.14285714285714285
+        },
+        "groups": 7,
+        "mean_terminal_return": -0.012604443193212278,
+        "replicas": 28
+      },
+      "080-099/blue-0/critical": {
+        "effect": {
+          "mean": 0.09150037443284435,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.8571428571428571,
+          "positive_group_rate": 0.8571428571428571,
+          "positive_rate": 0.8571428571428571,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10675043683831842,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 24
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 4
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 24,
+          "alternate_target": 4
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.8571428571428571,
+          "alternate_target": 0.14285714285714285
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 28
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09150037443284435,
+          "nonzero_rate": 0.8571428571428571
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.08673846967093961,
+        "replicas": 28
+      },
+      "080-099/blue-0/decoy": {
+        "effect": {
+          "mean": -0.06905797101449276,
+          "negative_rate": 0.6,
+          "nonzero_rate": 0.6,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 8
+          },
+          "alternate_target": {
+            "mean": -0.11509661835748793,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 12
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 8,
+          "alternate_target": 12
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.4,
+          "alternate_target": 0.6
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 20
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.06905797101449276,
+          "nonzero_rate": 0.6
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.09643385753931545,
+        "replicas": 20
+      },
+      "080-099/blue-0/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 20
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 16,
+          "RECOVER": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 2.7755575615628915e-18,
+          "nonzero_rate": 0.0
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.062289292908035955,
+        "replicas": 20
+      },
+      "080-099/blue-1/critical": {
+        "effect": {
+          "mean": 0.12070034526096818,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.9285714285714286,
+          "positive_group_rate": 1.0,
+          "positive_rate": 0.9285714285714286,
+          "uniform_replica_group_rate": 0.8571428571428571
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.12070034526096818,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9285714285714286,
+            "replicas": 28
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 28
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 28
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.12070034526096818,
+          "nonzero_rate": 0.9285714285714286
+        },
+        "groups": 7,
+        "mean_terminal_return": 0.09368620256273205,
+        "replicas": 28
+      },
+      "080-099/blue-1/decoy": {
+        "effect": {
+          "mean": -0.006666666666666667,
+          "negative_rate": 0.08333333333333333,
+          "nonzero_rate": 0.08333333333333333,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.8333333333333334
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 22
+          },
+          "alternate_target": {
+            "mean": -0.08,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 22,
+          "alternate_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9166666666666666,
+          "alternate_target": 0.08333333333333333
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 24
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.006666666666666667,
+          "nonzero_rate": 0.08333333333333333
+        },
+        "groups": 6,
+        "mean_terminal_return": 0.08535628813159403,
+        "replicas": 24
+      },
+      "080-099/blue-1/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "active_target": 1,
+          "other_target": 43
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.022727272727272728,
+          "other_target": 0.9772727272727273
+        },
+        "focused_action_type_counts": {
+          "FORTIFY": 7,
+          "PROBE": 22,
+          "RECOVER": 12,
+          "SCAN": 2,
+          "WAIT": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.019698037457022657,
+          "nonzero_rate": 0.36363636363636365
+        },
+        "groups": 11,
+        "mean_terminal_return": -0.04489314922104814,
+        "replicas": 44
+      },
+      "080-099/blue-2/critical": {
+        "effect": {
+          "mean": 0.09023120058834344,
+          "negative_rate": 0.0,
+          "nonzero_rate": 1.0,
+          "positive_group_rate": 1.0,
+          "positive_rate": 1.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.09023120058834344,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 32
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 32
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 32
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09023120058834344,
+          "nonzero_rate": 1.0
+        },
+        "groups": 8,
+        "mean_terminal_return": 0.08257813936385365,
+        "replicas": 32
+      },
+      "080-099/blue-2/decoy": {
+        "effect": {
+          "mean": -0.006802721088435375,
+          "negative_rate": 0.08333333333333333,
+          "nonzero_rate": 0.08333333333333333,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.6666666666666666
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 11
+          },
+          "alternate_target": {
+            "mean": -0.0816326530612245,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 1
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 11,
+          "alternate_target": 1
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9166666666666666,
+          "alternate_target": 0.08333333333333333
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 12
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.006802721088435375,
+          "nonzero_rate": 0.08333333333333333
+        },
+        "groups": 3,
+        "mean_terminal_return": 0.0272108843537415,
+        "replicas": 12
+      },
+      "080-099/blue-2/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 20
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 6,
+          "FORTIFY": 8,
+          "PROBE": 2,
+          "TRANSFER": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.013157894736842105,
+          "nonzero_rate": 0.2
+        },
+        "groups": 5,
+        "mean_terminal_return": 0.02478162188688504,
+        "replicas": 20
+      },
+      "080-099/blue-3/critical": {
+        "effect": {
+          "mean": 0.11514387086074926,
+          "negative_rate": 0.0,
+          "nonzero_rate": 1.0,
+          "positive_group_rate": 1.0,
+          "positive_rate": 1.0,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.11514387086074926,
+            "negative_rate": 0.0,
+            "positive_rate": 1.0,
+            "replicas": 32
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 32
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 32
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.11514387086074926,
+          "nonzero_rate": 1.0
+        },
+        "groups": 8,
+        "mean_terminal_return": 0.10527544980811768,
+        "replicas": 32
+      },
+      "080-099/blue-3/decoy": {
+        "effect": {
+          "mean": -0.0043859649122807015,
+          "negative_rate": 0.041666666666666664,
+          "nonzero_rate": 0.041666666666666664,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.8333333333333334
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 23
+          },
+          "alternate_target": {
+            "mean": -0.10526315789473684,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 1
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 23,
+          "alternate_target": 1
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9583333333333334,
+          "alternate_target": 0.041666666666666664
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 24
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.0043859649122807015,
+          "nonzero_rate": 0.041666666666666664
+        },
+        "groups": 6,
+        "mean_terminal_return": 0.10565463051851437,
+        "replicas": 24
+      },
+      "080-099/blue-3/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 36
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 6,
+          "FORTIFY": 4,
+          "PROBE": 10,
+          "RECOVER": 16
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.008008008008008018,
+          "nonzero_rate": 0.1111111111111111
+        },
+        "groups": 9,
+        "mean_terminal_return": 0.01492558421717182,
+        "replicas": 36
+      }
+    },
+    "by_horizon": {
+      "3/critical": {
+        "effect": {
+          "mean": 0.10245779581449115,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.93125,
+          "positive_group_rate": 0.95,
+          "positive_rate": 0.93125,
+          "uniform_replica_group_rate": 0.925
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10310218446741247,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9371069182389937,
+            "replicas": 159
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 1
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 159,
+          "alternate_target": 1
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.99375,
+          "alternate_target": 0.00625
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 156,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10245779581449115,
+          "nonzero_rate": 0.93125
+        },
+        "groups": 40,
+        "mean_terminal_return": 0.1039870998437952,
+        "replicas": 160
+      },
+      "3/decoy": {
+        "effect": {
+          "mean": -0.04386754090002602,
+          "negative_rate": 0.40625,
+          "nonzero_rate": 0.4125,
+          "positive_group_rate": 0.025,
+          "positive_rate": 0.00625,
+          "uniform_replica_group_rate": 0.75
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": -0.001074575542660649,
+            "negative_rate": 0.02127659574468085,
+            "positive_rate": 0.010638297872340425,
+            "replicas": 94
+          },
+          "alternate_target": {
+            "mean": -0.10809056942178222,
+            "negative_rate": 0.984375,
+            "positive_rate": 0.0,
+            "replicas": 64
+          },
+          "other_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 94,
+          "alternate_target": 64,
+          "other_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.5875,
+          "alternate_target": 0.4,
+          "other_target": 0.0125
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 149,
+          "PROBE": 11
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.045382692415177533,
+          "nonzero_rate": 0.4125
+        },
+        "groups": 40,
+        "mean_terminal_return": 0.10645365502774166,
+        "replicas": 160
+      },
+      "4/critical": {
+        "effect": {
+          "mean": 0.09664214565897436,
+          "negative_rate": 0.005555555555555556,
+          "nonzero_rate": 0.8583333333333333,
+          "positive_group_rate": 0.9,
+          "positive_rate": 0.8527777777777777,
+          "uniform_replica_group_rate": 0.9
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10320440822551706,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9056047197640118,
+            "replicas": 339
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 18
+          },
+          "other_target": {
+            "mean": -0.06504065040650407,
+            "negative_rate": 0.6666666666666666,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 339,
+          "alternate_target": 18,
+          "other_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9416666666666667,
+          "alternate_target": 0.05,
+          "other_target": 0.008333333333333333
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 360
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09772615649908277,
+          "nonzero_rate": 0.8583333333333333
+        },
+        "groups": 90,
+        "mean_terminal_return": 0.07568146650266115,
+        "replicas": 360
+      },
+      "4/decoy": {
+        "effect": {
+          "mean": -0.025523806753053133,
+          "negative_rate": 0.24583333333333332,
+          "nonzero_rate": 0.26666666666666666,
+          "positive_group_rate": 0.03333333333333333,
+          "positive_rate": 0.020833333333333332,
+          "uniform_replica_group_rate": 0.8333333333333334
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0023910443876410978,
+            "negative_rate": 0.005714285714285714,
+            "positive_rate": 0.02857142857142857,
+            "replicas": 175
+          },
+          "alternate_target": {
+            "mean": -0.10067917520876836,
+            "negative_rate": 0.8923076923076924,
+            "positive_rate": 0.0,
+            "replicas": 65
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 175,
+          "alternate_target": 65
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.7291666666666666,
+          "alternate_target": 0.2708333333333333
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 239,
+          "PROBE": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.029785940283479348,
+          "nonzero_rate": 0.26666666666666666
+        },
+        "groups": 60,
+        "mean_terminal_return": 0.07536072012351044,
+        "replicas": 240
+      },
+      "None/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "active_target": 1,
+          "other_target": 679
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.0014705882352941176,
+          "other_target": 0.9985294117647059
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 181,
+          "FORTIFY": 144,
+          "PROBE": 235,
+          "RECOVER": 104,
+          "SCAN": 10,
+          "TRANSFER": 5,
+          "WAIT": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.009831063559728416,
+          "nonzero_rate": 0.14411764705882352
+        },
+        "groups": 170,
+        "mean_terminal_return": 0.05331573085164549,
+        "replicas": 680
+      }
+    },
+    "by_kind": {
+      "critical": {
+        "effect": {
+          "mean": 0.09843157647605645,
+          "negative_rate": 0.0038461538461538464,
+          "nonzero_rate": 0.8807692307692307,
+          "positive_group_rate": 0.9153846153846154,
+          "positive_rate": 0.8769230769230769,
+          "uniform_replica_group_rate": 0.9076923076923077
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10317177051961621,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9156626506024096,
+            "replicas": 498
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 19
+          },
+          "other_target": {
+            "mean": -0.06504065040650407,
+            "negative_rate": 0.6666666666666666,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 498,
+          "alternate_target": 19,
+          "other_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9576923076923077,
+          "alternate_target": 0.03653846153846154,
+          "other_target": 0.0057692307692307696
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 516,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09918204551920842,
+          "nonzero_rate": 0.8807692307692307
+        },
+        "groups": 130,
+        "mean_terminal_return": 0.08439089214608701,
+        "replicas": 520
+      },
+      "decoy": {
+        "effect": {
+          "mean": -0.032861300411842286,
+          "negative_rate": 0.31,
+          "nonzero_rate": 0.325,
+          "positive_group_rate": 0.03,
+          "positive_rate": 0.015,
+          "uniform_replica_group_rate": 0.8
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0011800099138553574,
+            "negative_rate": 0.011152416356877323,
+            "positive_rate": 0.022304832713754646,
+            "replicas": 269
+          },
+          "alternate_target": {
+            "mean": -0.10435614598111632,
+            "negative_rate": 0.937984496124031,
+            "positive_rate": 0.0,
+            "replicas": 129
+          },
+          "other_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 269,
+          "alternate_target": 129,
+          "other_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.6725,
+          "alternate_target": 0.3225,
+          "other_target": 0.005
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 388,
+          "PROBE": 12
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.03602464113615862,
+          "nonzero_rate": 0.325
+        },
+        "groups": 100,
+        "mean_terminal_return": 0.08779789408520294,
+        "replicas": 400
+      },
+      "ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "active_target": 1,
+          "other_target": 679
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.0014705882352941176,
+          "other_target": 0.9985294117647059
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 181,
+          "FORTIFY": 144,
+          "PROBE": 235,
+          "RECOVER": 104,
+          "SCAN": 10,
+          "TRANSFER": 5,
+          "WAIT": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.009831063559728416,
+          "nonzero_rate": 0.14411764705882352
+        },
+        "groups": 170,
+        "mean_terminal_return": 0.05331573085164549,
+        "replicas": 680
+      }
+    },
+    "by_opponent_family": {
+      "base/critical": {
+        "effect": {
+          "mean": 0.10342190113690891,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.9375,
+          "positive_group_rate": 0.9722222222222222,
+          "positive_rate": 0.9375,
+          "uniform_replica_group_rate": 0.9166666666666666
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10414513121478938,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9440559440559441,
+            "replicas": 143
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 1
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 143,
+          "alternate_target": 1
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9930555555555556,
+          "alternate_target": 0.006944444444444444
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 144
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10342190113690891,
+          "nonzero_rate": 0.9375
+        },
+        "groups": 36,
+        "mean_terminal_return": 0.10221700885043689,
+        "replicas": 144
+      },
+      "base/decoy": {
+        "effect": {
+          "mean": -0.031308756356015335,
+          "negative_rate": 0.29347826086956524,
+          "nonzero_rate": 0.29347826086956524,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.782608695652174
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 64
+          },
+          "alternate_target": {
+            "mean": -0.10287162802690752,
+            "negative_rate": 0.9642857142857143,
+            "positive_rate": 0.0,
+            "replicas": 28
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 64,
+          "alternate_target": 28
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.6956521739130435,
+          "alternate_target": 0.30434782608695654
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 92
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.031308756356015335,
+          "nonzero_rate": 0.29347826086956524
+        },
+        "groups": 23,
+        "mean_terminal_return": 0.10546055440522108,
+        "replicas": 92
+      },
+      "base/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 164
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 45,
+          "FORTIFY": 35,
+          "PROBE": 41,
+          "RECOVER": 40,
+          "SCAN": 2,
+          "TRANSFER": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.003644223586926869,
+          "nonzero_rate": 0.07317073170731707
+        },
+        "groups": 41,
+        "mean_terminal_return": 0.10445897542721927,
+        "replicas": 164
+      },
+      "current/critical": {
+        "effect": {
+          "mean": 0.10279641090642275,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.9833333333333333,
+          "positive_group_rate": 1.0,
+          "positive_rate": 0.9833333333333333,
+          "uniform_replica_group_rate": 0.9666666666666667
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10279641090642275,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9833333333333333,
+            "replicas": 120
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 120
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 120
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10279641090642275,
+          "nonzero_rate": 0.9833333333333333
+        },
+        "groups": 30,
+        "mean_terminal_return": 0.08999544422489175,
+        "replicas": 120
+      },
+      "current/decoy": {
+        "effect": {
+          "mean": -0.036982169926068946,
+          "negative_rate": 0.37,
+          "nonzero_rate": 0.41,
+          "positive_group_rate": 0.04,
+          "positive_rate": 0.04,
+          "uniform_replica_group_rate": 0.88
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.004361449864498645,
+            "negative_rate": 0.015625,
+            "positive_rate": 0.0625,
+            "replicas": 64
+          },
+          "alternate_target": {
+            "mean": -0.11048193844263356,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 36
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 64,
+          "alternate_target": 36
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.64,
+          "alternate_target": 0.36
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 95,
+          "PROBE": 5
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.044787047974849434,
+          "nonzero_rate": 0.41
+        },
+        "groups": 25,
+        "mean_terminal_return": 0.09815271122375252,
+        "replicas": 100
+      },
+      "current/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 180
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 67,
+          "FORTIFY": 34,
+          "PROBE": 53,
+          "RECOVER": 24,
+          "SCAN": 2
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.015371602787639462,
+          "nonzero_rate": 0.17777777777777778
+        },
+        "groups": 45,
+        "mean_terminal_return": 0.03527783534232324,
+        "replicas": 180
+      },
+      "historical/critical": {
+        "effect": {
+          "mean": 0.0808492749997778,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.7596153846153846,
+          "positive_group_rate": 0.8076923076923077,
+          "positive_rate": 0.7596153846153846,
+          "uniform_replica_group_rate": 0.8846153846153846
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.09139483260844447,
+            "negative_rate": 0.0,
+            "positive_rate": 0.8586956521739131,
+            "replicas": 92
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 12
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 92,
+          "alternate_target": 12
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.8846153846153846,
+          "alternate_target": 0.11538461538461539
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 104
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.0808492749997778,
+          "nonzero_rate": 0.7596153846153846
+        },
+        "groups": 26,
+        "mean_terminal_return": 0.07229275772200888,
+        "replicas": 104
+      },
+      "historical/decoy": {
+        "effect": {
+          "mean": -0.03565491801435409,
+          "negative_rate": 0.33035714285714285,
+          "nonzero_rate": 0.3482142857142857,
+          "positive_group_rate": 0.07142857142857142,
+          "positive_rate": 0.017857142857142856,
+          "uniform_replica_group_rate": 0.6785714285714286
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0020750137029206797,
+            "negative_rate": 0.013888888888888888,
+            "positive_rate": 0.027777777777777776,
+            "replicas": 72
+          },
+          "alternate_target": {
+            "mean": -0.1090197843215249,
+            "negative_rate": 0.9473684210526315,
+            "positive_rate": 0.0,
+            "replicas": 38
+          },
+          "other_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 72,
+          "alternate_target": 38,
+          "other_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.6428571428571429,
+          "alternate_target": 0.3392857142857143,
+          "other_target": 0.017857142857142856
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 109,
+          "PROBE": 3
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.03998392234335841,
+          "nonzero_rate": 0.3482142857142857
+        },
+        "groups": 28,
+        "mean_terminal_return": 0.07428277926940778,
+        "replicas": 112
+      },
+      "historical/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 184
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 44,
+          "FORTIFY": 48,
+          "PROBE": 78,
+          "RECOVER": 12,
+          "SCAN": 2
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.0104549904454114,
+          "nonzero_rate": 0.16304347826086957
+        },
+        "groups": 46,
+        "mean_terminal_return": 0.022115899914194322,
+        "replicas": 184
+      },
+      "sft/critical": {
+        "effect": {
+          "mean": 0.10228797430978194,
+          "negative_rate": 0.013157894736842105,
+          "nonzero_rate": 0.8289473684210527,
+          "positive_group_rate": 0.868421052631579,
+          "positive_rate": 0.8157894736842105,
+          "uniform_replica_group_rate": 0.868421052631579
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.11009016815598859,
+            "negative_rate": 0.0,
+            "positive_rate": 0.8671328671328671,
+            "replicas": 143
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 6
+          },
+          "other_target": {
+            "mean": -0.06504065040650407,
+            "negative_rate": 0.6666666666666666,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 143,
+          "alternate_target": 6,
+          "other_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9407894736842105,
+          "alternate_target": 0.039473684210526314,
+          "other_target": 0.019736842105263157
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 148,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10485536840477554,
+          "nonzero_rate": 0.8289473684210527
+        },
+        "groups": 38,
+        "mean_terminal_return": 0.07135601665412106,
+        "replicas": 152
+      },
+      "sft/decoy": {
+        "effect": {
+          "mean": -0.02679736218509325,
+          "negative_rate": 0.23958333333333334,
+          "nonzero_rate": 0.23958333333333334,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.875
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": -0.001610305958132045,
+            "negative_rate": 0.014492753623188406,
+            "positive_rate": 0.0,
+            "replicas": 69
+          },
+          "alternate_target": {
+            "mean": -0.09116428365399411,
+            "negative_rate": 0.8148148148148148,
+            "positive_rate": 0.0,
+            "replicas": 27
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 69,
+          "alternate_target": 27
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.71875,
+          "alternate_target": 0.28125
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 92,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.02679736218509325,
+          "nonzero_rate": 0.23958333333333334
+        },
+        "groups": 24,
+        "mean_terminal_return": 0.07585254404429075,
+        "replicas": 96
+      },
+      "sft/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "active_target": 1,
+          "other_target": 151
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.006578947368421052,
+          "other_target": 0.993421052631579
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 25,
+          "FORTIFY": 27,
+          "PROBE": 63,
+          "RECOVER": 28,
+          "SCAN": 4,
+          "TRANSFER": 4,
+          "WAIT": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.009189893477819178,
+          "nonzero_rate": 0.15789473684210525
+        },
+        "groups": 38,
+        "mean_terminal_return": 0.05726374383700679,
+        "replicas": 152
+      }
+    },
+    "by_receiver": {
+      "blue-0/critical": {
+        "effect": {
+          "mean": 0.11402322151467371,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.90625,
+          "positive_group_rate": 0.90625,
+          "positive_rate": 0.90625,
+          "uniform_replica_group_rate": 1.0
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.12162476961565197,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9666666666666667,
+            "replicas": 120
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 8
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 120,
+          "alternate_target": 8
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9375,
+          "alternate_target": 0.0625
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 128
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.11402322151467371,
+          "nonzero_rate": 0.90625
+        },
+        "groups": 32,
+        "mean_terminal_return": 0.08350882918338329,
+        "replicas": 128
+      },
+      "blue-0/decoy": {
+        "effect": {
+          "mean": -0.05810272092797418,
+          "negative_rate": 0.48,
+          "nonzero_rate": 0.48,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.92
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 48
+          },
+          "alternate_target": {
+            "mean": -0.11173600178456573,
+            "negative_rate": 0.9230769230769231,
+            "positive_rate": 0.0,
+            "replicas": 52
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 48,
+          "alternate_target": 52
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.48,
+          "alternate_target": 0.52
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 100
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.05810272092797418,
+          "nonzero_rate": 0.48
+        },
+        "groups": 25,
+        "mean_terminal_return": 0.0951930431762798,
+        "replicas": 100
+      },
+      "blue-0/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 160
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 74,
+          "FORTIFY": 19,
+          "PROBE": 39,
+          "RECOVER": 28
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.004850217864923754,
+          "nonzero_rate": 0.075
+        },
+        "groups": 40,
+        "mean_terminal_return": 0.08199115532460773,
+        "replicas": 160
+      },
+      "blue-1/critical": {
+        "effect": {
+          "mean": 0.10615768638337124,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.921875,
+          "positive_group_rate": 0.96875,
+          "positive_rate": 0.921875,
+          "uniform_replica_group_rate": 0.90625
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10615768638337124,
+            "negative_rate": 0.0,
+            "positive_rate": 0.921875,
+            "replicas": 128
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 128
+        },
+        "focused_action_class_rates": {
+          "active_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 124,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10615768638337124,
+          "nonzero_rate": 0.921875
+        },
+        "groups": 32,
+        "mean_terminal_return": 0.08627049791668819,
+        "replicas": 128
+      },
+      "blue-1/decoy": {
+        "effect": {
+          "mean": -0.025768551708647437,
+          "negative_rate": 0.2413793103448276,
+          "nonzero_rate": 0.25,
+          "positive_group_rate": 0.034482758620689655,
+          "positive_rate": 0.008620689655172414,
+          "uniform_replica_group_rate": 0.6551724137931034
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": -0.0011478420569329658,
+            "negative_rate": 0.022727272727272728,
+            "positive_rate": 0.011363636363636364,
+            "replicas": 88
+          },
+          "alternate_target": {
+            "mean": -0.11108238066126928,
+            "negative_rate": 1.0,
+            "positive_rate": 0.0,
+            "replicas": 26
+          },
+          "other_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 88,
+          "alternate_target": 26,
+          "other_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.7586206896551724,
+          "alternate_target": 0.22413793103448276,
+          "other_target": 0.017241379310344827
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 106,
+          "PROBE": 10
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.02785841586747711,
+          "nonzero_rate": 0.25
+        },
+        "groups": 29,
+        "mean_terminal_return": 0.0829364234963853,
+        "replicas": 116
+      },
+      "blue-1/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "active_target": 1,
+          "other_target": 147
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.006756756756756757,
+          "other_target": 0.9932432432432432
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 23,
+          "FORTIFY": 37,
+          "PROBE": 60,
+          "RECOVER": 20,
+          "SCAN": 6,
+          "TRANSFER": 1,
+          "WAIT": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.016931473073023943,
+          "nonzero_rate": 0.2702702702702703
+        },
+        "groups": 37,
+        "mean_terminal_return": 0.054074664343064995,
+        "replicas": 148
+      },
+      "blue-2/critical": {
+        "effect": {
+          "mean": 0.07467585001242869,
+          "negative_rate": 0.015151515151515152,
+          "nonzero_rate": 0.7727272727272727,
+          "positive_group_rate": 0.8181818181818182,
+          "positive_rate": 0.7575757575757576,
+          "uniform_replica_group_rate": 0.7878787878787878
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.08307714175917437,
+            "negative_rate": 0.0,
+            "positive_rate": 0.8264462809917356,
+            "replicas": 121
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 8
+          },
+          "other_target": {
+            "mean": -0.06504065040650407,
+            "negative_rate": 0.6666666666666666,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 121,
+          "alternate_target": 8,
+          "other_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9166666666666666,
+          "alternate_target": 0.06060606060606061,
+          "other_target": 0.022727272727272728
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 132
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.07763224321272433,
+          "nonzero_rate": 0.7727272727272727
+        },
+        "groups": 33,
+        "mean_terminal_return": 0.08829857529971567,
+        "replicas": 132
+      },
+      "blue-2/decoy": {
+        "effect": {
+          "mean": -0.01713799134211626,
+          "negative_rate": 0.21428571428571427,
+          "nonzero_rate": 0.2619047619047619,
+          "positive_group_rate": 0.047619047619047616,
+          "positive_rate": 0.047619047619047616,
+          "uniform_replica_group_rate": 0.7619047619047619
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.006097560975609756,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0625,
+            "replicas": 64
+          },
+          "alternate_target": {
+            "mean": -0.0914917587588395,
+            "negative_rate": 0.9,
+            "positive_rate": 0.0,
+            "replicas": 20
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 64,
+          "alternate_target": 20
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.7619047619047619,
+          "alternate_target": 0.23809523809523808
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 83,
+          "PROBE": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.026429512828759695,
+          "nonzero_rate": 0.2619047619047619
+        },
+        "groups": 21,
+        "mean_terminal_return": 0.07929114469469742,
+        "replicas": 84
+      },
+      "blue-2/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 192
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 45,
+          "FORTIFY": 52,
+          "PROBE": 69,
+          "RECOVER": 20,
+          "SCAN": 2,
+          "TRANSFER": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.010671177168288852,
+          "nonzero_rate": 0.15625
+        },
+        "groups": 48,
+        "mean_terminal_return": 0.06002237395596685,
+        "replicas": 192
+      },
+      "blue-3/critical": {
+        "effect": {
+          "mean": 0.09957614662847741,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.9242424242424242,
+          "positive_group_rate": 0.9696969696969697,
+          "positive_rate": 0.9242424242424242,
+          "uniform_replica_group_rate": 0.9393939393939394
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10189187096867455,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9457364341085271,
+            "replicas": 129
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 129,
+          "alternate_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9772727272727273,
+          "alternate_target": 0.022727272727272728
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 132
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09957614662847741,
+          "nonzero_rate": 0.9242424242424242
+        },
+        "groups": 33,
+        "mean_terminal_return": 0.07951589475449718,
+        "replicas": 132
+      },
+      "blue-3/decoy": {
+        "effect": {
+          "mean": -0.029055048009986283,
+          "negative_rate": 0.3,
+          "nonzero_rate": 0.31,
+          "positive_group_rate": 0.04,
+          "positive_rate": 0.01,
+          "uniform_replica_group_rate": 0.88
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.00040853428113286563,
+            "negative_rate": 0.014492753623188406,
+            "positive_rate": 0.014492753623188406,
+            "replicas": 69
+          },
+          "alternate_target": {
+            "mean": -0.09463527956118696,
+            "negative_rate": 0.9354838709677419,
+            "positive_rate": 0.0,
+            "replicas": 31
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 69,
+          "alternate_target": 31
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.69,
+          "alternate_target": 0.31
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 99,
+          "PROBE": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.03147929043422871,
+          "nonzero_rate": 0.31
+        },
+        "groups": 25,
+        "mean_terminal_return": 0.09318772036517915,
+        "replicas": 100
+      },
+      "blue-3/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 180
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 39,
+          "FORTIFY": 36,
+          "PROBE": 67,
+          "RECOVER": 36,
+          "SCAN": 2
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.007524246283936212,
+          "nonzero_rate": 0.08888888888888889
+        },
+        "groups": 45,
+        "mean_terminal_return": 0.020048700027013554,
+        "replicas": 180
+      }
+    },
+    "by_stage": {
+      "robust_two_turn_transfer/critical": {
+        "effect": {
+          "mean": 0.09664214565897436,
+          "negative_rate": 0.005555555555555556,
+          "nonzero_rate": 0.8583333333333333,
+          "positive_group_rate": 0.9,
+          "positive_rate": 0.8527777777777777,
+          "uniform_replica_group_rate": 0.9
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10320440822551706,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9056047197640118,
+            "replicas": 339
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 18
+          },
+          "other_target": {
+            "mean": -0.06504065040650407,
+            "negative_rate": 0.6666666666666666,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 339,
+          "alternate_target": 18,
+          "other_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9416666666666667,
+          "alternate_target": 0.05,
+          "other_target": 0.008333333333333333
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 360
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09772615649908277,
+          "nonzero_rate": 0.8583333333333333
+        },
+        "groups": 90,
+        "mean_terminal_return": 0.07568146650266115,
+        "replicas": 360
+      },
+      "robust_two_turn_transfer/decoy": {
+        "effect": {
+          "mean": -0.025523806753053133,
+          "negative_rate": 0.24583333333333332,
+          "nonzero_rate": 0.26666666666666666,
+          "positive_group_rate": 0.03333333333333333,
+          "positive_rate": 0.020833333333333332,
+          "uniform_replica_group_rate": 0.8333333333333334
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0023910443876410978,
+            "negative_rate": 0.005714285714285714,
+            "positive_rate": 0.02857142857142857,
+            "replicas": 175
+          },
+          "alternate_target": {
+            "mean": -0.10067917520876836,
+            "negative_rate": 0.8923076923076924,
+            "positive_rate": 0.0,
+            "replicas": 65
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 175,
+          "alternate_target": 65
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.7291666666666666,
+          "alternate_target": 0.2708333333333333
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 239,
+          "PROBE": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.029785940283479348,
+          "nonzero_rate": 0.26666666666666666
+        },
+        "groups": 60,
+        "mean_terminal_return": 0.07536072012351044,
+        "replicas": 240
+      },
+      "robust_two_turn_transfer/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "active_target": 1,
+          "other_target": 359
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.002777777777777778,
+          "other_target": 0.9972222222222222
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 82,
+          "FORTIFY": 71,
+          "PROBE": 124,
+          "RECOVER": 72,
+          "SCAN": 5,
+          "TRANSFER": 5,
+          "WAIT": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.010752799379210372,
+          "nonzero_rate": 0.15555555555555556
+        },
+        "groups": 90,
+        "mean_terminal_return": 0.060973925549129615,
+        "replicas": 360
+      },
+      "u180_repair_and_conflict_grounding/critical": {
+        "effect": {
+          "mean": 0.10245779581449115,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.93125,
+          "positive_group_rate": 0.95,
+          "positive_rate": 0.93125,
+          "uniform_replica_group_rate": 0.925
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10310218446741247,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9371069182389937,
+            "replicas": 159
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 1
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 159,
+          "alternate_target": 1
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.99375,
+          "alternate_target": 0.00625
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 156,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10245779581449115,
+          "nonzero_rate": 0.93125
+        },
+        "groups": 40,
+        "mean_terminal_return": 0.1039870998437952,
+        "replicas": 160
+      },
+      "u180_repair_and_conflict_grounding/decoy": {
+        "effect": {
+          "mean": -0.04386754090002602,
+          "negative_rate": 0.40625,
+          "nonzero_rate": 0.4125,
+          "positive_group_rate": 0.025,
+          "positive_rate": 0.00625,
+          "uniform_replica_group_rate": 0.75
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": -0.001074575542660649,
+            "negative_rate": 0.02127659574468085,
+            "positive_rate": 0.010638297872340425,
+            "replicas": 94
+          },
+          "alternate_target": {
+            "mean": -0.10809056942178222,
+            "negative_rate": 0.984375,
+            "positive_rate": 0.0,
+            "replicas": 64
+          },
+          "other_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 94,
+          "alternate_target": 64,
+          "other_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.5875,
+          "alternate_target": 0.4,
+          "other_target": 0.0125
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 149,
+          "PROBE": 11
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.045382692415177533,
+          "nonzero_rate": 0.4125
+        },
+        "groups": 40,
+        "mean_terminal_return": 0.10645365502774166,
+        "replicas": 160
+      },
+      "u180_repair_and_conflict_grounding/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "other_target": 320
+        },
+        "focused_action_class_rates": {
+          "other_target": 1.0
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 99,
+          "FORTIFY": 73,
+          "PROBE": 111,
+          "RECOVER": 32,
+          "SCAN": 5
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.008794110762811214,
+          "nonzero_rate": 0.13125
+        },
+        "groups": 80,
+        "mean_terminal_return": 0.04470026181697584,
+        "replicas": 320
+      }
+    },
+    "by_world": {
+      "None/ordinary": {
+        "effect": {
+          "mean": null,
+          "negative_rate": null,
+          "nonzero_rate": null,
+          "positive_group_rate": null,
+          "positive_rate": null,
+          "uniform_replica_group_rate": null
+        },
+        "effect_by_action_class": {},
+        "focused_action_class_counts": {
+          "active_target": 1,
+          "other_target": 679
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.0014705882352941176,
+          "other_target": 0.9985294117647059
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 181,
+          "FORTIFY": 144,
+          "PROBE": 235,
+          "RECOVER": 104,
+          "SCAN": 10,
+          "TRANSFER": 5,
+          "WAIT": 1
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.009831063559728416,
+          "nonzero_rate": 0.14411764705882352
+        },
+        "groups": 170,
+        "mean_terminal_return": 0.05331573085164549,
+        "replicas": 680
+      },
+      "left_exposed/critical": {
+        "effect": {
+          "mean": 0.1038115459534595,
+          "negative_rate": 0.007692307692307693,
+          "nonzero_rate": 0.9423076923076923,
+          "positive_group_rate": 0.9538461538461539,
+          "positive_rate": 0.9346153846153846,
+          "uniform_replica_group_rate": 0.9230769230769231
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.10831125059409953,
+            "negative_rate": 0.0,
+            "positive_rate": 0.9681274900398407,
+            "replicas": 251
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 6
+          },
+          "other_target": {
+            "mean": -0.06504065040650407,
+            "negative_rate": 0.6666666666666666,
+            "positive_rate": 0.0,
+            "replicas": 3
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 251,
+          "alternate_target": 6,
+          "other_target": 3
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.9653846153846154,
+          "alternate_target": 0.023076923076923078,
+          "other_target": 0.011538461538461539
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 260
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.10531248403976344,
+          "nonzero_rate": 0.9423076923076923
+        },
+        "groups": 65,
+        "mean_terminal_return": 0.08760666409581029,
+        "replicas": 260
+      },
+      "left_exposed/decoy": {
+        "effect": {
+          "mean": -0.05595420475605646,
+          "negative_rate": 0.47959183673469385,
+          "nonzero_rate": 0.47959183673469385,
+          "positive_group_rate": 0.0,
+          "positive_rate": 0.0,
+          "uniform_replica_group_rate": 0.8163265306122449
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": -0.002041343669250646,
+            "negative_rate": 0.02,
+            "positive_rate": 0.0,
+            "replicas": 100
+          },
+          "alternate_target": {
+            "mean": -0.11211343505481253,
+            "negative_rate": 0.9583333333333334,
+            "positive_rate": 0.0,
+            "replicas": 96
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 100,
+          "alternate_target": 96
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.5102040816326531,
+          "alternate_target": 0.4897959183673469
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 187,
+          "PROBE": 9
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.05595420475605646,
+          "nonzero_rate": 0.47959183673469385
+        },
+        "groups": 49,
+        "mean_terminal_return": 0.09445043648478026,
+        "replicas": 196
+      },
+      "right_exposed/critical": {
+        "effect": {
+          "mean": 0.09305160699865342,
+          "negative_rate": 0.0,
+          "nonzero_rate": 0.8192307692307692,
+          "positive_group_rate": 0.8769230769230769,
+          "positive_rate": 0.8192307692307692,
+          "uniform_replica_group_rate": 0.8923076923076924
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.09794905999858254,
+            "negative_rate": 0.0,
+            "positive_rate": 0.8623481781376519,
+            "replicas": 247
+          },
+          "alternate_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 13
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 247,
+          "alternate_target": 13
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.95,
+          "alternate_target": 0.05
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 256,
+          "PROBE": 4
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.09305160699865342,
+          "nonzero_rate": 0.8192307692307692
+        },
+        "groups": 65,
+        "mean_terminal_return": 0.08117512019636372,
+        "replicas": 260
+      },
+      "right_exposed/decoy": {
+        "effect": {
+          "mean": -0.010674000159558075,
+          "negative_rate": 0.14705882352941177,
+          "nonzero_rate": 0.17647058823529413,
+          "positive_group_rate": 0.058823529411764705,
+          "positive_rate": 0.029411764705882353,
+          "uniform_replica_group_rate": 0.7843137254901961
+        },
+        "effect_by_action_class": {
+          "active_target": {
+            "mean": 0.0030861362943914545,
+            "negative_rate": 0.005917159763313609,
+            "positive_rate": 0.03550295857988166,
+            "replicas": 169
+          },
+          "alternate_target": {
+            "mean": -0.08178948685763646,
+            "negative_rate": 0.8787878787878788,
+            "positive_rate": 0.0,
+            "replicas": 33
+          },
+          "other_target": {
+            "mean": 0.0,
+            "negative_rate": 0.0,
+            "positive_rate": 0.0,
+            "replicas": 2
+          }
+        },
+        "focused_action_class_counts": {
+          "active_target": 169,
+          "alternate_target": 33,
+          "other_target": 2
+        },
+        "focused_action_class_rates": {
+          "active_target": 0.8284313725490197,
+          "alternate_target": 0.16176470588235295,
+          "other_target": 0.00980392156862745
+        },
+        "focused_action_type_counts": {
+          "CAPTURE": 201,
+          "PROBE": 3
+        },
+        "focused_advantage": {
+          "mean_absolute": 0.016876629030766574,
+          "nonzero_rate": 0.17647058823529413
+        },
+        "groups": 51,
+        "mean_terminal_return": 0.08140623570129531,
+        "replicas": 204
+      }
+    },
+    "durable_updates": 100,
+    "latest_step": 99,
+    "overall": {
+      "effect": {
+        "mean": 0.04134771695957875,
+        "negative_rate": 0.13695652173913042,
+        "nonzero_rate": 0.6391304347826087,
+        "positive_group_rate": 0.5304347826086957,
+        "positive_rate": 0.5021739130434782,
+        "uniform_replica_group_rate": 0.8608695652173913
+      },
+      "effect_by_action_class": {
+        "active_target": {
+          "mean": 0.0674015181037757,
+          "negative_rate": 0.003911342894393742,
+          "positive_rate": 0.6023468057366362,
+          "replicas": 767
+        },
+        "alternate_target": {
+          "mean": -0.09095907318624329,
+          "negative_rate": 0.8175675675675675,
+          "positive_rate": 0.0,
+          "replicas": 148
+        },
+        "other_target": {
+          "mean": -0.03902439024390244,
+          "negative_rate": 0.4,
+          "positive_rate": 0.0,
+          "replicas": 5
+        }
+      },
+      "focused_action_class_counts": {
+        "active_target": 768,
+        "alternate_target": 148,
+        "other_target": 684
+      },
+      "focused_action_class_rates": {
+        "active_target": 0.48,
+        "alternate_target": 0.0925,
+        "other_target": 0.4275
+      },
+      "focused_action_type_counts": {
+        "CAPTURE": 1085,
+        "FORTIFY": 144,
+        "PROBE": 251,
+        "RECOVER": 104,
+        "SCAN": 10,
+        "TRANSFER": 5,
+        "WAIT": 1
+      },
+      "focused_advantage": {
+        "mean_absolute": 0.045418527090666974,
+        "nonzero_rate": 0.42875
+      },
+      "groups": 400,
+      "mean_terminal_return": 0.07203569908072835,
+      "replicas": 1600
+    },
+    "policy_revision": "c44ce91f6e0a16b3381ef30892c4b4d070055f7361ec77ff265677f330355b75"
+  },
+  "version": "v12-compact-rollout-gap-audit-v1"
+}
