@@ -5922,6 +5922,27 @@ no more critical-specific than decoy-specific. Therefore:
   ordinary signal screen, freeze V13, then launch only if V12 yields an admitted
   initializer.
 
+### 2026-08-28 — V12 pod decommission
+
+- Status: completed and decommissioned.
+- Final run state before teardown: 160/160 durable optimizer updates;
+  `evaluations/COMPLETE` present; checkpoints 20--160 healthy in the public
+  mirror; controller W&B run finalized with 4 files and 13 artifacts synced.
+- Final update-160 pulse: communication `+0.05636`, critical-minus-decoy
+  specificity `+0.05779` with 95% interval `[+0.01012,+0.10318]`, hard
+  ordinary `+0.06325`, legacy ordinary `+0.00122`, and protocol validity 1.0.
+  Formal development selection was not run on this pod.
+- Public update-160 policy hashes: blue-0 `fa3b066f...a218`, blue-1
+  `9ef4cbb1...94a3`, blue-2 `2228de4b...2d63`, blue-3
+  `8a3bae92...53c`; policy revision `be732230...26ca`.
+- Exact provider target: Lium pod
+  `5d5f4e96-8d14-4832-b5dc-3f6df8f5d5a4`, name `swarm-v12-4b160`, IP
+  `64.247.196.76`, 4x L40S at `$1.52/hour`.
+- Final provider spend: `$53.51`. User explicitly requested teardown. The pod
+  was removed at `2026-08-28T00:46:54Z` with the exact pod ID; a subsequent
+  `lium ps --format json` returned `[]`.
+- Instance decommissioned: yes.
+
 ## Future entry template
 
 Copy this block for each material run:
