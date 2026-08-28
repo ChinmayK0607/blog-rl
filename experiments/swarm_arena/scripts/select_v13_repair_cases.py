@@ -147,6 +147,7 @@ def select_repair_cases(
     challenge_per_receiver: int,
     critical_per_receiver: int,
     ordinary_per_receiver: int,
+    completed_run: bool = False,
 ) -> dict[str, Any]:
     if not updates:
         raise ValueError("progress contains no updates")
@@ -179,8 +180,12 @@ def select_repair_cases(
             "ordinary_candidates": len(ordinary),
         },
         "admission": {
-            "status": "interim_only",
-            "reason": "regenerate from the completed V12 progress record before freezing V13",
+            "status": "training_only_complete" if completed_run else "interim_only",
+            "reason": (
+                "complete V12 training-only evidence; safe for curriculum construction"
+                if completed_run
+                else "regenerate from the completed V12 progress record before freezing V13"
+            ),
         },
     }
 
@@ -193,6 +198,7 @@ def main() -> None:
     parser.add_argument("--challenge-per-receiver", type=int, default=6)
     parser.add_argument("--critical-per-receiver", type=int, default=4)
     parser.add_argument("--ordinary-per-receiver", type=int, default=8)
+    parser.add_argument("--complete-run", action="store_true")
     args = parser.parse_args()
     updates = json.loads(args.progress.read_text(encoding="utf-8"))
     result = select_repair_cases(
@@ -201,6 +207,7 @@ def main() -> None:
         challenge_per_receiver=args.challenge_per_receiver,
         critical_per_receiver=args.critical_per_receiver,
         ordinary_per_receiver=args.ordinary_per_receiver,
+        completed_run=args.complete_run,
     )
     result["source"]["progress_sha256"] = file_sha256(args.progress)
     args.output.parent.mkdir(parents=True, exist_ok=True)

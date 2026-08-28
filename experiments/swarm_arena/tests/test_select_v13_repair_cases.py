@@ -75,6 +75,18 @@ def test_selector_prioritizes_message_obedient_decoy() -> None:
     assert result["admission"]["status"] == "interim_only"
 
 
+def test_selector_can_bind_completed_training_only_progress() -> None:
+    result = select_repair_cases(
+        _updates(),
+        window_updates=1,
+        challenge_per_receiver=1,
+        critical_per_receiver=1,
+        ordinary_per_receiver=1,
+        completed_run=True,
+    )
+    assert result["admission"]["status"] == "training_only_complete"
+
+
 def test_selector_rejects_noncontiguous_progress() -> None:
     updates = _updates()
     updates[0]["step"] = 1

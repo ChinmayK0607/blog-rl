@@ -1,0 +1,46 @@
+{
+  "curriculum": {
+    "challenge_role_quotas": {
+      "blue-0": 23,
+      "blue-1": 13,
+      "blue-2": 25,
+      "blue-3": 19
+    },
+    "groups_per_update": 4,
+    "schedule_sha256": "b55afd36a347e07fa2c12ddcc5fca0df1763c9ffddab990557616f00839aa6b7",
+    "updates": 80
+  },
+  "files_sha256": {
+    "v12_final_progress": "5c4d1f45b2f96da2229276331d9a280adf193a14fb0f07e641ba5eb21016b454",
+    "v12_update160_manifest": "9fa6cac1c8f205aa4faa39d7c21509ac54bc2b9a5be6db4756617828886548a3",
+    "v13_curriculum": "0e5b2c1380e1f3ae1fefc649cda16c3a02aaeabf90c94ac41b358647eabbd123",
+    "v13_curriculum_audit": "1c36578a1c5e5e383184968ccb294030f88ad58f93fdd3ef71d7d4e8292a824a",
+    "v13_ordinary_signal_screen": "aa7af8f443dd4e496c00218c6ba872fae767c2737b903bc5f6af02fd4ef2e924",
+    "v13_repair_case_selection": "2210a5346f2b8cff9ade62c8d2bbc4239a76b40dc7f0717f022e257bc831f382"
+  },
+  "frozen_data_opened": false,
+  "initializer": {
+    "claim_boundary": "non-admitted continuation warm start",
+    "policy_adapter_sha256": {
+      "blue-0": "fa3b066fae06a576b48b133ff4a79967ee7e788ca996f869149e23d654ffa218",
+      "blue-1": "9ef4cbb1325f6fa833f0ba74c6ec942e38ac73baf65b8e1a524f957e80f294a3",
+      "blue-2": "2228de4b1b4129817b82067613c5fd68406a890c71d3e6581f2fd6b2b3452d63",
+      "blue-3": "8a3bae92db8df5c1daf4cc74e6a23a036194389c8155b5d6aee23434e1f8c53c"
+    },
+    "policy_revision": "be732230927aea76ebd525f951db52a3dfe360473a675b4efa4ff035b8c826ca",
+    "run": "rl-v12-counterfactual4b160-b9f6e7f3",
+    "step": 160
+  },
+  "next_gpu_action": {
+    "estimated_wall_time": "30-60 minutes after model/server setup",
+    "games": 256,
+    "name": "ordinary_pass_at_4_signal_screen",
+    "on_fail": "replace low-signal ordinary seed band before any optimizer update",
+    "on_pass": "render final trainer configs and launch V13 80-update continuation",
+    "optimizer_updates": 0,
+    "recommended_hardware": "4xL40S"
+  },
+  "sha256": "f3ae1b5096fa3436d3e4d810a5f0e6e5cc0fdd88d917974f865e0469e4ee9eca",
+  "status": "cpu_complete_gpu_signal_screen_pending",
+  "version": "arena-rl-v13-cpu-bundle-v1"
+}

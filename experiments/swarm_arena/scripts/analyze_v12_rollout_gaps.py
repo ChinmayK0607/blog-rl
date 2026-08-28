@@ -248,6 +248,7 @@ def main() -> None:
     parser.add_argument("--progress", type=Path, required=True)
     parser.add_argument("--evaluation", action="append", default=[], type=parse_eval_arg)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--complete-run", action="store_true")
     args = parser.parse_args()
     updates = json.loads(args.progress.read_text(encoding="utf-8"))
     evaluation = {
@@ -260,7 +261,10 @@ def main() -> None:
     report = {
         "version": "v12-compact-rollout-gap-audit-v1",
         "scope": (
-            "interim training-distribution and compact development evidence; "
+            "complete training-distribution and compact development evidence; "
+            "not a held-out result or checkpoint selection"
+            if args.complete_run
+            else "interim training-distribution and compact development evidence; "
             "not a held-out result or checkpoint selection"
         ),
         "progress_sha256": file_sha256(args.progress),

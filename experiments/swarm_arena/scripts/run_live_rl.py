@@ -390,6 +390,12 @@ async def main() -> None:
     parser.add_argument("--replacement-model-name", default="sft-replacement")
     parser.add_argument("--replacement-revision")
     parser.add_argument("--opponent-revision")
+    parser.add_argument("--opponent-model-name", default="sft-opponent")
+    parser.add_argument(
+        "--opponent-family",
+        choices=("base", "sft", "historical", "current"),
+        default="sft",
+    )
     parser.add_argument(
         "--production-plan",
         type=Path,
@@ -432,6 +438,14 @@ async def main() -> None:
     )
     parser.add_argument("--rollout-only", action="store_true")
     parser.add_argument(
+        "--ordinary-focused-agent",
+        choices=("blue-0", "blue-1", "blue-2", "blue-3"),
+        help=(
+            "focus one policy in a one-group ordinary rollout-only signal screen; "
+            "never valid for optimizer training"
+        ),
+    )
+    parser.add_argument(
         "--horizon",
         type=int,
         help=(
@@ -462,6 +476,16 @@ async def main() -> None:
         parser.error("rollout-only diagnostics require exactly one controller step")
     if args.rollout_only and args.resume_existing_progress:
         parser.error("rollout-only diagnostics cannot resume optimizer progress")
+    if args.ordinary_focused_agent is not None and not (
+        args.rollout_only
+        and args.production_plan is None
+        and args.scenario_source == "ordinary"
+        and args.groups_per_step == 1
+    ):
+        parser.error(
+            "--ordinary-focused-agent requires a one-group, non-production, "
+            "ordinary rollout-only diagnostic"
+        )
     if (args.checkpoint_barrier_dir is None) != (args.checkpoint_barrier_interval is None):
         parser.error("checkpoint barrier directory and interval must be provided together")
     if args.checkpoint_barrier_interval is not None and (
@@ -816,7 +840,9 @@ async def main() -> None:
                 )
                 assert opponent_revision is not None
                 opponent_model_name = (
-                    scheduled_opponent.model_name if scheduled_opponent is not None else "sft-opponent"
+                    scheduled_opponent.model_name
+                    if scheduled_opponent is not None
+                    else args.opponent_model_name
                 )
                 policies = blue_policies + (
                     PolicyEndpoint(
@@ -859,6 +885,8 @@ async def main() -> None:
                         "source": "ordinary",
                         "schedule_ordinal": ordinal,
                         "seed": seed,
+                        "size": size,
+                        "scheduled_horizon": horizon,
                         "curriculum_stage": assignment.stage,
                     }
                 elif curriculum is not None:
@@ -928,6 +956,14 @@ async def main() -> None:
                         ),
                         **world_metadata,
                     }
+                if scenario_metadata["source"] == "ordinary":
+                    scenario_metadata.update(
+                        {
+                            "seed": seed,
+                            "size": size,
+                            "scheduled_horizon": horizon,
+                        }
+                    )
                 game_id = f"{args.run_id}:step-{step}:group-{group_index}:{scenario_metadata['source']}:{seed}"
                 fallback_pair_index = (
                     int(scenario_metadata["pair_index"])
@@ -946,9 +982,9 @@ async def main() -> None:
                     asdict(scheduled_opponent)
                     if scheduled_opponent is not None
                     else {
-                        "opponent_id": "sft-opponent",
-                        "family": "sft",
-                        "model_name": "sft-opponent",
+                        "opponent_id": f"{args.opponent_family}-opponent",
+                        "family": args.opponent_family,
+                        "model_name": args.opponent_model_name,
                         "revision": opponent_revision,
                     }
                 )
@@ -972,7 +1008,10 @@ async def main() -> None:
                         focused_phase = "BROADCAST" if focus_role == "sender" else "ACT"
                         focused_turn_offsets = (0,)
                     else:
-                        focused_agent = f"blue-{group_index % 4}"
+                        focused_agent = (
+                            args.ordinary_focused_agent
+                            or f"blue-{group_index % 4}"
+                        )
                         focused_phase = "ACT"
                         focused_turn_offsets = shared_return_spec.trainable_turn_offsets
                     if production_plan is not None and focused_phase not in production_plan.trainable_phases:

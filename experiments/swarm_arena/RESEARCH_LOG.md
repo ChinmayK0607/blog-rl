@@ -5943,6 +5943,74 @@ no more critical-specific than decoy-specific. Therefore:
   `lium ps --format json` returned `[]`.
 - Instance decommissioned: yes.
 
+### 2026-08-28 — Complete V12 audit and frozen V13 CPU handoff
+
+- Status: CPU preparation complete; GPU ordinary-signal admission pending.
+- Verdict: V12 learned a real communication-conditioned behavior on the
+  development distribution, but its remaining weaknesses are asymmetric
+  misleading-message robustness and sparse ordinary credit. V13 now targets
+  those exact gaps rather than uniformly extending V12.
+- Evidence source: anonymous public HF mirror for
+  `rl-v12-counterfactual4b160-b9f6e7f3`. The final compact progress contains
+  all 160 durable updates (SHA-256 `5c4d1f45...b454`); the final mirror status,
+  step-160 manifest, and update-160 summary were independently downloaded.
+  The nine compact pulse files from updates 0--160 contain 1,728 rows. A first
+  guessed Hub root returned 404; the public tree listing identified the exact
+  `runs/.../live/` route, after which every download and hash check succeeded.
+- Complete rollout diagnosis: critical receivers selected the supported target
+  in `95.91%` of 880 replicas. Decoy receivers selected private evidence in
+  `70.00%` of 640 replicas. In updates 140--159, misleading-target selection
+  was blue-0/1/2/3 = `20.00%/6.25%/37.50%/5.00%`, shifting the largest repair
+  band toward blue-2. Ordinary focused advantage was nonzero in only `16.63%`
+  of replicas overall and `10.00%/12.50%/0%/0%` in the last window. Supported
+  target actions had mean paired effect `+0.04587`; alternate/message-following
+  actions had `-0.06786`. This supports the existing terminal-return reward
+  direction and does not justify an additive communication reward.
+- V12 development endpoint: update 160 has critical normal-minus-dropped return
+  `+0.05636`, critical-minus-decoy specificity `+0.05779` with 95% interval
+  `[+0.01012,+0.10318]`, and RL-specific lift `+0.07281`; hard/legacy ordinary
+  point effects are `+0.06325/+0.00122`. This is development evidence only.
+  Formal V12 selection was not run, so its four distinct, public, hash-verified
+  step-160 adapters are a non-admitted continuation warm start, not a selected
+  result. Frozen cases remain unopened.
+- Frozen V13 curriculum: 80 updates / 320 groups: 140 fresh ordinary, 100
+  critical, and 80 matched decoy groups. Final decoy quotas are
+  blue-0/1/2/3 = `23/13/25/19`, with critical controls `28/18/30/24`. Every
+  decoy is a matched critical subset and every ordinary seed is unique.
+  Schedule SHA-256 is `b55afd36...a6b7`.
+- New admission workflow: a deterministic 64-case / 256-game ordinary pass@4
+  screen covers 16 cases per focused policy and 16 per base/SFT/historical/
+  current opponent family. It runs zero optimizer updates and requires, per
+  policy: variable-return group rate >= `0.25`, nonzero-advantage rate >=
+  `0.25`, mean focused-action diversity >= `1.25`, at least four positive and
+  four negative advantages, and at least one variable group in every opponent
+  family. Completed diagnostics also imply fail-closed protocol admission.
+  Changed trainer, inference, initializer-manifest, source, or scientific
+  screen hashes make resume fail closed.
+- Execution logic: `run_live_rl.py` now supports a diagnostic-only focused
+  ordinary policy slot, explicitly forbidden outside rollout-only single-group
+  ordinary screens. The screen builder, resumable runner, assessor, and CPU
+  freezer are separate scripts. On pass, render final configs and launch V13;
+  on failure, replace only the low-signal ordinary seed band before any
+  optimizer update.
+- Compact artifacts: final audit/case selection file hashes
+  `f7243070...62f6` / `2210a534...382`; curriculum/audit/screen/bundle file
+  hashes `0e5b2c13...d123` / `1c36578a...824a` / `aa7af8f4...e924` /
+  `25d0d20b...bf59`. The compact additions total about 312 KiB; raw rows and
+  checkpoints were not stored on the Mac.
+- Verification: Python compilation passed; Ruff passed; the focused V12/V13
+  and existing production suite passed **31/31 tests**. The initial isolated
+  pytest/Ruff calls could not resolve PyPI inside the restricted network; the
+  approved network retry used a temporary `/private/tmp` uv cache and passed.
+  A broader Mac-only collection was also attempted but intentionally stopped
+  at collection because the lightweight isolated environment lacks `torch`,
+  `httpx`, and `huggingface_hub`; those packages were not installed onto the
+  Mac merely to duplicate the already-required Linux preflight.
+- Next GPU action: run the 256-game screen on 4xL40S, estimated 30--60 minutes
+  after model/server setup. Only a passing screen authorizes the 80-update V13
+  continuation. No GPU is active or accruing cost now.
+- Instance decommissioned: not applicable; no instance was rented.
+
 ## Future entry template
 
 Copy this block for each material run:

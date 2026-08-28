@@ -17,7 +17,8 @@ from swarm_ctf_eval.rl_production import (
 
 VERSION = "arena-rl-v13-role-adaptive-consolidation-v1"
 POLICIES = ("blue-0", "blue-1", "blue-2", "blue-3")
-CHALLENGE_ROLE_QUOTAS = {"blue-0": 32, "blue-1": 14, "blue-2": 14, "blue-3": 20}
+CHALLENGE_GROUPS = 80
+MINIMUM_CHALLENGE_GROUPS_PER_POLICY = 12
 CRITICAL_REHEARSAL_ROLE_QUOTAS = {policy: 5 for policy in POLICIES}
 
 
@@ -66,9 +67,45 @@ def case_stream(
         cursors[receiver] += 1
 
 
+def challenge_role_quotas(selection: dict[str, Any]) -> dict[str, int]:
+    """Allocate the repair surplus by final training-only challenge severity."""
+    by_receiver: dict[str, list[float]] = defaultdict(list)
+    for row in selection["selected"]["challenge_repair"]:
+        by_receiver[str(row["receiver"])].append(float(row["priority"]))
+    if set(by_receiver) != set(POLICIES):
+        raise ValueError("challenge selection must cover every policy")
+    severity = {
+        policy: sum(by_receiver[policy]) / len(by_receiver[policy]) for policy in POLICIES
+    }
+    floor_total = MINIMUM_CHALLENGE_GROUPS_PER_POLICY * len(POLICIES)
+    surplus = CHALLENGE_GROUPS - floor_total
+    total_severity = sum(severity.values())
+    weights = (
+        {policy: severity[policy] / total_severity for policy in POLICIES}
+        if total_severity > 0
+        else {policy: 1 / len(POLICIES) for policy in POLICIES}
+    )
+    raw = {policy: weights[policy] * surplus for policy in POLICIES}
+    quotas = {
+        policy: MINIMUM_CHALLENGE_GROUPS_PER_POLICY + int(raw[policy])
+        for policy in POLICIES
+    }
+    unassigned = CHALLENGE_GROUPS - sum(quotas.values())
+    remainder_order = sorted(
+        POLICIES,
+        key=lambda policy: (-(raw[policy] - int(raw[policy])), policy),
+    )
+    for policy in remainder_order[:unassigned]:
+        quotas[policy] += 1
+    if sum(quotas.values()) != CHALLENGE_GROUPS:
+        raise AssertionError("challenge quota allocation must be exact")
+    return quotas
+
+
 def handoff_case_order(selection: dict[str, Any]) -> tuple[tuple[int, str], ...]:
+    challenge_quotas = challenge_role_quotas(selection)
     challenge = iter(
-        case_stream(selection["selected"]["challenge_repair"], CHALLENGE_ROLE_QUOTAS)
+        case_stream(selection["selected"]["challenge_repair"], challenge_quotas)
     )
     rehearsal = iter(
         case_stream(
@@ -102,6 +139,7 @@ def handoff_case_order(selection: dict[str, Any]) -> tuple[tuple[int, str], ...]
 
 def curriculum(selection: dict[str, Any]) -> dict[str, Any]:
     cases = handoff_case_order(selection)
+    challenge_quotas = challenge_role_quotas(selection)
     retention = {"ordinary": 2, "critical": 1, "decoy": 1}
     transfer = {"ordinary": 1, "critical": 2, "decoy": 1}
     return {
@@ -110,8 +148,11 @@ def curriculum(selection: dict[str, Any]) -> dict[str, Any]:
         "groups_per_update": 4,
         "reward": "verified_terminal_control_delta_only",
         "message_reward": None,
-        "initializer": "earliest_formally_selected_v12_checkpoint_only",
-        "launch_block": "no V13 launch until V12 development selection is complete",
+        "initializer": "four_distinct_public_v12_update160_nonadmitted_warmstart_adapters",
+        "initializer_claim_boundary": (
+            "V12 update160 is a continuation warm start, not a formally selected result"
+        ),
+        "launch_block": "no V13 launch until the ordinary pass@4 signal screen passes",
         "credit_assignment": {
             "critical": "receiver_ACT_absolute_factual_minus_receiver_only_target_swap",
             "decoy": "receiver_ACT_absolute_target_swap_challenge_minus_factual",
@@ -128,7 +169,7 @@ def curriculum(selection: dict[str, Any]) -> dict[str, Any]:
             "ordinary_seed_base": 22_000_117,
             "shuffle_seed": 20_261_013,
         },
-        "challenge_role_quotas": CHALLENGE_ROLE_QUOTAS,
+        "challenge_role_quotas": challenge_quotas,
         "critical_rehearsal_role_quotas": CRITICAL_REHEARSAL_ROLE_QUOTAS,
         "stages": [
             {
@@ -201,7 +242,8 @@ def stage(row: dict[str, Any]) -> CurriculumStage:
 
 
 def build(selection: dict[str, Any], train: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
-    if selection["admission"]["status"] != "interim_only":
+    selection_status = selection["admission"]["status"]
+    if selection_status not in {"interim_only", "training_only_complete"}:
         raise ValueError("V13 builder expects a training-only gap selection")
     plan = curriculum(selection)
     schedule = exact_staged_curriculum_schedule(
@@ -228,7 +270,11 @@ def build(selection: dict[str, Any], train: dict[str, Any]) -> tuple[dict[str, A
     }
     audit = {
         "version": "arena-rl-v13-curriculum-audit-v1",
-        "status": "interim_passed_refresh_required_at_v12_completion",
+        "status": (
+            "cpu_schedule_passed_gpu_gates_pending"
+            if selection_status == "training_only_complete"
+            else "interim_passed_refresh_required_at_v12_completion"
+        ),
         "schedule_sha256": digest([row.__dict__ for row in schedule]),
         "selection_sha256": digest(selection),
         "group_counts": dict(sorted(counts.items())),
@@ -242,11 +288,16 @@ def build(selection: dict[str, Any], train: dict[str, Any]) -> tuple[dict[str, A
         == counts["ordinary"],
         "frozen_data_used": False,
         "launch_ready": False,
-        "remaining_blockers": [
-            "refresh gap selection from complete V12 progress",
-            "bind formally selected V12 initializer",
-            "run training-only ordinary pass@4 signal screen",
-        ],
+        "remaining_blockers": (
+            [
+                "run training-only ordinary pass@4 signal screen",
+            ]
+            if selection_status == "training_only_complete"
+            else [
+                "refresh gap selection from complete V12 progress",
+                "run training-only ordinary pass@4 signal screen",
+            ]
+        ),
     }
     return plan, audit
 
