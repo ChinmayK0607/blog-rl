@@ -8,6 +8,7 @@ from experiments.swarm_arena.scripts.run_v13_ordinary_signal_screen import (
     common_command,
     file_sha256,
     parse_opponent,
+    parse_opponent_adapter,
 )
 
 
@@ -19,6 +20,16 @@ def test_parse_opponent_requires_known_family_and_three_fields() -> None:
         pass
     else:
         raise AssertionError("unknown opponent families must fail closed")
+
+
+def test_parse_opponent_adapter_binds_path_and_hash(tmp_path: Path) -> None:
+    digest = "a" * 64
+    family, path, sha256 = parse_opponent_adapter(
+        f"historical:{tmp_path}:{digest}"
+    )
+    assert family == "historical"
+    assert path == tmp_path.resolve()
+    assert sha256 == digest
 
 
 def test_common_command_is_rollout_only_and_focused() -> None:

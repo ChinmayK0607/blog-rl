@@ -28,6 +28,19 @@ def parse_opponent(value: str) -> tuple[str, str, str]:
     return parts[0], parts[1], parts[2]
 
 
+def parse_opponent_adapter(value: str) -> tuple[str, Path, str]:
+    parts = value.split(":", 2)
+    if len(parts) != 3 or parts[0] not in {"sft", "historical", "current"}:
+        raise argparse.ArgumentTypeError(
+            "opponent adapter must be FAMILY:PATH:SHA256"
+        )
+    if len(parts[2]) != 64 or any(
+        character not in "0123456789abcdef" for character in parts[2]
+    ):
+        raise argparse.ArgumentTypeError("opponent adapter SHA-256 must be lowercase hex")
+    return parts[0], Path(parts[1]).resolve(), parts[2]
+
+
 def common_command(args: argparse.Namespace, source_commit: str) -> list[str]:
     command = [
         sys.executable,
@@ -87,10 +100,28 @@ def main() -> None:
     parser.add_argument("--base-revision", required=True)
     parser.add_argument("--initial-policy-revision", required=True)
     parser.add_argument("--opponent", action="append", type=parse_opponent, required=True)
+    parser.add_argument(
+        "--opponent-adapter",
+        action="append",
+        type=parse_opponent_adapter,
+        default=[],
+    )
     args = parser.parse_args()
     opponents = {family: (model, revision) for family, model, revision in args.opponent}
     if set(opponents) != {"base", "sft", "historical", "current"}:
         raise ValueError("screen requires exactly one model-controlled opponent per family")
+    opponent_adapters = {
+        family: (path, sha256)
+        for family, path, sha256 in args.opponent_adapter
+    }
+    if set(opponent_adapters) != {"historical", "current"}:
+        raise ValueError("screen requires hash-bound historical and current adapters")
+    for family, (path, expected_sha256) in opponent_adapters.items():
+        actual_sha256 = file_sha256(path / "adapter_model.safetensors")
+        if actual_sha256 != expected_sha256:
+            raise ValueError(
+                f"{family} opponent adapter checksum mismatch: {actual_sha256}"
+            )
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
     source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     run_body = {
@@ -110,6 +141,10 @@ def main() -> None:
         "opponents": {
             family: {"model": model, "revision": revision}
             for family, (model, revision) in sorted(opponents.items())
+        },
+        "opponent_adapters": {
+            family: {"path": str(path), "sha256": sha256}
+            for family, (path, sha256) in sorted(opponent_adapters.items())
         },
         "optimizer_updates": 0,
     }
@@ -152,6 +187,16 @@ def main() -> None:
             "--opponent-revision",
             revision,
         ]
+        if case["opponent_family"] in opponent_adapters:
+            adapter_path, adapter_sha256 = opponent_adapters[case["opponent_family"]]
+            command.extend(
+                (
+                    "--opponent-adapter-path",
+                    str(adapter_path),
+                    "--opponent-adapter-sha256",
+                    adapter_sha256,
+                )
+            )
         subprocess.run(command, check=True)
         print(
             json.dumps(

@@ -391,6 +391,8 @@ async def main() -> None:
     parser.add_argument("--replacement-revision")
     parser.add_argument("--opponent-revision")
     parser.add_argument("--opponent-model-name", default="sft-opponent")
+    parser.add_argument("--opponent-adapter-path", type=Path)
+    parser.add_argument("--opponent-adapter-sha256")
     parser.add_argument(
         "--opponent-family",
         choices=("base", "sft", "historical", "current"),
@@ -498,6 +500,10 @@ async def main() -> None:
         parser.error("checkpoint evaluation barriers require an immutable production plan")
     if args.production_plan is None and args.opponent_revision is None:
         parser.error("--opponent-revision is required without --production-plan")
+    if (args.opponent_adapter_path is None) != (args.opponent_adapter_sha256 is None):
+        parser.error("opponent adapter path and SHA-256 must be provided together")
+    if args.production_plan is not None and args.opponent_adapter_path is not None:
+        parser.error("production plans own opponent adapter bindings")
     if args.production_plan is not None:
         if args.credit_estimator != "shared_return":
             parser.error("production plans require shared terminal return")
@@ -654,6 +660,21 @@ async def main() -> None:
             )
         if production_plan is None:
             await replace_adapter(base_urls, "sft-opponent", args.initial_adapter)
+            if args.opponent_adapter_path is not None:
+                opponent_adapter_file = (
+                    args.opponent_adapter_path / "adapter_model.safetensors"
+                )
+                actual_opponent_sha256 = sha256_file(opponent_adapter_file)
+                if actual_opponent_sha256 != args.opponent_adapter_sha256:
+                    raise ValueError(
+                        "opponent adapter checksum mismatch: "
+                        f"{actual_opponent_sha256}"
+                    )
+                await replace_adapter(
+                    base_urls,
+                    args.opponent_model_name,
+                    args.opponent_adapter_path,
+                )
         else:
             for snapshot in production_plan.opponent_pool.snapshots:
                 path = opponent_runtime_paths[snapshot.opponent_id]

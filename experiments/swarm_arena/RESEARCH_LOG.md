@@ -5993,6 +5993,14 @@ no more critical-specific than decoy-specific. Therefore:
   freezer are separate scripts. On pass, render final configs and launch V13;
   on failure, replace only the low-signal ordinary seed band before any
   optimizer update.
+- Prelaunch correction: the first GPU-host wiring review found that the screen
+  named historical/current opponent aliases without explicitly loading those
+  adapters into vLLM. No inference or optimizer step had begun. The controller
+  now accepts an opponent adapter only as a path/SHA-256 pair, verifies the
+  weights before binding, and the screen run manifest records both immutable
+  opponent bindings. Historical and current are mandatory; production plans
+  retain ownership of their own opponent pool. Focused production tests passed
+  **21/21** and Ruff passed after this correction.
 - Compact artifacts: final audit/case selection file hashes
   `f7243070...62f6` / `2210a534...382`; curriculum/audit/screen/bundle file
   hashes `0e5b2c13...d123` / `1c36578a...824a` / `aa7af8f4...e924` /
