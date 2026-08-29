@@ -89,6 +89,72 @@
       "search_sha256": "8c31718bf959680fe9aa989f399142c618c87922a8cabc4427a6986fcc51d5ff",
       "source_screen_sha256": "e46cd2856ea99a223ce1bbbdf67223d57059c328103bbe1f270bad591cb967e0",
       "version": "arena-rl-v13-ordinary-seed-repair-v1"
+    },
+    {
+      "frozen_data_opened": false,
+      "optimizer_updates": 0,
+      "repaired_cells": [
+        {
+          "case_id": "ordinary-screen-blue-0-03",
+          "diagnostic_sha256": "d86116dabbb3c73e43339e398620a763cf2a760f934601a36e097505208b05f1",
+          "horizon": 14,
+          "seed": 26000006,
+          "size": 22
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-07",
+          "diagnostic_sha256": "fdf2df613d1628c0eaca396ff67fb700069e9d3d18092ada73adc02d21b2a308",
+          "horizon": 8,
+          "seed": 26010013,
+          "size": 16
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-11",
+          "diagnostic_sha256": "d95e43841e8381ad751b227fc8ed480bb63a482ed6880c8a48d7e049dd04a174",
+          "horizon": 8,
+          "seed": 26020003,
+          "size": 16
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-15",
+          "diagnostic_sha256": "4f717028c0c80c14859431ecfeb0f2b61d09f97bfd25c1cd6d07648a8b4920ba",
+          "horizon": 6,
+          "seed": 26030007,
+          "size": 14
+        },
+        {
+          "case_id": "ordinary-screen-blue-2-03",
+          "diagnostic_sha256": "890f5a2376755aaab5bc3d414e387ea4c9896e8ad406e002b9aaff835f84c8d2",
+          "horizon": 14,
+          "seed": 26040031,
+          "size": 22
+        },
+        {
+          "case_id": "ordinary-screen-blue-2-07",
+          "diagnostic_sha256": "b3b1d9b2f6929a5de6618c529a7c510fedf271a39e52437cac0976f932fa2f0a",
+          "horizon": 8,
+          "seed": 26050028,
+          "size": 16
+        },
+        {
+          "case_id": "ordinary-screen-blue-2-11",
+          "diagnostic_sha256": "b0ac6d7f4c9ed3b74965d6a406ed542bd58af8c8c1928cf71252b38f9b36529c",
+          "horizon": 8,
+          "seed": 26060008,
+          "size": 16
+        },
+        {
+          "case_id": "ordinary-screen-blue-2-15",
+          "diagnostic_sha256": "29e8f8bef9ad7c3b97f4ec5b861a32d9f42cc4dcd0e9ea2213556b0977ca06fa",
+          "horizon": 12,
+          "seed": 26070005,
+          "size": 20
+        }
+      ],
+      "search_file_sha256": "b394fd1368345535dcbeaa4ecdbc254159db7abcaf51d0639efefbae6797b0d4",
+      "search_sha256": "f3e631cbfcdc6a9531941a07893e01650c7ec41fa83aeec5deba6d57ba73a978",
+      "source_screen_sha256": "f33962d49920a11d2eb34c06db8d233677fcbe0f5e306a7fd3f68df5dca70afb",
+      "version": "arena-rl-v13-ordinary-seed-repair-v1"
     }
   ],
   "case_count": 64,
@@ -232,7 +298,7 @@
       "opponent_family": "current",
       "replicas": 4,
       "schedule_ordinal": 24,
-      "seed": 23030011,
+      "seed": 26000006,
       "size": 22,
       "stage": "role_adaptive_conflict_repair"
     },
@@ -283,12 +349,12 @@
     {
       "case_id": "ordinary-screen-blue-2-03",
       "focused_agent": "blue-2",
-      "horizon": 8,
+      "horizon": 14,
       "opponent_family": "current",
       "replicas": 4,
       "schedule_ordinal": 34,
-      "seed": 22000133,
-      "size": 16,
+      "seed": 26040031,
+      "size": 22,
       "stage": "role_adaptive_conflict_repair"
     },
     {
@@ -408,7 +474,7 @@
       "opponent_family": "current",
       "replicas": 4,
       "schedule_ordinal": 58,
-      "seed": 22000146,
+      "seed": 26050028,
       "size": 16,
       "stage": "role_adaptive_conflict_repair"
     },
@@ -452,7 +518,7 @@
       "opponent_family": "current",
       "replicas": 4,
       "schedule_ordinal": 64,
-      "seed": 22000149,
+      "seed": 26010013,
       "size": 16,
       "stage": "role_adaptive_conflict_repair"
     },
@@ -562,8 +628,8 @@
       "opponent_family": "current",
       "replicas": 4,
       "schedule_ordinal": 86,
-      "seed": 22000159,
-      "size": 22,
+      "seed": 26060008,
+      "size": 16,
       "stage": "hard_negative_transfer"
     },
     {
@@ -646,12 +712,12 @@
     {
       "case_id": "ordinary-screen-blue-0-11",
       "focused_agent": "blue-0",
-      "horizon": 10,
+      "horizon": 8,
       "opponent_family": "current",
       "replicas": 4,
       "schedule_ordinal": 108,
-      "seed": 22000167,
-      "size": 22,
+      "seed": 26020003,
+      "size": 16,
       "stage": "hard_negative_transfer"
     },
     {
@@ -760,8 +826,8 @@
       "opponent_family": "current",
       "replicas": 4,
       "schedule_ordinal": 142,
-      "seed": 22000180,
-      "size": 18,
+      "seed": 26070005,
+      "size": 20,
       "stage": "hard_negative_transfer"
     },
     {
@@ -789,12 +855,12 @@
     {
       "case_id": "ordinary-screen-blue-0-15",
       "focused_agent": "blue-0",
-      "horizon": 12,
+      "horizon": 6,
       "opponent_family": "current",
       "replicas": 4,
       "schedule_ordinal": 172,
-      "seed": 22000191,
-      "size": 22,
+      "seed": 26030007,
+      "size": 14,
       "stage": "hard_negative_transfer"
     }
   ],
@@ -909,7 +975,7 @@
     "source_screen_sha256": "d4506bb254b8a0dba1a4dd8fe6aa246a14dc4a8b1bbf91598923166dc4378ec7",
     "version": "arena-rl-v13-ordinary-seed-repair-v1"
   },
-  "sha256": "f33962d49920a11d2eb34c06db8d233677fcbe0f5e306a7fd3f68df5dca70afb",
+  "sha256": "5aeecd617b364cf4188a44168a47d58b7abed797b26b2095be7a4fd450213f8d",
   "thresholds": {
     "minimum_mean_focused_action_diversity_per_policy": 1.25,
     "minimum_negative_advantages_per_policy": 4,

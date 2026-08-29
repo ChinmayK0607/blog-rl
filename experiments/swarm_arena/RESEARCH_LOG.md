@@ -6059,6 +6059,16 @@ no more critical-specific than decoy-specific. Therefore:
 - Next action: run one fresh full screen from the new immutable manifest. A
   complete pass alone unlocks the unchanged parity calibration and 80-update
   continuation.
+- Third full-screen outcome: completed 64/64 with 100% protocol admission but
+  rejected blue-0 current-family coverage and blue-2 current-family coverage
+  plus aggregate variable/nonzero rates. Blue-1 and blue-3 passed; blue-0 had
+  eight variable groups overall and blue-2 had three, so this was localized
+  rather than a general capability collapse. No optimizer update occurred.
+- Fourth targeted repair: replaced the complete four-case current-opponent
+  band for blue-0 and blue-2 with eight independently signal-bearing cases.
+  Rewards, gates, curriculum, model weights, opponent identity, and frozen data
+  remain unchanged. Exact assessment, search, manifest, and screen hashes are
+  recorded in the compact repair directory.
 
 ## Future entry template
 

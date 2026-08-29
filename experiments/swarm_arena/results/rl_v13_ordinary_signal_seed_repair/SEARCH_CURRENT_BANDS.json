@@ -1,0 +1,1778 @@
+{
+  "history": [
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 0,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "0479f389751687be34c9739b45c0f45d1345df3c1abd6ae6ecc2c0baef8bb8e4",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010003,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        -2.7755575615628914e-17,
+        -2.7755575615628914e-17,
+        -2.7755575615628914e-17,
+        -2.7755575615628914e-17
+      ],
+      "attempt": 0,
+      "case_id": "ordinary-screen-blue-0-03",
+      "diagnostic_sha256": "8fad9d1b518c03c0d669d8d4b994f3db396d855efc1caf41a591b27fc7a6d83a",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26000003,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 0,
+      "case_id": "ordinary-screen-blue-0-15",
+      "diagnostic_sha256": "bdb5bca09f0a8dbfa95e7ba1b81b8117b7e594faf5079c43a8fe036fc2fea304",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26030003,
+      "size": 16
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        0.053763440860215055,
+        -0.16129032258064516,
+        0.053763440860215055,
+        0.053763440860215055
+      ],
+      "attempt": 0,
+      "case_id": "ordinary-screen-blue-0-11",
+      "diagnostic_sha256": "d95e43841e8381ad751b227fc8ed480bb63a482ed6880c8a48d7e049dd04a174",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-0",
+      "return_range": 0.16129032258064516,
+      "seed": 26020003,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 0,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "42e7b68a8274d12ffc6993e6e1f10c817940a974b9e5215aa59530609ad45301",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040003,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 0,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "1a25faa9563aa33a30132e675b16c7ea926b1c1f587bc5ade4e569812b34456b",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050003,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 0,
+      "case_id": "ordinary-screen-blue-2-11",
+      "diagnostic_sha256": "445c6bdf38d43e83d41b20b8c5fbb0b884716c41bfaefda95eac9fe4ab3a7def",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26060003,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17
+      ],
+      "attempt": 0,
+      "case_id": "ordinary-screen-blue-2-15",
+      "diagnostic_sha256": "aaccad62709dbde27b73b3ad4e8de1aea4ed4aee6ce66892f1046666b6cb6c5b",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26070003,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        -5.551115123125783e-17,
+        -5.551115123125783e-17,
+        -5.551115123125783e-17,
+        -5.551115123125783e-17
+      ],
+      "attempt": 1,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "a7cafe5fe01228213eae62c1153b651745c1aa9866093c2c6fa850cd5fb0ec8b",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010004,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 2,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 1,
+      "case_id": "ordinary-screen-blue-0-03",
+      "diagnostic_sha256": "8439c85777d86580eaec997b0e904363a262ff8ee4ebcd73f65bb5cee7c3b9bd",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26000004,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 1,
+      "case_id": "ordinary-screen-blue-0-15",
+      "diagnostic_sha256": "588ce50ebb9b9c9e88913b61d3e8ef950bbbaa13ed31903652e5b3569809f758",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26030004,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 1,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "b6281a109a582d5ccbf7bf6e242743765e2daa20aea26a296cdbf835b7d00660",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040004,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 1,
+      "case_id": "ordinary-screen-blue-2-11",
+      "diagnostic_sha256": "48f9937c00a77aae7d55824b72a33b680c7b007a991264dacc9ff7dc599e5414",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26060004,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 1,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "f9f339f515aece2406983fe4478b55b4d00258cd2985ee05f11ddfab12aae867",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050004,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 1,
+      "case_id": "ordinary-screen-blue-2-15",
+      "diagnostic_sha256": "e3fda2cd19448aad5eb3151a76001f4488d171f0dee094c0ff03fd8422abc357",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26070004,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17
+      ],
+      "attempt": 2,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "f76cd1e3e075d6fbbdff8ff1203f654cb9983fcc0f4d8c99e99fe5e80ed9084c",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010005,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 2,
+      "case_id": "ordinary-screen-blue-0-03",
+      "diagnostic_sha256": "f3774f048ecf66b23ceac36e9c6c5ec89464f27aa14683bee7421f25a982b124",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26000005,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 2,
+      "case_id": "ordinary-screen-blue-0-15",
+      "diagnostic_sha256": "b4fa32256f228452a792570a718774e5388b24270f951da4fbe23e42ee9d43e3",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26030005,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 2,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "9bc6b4a8a71f0bac07579ed75cea47d90e7b30344e87bb27918be5d6a62b3d9b",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040005,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 2,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "26b64ea9d8c0dad0dcaa045d6c41c4f4a393e5bb7b644c9fec47dd947a38e927",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050005,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 2,
+      "case_id": "ordinary-screen-blue-2-11",
+      "diagnostic_sha256": "d39ff31ee721958675c8729b945ec8518b4ca35c3c4f34f97bdf7b09d0cd39d2",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26060005,
+      "size": 20
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        -0.13043478260869565,
+        0.1304347826086956,
+        -0.13043478260869565,
+        0.1304347826086956
+      ],
+      "attempt": 2,
+      "case_id": "ordinary-screen-blue-2-15",
+      "diagnostic_sha256": "29e8f8bef9ad7c3b97f4ec5b861a32d9f42cc4dcd0e9ea2213556b0977ca06fa",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.19565217391304343,
+      "seed": 26070005,
+      "size": 20
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        0.10204081632653061,
+        0.10204081632653061,
+        0.10204081632653061,
+        -0.30612244897959184
+      ],
+      "attempt": 3,
+      "case_id": "ordinary-screen-blue-0-03",
+      "diagnostic_sha256": "d86116dabbb3c73e43339e398620a763cf2a760f934601a36e097505208b05f1",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-0",
+      "return_range": 0.30612244897959184,
+      "seed": 26000006,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 3,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "9eecf0c4e5663736c918016343c8a39ee1a1219be2dc56c17c4953004a8f9d22",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010006,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 3,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "c4dc2d2ee174b8c12a5a56b313d3165b139367c500a6f15900a83904bf6a45b3",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040006,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 3,
+      "case_id": "ordinary-screen-blue-0-15",
+      "diagnostic_sha256": "21d15cb1e024cfe72115840a3b605b42cffe05f011433f728d344547de49e24c",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26030006,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 3,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "8d84fc40800dcc5807eccdc4a11cd63db31a05767c80f257c9ac018cf2f49305",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050006,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 3,
+      "case_id": "ordinary-screen-blue-2-11",
+      "diagnostic_sha256": "5271ad25491e863fcc6318b9a2fa75db67a7395c522c46aac2efc8c29e869a52",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26060006,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 4,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "39781b97e529705363d60919bc4a4915e80ca21d9a105b63d2beccdcbd6d70c9",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010007,
+      "size": 14
+    },
+    {
+      "accepted": true,
+      "action_diversity": 3,
+      "advantages": [
+        0.21794871794871795,
+        0.21794871794871795,
+        -0.19230769230769235,
+        -0.2435897435897436
+      ],
+      "attempt": 4,
+      "case_id": "ordinary-screen-blue-0-15",
+      "diagnostic_sha256": "4f717028c0c80c14859431ecfeb0f2b61d09f97bfd25c1cd6d07648a8b4920ba",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-0",
+      "return_range": 0.34615384615384615,
+      "seed": 26030007,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 4,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "25fbbf3d6f7598b78b1cf3833510f805bdc3522f34cb7ab005fbd4c425ef289e",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040007,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 4,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "9d3313e6646fcbe8bb325dcf35df3b21f0854df08cb41632edf56447fdea95de",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050007,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 4,
+      "case_id": "ordinary-screen-blue-2-11",
+      "diagnostic_sha256": "f2d71440f4257ade73aa093a82da4aef15db84ccf3ddd8babd7806bc06e8fc55",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26060007,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 5,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "257dfb56b1799ad2d7217dae64669d35c1863d76020b26374e17e65fc5ec6050",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010008,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 5,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "a3c39ae5739b560748ddcf36e97e7f86c98842cc24c591a9982fec8c879eaf03",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040008,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 5,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "c2ce1c51003978d639a0e202dd774c9d7fabd998531b2ece8d7c71461fcb3b29",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050008,
+      "size": 16
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        -0.030303030303030318,
+        0.09090909090909091,
+        -0.030303030303030318,
+        -0.030303030303030318
+      ],
+      "attempt": 5,
+      "case_id": "ordinary-screen-blue-2-11",
+      "diagnostic_sha256": "b0ac6d7f4c9ed3b74965d6a406ed542bd58af8c8c1928cf71252b38f9b36529c",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.09090909090909091,
+      "seed": 26060008,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 6,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "d83852bde95ba07a677513e02fe40a88becfd518a3aec961f12cfa7e3b17f438",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010009,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 2,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 6,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "e56f76d86eda9659b4ab5cf58813542eaa65fb772901c95aea5f18da004801d9",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040009,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        3.469446951953614e-18,
+        3.469446951953614e-18,
+        3.469446951953614e-18,
+        3.469446951953614e-18
+      ],
+      "attempt": 6,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "384de4f453695ca16c3a0a513661881883f9c2695ea2baf82f901486943806a8",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050009,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 7,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "08637b6e61d8be09968ca2f683c96d745cf2c389b1b98489380e80d372ab132b",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010010,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 7,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "5883eefc8a42e30df499fc98d864ce9d96bd541ba83db2ee282b21fc0fdcbc18",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040010,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17
+      ],
+      "attempt": 7,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "3eb9278f40331fb1ee53b7fffa664eb965ff641d517c807dc28048216f352b31",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050010,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 8,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "0d2976aff2d3b1486bdc322e19d61d0b9dcaf6065c4da1f8b0205a36b13a4a17",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040011,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 8,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "5c03445f055cf30670485309d99e3534328a02857f645837b69db9d2757d373f",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010011,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 8,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "56e10f650ef7b9bd205e23f583f4fac98436d6a72ff2b1fe24ad6f2fe7663fea",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050011,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 9,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "1d899c17ace43f01a30f9052f0b81cc875bd38bb68317b325d29516711b6d2ef",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040012,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 9,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "0b96accfed5f10ad461b8f15dfc11e48726a6a1de837abcf76c55032eafe6380",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-0",
+      "return_range": 0.0,
+      "seed": 26010012,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 9,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "c03ed5267d9371bb6b05057543761d29e44b05e0193131d800a506efbedc8b19",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050012,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 10,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "a89418465ac398804274bef0c25dd199367422f728ec40724415b6c6bf0d49c9",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040013,
+      "size": 16
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        -0.05405405405405406,
+        0.01801801801801803,
+        0.01801801801801803,
+        0.01801801801801803
+      ],
+      "attempt": 10,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "fdf2df613d1628c0eaca396ff67fb700069e9d3d18092ada73adc02d21b2a308",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-0",
+      "return_range": 0.05405405405405406,
+      "seed": 26010013,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 10,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "4d716f242a68aa7974a9df91eed1d7fd9c41e9919590fa39e683cf50d0af8b36",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050013,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 11,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "a63892adef7bce65a04c3b43a2d1bc1629d35c70fb4d7b74ef8286a6b2b335ef",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050014,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 11,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "9959bec431e8aa896d9351cea5ed51e31c3b1c78e4f0b0037cd7b7deaf80c1dd",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040014,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 12,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "c60afecca37837a428317701c18ecc6334906d4bdb35eedd0ef4caf2f13d0ab1",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050015,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 12,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "90296e4d5e9f33dfddebbd16abcbaac44eac0334e74662fc585e19cdf1818cbf",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040015,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 13,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "8dcfff565fb69493b297e05032827bd44ae2b374d13d7419234c73ecfc8be226",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050016,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 2,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 13,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "3f87a948361f88eed5334735ff4c15e8d71ef697ec25363924e1ffecd381396e",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040016,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 14,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "6f4b644848d60afe5166e2165c26c426d0b9eb94fdc63b3a197c1a0785922a92",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040017,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 14,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "e2c830c3ab72f8b48b96e86c8b67044e0aecd1dee49061e92bd1bc48520785d9",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050017,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 15,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "cd01f38c2254d8ac3e89d7fd727c6e50f87a83612aec30f7442826cba24f420d",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050018,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 15,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "b100528f085247d95c025beabde16ad5ee16b17910fd7a18a552b404f96f4e3b",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040018,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        2.7755575615628914e-17,
+        2.7755575615628914e-17,
+        2.7755575615628914e-17,
+        2.7755575615628914e-17
+      ],
+      "attempt": 16,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "cd8544369aef643e5553e54c4ea5012eec9dee186b62029ac74cfc012d79e2a9",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050019,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        2.7755575615628914e-17,
+        2.7755575615628914e-17,
+        2.7755575615628914e-17,
+        2.7755575615628914e-17
+      ],
+      "attempt": 16,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "900bb89adfb2756bfffe6ecfaf5ead1898e10fb944a2989c7ba3b91c99ec67ae",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040019,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        2.7755575615628914e-17,
+        2.7755575615628914e-17,
+        2.7755575615628914e-17,
+        2.7755575615628914e-17
+      ],
+      "attempt": 17,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "f354263acd52a60988d79e0fca3bb27d3c7d233c82e9ec5103fd1e8614d99fb3",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040020,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 17,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "2a15da29f93a36b8943c4b97550d6db7fc8efd45a2b8568741b7b3fd60bd4952",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050020,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 18,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "fc318e60bafb2cd7526747cb64b38cca5db684956363c5227c7c785db0971a80",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040021,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 18,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "a56f3fea2285d6955a0adf330bad9fc7c8feb18f41461c5634bf768012eb7068",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050021,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 19,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "3b3df89002d1057d5a39c970b21ec03bc8751b411dc9a0f38939cb11fce0def1",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050022,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 19,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "4ee06784e75cad0db260d744a591da255615d03dec2bc28448b93685d02e8b48",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040022,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 20,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "13bedf14f70eeaed766355d8498c178915e817d8b244debb14bd11943d1a95f8",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040023,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        -2.7755575615628914e-17,
+        -2.7755575615628914e-17,
+        -2.7755575615628914e-17,
+        -2.7755575615628914e-17
+      ],
+      "attempt": 20,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "e0ffff67fb27cb416e7218aa703a497d10135fb5af7fc276006e98cc9f472e68",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050023,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 21,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "0a83b3a7b913d44d631b498fd20e55524797f6b4c8fd46d4f2c9b8f55b53180c",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040024,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 21,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "c36f521bc12b6492f8c79609a3a857585e412cec93ce7b73c835de853932e2dc",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050024,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 22,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "7f6f6d801eb3ef11a18a2821e2d36e5d0e1fff864e0bac2fcd1bacdc0babcb3f",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050025,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        -3.469446951953614e-18,
+        -3.469446951953614e-18,
+        -3.469446951953614e-18,
+        -3.469446951953614e-18
+      ],
+      "attempt": 22,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "6d9c87dcbec4fd0a63825f0b483215709b28829e5ed8085fa17d8a8c31906019",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040025,
+      "size": 20
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 23,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "25ed262d1d0abfdccf6fc95d2c12e15320c2b607ef8888b6dd5791342b0560f9",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050026,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        2.7755575615628914e-17,
+        2.7755575615628914e-17,
+        2.7755575615628914e-17,
+        2.7755575615628914e-17
+      ],
+      "attempt": 23,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "22de3c562e0b3c8eded1f4a2f0291bd83432bd91488f41b0c3e7e2a3a3dacc7f",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040026,
+      "size": 22
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        -2.7755575615628914e-17,
+        -2.7755575615628914e-17,
+        -2.7755575615628914e-17,
+        -2.7755575615628914e-17
+      ],
+      "attempt": 24,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "c0da8c9fda0d72190f14e148e46086e462b4dabb55d03b0814997f7c289ceb50",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040027,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 24,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "5f9d5b8882f491c6fda59eeffc7545bab7793efa08663270ff236ef8bdb1547d",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26050027,
+      "size": 14
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17,
+        -1.3877787807814457e-17
+      ],
+      "attempt": 25,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "1d93d2b49df74f929b119b0e8e33c57cd4de5be0a3e09b7343156b72a2f599d6",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040028,
+      "size": 16
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        -0.08823529411764706,
+        0.2647058823529412,
+        -0.08823529411764706,
+        -0.08823529411764706
+      ],
+      "attempt": 25,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "b3b1d9b2f6929a5de6618c529a7c510fedf271a39e52437cac0976f932fa2f0a",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.2647058823529412,
+      "seed": 26050028,
+      "size": 16
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 26,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "50c6e1c4656199cb3ccdb40fba3ab12499e912e28106ac88a7ded1f2ac1709a3",
+      "family": "current",
+      "horizon": 10,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040029,
+      "size": 18
+    },
+    {
+      "accepted": false,
+      "action_diversity": 1,
+      "advantages": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "attempt": 27,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "d57c13c2118653912414b597fd363d034672a4ca953ef3595666516013388cfd",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.0,
+      "seed": 26040030,
+      "size": 20
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        0.013071895424836583,
+        0.013071895424836583,
+        0.013071895424836583,
+        -0.03921568627450983
+      ],
+      "attempt": 28,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "890f5a2376755aaab5bc3d414e387ea4c9896e8ad406e002b9aaff835f84c8d2",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0392156862745098,
+      "seed": 26040031,
+      "size": 22
+    }
+  ],
+  "optimizer_updates": 0,
+  "selected": [
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        0.10204081632653061,
+        0.10204081632653061,
+        0.10204081632653061,
+        -0.30612244897959184
+      ],
+      "attempt": 3,
+      "case_id": "ordinary-screen-blue-0-03",
+      "diagnostic_sha256": "d86116dabbb3c73e43339e398620a763cf2a760f934601a36e097505208b05f1",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-0",
+      "return_range": 0.30612244897959184,
+      "seed": 26000006,
+      "size": 22
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        -0.05405405405405406,
+        0.01801801801801803,
+        0.01801801801801803,
+        0.01801801801801803
+      ],
+      "attempt": 10,
+      "case_id": "ordinary-screen-blue-0-07",
+      "diagnostic_sha256": "fdf2df613d1628c0eaca396ff67fb700069e9d3d18092ada73adc02d21b2a308",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-0",
+      "return_range": 0.05405405405405406,
+      "seed": 26010013,
+      "size": 16
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        0.053763440860215055,
+        -0.16129032258064516,
+        0.053763440860215055,
+        0.053763440860215055
+      ],
+      "attempt": 0,
+      "case_id": "ordinary-screen-blue-0-11",
+      "diagnostic_sha256": "d95e43841e8381ad751b227fc8ed480bb63a482ed6880c8a48d7e049dd04a174",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-0",
+      "return_range": 0.16129032258064516,
+      "seed": 26020003,
+      "size": 16
+    },
+    {
+      "accepted": true,
+      "action_diversity": 3,
+      "advantages": [
+        0.21794871794871795,
+        0.21794871794871795,
+        -0.19230769230769235,
+        -0.2435897435897436
+      ],
+      "attempt": 4,
+      "case_id": "ordinary-screen-blue-0-15",
+      "diagnostic_sha256": "4f717028c0c80c14859431ecfeb0f2b61d09f97bfd25c1cd6d07648a8b4920ba",
+      "family": "current",
+      "horizon": 6,
+      "policy": "blue-0",
+      "return_range": 0.34615384615384615,
+      "seed": 26030007,
+      "size": 14
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        0.013071895424836583,
+        0.013071895424836583,
+        0.013071895424836583,
+        -0.03921568627450983
+      ],
+      "attempt": 28,
+      "case_id": "ordinary-screen-blue-2-03",
+      "diagnostic_sha256": "890f5a2376755aaab5bc3d414e387ea4c9896e8ad406e002b9aaff835f84c8d2",
+      "family": "current",
+      "horizon": 14,
+      "policy": "blue-2",
+      "return_range": 0.0392156862745098,
+      "seed": 26040031,
+      "size": 22
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        -0.08823529411764706,
+        0.2647058823529412,
+        -0.08823529411764706,
+        -0.08823529411764706
+      ],
+      "attempt": 25,
+      "case_id": "ordinary-screen-blue-2-07",
+      "diagnostic_sha256": "b3b1d9b2f6929a5de6618c529a7c510fedf271a39e52437cac0976f932fa2f0a",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.2647058823529412,
+      "seed": 26050028,
+      "size": 16
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        -0.030303030303030318,
+        0.09090909090909091,
+        -0.030303030303030318,
+        -0.030303030303030318
+      ],
+      "attempt": 5,
+      "case_id": "ordinary-screen-blue-2-11",
+      "diagnostic_sha256": "b0ac6d7f4c9ed3b74965d6a406ed542bd58af8c8c1928cf71252b38f9b36529c",
+      "family": "current",
+      "horizon": 8,
+      "policy": "blue-2",
+      "return_range": 0.09090909090909091,
+      "seed": 26060008,
+      "size": 16
+    },
+    {
+      "accepted": true,
+      "action_diversity": 2,
+      "advantages": [
+        -0.13043478260869565,
+        0.1304347826086956,
+        -0.13043478260869565,
+        0.1304347826086956
+      ],
+      "attempt": 2,
+      "case_id": "ordinary-screen-blue-2-15",
+      "diagnostic_sha256": "29e8f8bef9ad7c3b97f4ec5b861a32d9f42cc4dcd0e9ea2213556b0977ca06fa",
+      "family": "current",
+      "horizon": 12,
+      "policy": "blue-2",
+      "return_range": 0.19565217391304343,
+      "seed": 26070005,
+      "size": 20
+    }
+  ],
+  "sha256": "f3e631cbfcdc6a9531941a07893e01650c7ec41fa83aeec5deba6d57ba73a978",
+  "source_commit": "ceead673304b9cad438429e04e0dec8ae843f017",
+  "training_only": true,
+  "version": "arena-rl-v13-ordinary-seed-search-v1"
+}

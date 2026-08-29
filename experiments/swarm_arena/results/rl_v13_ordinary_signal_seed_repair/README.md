@@ -42,3 +42,18 @@ eight independently signal-bearing cases:
 
 Rewards, admission thresholds, curriculum proportions, model weights, and
 opponent identities remain unchanged. A fresh full screen is still required.
+
+That fresh screen completed 64/64 and rejected two narrowly coupled gaps:
+blue-0 lacked a current-opponent variable group, and blue-2 had three variable
+groups but no current-opponent group. The fourth targeted search therefore
+replaced the complete four-case current band for each of those two policies:
+
+- Round-four search SHA-256: `b394fd1368345535dcbeaa4ecdbc254159db7abcaf51d0639efefbae6797b0d4`
+- Round-four assessment SHA-256: `5989d7034c4306b39a40e62049016c670a2d26a1af029759d19a7328d739c38b`
+- Round-four run-manifest SHA-256: `1133a8d02ae02464245037f55c3616f4a28cafdbdd00cbf7defd821ab15f7d9b`
+- Repaired screen body SHA-256: `5aeecd617b364cf4188a44168a47d58b7abed797b26b2095be7a4fd450213f8d`
+- Repaired screen file SHA-256: `277f0fee0163ab21184ebc377b90d84da60bd5804d5717a7a6bc4c9bc758a3bb`
+- Optimizer updates: 0; protocol admission: 100%; frozen data opened: no
+
+This retains the original gates while giving each missing policy/family cell
+four independent opportunities to provide credit in the final full screen.
