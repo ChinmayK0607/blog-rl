@@ -1,0 +1,21 @@
+{
+  "completed_cases": 60,
+  "expected_cases": 64,
+  "impossible_gates": [
+    {
+      "completed": 4,
+      "expected": 4,
+      "opponent_family": "historical",
+      "policy": "blue-3",
+      "required_variable_groups": 1,
+      "variable_groups": 0
+    }
+  ],
+  "optimizer_updates": 0,
+  "reason": "a required policy/opponent-family cell exhausted every frozen case without one variable-return group",
+  "run_manifest_sha256": "a15fc3fdce79cd44a018fa6f1d21ae19b57e377dbef0beeb02d3f5285f107762",
+  "screen_manifest_file_sha256": "4282f69a250e631f3d64a5231019231687ac7dc8c4afe07ff0e066a60dcb0e4f",
+  "screen_manifest_sha256": "2a93f47e85a235c83e4de8179d9b9f76cddd962c1dd172721c37b946a1f3097a",
+  "status": "rejected",
+  "version": "arena-rl-v13-ordinary-signal-early-rejection-v1"
+}

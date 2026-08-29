@@ -54,3 +54,23 @@ def test_apply_repair_rejects_nonzero_optimizer_search() -> None:
     search["optimizer_updates"] = 1
     with pytest.raises(ValueError, match="zero optimizer"):
         apply_repair(manifest, search, search_sha256=hashlib.sha256(b"x").hexdigest())
+
+
+def test_apply_repair_appends_a_second_round() -> None:
+    manifest, search = _inputs()
+    first = apply_repair(manifest, search, search_sha256="a" * 64)
+    second_body = {
+        "training_only": True,
+        "optimizer_updates": 0,
+        "selected": search["selected"][:2],
+        "history": search["selected"][:2],
+    }
+    second = apply_repair(
+        first,
+        {**second_body, "sha256": digest(second_body)},
+        search_sha256="b" * 64,
+        expected_cells=2,
+    )
+    assert second["seed_repair"] == first["seed_repair"]
+    assert len(second["additional_seed_repairs"]) == 1
+    assert len(second["additional_seed_repairs"][0]["repaired_cells"]) == 2

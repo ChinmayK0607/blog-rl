@@ -13,6 +13,14 @@ or frozen evaluation data.
 - Repaired screen file SHA-256: `4282f69a250e631f3d64a5231019231687ac7dc8c4afe07ff0e066a60dcb0e4f`
 - Frozen data opened: no
 
+The repaired broad screen was then stopped at 60/64 when blue-3/historical
+exhausted its four cases with zero variable credit. A second targeted round
+repaired blue-3/current and blue-3/historical without optimizer updates:
+
+- Round-two search SHA-256: `2691f871225879570e6cd7f7d9a75a441d38e9acd5c70e1dfad07a371ce9ad21`
+- Round-two repaired screen body SHA-256: `e46cd2856ea99a223ce1bbbdf67223d57059c328103bbe1f270bad591cb967e0`
+- Round-two repaired screen file SHA-256: `884928394ef1216efb918a1e810c2da349c4ff5fa18a9c99ff68c7f08f3a4678`
+
 The selected rows require nonzero return range, four nonzero focused-agent
 advantages containing both signs, and at least two distinct focused actions.
-The full 64-case screen must still pass before V13 training is authorized.
+The final full 64-case screen must still pass before V13 training is authorized.

@@ -6039,6 +6039,12 @@ no more critical-specific than decoy-specific. Therefore:
   terminal-return variance.
 - Next action: execute the repaired 64-case / 256-game screen once, then launch
   the 80-update V13 continuation immediately if every unchanged gate passes.
+- First repaired-screen outcome: rejected early at 60/64 with zero optimizer
+  updates. Blue-0/1/2 had already guaranteed every gate, but blue-3/historical
+  exhausted all four cases without variable credit. Two-cell targeted search
+  repaired blue-3/historical and blue-3/current at seeds `24000006` and
+  `24010005`; exact search, rejection, and hashes are preserved alongside the
+  first repair. No scientific threshold or reward was changed.
 
 ## Future entry template
 

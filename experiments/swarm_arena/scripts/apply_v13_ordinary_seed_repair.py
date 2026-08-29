@@ -19,14 +19,22 @@ def file_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def apply_repair(manifest: dict[str, Any], search: dict[str, Any], *, search_sha256: str) -> dict[str, Any]:
+def apply_repair(
+    manifest: dict[str, Any],
+    search: dict[str, Any],
+    *,
+    search_sha256: str,
+    expected_cells: int = 8,
+) -> dict[str, Any]:
     if search.get("training_only") is not True or search.get("optimizer_updates") != 0:
         raise ValueError("seed search must be training-only with zero optimizer updates")
     if search.get("sha256") != digest({key: value for key, value in search.items() if key != "sha256"}):
         raise ValueError("seed-search body checksum mismatch")
     selected = search.get("selected", [])
-    if len(selected) != 8:
-        raise ValueError("V13 seed repair requires exactly eight selected cells")
+    if len(selected) != expected_cells:
+        raise ValueError(
+            f"V13 seed repair requires exactly {expected_cells} selected cells"
+        )
     cases = {str(row["case_id"]): dict(row) for row in manifest["cases"]}
     repaired: list[dict[str, Any]] = []
     for row in selected:
@@ -58,19 +66,26 @@ def apply_repair(manifest: dict[str, Any], search: dict[str, Any], *, search_sha
             }
         )
     original_body = {key: value for key, value in manifest.items() if key != "sha256"}
+    repair_evidence = {
+        "version": "arena-rl-v13-ordinary-seed-repair-v1",
+        "source_screen_sha256": manifest["sha256"],
+        "search_file_sha256": search_sha256,
+        "search_sha256": search["sha256"],
+        "repaired_cells": sorted(repaired, key=lambda row: row["case_id"]),
+        "optimizer_updates": 0,
+        "frozen_data_opened": False,
+    }
     body = {
         **original_body,
         "cases": [cases[str(row["case_id"])] for row in manifest["cases"]],
-        "seed_repair": {
-            "version": "arena-rl-v13-ordinary-seed-repair-v1",
-            "source_screen_sha256": manifest["sha256"],
-            "search_file_sha256": search_sha256,
-            "search_sha256": search["sha256"],
-            "repaired_cells": sorted(repaired, key=lambda row: row["case_id"]),
-            "optimizer_updates": 0,
-            "frozen_data_opened": False,
-        },
     }
+    if "seed_repair" in manifest:
+        body["additional_seed_repairs"] = [
+            *manifest.get("additional_seed_repairs", []),
+            repair_evidence,
+        ]
+    else:
+        body["seed_repair"] = repair_evidence
     return {**body, "sha256": digest(body)}
 
 
@@ -78,15 +93,22 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--search", type=Path, required=True)
+    parser.add_argument("--expected-cells", type=int, default=8)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     result = apply_repair(
         json.loads(args.manifest.read_text(encoding="utf-8")),
         json.loads(args.search.read_text(encoding="utf-8")),
         search_sha256=file_sha256(args.search),
+        expected_cells=args.expected_cells,
     )
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
-    print(json.dumps({"sha256": result["sha256"], "repaired_cells": 8}, sort_keys=True))
+    print(
+        json.dumps(
+            {"sha256": result["sha256"], "repaired_cells": args.expected_cells},
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":

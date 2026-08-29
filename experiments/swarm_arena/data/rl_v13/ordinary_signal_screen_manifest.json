@@ -1,4 +1,30 @@
 {
+  "additional_seed_repairs": [
+    {
+      "frozen_data_opened": false,
+      "optimizer_updates": 0,
+      "repaired_cells": [
+        {
+          "case_id": "ordinary-screen-blue-3-11",
+          "diagnostic_sha256": "8ed15ae30f8f351ac1636fa4bc5d6874abc7a3d08c3aaaf805362fdebadc61bd",
+          "horizon": 12,
+          "seed": 24010005,
+          "size": 20
+        },
+        {
+          "case_id": "ordinary-screen-blue-3-14",
+          "diagnostic_sha256": "ab45b67d1323b6fa5c88d6db102797958c484a3216b0f9b4aa1a32947408ada6",
+          "horizon": 14,
+          "seed": 24000006,
+          "size": 22
+        }
+      ],
+      "search_file_sha256": "2691f871225879570e6cd7f7d9a75a441d38e9acd5c70e1dfad07a371ce9ad21",
+      "search_sha256": "7238d26e17e46f30f3567d99524bd5cee3f10cafbf72dff156e35e7824ce15eb",
+      "source_screen_sha256": "2a93f47e85a235c83e4de8179d9b9f76cddd962c1dd172721c37b946a1f3097a",
+      "version": "arena-rl-v13-ordinary-seed-repair-v1"
+    }
+  ],
   "case_count": 64,
   "cases": [
     {
@@ -580,8 +606,8 @@
       "opponent_family": "current",
       "replicas": 4,
       "schedule_ordinal": 115,
-      "seed": 22000169,
-      "size": 22,
+      "seed": 24010005,
+      "size": 20,
       "stage": "hard_negative_transfer"
     },
     {
@@ -631,12 +657,12 @@
     {
       "case_id": "ordinary-screen-blue-3-14",
       "focused_agent": "blue-3",
-      "horizon": 12,
+      "horizon": 14,
       "opponent_family": "historical",
       "replicas": 4,
       "schedule_ordinal": 127,
-      "seed": 22000173,
-      "size": 20,
+      "seed": 24000006,
+      "size": 22,
       "stage": "hard_negative_transfer"
     },
     {
@@ -817,7 +843,7 @@
     "source_screen_sha256": "d4506bb254b8a0dba1a4dd8fe6aa246a14dc4a8b1bbf91598923166dc4378ec7",
     "version": "arena-rl-v13-ordinary-seed-repair-v1"
   },
-  "sha256": "2a93f47e85a235c83e4de8179d9b9f76cddd962c1dd172721c37b946a1f3097a",
+  "sha256": "e46cd2856ea99a223ce1bbbdf67223d57059c328103bbe1f270bad591cb967e0",
   "thresholds": {
     "minimum_mean_focused_action_diversity_per_policy": 1.25,
     "minimum_negative_advantages_per_policy": 4,
