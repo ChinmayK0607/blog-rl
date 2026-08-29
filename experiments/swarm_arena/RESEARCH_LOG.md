@@ -6019,6 +6019,27 @@ no more critical-specific than decoy-specific. Therefore:
   continuation. No GPU is active or accruing cost now.
 - Instance decommissioned: not applicable; no instance was rented.
 
+### 2026-08-29 — V13 targeted GPU signal repair
+
+- Status: running; training remains unauthorized until the repaired full screen passes.
+- The initial 64-case screen was stopped after 48 completed cases when the
+  frozen family-coverage gate became mathematically impossible for blue-1.
+  No optimizer update occurred. The failure was model-dependent pass@4 credit
+  sparsity, which cannot be certified by CPU replay alone.
+- A training-only search repaired exactly eight dead policy/opponent cells.
+  Every accepted cell has variable terminal return, four nonzero focused-agent
+  advantages containing both signs, and at least two focused actions. Rewards,
+  thresholds, model weights, curriculum proportions, and frozen data were not
+  changed. Search/file and repaired-screen hashes are recorded in
+  `results/rl_v13_ordinary_signal_seed_repair/README.md`.
+- Workflow correction: for future runs, when admission depends on GPU-observed
+  stochastic policy signal, run the smallest role/family-stratified targeted
+  screen first. Run the broad screen only after those cells pass. CPU audits
+  remain necessary but cannot predict model sampling entropy or realized
+  terminal-return variance.
+- Next action: execute the repaired 64-case / 256-game screen once, then launch
+  the 80-update V13 continuation immediately if every unchanged gate passes.
+
 ## Future entry template
 
 Copy this block for each material run:
