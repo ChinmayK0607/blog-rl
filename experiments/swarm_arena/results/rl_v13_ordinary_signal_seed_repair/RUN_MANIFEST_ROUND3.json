@@ -1,0 +1,48 @@
+{
+  "base_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "base_urls": [
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8001",
+    "http://127.0.0.1:8002",
+    "http://127.0.0.1:8003"
+  ],
+  "inference_config_sha256": "1ac598aeaa4560f1e41e0cc77e307a730a58a63c0e5a704c1cbe37df76380c1e",
+  "initial_policy_adapter_manifest_sha256": "86f39bbbfb704f94dcded76078cd33ed7458d9e4f085870ca83927594b993f06",
+  "initial_policy_revision": "be732230927aea76ebd525f951db52a3dfe360473a675b4efa4ff035b8c826ca",
+  "opponent_adapters": {
+    "current": {
+      "path": "/workspace/artifacts/v12-live-runs/runs/rl-v12-counterfactual4b160-b9f6e7f3/checkpoints/step-160/policy-blue-0",
+      "sha256": "fa3b066fae06a576b48b133ff4a79967ee7e788ca996f869149e23d654ffa218"
+    },
+    "historical": {
+      "path": "/workspace/artifacts/v10-u40-repaired/blue-0",
+      "sha256": "4afed7f74424ea1956f5ce2838811d4f86f575827e5c03e4cfd52f9f826adf53"
+    }
+  },
+  "opponents": {
+    "base": {
+      "model": "/workspace/models/qwen3-4b-cdbee75f",
+      "revision": "cdbee75f17c01a7cc42f958dc650907174af0554"
+    },
+    "current": {
+      "model": "current-opponent",
+      "revision": "be732230927aea76ebd525f951db52a3dfe360473a675b4efa4ff035b8c826ca"
+    },
+    "historical": {
+      "model": "historical-opponent",
+      "revision": "5f848f3f35efce6da41831163f0e34b9df6e425cf081bbc9e962a070ee909919"
+    },
+    "sft": {
+      "model": "sft-opponent",
+      "revision": "d1a55d5594c8b544121e546e14229268c8c26bae"
+    }
+  },
+  "optimizer_updates": 0,
+  "screen_manifest_file_sha256": "884928394ef1216efb918a1e810c2da349c4ff5fa18a9c99ff68c7f08f3a4678",
+  "screen_manifest_sha256": "e46cd2856ea99a223ce1bbbdf67223d57059c328103bbe1f270bad591cb967e0",
+  "sha256": "48f73b0c6dbf7a9c52bea91accb3e6159b8712b2a9841b796888c15638412a8f",
+  "source_commit": "f878ad93f7d23e98f2997d14a9d78d72eccd3fe4",
+  "tokenizer": "/workspace/models/qwen3-4b-cdbee75f",
+  "trainer_config_sha256": "59a78e46fec7652b60abad1bf1018005912047e2a66ba969d9ccacd2a6babeaa",
+  "version": "arena-rl-v13-ordinary-signal-run-v1"
+}

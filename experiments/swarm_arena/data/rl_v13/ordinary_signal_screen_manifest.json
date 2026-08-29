@@ -23,6 +23,72 @@
       "search_sha256": "7238d26e17e46f30f3567d99524bd5cee3f10cafbf72dff156e35e7824ce15eb",
       "source_screen_sha256": "2a93f47e85a235c83e4de8179d9b9f76cddd962c1dd172721c37b946a1f3097a",
       "version": "arena-rl-v13-ordinary-seed-repair-v1"
+    },
+    {
+      "frozen_data_opened": false,
+      "optimizer_updates": 0,
+      "repaired_cells": [
+        {
+          "case_id": "ordinary-screen-blue-0-00",
+          "diagnostic_sha256": "5cf984d5c4e6d64383500e9b8433028900c4237b57fdb99391daecc287d1422f",
+          "horizon": 12,
+          "seed": 25000015,
+          "size": 20
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-01",
+          "diagnostic_sha256": "48f46a0eda90109be921ed3067c17d67220348f453ba951eb1569ec02e108925",
+          "horizon": 10,
+          "seed": 25010009,
+          "size": 18
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-04",
+          "diagnostic_sha256": "6d81758fdb4625c6d1a543ee193f7635b511b4646061825ab2da65a0daf3279a",
+          "horizon": 8,
+          "seed": 25020008,
+          "size": 16
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-05",
+          "diagnostic_sha256": "11603b72b8aeb577085d34e7b7419fd7eb79f38944166063f236035a7465562f",
+          "horizon": 10,
+          "seed": 25030004,
+          "size": 18
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-08",
+          "diagnostic_sha256": "7b0bf9ac4b8783577241ff4ca91dc42f0d14558646bd7a00d0a54200744605cc",
+          "horizon": 10,
+          "seed": 25040004,
+          "size": 18
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-09",
+          "diagnostic_sha256": "b62106013e77263838f628d852c69238316eecc9fe9a6fcd116ebe89474ab4f2",
+          "horizon": 14,
+          "seed": 25050006,
+          "size": 22
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-12",
+          "diagnostic_sha256": "f274c04e09ccd8d3a0f4e0f9b342251d2ae49f5555532bab0b370252bad93af1",
+          "horizon": 12,
+          "seed": 25060015,
+          "size": 20
+        },
+        {
+          "case_id": "ordinary-screen-blue-0-13",
+          "diagnostic_sha256": "e8cf5b8b1e36443f8cd920ffb09d0b5ef76e177ceb5c89a31f1c5e9ca338b4d2",
+          "horizon": 8,
+          "seed": 25070003,
+          "size": 16
+        }
+      ],
+      "search_file_sha256": "08caae4af41b692cbbd2303c0896867296815186db36f5b645d0cdd061ca3370",
+      "search_sha256": "8c31718bf959680fe9aa989f399142c618c87922a8cabc4427a6986fcc51d5ff",
+      "source_screen_sha256": "e46cd2856ea99a223ce1bbbdf67223d57059c328103bbe1f270bad591cb967e0",
+      "version": "arena-rl-v13-ordinary-seed-repair-v1"
     }
   ],
   "case_count": 64,
@@ -52,12 +118,12 @@
     {
       "case_id": "ordinary-screen-blue-0-00",
       "focused_agent": "blue-0",
-      "horizon": 14,
+      "horizon": 12,
       "opponent_family": "base",
       "replicas": 4,
       "schedule_ordinal": 4,
-      "seed": 23000011,
-      "size": 22,
+      "seed": 25000015,
+      "size": 20,
       "stage": "role_adaptive_conflict_repair"
     },
     {
@@ -100,7 +166,7 @@
       "opponent_family": "sft",
       "replicas": 4,
       "schedule_ordinal": 12,
-      "seed": 23010004,
+      "seed": 25010009,
       "size": 18,
       "stage": "role_adaptive_conflict_repair"
     },
@@ -206,12 +272,12 @@
     {
       "case_id": "ordinary-screen-blue-0-04",
       "focused_agent": "blue-0",
-      "horizon": 10,
+      "horizon": 8,
       "opponent_family": "base",
       "replicas": 4,
       "schedule_ordinal": 32,
-      "seed": 22000134,
-      "size": 18,
+      "seed": 25020008,
+      "size": 16,
       "stage": "role_adaptive_conflict_repair"
     },
     {
@@ -250,12 +316,12 @@
     {
       "case_id": "ordinary-screen-blue-0-05",
       "focused_agent": "blue-0",
-      "horizon": 8,
+      "horizon": 10,
       "opponent_family": "sft",
       "replicas": 4,
       "schedule_ordinal": 40,
-      "seed": 22000138,
-      "size": 16,
+      "seed": 25030004,
+      "size": 18,
       "stage": "role_adaptive_conflict_repair"
     },
     {
@@ -503,22 +569,22 @@
     {
       "case_id": "ordinary-screen-blue-0-08",
       "focused_agent": "blue-0",
-      "horizon": 12,
+      "horizon": 10,
       "opponent_family": "base",
       "replicas": 4,
       "schedule_ordinal": 88,
-      "seed": 22000160,
-      "size": 20,
+      "seed": 25040004,
+      "size": 18,
       "stage": "hard_negative_transfer"
     },
     {
       "case_id": "ordinary-screen-blue-0-09",
       "focused_agent": "blue-0",
-      "horizon": 8,
+      "horizon": 14,
       "opponent_family": "sft",
       "replicas": 4,
       "schedule_ordinal": 92,
-      "seed": 22000162,
+      "seed": 25050006,
       "size": 22,
       "stage": "hard_negative_transfer"
     },
@@ -650,8 +716,8 @@
       "opponent_family": "base",
       "replicas": 4,
       "schedule_ordinal": 124,
-      "seed": 22000174,
-      "size": 22,
+      "seed": 25060015,
+      "size": 20,
       "stage": "hard_negative_transfer"
     },
     {
@@ -668,12 +734,12 @@
     {
       "case_id": "ordinary-screen-blue-0-13",
       "focused_agent": "blue-0",
-      "horizon": 10,
+      "horizon": 8,
       "opponent_family": "sft",
       "replicas": 4,
       "schedule_ordinal": 132,
-      "seed": 22000176,
-      "size": 18,
+      "seed": 25070003,
+      "size": 16,
       "stage": "hard_negative_transfer"
     },
     {
@@ -843,7 +909,7 @@
     "source_screen_sha256": "d4506bb254b8a0dba1a4dd8fe6aa246a14dc4a8b1bbf91598923166dc4378ec7",
     "version": "arena-rl-v13-ordinary-seed-repair-v1"
   },
-  "sha256": "e46cd2856ea99a223ce1bbbdf67223d57059c328103bbe1f270bad591cb967e0",
+  "sha256": "f33962d49920a11d2eb34c06db8d233677fcbe0f5e306a7fd3f68df5dca70afb",
   "thresholds": {
     "minimum_mean_focused_action_diversity_per_policy": 1.25,
     "minimum_negative_advantages_per_policy": 4,

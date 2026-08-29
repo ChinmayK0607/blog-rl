@@ -6045,6 +6045,20 @@ no more critical-specific than decoy-specific. Therefore:
   repaired blue-3/historical and blue-3/current at seeds `24000006` and
   `24010005`; exact search, rejection, and hashes are preserved alongside the
   first repair. No scientific threshold or reward was changed.
+- Second repaired-screen outcome: the full 64/64 screen rejected only blue-0.
+  Blue-1/2/3 passed every unchanged gate; blue-0 produced variable groups only
+  against current and historical opponents, leaving its base and SFT bands
+  deterministic. The failure confirms that a single favorable seed is not a
+  robust family-level repair.
+- Third targeted repair: replaced all four blue-0/base and all four blue-0/SFT
+  training seeds with independently signal-bearing pass@4 cases. All eight
+  have nonzero return range, signed nonzero focused-agent advantages, and at
+  least two focused actions. This adds redundancy without changing rewards,
+  thresholds, curriculum proportions, model weights, opponents, or frozen
+  data. Search and screen hashes are recorded in the compact repair README.
+- Next action: run one fresh full screen from the new immutable manifest. A
+  complete pass alone unlocks the unchanged parity calibration and 80-update
+  continuation.
 
 ## Future entry template
 

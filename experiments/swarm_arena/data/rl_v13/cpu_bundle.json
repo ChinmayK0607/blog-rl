@@ -15,7 +15,7 @@
     "v12_update160_manifest": "9fa6cac1c8f205aa4faa39d7c21509ac54bc2b9a5be6db4756617828886548a3",
     "v13_curriculum": "0e5b2c1380e1f3ae1fefc649cda16c3a02aaeabf90c94ac41b358647eabbd123",
     "v13_curriculum_audit": "1c36578a1c5e5e383184968ccb294030f88ad58f93fdd3ef71d7d4e8292a824a",
-    "v13_ordinary_signal_screen": "884928394ef1216efb918a1e810c2da349c4ff5fa18a9c99ff68c7f08f3a4678",
+    "v13_ordinary_signal_screen": "c884813ef913e5f8761ed1a6e3503cfd010b53c10ade0bafb608ffb9b3c06aa0",
     "v13_repair_case_selection": "2210a5346f2b8cff9ade62c8d2bbc4239a76b40dc7f0717f022e257bc831f382"
   },
   "frozen_data_opened": false,
@@ -40,7 +40,7 @@
     "optimizer_updates": 0,
     "recommended_hardware": "4xL40S"
   },
-  "sha256": "9e79be61f5e1c97858c667f8fda384f88b033bda7043d2876303816d102d3dee",
+  "sha256": "92743114b85e791361a6a911b58ec62d0994b6327f16a084fbeefff2b8022782",
   "status": "cpu_complete_gpu_signal_screen_pending",
   "version": "arena-rl-v13-cpu-bundle-v1"
 }

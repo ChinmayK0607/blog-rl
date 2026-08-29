@@ -24,3 +24,21 @@ repaired blue-3/current and blue-3/historical without optimizer updates:
 The selected rows require nonzero return range, four nonzero focused-agent
 advantages containing both signs, and at least two distinct focused actions.
 The final full 64-case screen must still pass before V13 training is authorized.
+
+The complete round-two screen then ran all 64 cases and rejected only blue-0:
+its two variable groups covered current and historical opponents, while all
+eight base/SFT cases were deterministic. The exact assessment and run manifest
+are preserved as `ASSESSMENT_ROUND3.json` and `RUN_MANIFEST_ROUND3.json`.
+Rather than relying on one lucky seed per family again, the third targeted
+search replaced the full four-case blue-0 base band and four-case SFT band with
+eight independently signal-bearing cases:
+
+- Round-three search SHA-256: `08caae4af41b692cbbd2303c0896867296815186db36f5b645d0cdd061ca3370`
+- Round-three assessment SHA-256: `ccd68989160306f9f94d72d89f020bcea8219b1ff25abc0d634c90a277663cb4`
+- Round-three run-manifest SHA-256: `38fd42eb63334aed69a1fda92c6a177ddf558b2c2ee7de75ff2b462aaf8848ee`
+- Repaired screen body SHA-256: `f33962d49920a11d2eb34c06db8d233677fcbe0f5e306a7fd3f68df5dca70afb`
+- Repaired screen file SHA-256: `c884813ef913e5f8761ed1a6e3503cfd010b53c10ade0bafb608ffb9b3c06aa0`
+- Optimizer updates: 0; frozen data opened: no
+
+Rewards, admission thresholds, curriculum proportions, model weights, and
+opponent identities remain unchanged. A fresh full screen is still required.
