@@ -225,7 +225,18 @@ async def checkpoint_barrier(
 
 async def replace_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> None:
     """Atomically refresh one named LoRA and verify the server's registered path."""
+    expected_path = str(path.resolve())
     async with httpx.AsyncClient(timeout=120.0) as client:
+        current_registries = await asyncio.gather(
+            *(client.get(f"{base_url.rstrip('/')}/v1/models") for base_url in base_urls)
+        )
+        for response in current_registries:
+            response.raise_for_status()
+        if all(
+            _registry_binds_adapter(response.json(), name, expected_path)
+            for response in current_registries
+        ):
+            return
         unloads = await asyncio.gather(
             *(
                 client.post(
@@ -250,12 +261,24 @@ async def replace_adapter(base_urls: tuple[str, ...], name: str, path: Path) -> 
         for response in loads:
             response.raise_for_status()
         registries = await asyncio.gather(*(client.get(f"{base_url.rstrip('/')}/v1/models") for base_url in base_urls))
-    expected_path = str(path.resolve())
     for response in registries:
         response.raise_for_status()
-        matches = [row for row in response.json()["data"] if row["id"] == name]
-        if len(matches) != 1 or matches[0].get("root") != expected_path:
+        if not _registry_binds_adapter(response.json(), name, expected_path):
             raise RuntimeError(f"LoRA registry did not bind {name} to {expected_path}")
+
+
+def _registry_binds_adapter(
+    payload: dict[str, object], name: str, expected_path: str
+) -> bool:
+    rows = payload.get("data")
+    if not isinstance(rows, list):
+        return False
+    matches = [
+        row
+        for row in rows
+        if isinstance(row, dict) and row.get("id") == name
+    ]
+    return len(matches) == 1 and matches[0].get("root") == expected_path
 
 
 async def wait_for_policy_updates(
