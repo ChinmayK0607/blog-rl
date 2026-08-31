@@ -6440,6 +6440,11 @@ no more critical-specific than decoy-specific. Therefore:
   path remains checksum- and public-manifest-bound. Three focused tests and
   Ruff passed. This changes no adapter bytes, reward, curriculum, gate,
   optimizer, or evaluation.
+- Runtime trainer binding: V14 inherits V13/V12's Qwen3-4B architecture,
+  rank-32 all-linear LoRA, AdamW learning rate `3e-6`, KL coefficient `0.001`,
+  focused four-policy atomic updates, and unchanged trainer parity thresholds.
+  The only checkpoint-policy change is the predeclared ten-update stage cadence;
+  the V14 base trainer TOML therefore retains checkpoints every ten updates.
 - Monitoring: Codex heartbeat `monitor-and-recover-v14-to-completion` checks the
   exact pod every ten minutes. Completion triggers immediate exact-pod teardown;
   a two-hour confirmed no-progress/near-zero-GPU condition permits teardown only
