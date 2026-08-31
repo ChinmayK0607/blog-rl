@@ -1,13 +1,14 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-26
+Last updated: 2026-08-31
 Branch: `exp/swarm-arena-4b`  
-Current public development checkpoint: focused atomic update 50, Hugging Face
-revision `049e95062903501a8a50efac09d1b2caab393364` (not admitted).
-Status: the immutable 80-update focused-credit run was prospectively capped at
-update 60. It produced a directional capability gain but degraded the causal
-communication measures, so it is useful negative evidence rather than a swarm-
-communication result.
+Current completed run: V13 role-adaptive consolidation, 80/80 durable updates;
+public checkpoints 20/40/60/80 and compact per-update progress are mirrored to
+`CK0607/swarm-arena-live-runs`.
+Status: V13 improved ordinary and overall gameplay capability, but its final
+communication, specificity, and RL-specific intervals cross zero. This is
+useful development evidence, not an admitted or held-out communication result.
+V14's CPU-only grounded follow-through design is complete; no GPU is active.
 
 This is the durable chronological record for the Swarm Arena project. It records
 the hypothesis, design decisions, data, training, evaluations, failures,
@@ -6069,6 +6070,352 @@ no more critical-specific than decoy-specific. Therefore:
   Rewards, gates, curriculum, model weights, opponent identity, and frozen data
   remain unchanged. Exact assessment, search, manifest, and screen hashes are
   recorded in the compact repair directory.
+
+### 2026-08-29--30 — V13 launch, update-40 timeout recovery, and update-60 rebound
+
+- Status: completed; 80/80 durable optimizer updates, all scheduled 192-row
+  development pulses, the final continuation barrier, and `evaluations/COMPLETE`
+  are valid.
+- Verdict: **exploratory signal**. Update 60 is the first V13 checkpoint where
+  communication, critical-vs-decoy specificity, ordinary capability, handoff
+  capability, and overall gameplay point estimates are positive together. The
+  communication confidence intervals still cross zero, so this is not an
+  admitted or held-out result.
+- Hypothesis: continuing from the four distinct V12 update-160 policies with a
+  role-adaptive mix of fresh ordinary cases, matched factual controls, and
+  misleading-message challenges can consolidate causal message use without
+  sacrificing legacy or hard-map capability.
+- Decision unlocked: complete the immutable 80-update schedule unchanged, then
+  use the preregistered development and frozen gates. Do not extend V13 merely
+  because a point estimate is positive, and do not tune on the frozen suite.
+- Source/run identity: source commit
+  `21d756d16dbbc69b850054a6f08d7815f242e30d`; run
+  `rl-v13-role-adaptive4b80-21d756d1`; production plan SHA-256
+  `9b45bd4307175ac523b76bb58f37ad1ce720fa72297d5b88ddaa385ea4fc9f42`.
+  The rendered plan file on the host has SHA-256
+  `03c7b9d3d4b843c00de3d8143b9d81249e82fd45b2ccdcbb29d3567d5adef959`;
+  trainer config SHA-256 is
+  `2b12335b6e9da7d7716c2992b1ca73ee1911dad49448a7c2855286612467d43c`.
+- Data/evaluation boundary: V13 uses the frozen role-adaptive training
+  curriculum described above. Scheduled development pulses contain 192 rows.
+  The untouched frozen evaluation remains unopened and is not used for
+  curriculum repair or checkpoint choice before formal selection.
+- GPU/cost: exact Lium pod `5d482b5b-8dec-40b3-8aa0-3c0633189ba8`, 4x L40 at
+  `$1.32/hour`. Training launched at approximately 2026-08-29 11:58 UTC. At
+  the update-60 summary timestamp (2026-08-30 06:00:55 UTC), the training-phase
+  lower-bound elapsed cost was about `$24`; setup/screen time and authoritative
+  provider spend are not included and must be reconciled before decommission.
+- Update-40 operational failure: the pulse daemon timed out waiting for
+  `step_40.ready.json` at 16:31:45 UTC; the ready record appeared about 160
+  seconds later, and the controller subsequently exhausted its two-hour
+  continuation wait. The run then remained idle overnight. Exact logs,
+  progress, mirror state, barrier record, incident note, and checksums are
+  preserved under
+  `audit/failures/20260830T024422Z-step40-pulse-controller-timeout`. This was an
+  orchestration race and monitoring failure, not a scientific rejection.
+- Narrow recovery: the pulse evaluator was relaunched with the identical
+  scientific configuration and an operational wait timeout of 10,800 seconds.
+  After the unchanged update-40 evaluation produced a valid summary and
+  continuation barrier, the controller resumed from existing progress with
+  `--resume-existing-progress`. No reward, curriculum, model, optimizer,
+  parity, KL, protocol, collapse, regression, leakage, or evaluation gate was
+  changed.
+- Watcher correction: an independent on-pod recovery supervisor now checks the
+  exact controller and pulse sessions every 60 seconds. It preserves an
+  append-only incident before any action; it may relaunch only the exact pulse
+  evaluator for the known ready-file race, and may resume the controller only
+  after a valid summary and continue record. The original watcher, compact HF
+  mirror, W&B sidecar, trainer, rescorer, and three inference servers remain
+  separately live. This is operational fault tolerance, not permission to
+  relax a scientific gate.
+- Update-40 development pulse: normal-minus-dropped `-0.01984`,
+  critical-minus-decoy specificity `-0.04214`, RL-specific communication lift
+  `-0.02643`, hard capability `+0.02598`, legacy `-0.02358`, handoff
+  `+0.02564`, and overall gameplay `+0.00935`. Protocol validity remained
+  1.0. This was disappointing communication evidence and was not relabelled.
+- Update-60 development pulse: normal-minus-dropped `+0.04468`, 95% interval
+  `[-0.01279,+0.09940]`; critical-minus-decoy specificity `+0.04868`, interval
+  `[-0.03248,+0.12757]`; RL-specific communication lift `+0.03809`, interval
+  `[-0.01779,+0.11396]`. Hard, legacy, handoff, and overall RL-minus-SFT
+  effects are `+0.05612`, `+0.01138`, `+0.05854`, and `+0.04201`. Candidate
+  capture normal-minus-dropped is `+0.125`, RL-specific capture lift is
+  `+0.16667`, sender target-fact rate is 1.0, and action/broadcast/grounding
+  validity is 1.0. The preregistered communication claim remains false because
+  the required intervals do not clear zero.
+- Update-60 artifacts: summary SHA-256
+  `0dfc3d8c6b5ac3106213f237afc4c1802b97713966ed393c73fe527f3e8497af`;
+  ready/continue file SHA-256
+  `aff73d3b...cdb9f` / `21f55faa...e7a1`; policy revision
+  `9e0c95c1...8483`; adapter SHA-256 blue-0/1/2/3 =
+  `9110f504...a2871`, `077ad9da...e285d`, `1e90fb42...faa4f`, and
+  `b8ccf181...0320ed`. The public mirror is healthy through update 60.
+  W&B controller run:
+  `rl-v13-role-adaptive4b80-21d756d1-controller-v1`.
+- Update-80 final development pulse: normal-minus-dropped `+0.00689`, 95%
+  interval `[-0.02702,+0.03927]`; critical-minus-decoy specificity `+0.01351`,
+  interval `[-0.05302,+0.08100]`; RL-specific communication lift `+0.00031`,
+  interval `[-0.05824,+0.05676]`. Hard, legacy, handoff, and overall
+  RL-minus-SFT effects are `+0.09151`, `+0.05988`, `+0.02603`, and `+0.05914`;
+  the overall gameplay interval is fully positive
+  `[+0.01512,+0.10722]`. Candidate capture normal-minus-dropped is `+0.16667`
+  with interval `[+0.04167,+0.33333]`, RL-specific capture lift is `+0.20833`
+  with interval `[-0.04167,+0.50000]`, sender target-fact rate is `0.95833`,
+  and all protocol rates are 1.0. The final communication claim is rejected:
+  the causal return, specificity, and RL-specific intervals do not clear zero.
+- Update-80 final artifacts: summary/ready/continue file SHA-256 =
+  `6d996e83...933aa`, `b0c1574f...7173d`, and `8895b801...c1d6e`;
+  ready record SHA field `69ef032e...9bbeb0`; policy revision
+  `9eec6d60...92228`; adapter SHA-256 blue-0/1/2/3 =
+  `24ccd292...e2d53`, `deeb1997...0ae7a`, `1612d158...5da44`, and
+  `016402a7...8637a`.
+- Public and logging verification: a fresh unauthenticated Hugging Face read at
+  immutable revision `37c41ab1695902e472b12a9b3eb9c79b7427d4b3` downloaded
+  the step-80 manifest (SHA-256 `b369efad...a1d40`). All four public 264,308,896
+  byte adapter files have manifest hashes identical to the local ready record;
+  the live mirror is healthy at progress 80 with checkpoints 20/40/60/80.
+  W&B finalized and reports 4 files plus 9 artifact files synced. Controller,
+  pulses, mirror, and W&B sessions exited normally; trainer, rescorer, watcher,
+  recovery supervisor, and three inference servers remain model-resident and
+  idle pending an explicit teardown decision.
+- Compute policy from this point: every successor must state before GPU rental
+  the exact unresolved failure mode, expected information gain, curriculum and
+  split hashes, admission tests, maximum wall time/cost, checkpoint cadence,
+  early-stop conditions, and the decision unlocked by either outcome. CPU
+  replay/audit and the smallest role/opponent-stratified signal screen come
+  first. A GPU run may not begin merely to “try more steps.” Prefer the earliest
+  valid checkpoint; stop a run when its predeclared decision is resolved; keep
+  per-update off-node progress and an independent recovery supervisor from
+  launch. Two diagnosis-driven versions that reproduce the same failure should
+  trigger an architectural change rather than a longer curriculum.
+- Interpretation: V13 demonstrates that the negative update-40 communication
+  result was not an irreversible collapse: the same frozen schedule recovered
+  positive point estimates at update 60 while repairing the legacy point
+  estimate. The reversal also exposes substantial variance. More optimizer
+  steps alone are not evidence that the effect will become robust; future work
+  must increase independent-unit coverage and stabilize critical-vs-decoy
+  specificity without losing ordinary capability.
+- Next action: use the complete V13 rollouts to design V14 on CPU. V14 should
+  be rented only after its failure bands, counterfactual balance,
+  variance-reduction method, admission screen, budget, and early-stop rule are
+  frozen. The recurring recovery heartbeat was deleted after all V13 completion
+  criteria passed. Final artifacts are verified; separate user authorization
+  is still required to decommission the pod.
+- Decommission verification: at `2026-08-30T15:23:12Z`, the provider command
+  `lium ps --format json` returned `[]`; exact V13 pod
+  `5d482b5b-8dec-40b3-8aa0-3c0633189ba8` is absent and no longer accruing
+  cost. It was already absent when teardown was requested, so no destructive
+  command was issued against an unresolved target.
+- Operational correction: after COMPLETE, public checkpoint/hash verification,
+  and final W&B sync, decommission the exact resolved GPU pod immediately by
+  default. Retain a completed paid node only when the user explicitly requests
+  retention; do not interpret a generic earlier safety condition as a reason to
+  leave verified-idle GPU capacity billing.
+- Instance decommissioned: yes; provider absence verified at
+  `2026-08-30T15:23:12Z`.
+
+### 2026-08-31 — V14 grounded multi-turn follow-through CPU design
+
+- Status: planned; CPU design and schedule audit complete, GPU preflight
+  pending. No GPU was rented or used.
+- Verdict: **mechanical pass** for the CPU design only. This is not a training
+  result and does not alter V13's rejected communication claim.
+- Hypothesis: V13's remaining bottleneck is not factual transmission or the
+  receiver's first target choice. V13 trained only handoff ACT offset 0 even
+  when four remaining turns were rolled out. Expanding exact, receiver-only
+  counterfactual credit to later ACT offsets should convert the verified
+  capture mechanism into complementary follow-through and terminal team return.
+- Decision unlocked: a bounded 40-update continuation may be rented only after
+  a fresh host certificate and the smallest zero-update signal/parity preflight
+  pass. Each ten-update stage must improve a predeclared sequence of mechanism,
+  terminal effect, specificity, RL-specific lift, and retention gates; failure
+  withholds the continuation before another optimizer update.
+- Evidence: public V13 update-60/update-80 summary SHA-256 values are
+  `0dfc3d8c6b5ac3106213f237afc4c1802b97713966ed393c73fe527f3e8497af`
+  and
+  `6d996e8350961dce5e3ea1e53b2d35553f2c859adbebee06574a784c8b5933aa`.
+  The public update-80 manifest file SHA-256 is
+  `b369efad4f901958ff1c91d479f70bbf7064aee7f21121bec47185b654ba1d40`.
+  Extracted metrics and exact source hashes are bound in
+  `data/rl_v14/diagnosis.json`; frozen held-out data was not opened.
+- Initializer: four distinct public V13 update-80 adapters, policy revision
+  `9eec6d60cae1b11179f9b421b7bdd23ad456b3da912cb9d13a901f1337992228`.
+  Blue-0/1/2/3 adapter SHA-256 values are `24ccd292...e2d53`,
+  `deeb1997...0ae7a`, `1612d158...5da44`, and `016402a7...8637a`.
+  This is a continuation warm start, not a communication-claim admission.
+- Curriculum: 40 updates maximum and four groups/update. Four ten-update stages
+  train receiver ACT offsets `(0,1)`, `(0,1,2)`, `(0,1,2,3)`, then
+  `(1,2,3,4)`. The final stage stops reinforcing the already-solved first
+  action. Total groups: 70 critical, 40 matched decoy, and 50 ordinary. Decoy
+  receiver coverage is exactly 10 per policy; critical coverage is
+  18/18/17/17. Schedule SHA-256 is
+  `c192360de06328f3a234df6b10daba8c4f3fb519ed1ad424d97f36fe82509103`.
+- Scientific invariants: verified terminal reward only; no message reward,
+  learned judge, supervised semantic target, or changed target-swap contrast.
+  Critical and decoy cases keep the exact receiver-only intervention and
+  uncentered terminal contrast. Ordinary groups retain leave-one-out terminal
+  return. The existing supervisor's exact replay, decision coverage, routing,
+  and trainer/serving parity checks remain mandatory.
+- Batch telemetry correction: V14 records whether each complete four-group
+  logical update contains any nonzero trainable advantage, but does not reject
+  an all-zero batch. Exact zero effects are expected near policy/task capacity;
+  halting on one realization would be brittle. The run also does not resample
+  until a favorable outcome appears. The immutable batch proceeds normally,
+  its signal status is hash-chained, and the scheduled behavioral stage gates
+  decide whether the curriculum is improving or has plateaued.
+- Stage gates: the new hash-bound gate runner writes `STAGE_GATE.json` before a
+  continuation. Gate failure writes a preserved rejection and stops. The body
+  SHA-256 is
+  `27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2`.
+  Update 10 requires nonnegative terminal effect, capture effect at least 0.10,
+  specificity/lift at least -0.01, hard/legacy at least -0.02, overall at least
+  zero, and all protocol rates 1.0. Thresholds tighten at updates 20/30/40;
+  update 40 requires terminal effect 0.03, specificity/lift 0.02, capture 0.125,
+  nonnegative hard/legacy, and overall 0.03. These are development control
+  thresholds, not confirmatory claims.
+- Privileged-value decision: deferred. A privileged state baseline remains a
+  valid variance-reduction direction, but V13's ordinary/overall gameplay is
+  already the strongest result while later communication follow-through is the
+  demonstrated failure. Introducing a learned critic now would conflate two
+  changes and requires a separate cross-fit/lag/replay contract. Reconsider it
+  only if the V14 zero-update ordinary screen or a stage gate shows renewed
+  ordinary-credit sparsity.
+- CPU implementation: curriculum stages now optionally bind audited handoff
+  trainable turn offsets; `run_live_rl.py` uses them instead of hard-coding
+  `(0,)`; legacy plans omit the new default from their hashes. Regenerating the
+  V13 curriculum reproduced its original schedule hash exactly. The staged
+  pulse runner now supports hash-bound fail-closed gates. Tests covering
+  schedule propagation, invalid horizons, gate pass/fail/mutation, V13 hash
+  compatibility, per-update nonzero-signal monitoring, and V14 balance passed:
+  26 tests. Fourteen shared-return tests also passed locally, including exact
+  three-turn target-swap replay, supervisor approval, and routing; the local
+  harness used an import-only vLLM utility stub that is never called by these
+  deterministic tests. Actual vLLM constrained serving and trainer parity
+  remain an explicit Linux on-node zero-update preflight. Local syntax
+  compilation and Ruff checks passed.
+- Compact artifacts: `data/rl_v14/{diagnosis,curriculum,curriculum_audit,stage_gates,cpu_bundle}.json`.
+  File SHA-256 values are respectively `58e7870...bee51`,
+  `45f7148...248fc`, `9ec3c48...1b2f4`, `bec569b...d03e`, and
+  `e914796...da6e9`. CPU bundle body SHA-256 is
+  `39f70b45588fa8142dde63f48fcd25fd1bcfc3c18e3d484af3b4eb43bb1ceb94`.
+- GPU/cost contract: target 4xL40S, assumed `$1.52/hour`, maximum `$15`, and
+  nine wall hours. Before update 1, require adapter/hash aliases, multi-turn
+  exact replay, parity/KL, signed ordinary pass@4 signal in every policy slot,
+  HF compact mirror, W&B, watcher, and recovery supervisor. Stop on the first
+  failed stage gate, hard budget, or completed final sync. After final summary,
+  public checkpoint verification, and W&B sync, resolve and decommission the
+  exact provider instance immediately unless explicitly told to retain it.
+- Next action: render the runtime-bound production/trainer plans only when a GPU
+  host is actually supplied, run the bounded zero-update preflight, and either
+  decommission on failure or launch immediately on pass. Do not spend GPU time
+  on additional curriculum design, dependency repair, or broad seed search.
+- Instance decommissioned: not applicable; no V14 instance exists.
+
+### 2026-08-31 — V14 launch authorization
+
+- Status: launch authorized; source publication and provider allocation in progress.
+- Verdict: CPU bundle remains a mechanical pass; no GPU or model result yet.
+- Decision unlocked: rent the predeclared single 4xL40S node only after the
+  exact V14 source commit is public. Install the watcher and recovery supervisor
+  before update 1, then run the bounded runtime certificate and zero-update
+  gates. Stage one may launch only if every frozen preflight requirement passes.
+- GPU, wall time, and estimated cost: maximum `$15` at the predeclared
+  `$1.52/hour` assumption, with a nine-hour wall cutoff.
+- Operational idle policy: a provider instance may be automatically terminated
+  after two hours with no durable update/evaluation-row progress, near-zero GPU
+  utilization on repeated checks, no legitimate barrier or evaluation, and no
+  successful narrow evidence-preserving recovery. Verified completion triggers
+  immediate exact-instance teardown instead of the idle grace period.
+- Instance decommissioned: no; allocation not yet created.
+
+### 2026-08-31 — V14 training-frontier curriculum revision
+
+- Status: CPU implementation and audit complete; GPU preflight pending. No GPU
+  was rented or used.
+- Verdict: **mechanical pass** for the adaptive curriculum implementation, not
+  a model result. V13's communication claim remains rejected.
+- Hypothesis: a fixed schedule wastes bounded compute on handoff cases that are
+  already uniformly solved or currently yield no counterfactual signal. A
+  deterministic stage-boundary selector can concentrate the next stage on
+  mixed/unseen training cases while retaining enough mastered and stalled
+  anchors to detect forgetting and renewed learnability.
+- Training-only pass-rate analysis: public V13 progress contains 80 optimizer
+  updates, 100 critical groups, 80 decoy groups, and 140 ordinary groups. The
+  compact audit classifies 33 observed critical case/worlds as 18 frontier, 7
+  mastered, and 8 stalled. It classifies 24 observed decoys as 2 frontier and
+  22 stalled; nine additional decoy candidates in the immutable 33-case
+  training pool are unseen. Ordinary size/horizon buckets are 13 frontier and
+  one mastered. A group remains the scheduling observation; the four correlated
+  replicas are retained as pass-rate diagnostics rather than mislabeled as four
+  independent maps.
+- Adaptive rule: every ten updates, analyze the complete immediately preceding
+  training stage only. Allocate 80% of future handoff slots to frontier/unseen
+  cases, 10% to mastered anchors, and 10% to stalled anchors, with deterministic
+  fallback when a receiver lacks a category. Preserve the exact group mix,
+  ordinary schedule, receiver counts, opponent rotation, reward,
+  counterfactual, and stage gates. Development and frozen data are forbidden
+  selector inputs. Do not resample an update until it has gradient.
+- Bootstrap: stage one contains eight frontier/unseen decoy slots and one
+  stalled decoy anchor; no mastered decoy existed. Its ten extra critical slots
+  contain eight frontier, one mastered, and one stalled case. Across the maximum
+  schedule, critical receiver counts remain 18/18/17/17 and decoys remain
+  exactly 10 per policy; every decoy remains update-local matched to a critical
+  case.
+- Runtime contract: the production-plan hash now binds the selector version,
+  thresholds, stage cadence, seed, anchor fractions, and all 33 candidate cases.
+  Each later-stage selection is atomically written with the preceding progress
+  analysis hash. Resume recomputes and requires byte-equivalent content or
+  fails closed. The stage-one bootstrap plus unadapted later skeleton has
+  schedule SHA-256
+  `6656b76537e19fb4cc1b7f6d2be53db6c3e921ef6e9ab92427229741d654f59e`;
+  adaptive config body SHA-256 is
+  `9da6618458d1c7d7ee29afbe393a0a1030e224eced023543806eb8107f42729b`.
+- Preserved compatibility: completed non-adaptive plan hashes still omit the
+  new default. The V13 schedule-hash compatibility test remains passing.
+- Mechanical failure caught before rental: V14 curriculum artifacts encode
+  handoff cases as `[pair_index, world]`, while the production loader consumes
+  named records. The plan renderer now converts both accepted source forms to
+  `{pair_index, world}` before hashing/loading. No GPU time was spent on this
+  repair.
+- Verification: 28 focused pure tests passed, including frontier
+  classification, 80/10/10 anchor allocation, decoy matching, ordinary
+  immutability, adaptive plan hashing/boundaries, multi-turn schedule
+  propagation, legacy hash compatibility, and stage gates. Ruff and syntax
+  compilation passed. A second independent artifact generation was byte-for-byte
+  identical. Linux vLLM/trainer parity remains a required zero-update preflight.
+- Compact artifacts: file SHA-256 values for
+  `data/rl_v14/{diagnosis,curriculum,curriculum_audit,stage_gates,cpu_bundle,v13_frontier_analysis}.json`
+  are respectively `a00b157...72446`, `5fe6af7...c294`,
+  `98ba140...c435e`, `bec569b...d03e`, `2f5dbbd...a12b3`, and
+  `62c89ce...436cb`. CPU bundle body SHA-256 is
+  `f4b92cee98667563ebf91f9c6b927c7de1250472c3117b063cd224b7271bd570`;
+  frontier-analysis body SHA-256 is
+  `1b903e9143d74496cdbfafb55451897ff1656c41a5953522e6c1526946679192`.
+- Interpretation: V13 does not justify blind scaling. The observed training
+  distribution says the highest-information next work is decoy specificity and
+  later receiver follow-through. The adaptive V14 design directs bounded
+  compute there without deleting regression anchors or changing evaluation.
+- Next action: run the already predeclared CPU-complete zero-update host
+  certificate, exact replay, and parity screen only when a GPU is supplied.
+  Launch at most the first ten-update stage on pass; its gate and training
+  frontier artifact determine whether stage two is authorized.
+- Instance decommissioned: not applicable; no V14 instance exists.
+
+### 2026-08-31 — V14 launch authorization
+
+- Status: launch authorized; source publication and provider allocation in progress.
+- Verdict: CPU bundle remains a mechanical pass; no GPU or model result yet.
+- Decision unlocked: rent the predeclared single 4xL40S node only after the
+  exact V14 source commit is public. Install the watcher and recovery supervisor
+  before update 1, then run the bounded runtime certificate and zero-update
+  gates. Stage one may launch only if every frozen preflight requirement passes.
+- GPU, wall time, and estimated cost: maximum `$15` at the predeclared
+  `$1.52/hour` assumption, with a nine-hour wall cutoff.
+- Operational idle policy: a provider instance may be automatically terminated
+  after two hours with no durable update/evaluation-row progress, near-zero GPU
+  utilization on repeated checks, no legitimate barrier or evaluation, and no
+  successful narrow evidence-preserving recovery. Verified completion triggers
+  immediate exact-instance teardown instead of the idle grace period.
+- Instance decommissioned: no; allocation not yet created.
 
 ## Future entry template
 

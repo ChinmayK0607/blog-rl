@@ -12,6 +12,10 @@ from pathlib import Path
 
 import httpx
 import tomli
+from swarm_ctf_eval.adaptive_curriculum import (
+    adapt_stage_assignments,
+    summarize_training_progress,
+)
 from swarm_ctf_eval.async_admission import AsyncRolloutHeader, PolicySnapshot
 from swarm_ctf_eval.async_rescore import (
     FilesystemCurrentPolicyRescorer,
@@ -49,7 +53,9 @@ from swarm_ctf_eval.prime_multi_run_router import (
 from swarm_ctf_eval.rl_production import (
     OpponentSnapshot,
     ProductionPlan,
+    ScenarioAssignment,
     load_production_plan,
+    logical_update_has_signal,
     scenario_sampling_namespace,
 )
 from swarm_ctf_eval.safety_supervisor import (
@@ -77,6 +83,71 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def write_adaptive_selection(output_dir: Path, selection: dict[str, object]) -> None:
+    root = output_dir / "audit" / "adaptive_curriculum"
+    root.mkdir(parents=True, exist_ok=True)
+    path = root / f"{selection['stage']}.json"
+    if path.exists():
+        existing = json.loads(path.read_text(encoding="utf-8"))
+        if existing != selection:
+            raise ValueError(f"adaptive curriculum selection changed on resume: {path}")
+        return
+    temporary = path.with_suffix(path.suffix + f".tmp-{os.getpid()}")
+    temporary.write_text(
+        json.dumps(selection, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    os.replace(temporary, path)
+
+
+def adapt_next_curriculum_stage(
+    schedule: tuple[ScenarioAssignment, ...],
+    *,
+    production_plan: ProductionPlan,
+    curriculum: dict[str, object],
+    progress: list[dict[str, object]],
+    stage_index: int,
+    output_dir: Path,
+) -> tuple[ScenarioAssignment, ...]:
+    config = production_plan.adaptive_curriculum
+    if config is None or stage_index == 0:
+        return schedule
+    if stage_index >= len(production_plan.stages):
+        raise ValueError("adaptive stage index exceeds the production plan")
+    previous_start = sum(stage.updates for stage in production_plan.stages[: stage_index - 1])
+    previous_end = previous_start + production_plan.stages[stage_index - 1].updates
+    if len(progress) < previous_end:
+        raise ValueError("adaptive curriculum cannot inspect an incomplete previous stage")
+    analysis = summarize_training_progress(
+        progress,
+        config=config,
+        step_start=previous_start,
+        step_end=previous_end,
+    )
+    receiver_by_case: dict[tuple[int, str], str] = {}
+    for pair_index, pair in enumerate(curriculum["pairs"]):
+        receiver = str(pair["critical"]["receiver"])
+        for world in pair["critical"]["worlds"]:
+            receiver_by_case[(pair_index, str(world["label"]))] = receiver
+    candidate_pool_by_receiver: dict[str, list[tuple[int, str]]] = {}
+    for value in config.candidate_cases:
+        pair_index_text, world, receiver = value.split(":")
+        case = (int(pair_index_text), world)
+        if receiver_by_case.get(case) != receiver:
+            raise ValueError(f"adaptive candidate pool receiver mismatch: {value}")
+        candidate_pool_by_receiver.setdefault(receiver, []).append(case)
+    adapted, selection = adapt_stage_assignments(
+        schedule,
+        stage_name=production_plan.stages[stage_index].name,
+        analysis=analysis,
+        receiver_by_case=receiver_by_case,
+        config=config,
+        candidate_pool_by_receiver=candidate_pool_by_receiver,
+    )
+    write_adaptive_selection(output_dir, selection)
+    return adapted
 
 
 def load_initial_policy_adapter_manifest(
@@ -805,6 +876,26 @@ async def main() -> None:
         curriculum = json.loads(manifest_path.read_text(encoding="utf-8"))
         if not curriculum.get("pairs"):
             raise ValueError(f"empty curriculum manifest: {manifest_path}")
+    adapted_stages: set[int] = set()
+    stage_start_steps: tuple[int, ...] = ()
+    if production_plan is not None and production_plan.adaptive_curriculum is not None:
+        assert scenario_schedule is not None and curriculum is not None
+        stage_start_steps = tuple(
+            sum(stage.updates for stage in production_plan.stages[:index])
+            for index in range(len(production_plan.stages))
+        )
+        for stage_index, stage_start in enumerate(stage_start_steps[1:], start=1):
+            if stage_start > start_step:
+                break
+            scenario_schedule = adapt_next_curriculum_stage(
+                scenario_schedule,
+                production_plan=production_plan,
+                curriculum=curriculum,
+                progress=result_rows,
+                stage_index=stage_index,
+                output_dir=args.output_dir,
+            )
+            adapted_stages.add(stage_index)
     async with generator_context as generator:
         if args.resume_existing_progress:
             policy_adapter_sha256 = {
@@ -841,6 +932,23 @@ async def main() -> None:
                 timeout=args.checkpoint_barrier_timeout,
             )
         for step in range(start_step, args.steps):
+            if (
+                production_plan is not None
+                and production_plan.adaptive_curriculum is not None
+                and step in stage_start_steps[1:]
+            ):
+                assert scenario_schedule is not None and curriculum is not None
+                stage_index = stage_start_steps.index(step)
+                if stage_index not in adapted_stages:
+                    scenario_schedule = adapt_next_curriculum_stage(
+                        scenario_schedule,
+                        production_plan=production_plan,
+                        curriculum=curriculum,
+                        progress=result_rows,
+                        stage_index=stage_index,
+                        output_dir=args.output_dir,
+                    )
+                    adapted_stages.add(stage_index)
             if production_plan is not None:
                 assert args.async_rescore_dir is not None
                 write_current_snapshot_manifest(
@@ -998,6 +1106,11 @@ async def main() -> None:
                         "handoff_focus_role": (
                             assignment.handoff_focus_role if assignment is not None else "receiver"
                         ),
+                        "handoff_trainable_turn_offsets": (
+                            assignment.handoff_trainable_turn_offsets
+                            if assignment is not None
+                            else None
+                        ),
                         **world_metadata,
                     }
                 if scenario_metadata["source"] == "ordinary":
@@ -1050,7 +1163,12 @@ async def main() -> None:
                             raise ValueError(f"unknown handoff focus role: {focus_role}")
                         focused_agent = str(scenario_metadata[focus_role])
                         focused_phase = "BROADCAST" if focus_role == "sender" else "ACT"
-                        focused_turn_offsets = (0,)
+                        focused_turn_offsets = (
+                            assignment.handoff_trainable_turn_offsets
+                            if assignment is not None
+                            and assignment.handoff_trainable_turn_offsets is not None
+                            else (0,)
+                        )
                     else:
                         focused_agent = (
                             args.ordinary_focused_agent
@@ -1458,6 +1576,17 @@ async def main() -> None:
                 )
                 print(json.dumps(result_rows[-1], sort_keys=True))
                 continue
+            logical_update_nonzero_advantage = None
+            if production_plan is not None and production_plan.monitor_logical_update_signal:
+                logical_update_nonzero_advantage = logical_update_has_signal(step_groups)
+                append_hash_chained_record(
+                    args.output_dir / "audit" / "logical_update_signal.jsonl",
+                    {
+                        "step": step,
+                        "nonzero_advantage": logical_update_nonzero_advantage,
+                        "action": "observe_only_continue",
+                    },
+                )
             batches = (
                 async_queue.pop_logical_update(
                     groups=args.groups_per_step,
@@ -1491,6 +1620,7 @@ async def main() -> None:
                 {
                     "step": step,
                     "groups": step_groups,
+                    "logical_update_nonzero_advantage": logical_update_nonzero_advantage,
                     "policy_adapter_sha256": digests,
                     "policy_revision": policy_revision,
                 }

@@ -18,12 +18,61 @@ RL_PRODUCTION_PLAN_VERSION = "arena-rl-v4-production-plan-v1"
 STAGED_RL_PRODUCTION_PLAN_VERSION = "arena-rl-v4-staged-production-plan-v1"
 
 
+@dataclass(frozen=True)
+class AdaptiveCurriculumConfig:
+    version: str = "arena-rl-adaptive-curriculum-v1"
+    stage_updates: int = 10
+    positive_epsilon: float = 1e-12
+    minimum_replicas: int = 4
+    mastered_pass_rate: float = 1.0
+    stalled_pass_rate: float = 0.0
+    mastered_anchor_fraction: float = 0.1
+    stalled_anchor_fraction: float = 0.1
+    selection_seed: int = 20_261_101
+    candidate_cases: tuple[str, ...] = ()
+
+    def validate(self) -> None:
+        if self.version != "arena-rl-adaptive-curriculum-v1":
+            raise ValueError("unsupported adaptive curriculum version")
+        if self.stage_updates < 1 or self.minimum_replicas < 2:
+            raise ValueError("adaptive curriculum requires positive stages and replica coverage")
+        if self.positive_epsilon < 0 or self.selection_seed < 0:
+            raise ValueError("adaptive curriculum epsilon and seed cannot be negative")
+        if not 0 <= self.stalled_pass_rate < self.mastered_pass_rate <= 1:
+            raise ValueError("adaptive curriculum pass-rate thresholds are invalid")
+        if min(self.mastered_anchor_fraction, self.stalled_anchor_fraction) < 0:
+            raise ValueError("adaptive curriculum anchor fractions cannot be negative")
+        if self.mastered_anchor_fraction + self.stalled_anchor_fraction >= 1:
+            raise ValueError("adaptive curriculum must reserve most slots for the frontier")
+        if len(self.candidate_cases) != len(set(self.candidate_cases)):
+            raise ValueError("adaptive curriculum candidate cases must be unique")
+        for value in self.candidate_cases:
+            parts = value.split(":")
+            if (
+                len(parts) != 3
+                or not parts[0].isdigit()
+                or parts[1] not in {"left_exposed", "right_exposed"}
+                or parts[2] not in {"blue-0", "blue-1", "blue-2", "blue-3"}
+            ):
+                raise ValueError(f"invalid adaptive curriculum candidate case: {value}")
+
+
 def _canonical_sha256(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def _is_sha256(value: str) -> bool:
     return len(value) == 64 and all(character in "0123456789abcdef" for character in value)
+
+
+def logical_update_has_signal(step_groups: list[dict[str, Any]]) -> bool:
+    """Return whether an approved shared-return logical update can change weights."""
+    return any(
+        abs(float(value)) > 1e-12
+        for group in step_groups
+        for replica in group.get("replicas", [])
+        for value in replica.get("advantages", {}).values()
+    )
 
 
 @dataclass(frozen=True)
@@ -67,6 +116,7 @@ class ScenarioAssignment:
     handoff_focus_role: HandoffFocusRole | None = None
     handoff_world: str | None = None
     handoff_remaining_turns: int | None = None
+    handoff_trainable_turn_offsets: tuple[int, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -79,6 +129,7 @@ class CurriculumStage:
     handoff_focus_roles: tuple[HandoffFocusRole, ...] = ("receiver",)
     handoff_cases: tuple[tuple[int, str], ...] = ()
     handoff_remaining_turns: int | None = None
+    handoff_trainable_turn_offsets: tuple[int, ...] | None = None
 
     def validate(self, *, groups_per_update: int) -> None:
         if not self.name or self.updates < 1 or not self.update_pattern:
@@ -97,6 +148,23 @@ class CurriculumStage:
             raise ValueError(f"stage {self.name} requires sender/receiver handoff focus roles")
         if self.handoff_remaining_turns is not None and self.handoff_remaining_turns < 1:
             raise ValueError(f"stage {self.name} must retain at least one handoff turn")
+        if self.handoff_trainable_turn_offsets is not None:
+            offsets = self.handoff_trainable_turn_offsets
+            if not offsets or len(set(offsets)) != len(offsets):
+                raise ValueError(
+                    f"stage {self.name} handoff trainable turn offsets must be non-empty and unique"
+                )
+            if any(offset < 0 for offset in offsets):
+                raise ValueError(
+                    f"stage {self.name} handoff trainable turn offsets cannot be negative"
+                )
+            if (
+                self.handoff_remaining_turns is not None
+                and max(offsets) >= self.handoff_remaining_turns
+            ):
+                raise ValueError(
+                    f"stage {self.name} handoff trainable turn offsets must fit within remaining turns"
+                )
         if any(
             pair_index < 0 or world not in {"left_exposed", "right_exposed"}
             for pair_index, world in self.handoff_cases
@@ -207,6 +275,9 @@ def exact_staged_curriculum_schedule(
                         handoff_world=handoff_world,
                         handoff_remaining_turns=(
                             stage.handoff_remaining_turns if kind != "ordinary" else None
+                        ),
+                        handoff_trainable_turn_offsets=(
+                            stage.handoff_trainable_turn_offsets if kind != "ordinary" else None
                         ),
                     )
                 )
@@ -385,6 +456,8 @@ class ProductionPlan:
         "paired_receiver_target_swap_challenge",
     ] | None = None
     paired_contrast_centering: Literal["replica_mean", "none"] = "replica_mean"
+    monitor_logical_update_signal: bool = False
+    adaptive_curriculum: AdaptiveCurriculumConfig | None = None
 
     def validate(self) -> None:
         if self.version not in {
@@ -475,11 +548,30 @@ class ProductionPlan:
             "paired_receiver_target_swap_challenge",
         }:
             raise ValueError("uncentered paired contrast requires a paired intervention baseline")
+        if not isinstance(self.monitor_logical_update_signal, bool):
+            raise ValueError("logical-update signal monitor must be boolean")
+        if self.adaptive_curriculum is not None:
+            self.adaptive_curriculum.validate()
+            if self.version != STAGED_RL_PRODUCTION_PLAN_VERSION:
+                raise ValueError("adaptive curricula require a staged production plan")
+            if any(
+                stage.updates != self.adaptive_curriculum.stage_updates
+                for stage in self.stages
+            ):
+                raise ValueError("adaptive curriculum boundaries must match every staged block")
+            if not self.adaptive_curriculum.candidate_cases:
+                raise ValueError("adaptive curriculum requires a hash-bound candidate pool")
 
     @property
     def sha256(self) -> str:
         self.validate()
         payload = asdict(self)
+        # This stage field was added after the completed V4--V13 runs.  Omitting
+        # its legacy default preserves every existing immutable plan identity;
+        # an explicit multi-turn schedule remains hash-bound for V14 onward.
+        for stage in payload.get("stages", []):
+            if stage.get("handoff_trainable_turn_offsets") is None:
+                stage.pop("handoff_trainable_turn_offsets")
         if self.shared_return_replicas == 4:
             payload.pop("shared_return_replicas")
         if self.action_prompt_profile == "full":
@@ -490,6 +582,10 @@ class ProductionPlan:
             payload.pop("decoy_shared_return_baseline")
         if self.paired_contrast_centering == "replica_mean":
             payload.pop("paired_contrast_centering")
+        if not self.monitor_logical_update_signal:
+            payload.pop("monitor_logical_update_signal")
+        if self.adaptive_curriculum is None:
+            payload.pop("adaptive_curriculum")
         if self.version == RL_PRODUCTION_PLAN_VERSION:
             # Preserve byte-for-byte run-lock identity for every completed v4 run.
             payload.pop("stages")
@@ -570,6 +666,11 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
                 if row.get("handoff_remaining_turns") is None
                 else int(row["handoff_remaining_turns"])
             ),
+            handoff_trainable_turn_offsets=(
+                None
+                if row.get("handoff_trainable_turn_offsets") is None
+                else tuple(int(value) for value in row["handoff_trainable_turn_offsets"])
+            ),
         )
         for row in stage_rows
     )
@@ -602,6 +703,22 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
         ),
         paired_contrast_centering=str(
             raw.get("rollout_runtime", {}).get("paired_contrast_centering", "replica_mean")
+        ),
+        monitor_logical_update_signal=bool(
+            raw.get("rollout_runtime", {}).get("monitor_logical_update_signal", False)
+        ),
+        adaptive_curriculum=(
+            None
+            if raw.get("adaptive_curriculum") is None
+            else AdaptiveCurriculumConfig(
+                **{
+                    **raw["adaptive_curriculum"],
+                    "candidate_cases": tuple(
+                        str(value)
+                        for value in raw["adaptive_curriculum"].get("candidate_cases", [])
+                    ),
+                }
+            )
         ),
     )
     plan.validate()

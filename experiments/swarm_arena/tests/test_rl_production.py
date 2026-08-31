@@ -14,6 +14,7 @@ from swarm_ctf_eval.rl_production import (
     exact_curriculum_schedule,
     exact_staged_curriculum_schedule,
     load_production_plan,
+    logical_update_has_signal,
     scenario_sampling_namespace,
 )
 
@@ -86,6 +87,16 @@ def test_production_ordinary_scenario_never_uses_legacy_pair_fallback() -> None:
         )
         is None
     )
+
+
+def test_logical_update_signal_monitor_detects_complete_zero_credit() -> None:
+    zero = [
+        {"replicas": [{"advantages": {"blue-0": 0.0, "blue-1": -0.0}}]},
+        {"replicas": [{"advantages": {"blue-2": 1e-14}}]},
+    ]
+    assert logical_update_has_signal(zero) is False
+    zero[1]["replicas"][0]["advantages"]["blue-2"] = -0.125
+    assert logical_update_has_signal(zero) is True
 
 
 def test_sampling_namespace_matches_critical_decoy_pair_and_legacy_fallback() -> None:
@@ -180,6 +191,19 @@ def test_rollout_runtime_changes_plan_identity_without_changing_legacy_default(
     assert compact.action_prompt_profile == "focused_handoff_compact"
     assert compact.sha256 != legacy.sha256
 
+    guarded_path = tmp_path / "guarded.json"
+    guarded_path.write_text(
+        json.dumps(
+            {
+                **raw,
+                "rollout_runtime": {"monitor_logical_update_signal": True},
+            }
+        )
+    )
+    guarded, _ = load_production_plan(guarded_path)
+    assert guarded.monitor_logical_update_signal is True
+    assert guarded.sha256 != legacy.sha256
+
 
 def test_decoy_counterfactual_challenge_requires_a_decoy_curriculum(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
@@ -209,6 +233,60 @@ def test_decoy_counterfactual_challenge_requires_a_decoy_curriculum(tmp_path: Pa
     raw["curriculum_stages"] = curriculum["stages"]
     path.write_text(json.dumps(raw))
     with pytest.raises(ValueError, match="requires scheduled decoy groups"):
+        load_production_plan(path)
+
+
+def test_adaptive_curriculum_is_hash_bound_and_matches_stage_boundaries(
+    tmp_path: Path,
+) -> None:
+    root = Path(__file__).resolve().parents[1]
+    raw = json.loads((root / "configs" / "rl_v11_4b_base_plan.json").read_text())
+    raw["version"] = "arena-rl-v4-staged-production-plan-v1"
+    raw["curriculum_stages"] = [
+        {
+            "name": "adaptive",
+            "updates": 10,
+            "update_pattern": [{"ordinary": 1, "critical": 2, "decoy": 1}],
+            "ordinary_sizes": [16],
+            "ordinary_horizons": [8],
+            "handoff_focus_roles": ["receiver"],
+            "handoff_cases": [
+                {"pair_index": 1, "world": "left_exposed"},
+                {"pair_index": 2, "world": "right_exposed"},
+            ],
+        }
+    ]
+    raw["adaptive_curriculum"] = {
+        "version": "arena-rl-adaptive-curriculum-v1",
+        "stage_updates": 10,
+        "candidate_cases": [
+            "1:left_exposed:blue-0",
+            "2:right_exposed:blue-0",
+        ],
+    }
+    path = tmp_path / "adaptive.json"
+    path.write_text(json.dumps(raw))
+
+    plan, _ = load_production_plan(path)
+
+    assert plan.adaptive_curriculum is not None
+    assert plan.adaptive_curriculum.stage_updates == 10
+    adaptive_sha = plan.sha256
+    raw.pop("adaptive_curriculum")
+    path.write_text(json.dumps(raw))
+    fixed, _ = load_production_plan(path)
+    assert fixed.sha256 != adaptive_sha
+
+    raw["adaptive_curriculum"] = {
+        "version": "arena-rl-adaptive-curriculum-v1",
+        "stage_updates": 9,
+        "candidate_cases": [
+            "1:left_exposed:blue-0",
+            "2:right_exposed:blue-0",
+        ],
+    }
+    path.write_text(json.dumps(raw))
+    with pytest.raises(ValueError, match="boundaries must match"):
         load_production_plan(path)
 
 
@@ -306,6 +384,57 @@ def test_staged_schedule_can_reserve_decoys_for_evaluation_only() -> None:
         block = schedule[update * 4 : (update + 1) * 4]
         assert {(row.pair_index, row.handoff_world) for row in block} == set(
             stage.handoff_cases
+        )
+
+
+def test_staged_schedule_binds_audited_multiturn_handoff_credit() -> None:
+    stage = CurriculumStage(
+        name="receiver-follow-through",
+        updates=1,
+        update_pattern=(CurriculumMix(ordinary=2, critical=1, decoy=1),),
+        ordinary_sizes=(12,),
+        ordinary_horizons=(4,),
+        handoff_focus_roles=("receiver",),
+        handoff_remaining_turns=4,
+        handoff_trainable_turn_offsets=(0, 1, 2),
+    )
+    schedule = exact_staged_curriculum_schedule(
+        (stage,),
+        groups_per_update=4,
+        pair_offset=0,
+        ordinary_seed_base=90_000,
+        shuffle_seed=17,
+    )
+
+    assert {
+        row.handoff_trainable_turn_offsets
+        for row in schedule
+        if row.kind in {"critical", "decoy"}
+    } == {(0, 1, 2)}
+    assert all(
+        row.handoff_trainable_turn_offsets is None
+        for row in schedule
+        if row.kind == "ordinary"
+    )
+
+
+def test_staged_schedule_rejects_turn_offsets_outside_handoff_horizon() -> None:
+    stage = CurriculumStage(
+        name="invalid-follow-through",
+        updates=1,
+        update_pattern=(CurriculumMix(ordinary=2, critical=1, decoy=1),),
+        ordinary_sizes=(12,),
+        ordinary_horizons=(4,),
+        handoff_remaining_turns=2,
+        handoff_trainable_turn_offsets=(0, 2),
+    )
+    with pytest.raises(ValueError, match="must fit within remaining turns"):
+        exact_staged_curriculum_schedule(
+            (stage,),
+            groups_per_update=4,
+            pair_offset=0,
+            ordinary_seed_base=90_000,
+            shuffle_seed=17,
         )
 
 

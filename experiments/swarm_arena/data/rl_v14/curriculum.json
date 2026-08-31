@@ -1,0 +1,509 @@
+{
+  "adaptive_curriculum": {
+    "candidate_cases": [
+      "9:left_exposed:blue-0",
+      "90:left_exposed:blue-0",
+      "93:left_exposed:blue-0",
+      "3:right_exposed:blue-0",
+      "6:left_exposed:blue-0",
+      "6:right_exposed:blue-0",
+      "21:right_exposed:blue-0",
+      "3:left_exposed:blue-0",
+      "75:left_exposed:blue-0",
+      "79:right_exposed:blue-1",
+      "7:right_exposed:blue-1",
+      "91:right_exposed:blue-1",
+      "0:right_exposed:blue-1",
+      "10:right_exposed:blue-1",
+      "12:right_exposed:blue-1",
+      "94:right_exposed:blue-1",
+      "84:right_exposed:blue-1",
+      "85:left_exposed:blue-2",
+      "1:left_exposed:blue-2",
+      "4:left_exposed:blue-2",
+      "16:right_exposed:blue-2",
+      "11:left_exposed:blue-2",
+      "4:right_exposed:blue-2",
+      "95:right_exposed:blue-2",
+      "16:left_exposed:blue-2",
+      "88:left_exposed:blue-2",
+      "89:left_exposed:blue-3",
+      "86:left_exposed:blue-3",
+      "8:left_exposed:blue-3",
+      "2:left_exposed:blue-3",
+      "2:right_exposed:blue-3",
+      "89:right_exposed:blue-3",
+      "5:left_exposed:blue-3"
+    ],
+    "mastered_anchor_fraction": 0.1,
+    "mastered_pass_rate": 1.0,
+    "minimum_replicas": 4,
+    "positive_epsilon": 1e-12,
+    "selection_seed": 20261101,
+    "stage_updates": 10,
+    "stalled_anchor_fraction": 0.1,
+    "stalled_pass_rate": 0.0,
+    "version": "arena-rl-adaptive-curriculum-v1"
+  },
+  "adaptive_scope": {
+    "changes": "training handoff case identities at ten-update boundaries",
+    "does_not_change": [
+      "ordinary retention schedule",
+      "stage group mix",
+      "receiver balance",
+      "opponent rotation",
+      "reward or counterfactual",
+      "development or frozen evaluation"
+    ],
+    "evidence": "immediately preceding completed training stage only"
+  },
+  "credit_assignment": {
+    "critical": "receiver_ACT_multiturn_factual_minus_receiver_only_target_swap",
+    "decoy": "receiver_ACT_multiturn_target_swap_challenge_minus_factual",
+    "ordinary": "shared_terminal_return_leave_one_out"
+  },
+  "final_selection_rule": "earliest checkpoint with positive communication, specificity, and RL-specific lift; ordinary hard/legacy point estimates nonnegative; confirmatory intervals reserved for the larger development/frozen evaluation",
+  "frozen_data_opened": false,
+  "groups_per_update": 4,
+  "initializer": "four_distinct_public_v13_update80_adapters",
+  "initializer_claim_boundary": "continuation warm start; V13 did not pass communication claim",
+  "message_reward": null,
+  "objective": "convert verified receiver capture dependence into specific terminal team return",
+  "online_eval_updates": [
+    0,
+    10,
+    20,
+    30,
+    40
+  ],
+  "reward": "verified_terminal_control_delta_only",
+  "runtime": {
+    "action_prompt_profile": "focused_handoff_compact",
+    "decoy_shared_return_baseline": "paired_receiver_target_swap_challenge",
+    "four_distinct_policy_adapters": true,
+    "monitor_logical_update_signal": true,
+    "paired_contrast_centering": "none",
+    "shared_return_baseline": "paired_receiver_target_swap",
+    "shared_return_replicas": 4,
+    "target_swap_sender_retries": 8
+  },
+  "schedule": {
+    "ordinary_seed_base": 27000131,
+    "pair_offset": 0,
+    "shuffle_seed": 20261031
+  },
+  "stage_gate_policy": "withhold continuation on any failed predeclared gate",
+  "stages": [
+    {
+      "handoff_cases": [
+        [
+          21,
+          "right_exposed"
+        ],
+        [
+          93,
+          "left_exposed"
+        ],
+        [
+          7,
+          "right_exposed"
+        ],
+        [
+          94,
+          "right_exposed"
+        ],
+        [
+          75,
+          "left_exposed"
+        ],
+        [
+          90,
+          "left_exposed"
+        ],
+        [
+          10,
+          "right_exposed"
+        ],
+        [
+          84,
+          "right_exposed"
+        ],
+        [
+          16,
+          "left_exposed"
+        ],
+        [
+          4,
+          "left_exposed"
+        ],
+        [
+          89,
+          "right_exposed"
+        ],
+        [
+          89,
+          "left_exposed"
+        ],
+        [
+          3,
+          "left_exposed"
+        ],
+        [
+          3,
+          "right_exposed"
+        ],
+        [
+          94,
+          "right_exposed"
+        ],
+        [
+          79,
+          "right_exposed"
+        ],
+        [
+          88,
+          "left_exposed"
+        ],
+        [
+          85,
+          "left_exposed"
+        ],
+        [
+          89,
+          "right_exposed"
+        ],
+        [
+          2,
+          "right_exposed"
+        ]
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 4,
+      "handoff_trainable_turn_offsets": [
+        0,
+        1
+      ],
+      "name": "two_turn_mechanism",
+      "ordinary_horizons": [
+        8,
+        10,
+        12
+      ],
+      "ordinary_sizes": [
+        16,
+        18,
+        20
+      ],
+      "update_pattern": [
+        {
+          "critical": 2,
+          "decoy": 1,
+          "ordinary": 1
+        }
+      ],
+      "updates": 10
+    },
+    {
+      "handoff_cases": [
+        [
+          85,
+          "left_exposed"
+        ],
+        [
+          85,
+          "left_exposed"
+        ],
+        [
+          89,
+          "left_exposed"
+        ],
+        [
+          89,
+          "left_exposed"
+        ],
+        [
+          9,
+          "left_exposed"
+        ],
+        [
+          9,
+          "left_exposed"
+        ],
+        [
+          79,
+          "right_exposed"
+        ],
+        [
+          79,
+          "right_exposed"
+        ],
+        [
+          1,
+          "left_exposed"
+        ],
+        [
+          1,
+          "left_exposed"
+        ],
+        [
+          86,
+          "left_exposed"
+        ],
+        [
+          86,
+          "left_exposed"
+        ],
+        [
+          90,
+          "left_exposed"
+        ],
+        [
+          90,
+          "left_exposed"
+        ],
+        [
+          7,
+          "right_exposed"
+        ],
+        [
+          7,
+          "right_exposed"
+        ],
+        [
+          4,
+          "left_exposed"
+        ],
+        [
+          4,
+          "left_exposed"
+        ],
+        [
+          8,
+          "left_exposed"
+        ],
+        [
+          8,
+          "left_exposed"
+        ]
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 4,
+      "handoff_trainable_turn_offsets": [
+        0,
+        1,
+        2
+      ],
+      "name": "three_turn_transfer",
+      "ordinary_horizons": [
+        8,
+        10,
+        12
+      ],
+      "ordinary_sizes": [
+        16,
+        18,
+        20
+      ],
+      "update_pattern": [
+        {
+          "critical": 2,
+          "decoy": 1,
+          "ordinary": 1
+        }
+      ],
+      "updates": 10
+    },
+    {
+      "handoff_cases": [
+        [
+          9,
+          "left_exposed"
+        ],
+        [
+          9,
+          "left_exposed"
+        ],
+        [
+          79,
+          "right_exposed"
+        ],
+        [
+          79,
+          "right_exposed"
+        ],
+        [
+          90,
+          "left_exposed"
+        ],
+        [
+          90,
+          "left_exposed"
+        ],
+        [
+          7,
+          "right_exposed"
+        ],
+        [
+          7,
+          "right_exposed"
+        ],
+        [
+          85,
+          "left_exposed"
+        ],
+        [
+          85,
+          "left_exposed"
+        ],
+        [
+          89,
+          "left_exposed"
+        ],
+        [
+          89,
+          "left_exposed"
+        ],
+        [
+          93,
+          "left_exposed"
+        ],
+        [
+          93,
+          "left_exposed"
+        ],
+        [
+          91,
+          "right_exposed"
+        ],
+        [
+          91,
+          "right_exposed"
+        ],
+        [
+          1,
+          "left_exposed"
+        ],
+        [
+          1,
+          "left_exposed"
+        ],
+        [
+          86,
+          "left_exposed"
+        ],
+        [
+          86,
+          "left_exposed"
+        ]
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 6,
+      "handoff_trainable_turn_offsets": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "name": "long_horizon_conversion",
+      "ordinary_horizons": [
+        10,
+        12,
+        14
+      ],
+      "ordinary_sizes": [
+        18,
+        20,
+        22
+      ],
+      "update_pattern": [
+        {
+          "critical": 2,
+          "decoy": 1,
+          "ordinary": 1
+        }
+      ],
+      "updates": 10
+    },
+    {
+      "handoff_cases": [
+        [
+          85,
+          "left_exposed"
+        ],
+        [
+          89,
+          "left_exposed"
+        ],
+        [
+          9,
+          "left_exposed"
+        ],
+        [
+          79,
+          "right_exposed"
+        ],
+        [
+          1,
+          "left_exposed"
+        ],
+        [
+          86,
+          "left_exposed"
+        ],
+        [
+          90,
+          "left_exposed"
+        ],
+        [
+          7,
+          "right_exposed"
+        ],
+        [
+          4,
+          "left_exposed"
+        ],
+        [
+          8,
+          "left_exposed"
+        ]
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 6,
+      "handoff_trainable_turn_offsets": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "name": "specificity_consolidation",
+      "ordinary_horizons": [
+        10,
+        12,
+        14
+      ],
+      "ordinary_sizes": [
+        18,
+        20,
+        22
+      ],
+      "update_pattern": [
+        {
+          "critical": 1,
+          "decoy": 1,
+          "ordinary": 2
+        }
+      ],
+      "updates": 10
+    }
+  ],
+  "total_updates": 40,
+  "version": "arena-rl-v14-grounded-follow-through-v1"
+}

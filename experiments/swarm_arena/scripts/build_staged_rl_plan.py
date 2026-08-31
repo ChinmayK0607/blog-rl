@@ -17,6 +17,33 @@ def _digest(value: object) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+def _production_stage(stage: dict[str, object]) -> dict[str, object]:
+    result = {
+        key: stage[key]
+        for key in (
+            "name",
+            "updates",
+            "update_pattern",
+            "ordinary_sizes",
+            "ordinary_horizons",
+            "handoff_focus_roles",
+            "handoff_remaining_turns",
+            "handoff_trainable_turn_offsets",
+        )
+        if key in stage
+    }
+    if "handoff_cases" in stage:
+        result["handoff_cases"] = [
+            (
+                value
+                if isinstance(value, dict)
+                else {"pair_index": int(value[0]), "world": str(value[1])}
+            )
+            for value in stage["handoff_cases"]
+        ]
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Bind the checked-in staged curriculum to an immutable opponent/runtime plan."
@@ -65,23 +92,7 @@ def main() -> None:
     plan = {
         **base,
         "version": STAGED_RL_PRODUCTION_PLAN_VERSION,
-        "curriculum_stages": [
-            {
-                key: stage[key]
-                for key in (
-                    "name",
-                    "updates",
-                    "update_pattern",
-                    "ordinary_sizes",
-                    "ordinary_horizons",
-                    "handoff_focus_roles",
-                    "handoff_cases",
-                    "handoff_remaining_turns",
-                )
-                if key in stage
-            }
-            for stage in curriculum["stages"]
-        ],
+        "curriculum_stages": [_production_stage(stage) for stage in curriculum["stages"]],
         "curriculum_source": {
             "path": str(args.curriculum),
             "sha256": _digest(curriculum),
@@ -112,6 +123,11 @@ def main() -> None:
             "path": str(args.runtime_certificate),
             "sha256": certificate["sha256"],
         },
+        **(
+            {"adaptive_curriculum": curriculum["adaptive_curriculum"]}
+            if curriculum.get("adaptive_curriculum") is not None
+            else {}
+        ),
     }
     if args.trainable_phase or args.trainable_turn_offset:
         if len(set(args.trainable_phase)) != len(args.trainable_phase):
@@ -155,6 +171,11 @@ def main() -> None:
         "runtime_certificate_sha256": certificate["sha256"],
         "async_admission_limits_sha256": parsed_admission_limits.sha256,
         "trainable_phases": list(loaded.trainable_phases),
+        "adaptive_curriculum": (
+            None
+            if loaded.adaptive_curriculum is None
+            else loaded.adaptive_curriculum.__dict__
+        ),
         "unique_ordinary_seeds": len({row.ordinary_seed for row in schedule if row.ordinary_seed is not None}),
         "schedule_sha256": _digest(
             [
@@ -169,6 +190,13 @@ def main() -> None:
                     "handoff_focus_role": row.handoff_focus_role,
                     "handoff_world": row.handoff_world,
                     "handoff_remaining_turns": row.handoff_remaining_turns,
+                    **(
+                        {
+                            "handoff_trainable_turn_offsets": row.handoff_trainable_turn_offsets
+                        }
+                        if row.handoff_trainable_turn_offsets is not None
+                        else {}
+                    ),
                 }
                 for row in schedule
             ]

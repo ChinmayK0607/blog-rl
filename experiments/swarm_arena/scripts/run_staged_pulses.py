@@ -11,6 +11,7 @@ from pathlib import Path
 
 from swarm_ctf_eval.progress_eval_v5 import PROGRESS_EVAL_V5_VERSION
 from swarm_ctf_eval.rl_production import load_production_plan
+from swarm_ctf_eval.stage_gate import evaluate_stage_gate, file_sha256, load_stage_gates
 
 
 def _digest(value: object) -> str:
@@ -225,6 +226,11 @@ def main() -> None:
     parser.add_argument("--pair7-temperature", type=float, default=0.4)
     parser.add_argument("--communication-remaining-turns", type=int, default=2)
     parser.add_argument("--multipair-index", type=int, action="append", default=[])
+    parser.add_argument(
+        "--stage-gates",
+        type=Path,
+        help="Fail-closed checkpoint gates evaluated before writing each continuation.",
+    )
     args = parser.parse_args()
     if args.expected_updates < 1 or args.interval < 1:
         parser.error("updates and interval must be positive")
@@ -234,6 +240,8 @@ def main() -> None:
         parser.error("staged pulses require exactly three rollout server URLs")
     if args.communication_remaining_turns < 1:
         parser.error("communication remaining turns must be positive")
+    if args.stage_gates is not None and args.evaluation_mode != "full":
+        parser.error("stage gates require the full 192-row progress evaluation")
     pair_indices = (
         tuple(args.multipair_index or (7, 9))
         if args.evaluation_mode == "multipair"
@@ -241,6 +249,15 @@ def main() -> None:
     )
 
     plan, _ = load_production_plan(args.production_plan)
+    stage_gates = load_stage_gates(args.stage_gates) if args.stage_gates is not None else None
+    if stage_gates is not None:
+        if sorted(int(value) for value in stage_gates["checkpoints"]) != list(
+            range(args.interval, args.expected_updates + 1, args.interval)
+        ):
+            raise ValueError("stage gates must cover every non-zero pulse checkpoint exactly")
+        bound_plan = stage_gates.get("production_plan_sha256")
+        if bound_plan is not None and bound_plan != plan.sha256:
+            raise ValueError("stage gates disagree with the production plan")
     if plan.expected_updates != args.expected_updates:
         raise ValueError("pulse schedule disagrees with production plan")
     by_family = {snapshot.family: snapshot for snapshot in plan.opponent_pool.snapshots}
@@ -369,7 +386,30 @@ def main() -> None:
                 pair_indices=pair_indices,
             )
         else:
-            _validate_summary(summary_path, step=step)
+            summary = _validate_summary(summary_path, step=step)
+        if stage_gates is not None and step:
+            gate = evaluate_stage_gate(
+                stage_gates,
+                summary,
+                step=step,
+                summary_sha256=file_sha256(summary_path),
+            )
+            gate_path = output_dir / "STAGE_GATE.json"
+            if gate_path.is_file():
+                if json.loads(gate_path.read_text(encoding="utf-8")) != gate:
+                    raise ValueError(f"existing stage-gate record mismatch at update {step}")
+            else:
+                _atomic_json(gate_path, gate)
+            if gate["status"] != "passed":
+                rejection_path = args.barrier_dir / f"step_{step}.rejected.json"
+                if rejection_path.is_file():
+                    if json.loads(rejection_path.read_text(encoding="utf-8")) != gate:
+                        raise ValueError(f"existing rejection mismatch at update {step}")
+                else:
+                    _atomic_json(rejection_path, gate)
+                raise RuntimeError(
+                    f"development gate failed at update {step}; continuation withheld"
+                )
         continuation = {
             "version": "swarm-checkpoint-barrier-v1",
             "step": step,

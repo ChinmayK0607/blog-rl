@@ -1,0 +1,367 @@
+{
+  "checkpoints": {
+    "10": {
+      "on_fail": "stop_before_next_optimizer_update",
+      "requirements": [
+        {
+          "minimum": 0.0,
+          "name": "terminal_message_dependence",
+          "path": [
+            "communication_effects",
+            "normal_minus_dropped",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": -0.01,
+          "name": "critical_decoy_specificity",
+          "path": [
+            "critical_minus_decoy_specificity",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": -0.01,
+          "name": "rl_specific_communication_lift",
+          "path": [
+            "rl_specific_communication_lift",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.1,
+          "name": "capture_mechanism",
+          "path": [
+            "communication_mechanism",
+            "candidate_capture_normal_minus_dropped",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": -0.02,
+          "name": "ordinary_hard_retention",
+          "path": [
+            "capability_rl_minus_sft",
+            "ordinary_hard",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": -0.02,
+          "name": "ordinary_legacy_retention",
+          "path": [
+            "capability_rl_minus_sft",
+            "ordinary_legacy",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.0,
+          "name": "overall_gameplay_retention",
+          "path": [
+            "overall_gameplay_rl_minus_sft",
+            "mean_difference"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "action_protocol_rate",
+          "path": [
+            "candidate_protocol",
+            "action_protocol_rate"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "broadcast_protocol_rate",
+          "path": [
+            "candidate_protocol",
+            "broadcast_protocol_rate"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "broadcast_grounded_rate",
+          "path": [
+            "candidate_protocol",
+            "broadcast_grounded_rate"
+          ]
+        }
+      ],
+      "stage": "two_turn_mechanism"
+    },
+    "20": {
+      "on_fail": "stop_before_next_optimizer_update",
+      "requirements": [
+        {
+          "minimum": 0.015,
+          "name": "terminal_message_dependence",
+          "path": [
+            "communication_effects",
+            "normal_minus_dropped",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.0,
+          "name": "critical_decoy_specificity",
+          "path": [
+            "critical_minus_decoy_specificity",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.0,
+          "name": "rl_specific_communication_lift",
+          "path": [
+            "rl_specific_communication_lift",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.125,
+          "name": "capture_mechanism",
+          "path": [
+            "communication_mechanism",
+            "candidate_capture_normal_minus_dropped",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": -0.02,
+          "name": "ordinary_hard_retention",
+          "path": [
+            "capability_rl_minus_sft",
+            "ordinary_hard",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": -0.02,
+          "name": "ordinary_legacy_retention",
+          "path": [
+            "capability_rl_minus_sft",
+            "ordinary_legacy",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.01,
+          "name": "overall_gameplay_retention",
+          "path": [
+            "overall_gameplay_rl_minus_sft",
+            "mean_difference"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "action_protocol_rate",
+          "path": [
+            "candidate_protocol",
+            "action_protocol_rate"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "broadcast_protocol_rate",
+          "path": [
+            "candidate_protocol",
+            "broadcast_protocol_rate"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "broadcast_grounded_rate",
+          "path": [
+            "candidate_protocol",
+            "broadcast_grounded_rate"
+          ]
+        }
+      ],
+      "stage": "three_turn_transfer"
+    },
+    "30": {
+      "on_fail": "stop_before_next_optimizer_update",
+      "requirements": [
+        {
+          "minimum": 0.025,
+          "name": "terminal_message_dependence",
+          "path": [
+            "communication_effects",
+            "normal_minus_dropped",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.01,
+          "name": "critical_decoy_specificity",
+          "path": [
+            "critical_minus_decoy_specificity",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.01,
+          "name": "rl_specific_communication_lift",
+          "path": [
+            "rl_specific_communication_lift",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.125,
+          "name": "capture_mechanism",
+          "path": [
+            "communication_mechanism",
+            "candidate_capture_normal_minus_dropped",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": -0.01,
+          "name": "ordinary_hard_retention",
+          "path": [
+            "capability_rl_minus_sft",
+            "ordinary_hard",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": -0.01,
+          "name": "ordinary_legacy_retention",
+          "path": [
+            "capability_rl_minus_sft",
+            "ordinary_legacy",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.02,
+          "name": "overall_gameplay_retention",
+          "path": [
+            "overall_gameplay_rl_minus_sft",
+            "mean_difference"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "action_protocol_rate",
+          "path": [
+            "candidate_protocol",
+            "action_protocol_rate"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "broadcast_protocol_rate",
+          "path": [
+            "candidate_protocol",
+            "broadcast_protocol_rate"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "broadcast_grounded_rate",
+          "path": [
+            "candidate_protocol",
+            "broadcast_grounded_rate"
+          ]
+        }
+      ],
+      "stage": "long_horizon_conversion"
+    },
+    "40": {
+      "on_fail": "stop_before_next_optimizer_update",
+      "requirements": [
+        {
+          "minimum": 0.03,
+          "name": "terminal_message_dependence",
+          "path": [
+            "communication_effects",
+            "normal_minus_dropped",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.02,
+          "name": "critical_decoy_specificity",
+          "path": [
+            "critical_minus_decoy_specificity",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.02,
+          "name": "rl_specific_communication_lift",
+          "path": [
+            "rl_specific_communication_lift",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.125,
+          "name": "capture_mechanism",
+          "path": [
+            "communication_mechanism",
+            "candidate_capture_normal_minus_dropped",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.0,
+          "name": "ordinary_hard_retention",
+          "path": [
+            "capability_rl_minus_sft",
+            "ordinary_hard",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.0,
+          "name": "ordinary_legacy_retention",
+          "path": [
+            "capability_rl_minus_sft",
+            "ordinary_legacy",
+            "mean_difference"
+          ]
+        },
+        {
+          "minimum": 0.03,
+          "name": "overall_gameplay_retention",
+          "path": [
+            "overall_gameplay_rl_minus_sft",
+            "mean_difference"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "action_protocol_rate",
+          "path": [
+            "candidate_protocol",
+            "action_protocol_rate"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "broadcast_protocol_rate",
+          "path": [
+            "candidate_protocol",
+            "broadcast_protocol_rate"
+          ]
+        },
+        {
+          "equals": 1.0,
+          "name": "broadcast_grounded_rate",
+          "path": [
+            "candidate_protocol",
+            "broadcast_grounded_rate"
+          ]
+        }
+      ],
+      "stage": "specificity_consolidation"
+    }
+  },
+  "scope": "development_point_estimate_training_control_not_confirmatory_claim",
+  "sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2",
+  "version": "arena-rl-stage-gates-v1"
+}

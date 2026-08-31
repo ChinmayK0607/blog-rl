@@ -497,6 +497,72 @@ def test_receiver_only_target_swap_isolates_the_counterfactual_context() -> None
         )
 
 
+def test_receiver_only_target_swap_routes_exact_multiturn_followthrough() -> None:
+    root = Path(__file__).resolve().parents[1]
+    manifest = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())
+    critical = reconstruct_manifest_scenario(manifest["pairs"][12]["critical"])
+    world = critical.worlds[0]
+    offsets = (0, 1, 2)
+    spec = SharedReturnSpec(
+        replicas=2,
+        trainable_phases=("ACT",),
+        trainable_turn_offsets=offsets,
+        baseline="paired_receiver_target_swap",
+        credit_assignment="focused_agent",
+        action_prompt_profile="focused_handoff_compact",
+    )
+    lock = _lock(spec)
+    group = asyncio.run(
+        build_live_shared_return_group(
+            ExposedFactGenerator(),  # type: ignore[arg-type]
+            group_id="paired-receiver-multiturn",
+            seed=critical.seed,
+            size=critical.size,
+            config=EpisodeConfig(
+                horizon=world.state.turn + 3,
+                communication_cost=0.0,
+                invalid_broadcast_cost=0.0,
+                invalid_action_cost=0.0,
+            ),
+            spec=spec,
+            bindings=_bindings(),
+            policies=_endpoints(),
+            run_lock_sha256=lock.sha256,
+            initial_state=world.state,
+            focused_agent=critical.receiver,
+            message_swap_agent=critical.sender,
+            message_swap_turn=world.state.turn,
+            message_swap_targets=critical.candidate_targets,
+            message_swap_active_target=world.active_target,
+        )
+    )
+    approvals = approve_shared_return_group(
+        lock,
+        group.evidence,
+        _bindings(),
+        "BLUE",
+        b"shared-return-test-signing-key-32-bytes",
+    )
+
+    expected_suffixes = {f":{world.state.turn + offset}:ACT" for offset in offsets}
+    receiver_envelopes = [
+        envelope
+        for approval in approvals
+        for envelope in approval.envelopes
+        if envelope.agent_id == critical.receiver
+    ]
+    assert len(receiver_envelopes) == spec.replicas
+    assert all(
+        {suffix for suffix in expected_suffixes if any(value.endswith(suffix) for value in envelope.decision_ids)}
+        == expected_suffixes
+        for envelope in receiver_envelopes
+    )
+    assert all(
+        all(value.endswith(":ACT") for value in envelope.decision_ids)
+        for envelope in receiver_envelopes
+    )
+
+
 def test_receiver_target_swap_challenge_trains_only_the_counterfactual_receiver() -> None:
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "data" / "rl_v4" / "handoff_train.json").read_text())

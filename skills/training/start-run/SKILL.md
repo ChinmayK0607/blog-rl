@@ -206,19 +206,44 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   joint sender-receiver curriculum, the production plan must allow both
   `BROADCAST` and `ACT`. Each scheduled handoff then binds exactly one causal
   phase into its group-specific run lock: sender focus uses turn-zero
-  `BROADCAST`, receiver focus uses turn-zero `ACT`, and ordinary focus uses
-  `ACT`. Older receiver-only curricula may still bind an ACT-only plan.
+  `BROADCAST`, receiver focus uses the stage-declared audited `ACT` turn
+  offsets, and ordinary focus uses `ACT`. A missing handoff offset declaration
+  retains the legacy turn-zero behavior so completed run identities remain
+  reproducible. Every declared offset must fit inside the scheduled remaining
+  horizon; never widen it dynamically after observing results.
   The production controller must block on content-hashed evaluation barriers
   at step 0 and every ten updates, while Prime retains every corresponding
-  checkpoint. Step-zero SFT-vs-SFT invariance must pass before the first
-  optimizer update. Keep trainer W&B offline and sync it after completion so a
-  logging outage cannot kill the optimizer.
+  checkpoint. If a run provides a hash-bound stage-gate file, the pulse daemon
+  must write an immutable `STAGE_GATE.json` and may write the continuation only
+  when every predeclared requirement passes. On failure, preserve a rejection
+  record and stop before the next optimizer update; do not weaken a threshold
+  or silently continue. Step-zero SFT-vs-SFT invariance must pass before the
+  first optimizer update. Keep trainer W&B offline and sync it after completion
+  so a logging outage cannot kill the optimizer.
+  A training-only adaptive curriculum may change future handoff case identities
+  only when the production plan binds the selector version, thresholds,
+  candidate pool, stage cadence, seed, and anchor fractions. Analyze the entire
+  preceding completed stage rather than resampling a batch until it produces
+  gradient. Treat one group as the scheduling observation even when it contains
+  multiple replicas. Keep fixed ordinary retention coverage, receiver balance,
+  group mix, opponent rotation, reward, and counterfactual. Retain small
+  mastered and stalled anchors instead of permanently deleting them. Atomically
+  hash-bind every stage selection to its training-progress input; an existing
+  selection must reproduce exactly on resume. Development and frozen outcomes
+  may gate or evaluate training but must never feed the adaptive selector.
   `scripts/log_live_rl_wandb.py` is a failure-isolated sidecar for controller
   return, curriculum, opponent, and causal-evaluation metrics. Keep it in the
   same W&B group as trainer telemetry, but do not make training health depend
   on W&B availability. Store only compact summaries/artifacts there; publish a
   selected adapter separately to Hugging Face and never copy checkpoints to the
   local Mac.
+- Before renting a paid GPU, freeze a maximum dollar budget, a wall-time
+  cutoff, stage-gate checkpoints, and the exact action for pass/fail. Install
+  the independent watcher and recovery supervisor before update 1. After the
+  final evaluation, public hash verification, and W&B sync succeed, resolve the
+  exact provider instance ID and decommission it immediately unless the user
+  explicitly asked to keep it. Never leave a completed model-resident node
+  billing merely because teardown was not repeated in the scientific plan.
 
 ## `sft` — SFT training
 

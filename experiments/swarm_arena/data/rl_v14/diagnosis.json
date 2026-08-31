@@ -1,0 +1,67 @@
+{
+  "conclusion": "V13 learned factual reporting and receiver capture dependence while later training improved gameplay but attenuated terminal communication specificity; V14 trains the receiver's audited follow-through actions across later turns.",
+  "frozen_data_opened": false,
+  "not_addressed_by_reward_shaping": true,
+  "public_source": {
+    "repository": "CK0607/swarm-arena-live-runs",
+    "required_files": [
+      "evaluations/update-60/summary.json",
+      "evaluations/update-80/summary.json",
+      "checkpoints/step-80/MANIFEST.json"
+    ],
+    "run": "runs/rl-v13-role-adaptive4b80-21d756d1"
+  },
+  "sha256": "166165bd35e3bc78312f4c434c9e797052dc811cfb8103ea93fea33801ff0fa1",
+  "source_hashes": {
+    "train_manifest": "12eae0b2752fd7c33c151d3b68c1f4a5f6e1960e18c0558aa5e4833c61cccbc2",
+    "v13_curriculum": "0e5b2c1380e1f3ae1fefc649cda16c3a02aaeabf90c94ac41b358647eabbd123",
+    "v13_progress": "c5b7dfcd23aa37c24dc74b4652e9afdc4b5c91ab202b48af9f7891331c66810f",
+    "v13_update60_summary": "0dfc3d8c6b5ac3106213f237afc4c1802b97713966ed393c73fe527f3e8497af",
+    "v13_update80_manifest": "b369efad4f901958ff1c91d479f70bbf7064aee7f21121bec47185b654ba1d40",
+    "v13_update80_summary": "6d996e8350961dce5e3ea1e53b2d35553f2c859adbebee06574a784c8b5933aa"
+  },
+  "v13_training_frontier_analysis_sha256": "1b903e9143d74496cdbfafb55451897ff1656c41a5953522e6c1526946679192",
+  "v13_update60": {
+    "capture_normal_minus_dropped": 0.125,
+    "normal_minus_dropped": 0.044679784444756176,
+    "normal_minus_dropped_95": [
+      -0.01278597088296464,
+      0.09939832519105386
+    ],
+    "ordinary_hard": 0.05611859678036149,
+    "ordinary_legacy": 0.011384266657879852,
+    "overall_gameplay": 0.04201282359804435,
+    "rl_specific_lift": 0.038091958626512996,
+    "rl_specific_lift_95": [
+      -0.017790270738416308,
+      0.11395696146258787
+    ],
+    "specificity": 0.04868147777274449,
+    "specificity_95": [
+      -0.032483499662794485,
+      0.12757347534715657
+    ]
+  },
+  "v13_update80": {
+    "capture_normal_minus_dropped": 0.16666666666666666,
+    "normal_minus_dropped": 0.006893787378847666,
+    "normal_minus_dropped_95": [
+      -0.027017910242527372,
+      0.0392721656023762
+    ],
+    "ordinary_hard": 0.09150652430064196,
+    "ordinary_legacy": 0.05987618827948664,
+    "overall_gameplay": 0.059137864535539424,
+    "rl_specific_lift": 0.00030596156060449495,
+    "rl_specific_lift_95": [
+      -0.05824278039206771,
+      0.05676419104776195
+    ],
+    "specificity": 0.013505627577133259,
+    "specificity_95": [
+      -0.05302247278991465,
+      0.08100272019224318
+    ]
+  },
+  "version": "arena-rl-v14-v13-gap-diagnosis-v1"
+}

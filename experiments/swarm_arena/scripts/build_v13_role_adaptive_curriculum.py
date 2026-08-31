@@ -275,7 +275,16 @@ def build(selection: dict[str, Any], train: dict[str, Any]) -> tuple[dict[str, A
             if selection_status == "training_only_complete"
             else "interim_passed_refresh_required_at_v12_completion"
         ),
-        "schedule_sha256": digest([row.__dict__ for row in schedule]),
+        "schedule_sha256": digest(
+            [
+                {
+                    key: value
+                    for key, value in row.__dict__.items()
+                    if key != "handoff_trainable_turn_offsets" or value is not None
+                }
+                for row in schedule
+            ]
+        ),
         "selection_sha256": digest(selection),
         "group_counts": dict(sorted(counts.items())),
         "receiver_counts": {

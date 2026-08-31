@@ -1,0 +1,46 @@
+{
+  "artifact_body_sha256": {
+    "curriculum": "1678466a48006aefdb238e7faf2b78cfa8933641943f1842ddb5be95ec82dd01",
+    "curriculum_audit": "b906bc49cb6444250786db0cc5b2f2688231738cd7424b48a6ddeb4b5f76495f",
+    "diagnosis": "166165bd35e3bc78312f4c434c9e797052dc811cfb8103ea93fea33801ff0fa1",
+    "stage_gates": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2",
+    "v13_frontier_analysis": "1b903e9143d74496cdbfafb55451897ff1656c41a5953522e6c1526946679192"
+  },
+  "curriculum": {
+    "adaptive_config_sha256": "9da6618458d1c7d7ee29afbe393a0a1030e224eced023543806eb8107f42729b",
+    "groups_per_update": 4,
+    "schedule_sha256": "6656b76537e19fb4cc1b7f6d2be53db6c3e921ef6e9ab92427229741d654f59e",
+    "stage_gate_sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2",
+    "updates_maximum": 40
+  },
+  "frozen_data_opened": false,
+  "gpu_budget": {
+    "assumed_hourly_usd": 1.52,
+    "auto_stop": "at failed stage gate, hard budget, or completed final artifact sync",
+    "maximum_usd": 15.0,
+    "maximum_wall_hours": 9.0,
+    "never_rent_before_cpu_and_zero_update_preflight_pass": true,
+    "target_hardware": "4xL40S"
+  },
+  "initializer": {
+    "claim_boundary": "continuation warm start, not a communication-claim pass",
+    "policy_adapter_sha256": {
+      "blue-0": "24ccd2920d79e65c24bc47bd1e9c1318fb8ca6b582a6651273ab2a53749e2d53",
+      "blue-1": "deeb19976f8941a90a9b4dd1f72114e2926d28024d7b68bbe5c5834636f0ae7a",
+      "blue-2": "1612d158354327cd732aaad5e1978a28252af0cef91355aac201e48cd545da44",
+      "blue-3": "016402a737c9b9cf897f9e38879308b1f085d6871360cc1e464a21367a98637a"
+    },
+    "policy_revision": "9eec6d60cae1b11179f9b421b7bdd23ad456b3da912cb9d13a901f1337992228",
+    "run": "rl-v13-role-adaptive4b80-21d756d1",
+    "step": 80
+  },
+  "required_preflight": [
+    "all CPU tests and schedule audits pass",
+    "multi-turn supervisor exact replay and parity pass",
+    "ordinary pass@4 has nonzero positive and negative signal in every policy slot",
+    "all services and compact mirrors are watched before update 1"
+  ],
+  "sha256": "f4b92cee98667563ebf91f9c6b927c7de1250472c3117b063cd224b7271bd570",
+  "status": "cpu_design_and_tests_complete_gpu_preflight_pending",
+  "version": "arena-rl-v14-cpu-bundle-v1"
+}
