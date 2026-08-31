@@ -6417,6 +6417,40 @@ no more critical-specific than decoy-specific. Therefore:
   immediate exact-instance teardown instead of the idle grace period.
 - Instance decommissioned: no; allocation not yet created.
 
+### 2026-08-31 — V14 GPU allocation and warm-start binding correction
+
+- Status: running; environment and public input preparation in progress. No
+  optimizer or inference process has started.
+- Source at allocation: `4a8eb2943a7fec012d719145d1a93f5946a43e43`,
+  anonymously verified with CPU-bundle file SHA-256
+  `2f5dbbdbe31c47b2170b978bc139ddf7b7a2b6e0c2fc44d1ca1b5a0ab03a12b3`.
+- GPU/cost: exact Lium pod `9af282ec-bcf8-4322-9692-d5fe32655a56`
+  (`swift-wolf-be`), `64.247.196.76:40299`, 4xL40S with 49,140 MiB each,
+  `$1.52/hour`. Provider TTL is nine hours, scheduled for
+  `2026-08-31T16:35:34.016865`; hard scheduled spend is `$13.68`.
+- Setup: public HTTPS checkout and submodules resolved exactly. The image lacked
+  `uv`; system pip correctly refused to modify the externally managed Python,
+  so uv `0.12.7` was installed with Astral's standalone installer. The single
+  frozen sync used `/workspace/.uv-cache` and completed. Base and adapter
+  downloads are anonymous and concurrent; GPUs remain unallocated.
+- Mechanical launch gap caught during downloads: the distinct-policy preparer
+  encoded V11 update 180 as its only accepted source even though V14 resumes
+  four distinct V13 update-80 adapters. It now accepts an explicitly declared
+  checkpoint step and source label while retaining the old defaults. The V13
+  path remains checksum- and public-manifest-bound. Three focused tests and
+  Ruff passed. This changes no adapter bytes, reward, curriculum, gate,
+  optimizer, or evaluation.
+- Monitoring: Codex heartbeat `monitor-and-recover-v14-to-completion` checks the
+  exact pod every ten minutes. Completion triggers immediate exact-pod teardown;
+  a two-hour confirmed no-progress/near-zero-GPU condition permits teardown only
+  after excluding legitimate work and attempting narrow evidence-preserving
+  recovery. `lium rm --all` is forbidden.
+- Credential status: the authorized W&B-only netrc was copied with mode 0600.
+  The previously supplied Hugging Face token was not present in the approved
+  local environment or standard token files, so the HF write preflight remains
+  blocked and optimizer update 1 is not authorized until this is resolved.
+- Instance decommissioned: no; active setup.
+
 ## Future entry template
 
 Copy this block for each material run:

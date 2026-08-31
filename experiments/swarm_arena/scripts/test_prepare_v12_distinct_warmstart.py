@@ -61,3 +61,21 @@ def test_prepare_rejects_one_corrupt_policy(tmp_path: Path) -> None:
     base = Path(__file__).resolve().parents[1] / "configs" / "rl_v12_4b_robust_communication_160.toml"
     with pytest.raises(ValueError, match="blue-2"):
         warmstart.prepare(base, manifest, root, tmp_path / "trainer.toml", tmp_path / "warmstart.json")
+
+
+def test_prepare_accepts_declared_step_and_source(tmp_path: Path) -> None:
+    manifest, root, _ = make_fixture(tmp_path)
+    body = json.loads(manifest.read_text())
+    body["ready"]["step"] = 80
+    manifest.write_text(json.dumps(body))
+    base = Path(__file__).resolve().parents[1] / "configs" / "rl_v12_4b_robust_communication_160.toml"
+    result = warmstart.prepare(
+        base,
+        manifest,
+        root,
+        tmp_path / "trainer.toml",
+        tmp_path / "warmstart.json",
+        expected_step=80,
+        source_label="public-v13-update80",
+    )
+    assert result["source"] == "public-v13-update80"

@@ -15,15 +15,24 @@ def sha256(path: Path) -> str:
 
 def prepare(
     base_trainer_config: Path,
-    v11_checkpoint_manifest: Path,
+    checkpoint_manifest: Path,
     adapter_root: Path,
     trainer_output: Path,
     controller_manifest_output: Path,
+    *,
+    expected_step: int = 180,
+    source_label: str = "public-v11-update180",
 ) -> dict[str, object]:
-    manifest = json.loads(v11_checkpoint_manifest.read_text())
+    if expected_step < 0:
+        raise ValueError("warm-start checkpoint step cannot be negative")
+    if not source_label:
+        raise ValueError("warm-start source label cannot be empty")
+    manifest = json.loads(checkpoint_manifest.read_text())
     ready = manifest.get("ready")
-    if not isinstance(ready, dict) or int(ready.get("step", -1)) != 180:
-        raise ValueError("warm start must use the public V11 update-180 ready record")
+    if not isinstance(ready, dict) or int(ready.get("step", -1)) != expected_step:
+        raise ValueError(
+            f"warm start must use the declared public update-{expected_step} ready record"
+        )
     hashes = ready.get("policy_adapter_sha256")
     if not isinstance(hashes, dict) or set(hashes) != {
         f"blue-{index}" for index in range(4)
@@ -33,8 +42,8 @@ def prepare(
     paths = {}
     controller = {
         "version": "swarm-distinct-policy-warmstart-v1",
-        "source": "public-v11-update180",
-        "source_manifest_sha256": sha256(v11_checkpoint_manifest),
+        "source": source_label,
+        "source_manifest_sha256": sha256(checkpoint_manifest),
         "policies": {},
     }
     for index in range(4):
@@ -89,6 +98,8 @@ def main() -> None:
     parser.add_argument("--adapter-root", type=Path, required=True)
     parser.add_argument("--trainer-output", type=Path, required=True)
     parser.add_argument("--controller-manifest-output", type=Path, required=True)
+    parser.add_argument("--expected-step", type=int, default=180)
+    parser.add_argument("--source-label", default="public-v11-update180")
     args = parser.parse_args()
     controller = prepare(
         args.base_trainer_config,
@@ -96,6 +107,8 @@ def main() -> None:
         args.adapter_root,
         args.trainer_output,
         args.controller_manifest_output,
+        expected_step=args.expected_step,
+        source_label=args.source_label,
     )
     print(json.dumps(controller, indent=2, sort_keys=True))
 
