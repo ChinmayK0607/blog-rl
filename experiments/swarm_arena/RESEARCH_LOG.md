@@ -6456,6 +6456,93 @@ no more critical-specific than decoy-specific. Therefore:
   blocked and optimizer update 1 is not authorized until this is resolved.
 - Instance decommissioned: no; active setup.
 
+### 2026-08-31 — V14 runtime certificate and zero-update admission
+
+- Status: running; zero optimizer updates. The bounded ordinary pass@4 signal
+  screen is active after a passed serving/trainer certificate.
+- Source commit: `d5c419bd2c86c2b13facecd249459228beab1c36`.
+- Runtime binding: four public V13 update-80 policy adapters were independently
+  hash-checked and loaded as distinct policy slots. Runtime-certificate body
+  SHA-256 is `5a9c881e25e4436abdffb0b30c9e58ab812c0769efda9c4c5e424de99d6cd21a`;
+  trainer TOML file SHA-256 is
+  `cca55822096e3e43bfaa124171f0e86632bbfa666c9ab559b14389b1a967a5aa`.
+- Parity result: passed, with optimizer isolation passed and only `run_blue_0`
+  changing in the single-policy step. Mean absolute log-probability error was
+  `0.0008707289`, p99 `0.0020703445`, mean mismatch KL `0.0000825875`, and
+  maximum mismatch KL `0.0548624992`, within the unchanged trainer gates.
+- Production plan: 40 updates / 160 groups: 70 critical, 40 decoy, and 50
+  ordinary groups; plan SHA-256
+  `35658a7c3f272422ca1fd8d39aaabbdcb3518b6f6880db6f4f4cd8d3a2b1aaee`.
+- Failures and retries: initial inference startup failed before model load
+  because three VLLM RPC directories did not exist; the exact failure was
+  preserved and only those directories/sessions were repaired. Initial parity
+  launch failed before GPU work because `torch.distributed` lacked `RANK`; the
+  exact partial output/log/config/probe were preserved and the unchanged
+  certificate was relaunched with one-process `torch.distributed.run`. A
+  duplicate parity-capture attempt failed closed on `FileExistsError` and did
+  not overwrite the completed probe. No scientific gate was changed.
+- Provenance correction: the first runtime bind and seven ordinary-screen cases
+  were labeled with nonexistent base revision
+  `cdbee75f17c09f0314601f290d8d5d4c74b6afcc` (public API 404). The valid,
+  previously frozen Qwen revision is
+  `cdbee75f17c01a7cc42f958dc650907174af0554` (public API 200). Model bytes were
+  unchanged, but the seven cases, old certificate, and derived plan were
+  preserved as a failed incident and excluded. The certificate/plan and screen
+  were restarted from zero with the valid revision before any optimizer update.
+- Operational hardening: the active watcher now distinguishes preserved,
+  recovered preflight logs from current faults (script SHA-256
+  `62ef72015431553935c15e28209a8e9941a9977ff73692cf090347fae0170e7b`).
+  A run-local, hash-preserved launcher copy (SHA-256
+  `bf63329f086ab907a71c0d6d89055449fc40158528a7322c7cd7d406fe63f83b`)
+  adds only the already-frozen `--stage-gates` argument and a 10,800-second
+  operational pulse wait; scientific source and gate bodies are unchanged.
+- Admission screen: the immutable 64-case / 256-game V13 ordinary signal
+  manifest is being rerun against the exact V13 update-80 V14 initializer. It
+  must meet the predeclared per-policy positive, negative, nonzero-rate,
+  variable-return, family-coverage, action-diversity, and protocol thresholds
+  before update 1.
+- Credential blocker: W&B-only credentials are installed with mode 0600. The
+  authorized Hugging Face token bytes remain unavailable locally, so optimizer
+  update 1 remains fail-closed until the public compact-mirror preflight passes.
+- Instance decommissioned: no; active bounded admission work.
+
+### 2026-08-31 — V14 zero-update rejection and immediate teardown
+
+- Status: rejected before optimizer update 1; exact provider instance removed.
+- Verdict: valid mechanical/runtime certificate, failed ordinary signed-signal
+  admission. No RL optimizer update occurred.
+- Exact result: all 64 cases / 256 replicas completed with protocol admission
+  `1.0`. Blue-0 and blue-3 passed every frozen gate. Blue-1 and blue-2 each had
+  nonzero-advantage and variable-return rates of `0.1875`, below the required
+  `0.25`; both lacked variable current-opponent coverage. Blue-1 mean focused
+  action diversity was `1.1875`, below `1.25`. Positive and negative advantage
+  count gates still passed for every policy.
+- Decision: training was not authorized. Resampling, threshold relaxation, or
+  searching new GPU seeds would have violated the bounded preflight contract.
+- Evidence: assessment file SHA-256
+  `5e72fd994091608ef99518b646f8ddc6df5b44607e032c9068e845b519906884`;
+  compact credential-free archive SHA-256
+  `bd57a6ec36f24165aaf7939ced7f1798e5e086af5fc56bcec4dc80386f3c4854`.
+  Local copies are under
+  `results/rl_v14_zero_update_rejection/`; the archive is only 20,948 bytes and
+  contains compact diagnostics/manifests/certificates plus incident notes, not
+  raw model traces or credentials.
+- GPU/cost: exact pod `9af282ec-bcf8-4322-9692-d5fe32655a56`, 4xL40S at
+  `$1.52/hour`, was re-resolved at IP `64.247.196.76` with provider-reported
+  spend `$2.36` and 1.6 hours uptime. GPUs were idle after the gate result.
+- Teardown: only `lium rm 9af282ec-bcf8-4322-9692-d5fe32655a56 -y` was used;
+  provider returned `Removed 1 pod(s): swift-wolf-be`. A subsequent
+  `lium ps --format json` returned `[]`.
+- Interpretation: V13 update 80 retains ample ordinary variance for blue-0 and
+  borderline variance for blue-3, but blue-1/2 are locally saturated on this
+  frozen ordinary screen. The next work is CPU-side curriculum redesign using
+  the failed cases: replace mastered blue-1/2 ordinary buckets with immutable
+  frontier cases while retaining regression anchors, then freeze and audit a
+  new admission set before renting again. This result does not justify adding
+  reward shaping or weakening any V14 stage gate.
+- Instance decommissioned: yes, immediately after compact evidence was copied
+  and exact identity/idle state were verified.
+
 ## Future entry template
 
 Copy this block for each material run:

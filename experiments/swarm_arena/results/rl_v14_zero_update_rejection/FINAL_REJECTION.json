@@ -1,0 +1,8 @@
+{
+  "status": "rejected",
+  "source_commit": "d5c419bd2c86c2b13facecd249459228beab1c36",
+  "optimizer_updates": 0,
+  "assessment_sha256": "5e72fd994091608ef99518b646f8ddc6df5b44607e032c9068e845b519906884",
+  "compact_archive_sha256": "bd57a6ec36f24165aaf7939ced7f1798e5e086af5fc56bcec4dc80386f3c4854",
+  "gpu_idle": true
+}
