@@ -13,9 +13,12 @@ from .async_admission import AsyncAdmissionLimits
 ScenarioKind = Literal["ordinary", "critical", "decoy"]
 HandoffFocusRole = Literal["sender", "receiver"]
 OpponentFamily = Literal["base", "sft", "historical", "current"]
+PolicySlot = Literal["blue-0", "blue-1", "blue-2", "blue-3"]
+OrdinaryClassification = Literal["frontier", "mastered", "stalled", "unseen"]
 
 RL_PRODUCTION_PLAN_VERSION = "arena-rl-v4-production-plan-v1"
 STAGED_RL_PRODUCTION_PLAN_VERSION = "arena-rl-v4-staged-production-plan-v1"
+ORDINARY_CASE_POOL_VERSION = "arena-rl-ordinary-case-pool-v1"
 
 
 @dataclass(frozen=True)
@@ -55,6 +58,36 @@ class AdaptiveCurriculumConfig:
                 or parts[2] not in {"blue-0", "blue-1", "blue-2", "blue-3"}
             ):
                 raise ValueError(f"invalid adaptive curriculum candidate case: {value}")
+
+
+@dataclass(frozen=True)
+class OrdinaryCase:
+    case_id: str
+    focused_agent: PolicySlot
+    opponent_family: OpponentFamily
+    seed: int
+    size: int
+    horizon: int
+    initial_classification: OrdinaryClassification
+    provenance: str
+    source_case_id: str
+
+    def validate(self) -> None:
+        if not self.case_id or not self.source_case_id or not self.provenance:
+            raise ValueError("ordinary pool case identity/provenance cannot be empty")
+        if self.focused_agent not in {"blue-0", "blue-1", "blue-2", "blue-3"}:
+            raise ValueError("ordinary pool contains an unknown focused policy")
+        if self.opponent_family not in {"base", "sft", "historical", "current"}:
+            raise ValueError("ordinary pool contains an unknown opponent family")
+        if self.seed < 0 or self.size < 4 or self.horizon < 2:
+            raise ValueError("ordinary pool contains an invalid scenario")
+        if self.initial_classification not in {
+            "frontier",
+            "mastered",
+            "stalled",
+            "unseen",
+        }:
+            raise ValueError("ordinary pool contains an unknown classification")
 
 
 def _canonical_sha256(value: Any) -> str:
@@ -458,6 +491,8 @@ class ProductionPlan:
     paired_contrast_centering: Literal["replica_mean", "none"] = "replica_mean"
     monitor_logical_update_signal: bool = False
     adaptive_curriculum: AdaptiveCurriculumConfig | None = None
+    ordinary_case_pool: tuple[OrdinaryCase, ...] = ()
+    ordinary_case_pool_sha256: str | None = None
 
     def validate(self) -> None:
         if self.version not in {
@@ -561,6 +596,34 @@ class ProductionPlan:
                 raise ValueError("adaptive curriculum boundaries must match every staged block")
             if not self.adaptive_curriculum.candidate_cases:
                 raise ValueError("adaptive curriculum requires a hash-bound candidate pool")
+        if bool(self.ordinary_case_pool) != bool(self.ordinary_case_pool_sha256):
+            raise ValueError("ordinary case pool rows and hash must be supplied together")
+        if self.ordinary_case_pool:
+            if self.version != STAGED_RL_PRODUCTION_PLAN_VERSION:
+                raise ValueError("ordinary case pools require a staged production plan")
+            if self.groups_per_update != 4:
+                raise ValueError("ordinary case pools require four policy-balanced groups")
+            if self.adaptive_curriculum is None:
+                raise ValueError("ordinary case pools require adaptive stage boundaries")
+            if not _is_sha256(str(self.ordinary_case_pool_sha256)):
+                raise ValueError("ordinary case pool requires a SHA-256 binding")
+            if len({row.case_id for row in self.ordinary_case_pool}) != len(
+                self.ordinary_case_pool
+            ):
+                raise ValueError("ordinary case pool IDs must be unique")
+            for row in self.ordinary_case_pool:
+                row.validate()
+            coverage = {
+                (row.focused_agent, row.opponent_family)
+                for row in self.ordinary_case_pool
+            }
+            required = {
+                (f"blue-{index}", family)
+                for index in range(4)
+                for family in ("base", "sft", "historical", "current")
+            }
+            if coverage != required:
+                raise ValueError("ordinary case pool must cover every policy/opponent family")
 
     @property
     def sha256(self) -> str:
@@ -586,6 +649,9 @@ class ProductionPlan:
             payload.pop("monitor_logical_update_signal")
         if self.adaptive_curriculum is None:
             payload.pop("adaptive_curriculum")
+        if not self.ordinary_case_pool:
+            payload.pop("ordinary_case_pool")
+            payload.pop("ordinary_case_pool_sha256")
         if self.version == RL_PRODUCTION_PLAN_VERSION:
             # Preserve byte-for-byte run-lock identity for every completed v4 run.
             payload.pop("stages")
@@ -621,6 +687,18 @@ class ProductionPlan:
 
 def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | None]]:
     raw = json.loads(path.read_text(encoding="utf-8"))
+    raw_ordinary_pool = raw.get("ordinary_case_pool")
+    if raw_ordinary_pool is not None:
+        if not isinstance(raw_ordinary_pool, dict):
+            raise ValueError("ordinary case pool must be a JSON object")
+        pool = dict(raw_ordinary_pool)
+        declared = str(pool.pop("sha256"))
+        if declared != _canonical_sha256(pool):
+            raise ValueError("ordinary case pool body hash mismatch")
+        if pool.get("version") != ORDINARY_CASE_POOL_VERSION:
+            raise ValueError("unsupported ordinary case pool version")
+        if int(pool.get("case_count", -1)) != len(pool.get("cases", [])):
+            raise ValueError("ordinary case pool count does not match its cases")
     pool_rows = raw["opponent_pool"]["snapshots"]
     snapshots = tuple(
         OpponentSnapshot(
@@ -719,6 +797,17 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
                     ),
                 }
             )
+        ),
+        ordinary_case_pool=tuple(
+            OrdinaryCase(**row)
+            for row in (
+                [] if raw_ordinary_pool is None else raw_ordinary_pool.get("cases", [])
+            )
+        ),
+        ordinary_case_pool_sha256=(
+            None
+            if raw_ordinary_pool is None
+            else str(raw_ordinary_pool["sha256"])
         ),
     )
     plan.validate()

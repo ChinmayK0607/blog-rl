@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import tomllib
 from collections import Counter
 from pathlib import Path
@@ -287,6 +288,71 @@ def test_adaptive_curriculum_is_hash_bound_and_matches_stage_boundaries(
     }
     path.write_text(json.dumps(raw))
     with pytest.raises(ValueError, match="boundaries must match"):
+        load_production_plan(path)
+
+
+def test_ordinary_case_pool_is_hash_bound_and_complete(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    raw = json.loads((root / "configs" / "rl_v11_4b_base_plan.json").read_text())
+    raw["version"] = "arena-rl-v4-staged-production-plan-v1"
+    raw["curriculum_stages"] = [
+        {
+            "name": "adaptive",
+            "updates": 10,
+            "update_pattern": [{"ordinary": 1, "critical": 2, "decoy": 1}],
+            "ordinary_sizes": [16],
+            "ordinary_horizons": [8],
+            "handoff_focus_roles": ["receiver"],
+            "handoff_cases": [
+                {"pair_index": 1, "world": "left_exposed"},
+                {"pair_index": 2, "world": "right_exposed"},
+            ],
+        }
+    ]
+    raw["adaptive_curriculum"] = {
+        "version": "arena-rl-adaptive-curriculum-v1",
+        "stage_updates": 10,
+        "candidate_cases": [
+            "1:left_exposed:blue-0",
+            "2:right_exposed:blue-0",
+        ],
+    }
+    families = ("base", "sft", "historical", "current")
+    pool_body = {
+        "version": "arena-rl-ordinary-case-pool-v1",
+        "scope": "training-only-test",
+        "cases": [
+            {
+                "case_id": f"case-{policy}-{family}",
+                "focused_agent": f"blue-{policy}",
+                "opponent_family": family,
+                "seed": 1000 + policy * 10 + family_index,
+                "size": 16,
+                "horizon": 8,
+                "initial_classification": "unseen",
+                "provenance": "test",
+                "source_case_id": "source",
+            }
+            for policy in range(4)
+            for family_index, family in enumerate(families)
+        ],
+    }
+    pool_body["case_count"] = len(pool_body["cases"])
+    pool_body["sha256"] = hashlib.sha256(
+        json.dumps(pool_body, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    raw["ordinary_case_pool"] = pool_body
+    path = tmp_path / "ordinary-pool.json"
+    path.write_text(json.dumps(raw))
+
+    plan, _ = load_production_plan(path)
+
+    assert len(plan.ordinary_case_pool) == 16
+    assert plan.ordinary_case_pool_sha256 == pool_body["sha256"]
+
+    raw["ordinary_case_pool"]["cases"][0]["seed"] += 1
+    path.write_text(json.dumps(raw))
+    with pytest.raises(ValueError, match="body hash mismatch"):
         load_production_plan(path)
 
 

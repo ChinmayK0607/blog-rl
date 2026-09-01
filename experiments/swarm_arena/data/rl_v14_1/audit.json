@@ -1,0 +1,50 @@
+{
+  "blue_1_blue_2_current_cases_are_unseen": true,
+  "frozen_or_development_data_used": false,
+  "optimizer_updates_used": 0,
+  "ordinary_case_pool_sha256": "521fb25bdd04d45524124bb8bea3f1aec1958b141ee01730f1ecfc6e51103d28",
+  "pool_case_count": 128,
+  "pool_classification_counts": {
+    "frontier": 19,
+    "mastered": 27,
+    "stalled": 18,
+    "unseen": 64
+  },
+  "repaired_curriculum_sha256": "eb40420decf44d8b58b8e8a7a33333a710ef5c445a249bebe1a5fcb93578d5e1",
+  "screen_case_count": 32,
+  "screen_cases_per_policy": {
+    "blue-0": 8,
+    "blue-1": 8,
+    "blue-2": 8,
+    "blue-3": 8
+  },
+  "screen_cases_per_policy_family": {
+    "blue-0:base": 2,
+    "blue-0:current": 2,
+    "blue-0:historical": 2,
+    "blue-0:sft": 2,
+    "blue-1:base": 2,
+    "blue-1:current": 2,
+    "blue-1:historical": 2,
+    "blue-1:sft": 2,
+    "blue-2:base": 2,
+    "blue-2:current": 2,
+    "blue-2:historical": 2,
+    "blue-2:sft": 2,
+    "blue-3:base": 2,
+    "blue-3:current": 2,
+    "blue-3:historical": 2,
+    "blue-3:sft": 2
+  },
+  "screen_games": 128,
+  "screen_manifest_sha256": "6ce147cf145918ab4f32d56512b500f63a34bc3bd1981585afee985033c0df7b",
+  "sha256": "4711dba42b4c2c038d04b583fb324f5dcc5360c0f8215da23c4e6bd425bc1a2d",
+  "source_hashes": {
+    "assessment": "5e72fd994091608ef99518b646f8ddc6df5b44607e032c9068e845b519906884",
+    "curriculum": "5fe6af7ae70edbfd13a385a98e159061dd7dc93128e33e56b109815ba484c294",
+    "original_screen": "277f0fee0163ab21184ebc377b90d84da60bd5804d5717a7a6bc4c9bc758a3bb"
+  },
+  "status": "cpu_repair_passed_gpu_screen_pending",
+  "thresholds_unchanged": true,
+  "version": "arena-rl-v14-ordinary-frontier-repair-v1"
+}

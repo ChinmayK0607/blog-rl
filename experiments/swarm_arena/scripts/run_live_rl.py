@@ -14,6 +14,7 @@ import httpx
 import tomli
 from swarm_ctf_eval.adaptive_curriculum import (
     adapt_stage_assignments,
+    select_ordinary_stage_cases,
     summarize_training_progress,
 )
 from swarm_ctf_eval.async_admission import AsyncRolloutHeader, PolicySnapshot
@@ -52,6 +53,7 @@ from swarm_ctf_eval.prime_multi_run_router import (
 )
 from swarm_ctf_eval.rl_production import (
     OpponentSnapshot,
+    OrdinaryCase,
     ProductionPlan,
     ScenarioAssignment,
     load_production_plan,
@@ -100,6 +102,72 @@ def write_adaptive_selection(output_dir: Path, selection: dict[str, object]) -> 
         encoding="utf-8",
     )
     os.replace(temporary, path)
+
+
+def write_adaptive_ordinary_selection(
+    output_dir: Path, selection: dict[str, object]
+) -> None:
+    root = output_dir / "audit" / "adaptive_ordinary"
+    root.mkdir(parents=True, exist_ok=True)
+    path = root / f"{selection['stage']}.json"
+    if path.exists():
+        existing = json.loads(path.read_text(encoding="utf-8"))
+        if existing != selection:
+            raise ValueError(
+                f"adaptive ordinary selection changed on resume: {path}"
+            )
+        return
+    temporary = path.with_suffix(path.suffix + f".tmp-{os.getpid()}")
+    temporary.write_text(
+        json.dumps(selection, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    os.replace(temporary, path)
+
+
+def select_ordinary_curriculum_stage(
+    schedule: tuple[ScenarioAssignment, ...],
+    *,
+    opponent_schedule: tuple[OpponentSnapshot, ...],
+    production_plan: ProductionPlan,
+    progress: list[dict[str, object]],
+    stage_index: int,
+    output_dir: Path,
+) -> dict[int, OrdinaryCase]:
+    config = production_plan.adaptive_curriculum
+    if config is None or not production_plan.ordinary_case_pool:
+        return {}
+    stage = production_plan.stages[stage_index]
+    if stage_index == 0:
+        analysis: dict[str, object] = {
+            "version": "arena-rl-initial-ordinary-pool-v1",
+            "sha256": production_plan.ordinary_case_pool_sha256,
+            "ordinary_cases": {},
+        }
+    else:
+        previous_start = sum(
+            candidate.updates for candidate in production_plan.stages[: stage_index - 1]
+        )
+        previous_end = previous_start + production_plan.stages[stage_index - 1].updates
+        if len(progress) < previous_end:
+            raise ValueError("ordinary adaptation cannot inspect an incomplete stage")
+        analysis = summarize_training_progress(
+            progress,
+            config=config,
+            step_start=previous_start,
+            step_end=previous_end,
+        )
+    selected, selection = select_ordinary_stage_cases(
+        schedule,
+        stage_name=stage.name,
+        opponent_schedule=opponent_schedule,
+        pool=production_plan.ordinary_case_pool,
+        analysis=analysis,
+        config=config,
+        selection_namespace=f"{stage.name}:ordinary",
+    )
+    write_adaptive_ordinary_selection(output_dir, selection)
+    return selected
 
 
 def adapt_next_curriculum_stage(
@@ -877,6 +945,8 @@ async def main() -> None:
         if not curriculum.get("pairs"):
             raise ValueError(f"empty curriculum manifest: {manifest_path}")
     adapted_stages: set[int] = set()
+    adapted_ordinary_stages: set[int] = set()
+    ordinary_case_schedule: dict[int, OrdinaryCase] = {}
     stage_start_steps: tuple[int, ...] = ()
     if production_plan is not None and production_plan.adaptive_curriculum is not None:
         assert scenario_schedule is not None and curriculum is not None
@@ -884,6 +954,19 @@ async def main() -> None:
             sum(stage.updates for stage in production_plan.stages[:index])
             for index in range(len(production_plan.stages))
         )
+        if production_plan.ordinary_case_pool:
+            assert opponent_schedule is not None
+            ordinary_case_schedule.update(
+                select_ordinary_curriculum_stage(
+                    scenario_schedule,
+                    opponent_schedule=opponent_schedule,
+                    production_plan=production_plan,
+                    progress=result_rows,
+                    stage_index=0,
+                    output_dir=args.output_dir,
+                )
+            )
+            adapted_ordinary_stages.add(0)
         for stage_index, stage_start in enumerate(stage_start_steps[1:], start=1):
             if stage_start > start_step:
                 break
@@ -896,6 +979,19 @@ async def main() -> None:
                 output_dir=args.output_dir,
             )
             adapted_stages.add(stage_index)
+            if production_plan.ordinary_case_pool:
+                assert opponent_schedule is not None
+                ordinary_case_schedule.update(
+                    select_ordinary_curriculum_stage(
+                        scenario_schedule,
+                        opponent_schedule=opponent_schedule,
+                        production_plan=production_plan,
+                        progress=result_rows,
+                        stage_index=stage_index,
+                        output_dir=args.output_dir,
+                    )
+                )
+                adapted_ordinary_stages.add(stage_index)
     async with generator_context as generator:
         if args.resume_existing_progress:
             policy_adapter_sha256 = {
@@ -949,6 +1045,22 @@ async def main() -> None:
                         output_dir=args.output_dir,
                     )
                     adapted_stages.add(stage_index)
+                if (
+                    production_plan.ordinary_case_pool
+                    and stage_index not in adapted_ordinary_stages
+                ):
+                    assert opponent_schedule is not None
+                    ordinary_case_schedule.update(
+                        select_ordinary_curriculum_stage(
+                            scenario_schedule,
+                            opponent_schedule=opponent_schedule,
+                            production_plan=production_plan,
+                            progress=result_rows,
+                            stage_index=stage_index,
+                            output_dir=args.output_dir,
+                        )
+                    )
+                    adapted_ordinary_stages.add(stage_index)
             if production_plan is not None:
                 assert args.async_rescore_dir is not None
                 write_current_snapshot_manifest(
@@ -1024,15 +1136,35 @@ async def main() -> None:
                 if assignment is not None and assignment.kind == "ordinary":
                     assert production_plan is not None
                     assert assignment.ordinary_seed is not None
-                    seed = assignment.ordinary_seed
-                    size = (
-                        assignment.ordinary_size
-                        or production_plan.ordinary_sizes[ordinal % len(production_plan.ordinary_sizes)]
-                    )
-                    horizon = (
-                        assignment.ordinary_horizon
-                        or production_plan.ordinary_horizons[ordinal % len(production_plan.ordinary_horizons)]
-                    )
+                    ordinary_case = ordinary_case_schedule.get(ordinal)
+                    if ordinary_case is not None:
+                        assert scheduled_opponent is not None
+                        expected_policy = f"blue-{group_index % 4}"
+                        if ordinary_case.focused_agent != expected_policy:
+                            raise ValueError(
+                                "ordinary case pool changed the focused policy binding"
+                            )
+                        if ordinary_case.opponent_family != scheduled_opponent.family:
+                            raise ValueError(
+                                "ordinary case pool changed the opponent-family binding"
+                            )
+                        seed = ordinary_case.seed
+                        size = ordinary_case.size
+                        horizon = ordinary_case.horizon
+                    else:
+                        seed = assignment.ordinary_seed
+                        size = (
+                            assignment.ordinary_size
+                            or production_plan.ordinary_sizes[
+                                ordinal % len(production_plan.ordinary_sizes)
+                            ]
+                        )
+                        horizon = (
+                            assignment.ordinary_horizon
+                            or production_plan.ordinary_horizons[
+                                ordinal % len(production_plan.ordinary_horizons)
+                            ]
+                        )
                     scenario_metadata = {
                         "source": "ordinary",
                         "schedule_ordinal": ordinal,
@@ -1040,6 +1172,17 @@ async def main() -> None:
                         "size": size,
                         "scheduled_horizon": horizon,
                         "curriculum_stage": assignment.stage,
+                        **(
+                            {
+                                "ordinary_case_id": ordinary_case.case_id,
+                                "ordinary_case_initial_classification": (
+                                    ordinary_case.initial_classification
+                                ),
+                                "ordinary_case_provenance": ordinary_case.provenance,
+                            }
+                            if ordinary_case is not None
+                            else {}
+                        ),
                     }
                 elif curriculum is not None:
                     if assignment is not None:

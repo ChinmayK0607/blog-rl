@@ -6,7 +6,12 @@ from collections import Counter, defaultdict
 from dataclasses import asdict, replace
 from typing import Any, Iterable, Mapping, Sequence
 
-from .rl_production import AdaptiveCurriculumConfig, ScenarioAssignment
+from .rl_production import (
+    AdaptiveCurriculumConfig,
+    OpponentSnapshot,
+    OrdinaryCase,
+    ScenarioAssignment,
+)
 
 ANALYSIS_VERSION = "arena-rl-training-frontier-analysis-v1"
 SELECTION_VERSION = "arena-rl-adaptive-stage-selection-v1"
@@ -51,6 +56,7 @@ def summarize_training_progress(
     config.validate()
     handoff: dict[str, dict[str, Any]] = {}
     ordinary: dict[str, dict[str, Any]] = {}
+    ordinary_cases: dict[str, dict[str, Any]] = {}
     observed_steps: list[int] = []
     for update in progress:
         step = int(update["step"])
@@ -142,6 +148,35 @@ def summarize_training_progress(
             row["nonzero_advantage"] += sum(
                 abs(value) > config.positive_epsilon for value in advantages
             )
+            case_id = scenario.get("ordinary_case_id")
+            if case_id is not None:
+                case = ordinary_cases.setdefault(
+                    str(case_id),
+                    {
+                        "case_id": str(case_id),
+                        "focused_agent": focused,
+                        "opponent_family": str(scenario["opponent"]["family"]),
+                        "seed": int(scenario["seed"]),
+                        "size": size,
+                        "horizon": horizon,
+                        "groups": 0,
+                        "replicas": 0,
+                        "return_min": min(returns),
+                        "return_max": max(returns),
+                        "nonzero_advantage": 0,
+                    },
+                )
+                if case["focused_agent"] != focused or case["opponent_family"] != str(
+                    scenario["opponent"]["family"]
+                ):
+                    raise ValueError("ordinary case identity changed policy/opponent binding")
+                case["groups"] += 1
+                case["replicas"] += len(returns)
+                case["return_min"] = min(float(case["return_min"]), *returns)
+                case["return_max"] = max(float(case["return_max"]), *returns)
+                case["nonzero_advantage"] += sum(
+                    abs(value) > config.positive_epsilon for value in advantages
+                )
 
     for row in handoff.values():
         replicas = int(row["replicas"])
@@ -162,6 +197,21 @@ def summarize_training_progress(
         row["classification"] = _classify(
             positive=int(row["positive"]), total=replicas, config=config
         )
+    for row in ordinary_cases.values():
+        replicas = int(row["replicas"])
+        row["nonzero_advantage_rate"] = row.pop("nonzero_advantage") / replicas
+        if replicas < config.minimum_replicas:
+            row["classification"] = "frontier"
+        elif (
+            float(row["return_max"]) - float(row["return_min"])
+            > config.positive_epsilon
+            and row["nonzero_advantage_rate"] > 0
+        ):
+            row["classification"] = "frontier"
+        elif float(row["return_min"]) > config.positive_epsilon:
+            row["classification"] = "mastered"
+        else:
+            row["classification"] = "stalled"
 
     body = {
         "version": ANALYSIS_VERSION,
@@ -175,6 +225,7 @@ def summarize_training_progress(
         "config": asdict(config),
         "handoff_cases": dict(sorted(handoff.items())),
         "ordinary_buckets": dict(sorted(ordinary.items())),
+        "ordinary_cases": dict(sorted(ordinary_cases.items())),
         "classification_counts": {
             "handoff": dict(
                 sorted(Counter(row["classification"] for row in handoff.values()).items())
@@ -182,9 +233,104 @@ def summarize_training_progress(
             "ordinary": dict(
                 sorted(Counter(row["classification"] for row in ordinary.values()).items())
             ),
+            "ordinary_cases": dict(
+                sorted(
+                    Counter(
+                        row["classification"] for row in ordinary_cases.values()
+                    ).items()
+                )
+            ),
         },
     }
     return {**body, "sha256": canonical_sha256(body)}
+
+
+def select_ordinary_stage_cases(
+    schedule: Sequence[ScenarioAssignment],
+    *,
+    stage_name: str,
+    opponent_schedule: Sequence[OpponentSnapshot],
+    pool: Sequence[OrdinaryCase],
+    analysis: Mapping[str, Any],
+    config: AdaptiveCurriculumConfig,
+    selection_namespace: str,
+) -> tuple[dict[int, OrdinaryCase], dict[str, Any]]:
+    """Select a frontier-heavy ordinary case for each exact future stage slot."""
+    config.validate()
+    ordinary = [
+        row for row in schedule if row.stage == stage_name and row.kind == "ordinary"
+    ]
+    if not ordinary:
+        raise ValueError(f"adaptive ordinary stage has no ordinary slots: {stage_name}")
+    if len(opponent_schedule) != len(schedule):
+        raise ValueError("ordinary selector requires an opponent for every schedule slot")
+    categories = _category_sequence(len(ordinary), config)
+    stats = analysis.get("ordinary_cases", {})
+    by_key: dict[tuple[str, str], list[OrdinaryCase]] = defaultdict(list)
+    for case in pool:
+        case.validate()
+        by_key[(case.focused_agent, case.opponent_family)].append(case)
+    selected: dict[int, OrdinaryCase] = {}
+    cursors: Counter[tuple[str, str, str]] = Counter()
+    used: dict[tuple[str, str], set[str]] = defaultdict(set)
+    category_counts: Counter[str] = Counter()
+    requested_counts: Counter[str] = Counter()
+    for assignment, requested in zip(ordinary, categories, strict=True):
+        policy = f"blue-{assignment.ordinal % 4}"
+        family = opponent_schedule[assignment.ordinal].family
+        key = (policy, family)
+        cases = sorted(
+            by_key.get(key, []),
+            key=lambda case: hashlib.sha256(
+                f"{config.selection_seed}:{selection_namespace}:{case.case_id}".encode()
+            ).hexdigest(),
+        )
+        if not cases:
+            raise ValueError(f"ordinary case pool lacks {policy}/{family}")
+        by_category: dict[str, list[OrdinaryCase]] = defaultdict(list)
+        for case in cases:
+            category = str(
+                stats.get(case.case_id, {}).get(
+                    "classification", case.initial_classification
+                )
+            )
+            if category == "unseen":
+                category = "frontier"
+            by_category[category].append(case)
+        requested_counts[requested] += 1
+        candidates: list[OrdinaryCase] = []
+        selected_category = requested
+        for category in (requested, "frontier", "mastered", "stalled"):
+            candidates = [
+                case for case in by_category.get(category, []) if case.case_id not in used[key]
+            ]
+            if not candidates and by_category.get(category):
+                candidates = by_category[category]
+            if candidates:
+                selected_category = category
+                break
+        if not candidates:
+            raise ValueError(f"ordinary case pool has no selectable {policy}/{family} case")
+        cursor_key = (policy, family, selected_category)
+        case = candidates[cursors[cursor_key] % len(candidates)]
+        cursors[cursor_key] += 1
+        used[key].add(case.case_id)
+        selected[assignment.ordinal] = case
+        category_counts[selected_category] += 1
+    body = {
+        "version": "arena-rl-adaptive-ordinary-selection-v1",
+        "stage": stage_name,
+        "analysis_sha256": analysis.get("sha256"),
+        "config": asdict(config),
+        "selected_cases": {
+            str(ordinal): asdict(case) for ordinal, case in sorted(selected.items())
+        },
+        "requested_category_counts": dict(sorted(requested_counts.items())),
+        "selected_category_counts": dict(sorted(category_counts.items())),
+        "frozen_or_development_data_used": False,
+    }
+    body = json.loads(json.dumps(body, sort_keys=True))
+    return selected, {**body, "sha256": canonical_sha256(body)}
 
 
 def _category_sequence(slots: int, config: AdaptiveCurriculumConfig) -> list[str]:

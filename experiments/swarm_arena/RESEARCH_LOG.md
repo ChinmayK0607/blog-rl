@@ -6543,6 +6543,46 @@ no more critical-specific than decoy-specific. Therefore:
 - Instance decommissioned: yes, immediately after compact evidence was copied
   and exact identity/idle state were verified.
 
+### 2026-09-01 — V14.1 CPU ordinary-frontier repair
+
+- Status: CPU implementation and audit complete; GPU screen pending. No pod is
+  rented and no optimizer update has run.
+- Hypothesis: V14 was rejected because the fixed ordinary set was locally
+  saturated for blue-1/2, not because protocol or the communication mechanism
+  failed. A policy/opponent-bound frontier pool can restore ordinary signed
+  signal without resampling a batch until it looks favorable.
+- Inputs: failed V14 assessment SHA-256
+  `5e72fd994091608ef99518b646f8ddc6df5b44607e032c9068e845b519906884`;
+  original screen-manifest body SHA-256
+  `277f0fee0163ab21184ebc377b90d84da60bd5804d5717a7a6bc4c9bc758a3bb`;
+  V14 curriculum file SHA-256
+  `5fe6af7ae70edbfd13a385a98e159061dd7dc93128e33e56b109815ba484c294`.
+- Repair: immutable 128-case pool with 19 observed frontier, 27 mastered, 18
+  stalled, and 64 unseen transfer/neighbour cases. At each 10-update boundary,
+  ordinary slots select 80% frontier, 10% mastered, and 10% stalled using only
+  the preceding complete training stage. Policy, opponent family, group mix,
+  reward, counterfactual, and evaluation data remain fixed.
+- Admission: the next GPU screen is 32 cases / 128 games, balanced at eight per
+  policy and two per policy/opponent-family cell. All V14 thresholds are
+  unchanged. Blue-1/2 current-opponent cells contain only transfer/unseen cases.
+- CPU verification: builder determinism/balance/current-opponent tests passed;
+  ordinary analysis and selector tests passed; production-plan compilation,
+  exact policy/family selection across all four stages, JSON round-trip/resume
+  identity, and tampered-pool rejection passed. Full pytest/Ruff were not run
+  because the local `deps/verifiers` submodule/environment is not installed;
+  focused tests were invoked directly and every modified file compiled.
+- Identities: pool body `521fb25b...03d28`, screen body
+  `6ce147cf...df7b`, curriculum body `eb40420d...d5e1`, repair audit body
+  `4711dba4...1a2d`, CPU-bundle body `ce84f961...bae4`. A CPU
+  production-plan dry run produced 40 updates / 160
+  groups (50 ordinary, 70 critical, 40 decoy) and rejected a one-byte pool
+  mutation before rollout.
+- Compute decision: do not rent until the exact source is committed/published,
+  anonymously verified, HF write credentials are confirmed available, and the
+  watcher plus immediate exact-pod teardown path are armed. A failed 128-game
+  screen still prohibits update 1 and triggers immediate sync/teardown.
+- Instance decommissioned: not applicable; CPU-only work.
+
 ## Future entry template
 
 Copy this block for each material run:

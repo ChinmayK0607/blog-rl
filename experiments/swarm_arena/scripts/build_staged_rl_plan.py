@@ -128,6 +128,11 @@ def main() -> None:
             if curriculum.get("adaptive_curriculum") is not None
             else {}
         ),
+        **(
+            {"ordinary_case_pool": curriculum["ordinary_case_pool"]}
+            if curriculum.get("ordinary_case_pool") is not None
+            else {}
+        ),
     }
     if args.trainable_phase or args.trainable_turn_offset:
         if len(set(args.trainable_phase)) != len(args.trainable_phase):
@@ -176,6 +181,8 @@ def main() -> None:
             if loaded.adaptive_curriculum is None
             else loaded.adaptive_curriculum.__dict__
         ),
+        "ordinary_case_pool_sha256": loaded.ordinary_case_pool_sha256,
+        "ordinary_case_pool_cases": len(loaded.ordinary_case_pool),
         "unique_ordinary_seeds": len({row.ordinary_seed for row in schedule if row.ordinary_seed is not None}),
         "schedule_sha256": _digest(
             [
