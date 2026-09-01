@@ -1,0 +1,32 @@
+{
+  "cases_per_policy": {
+    "blue-0": 6,
+    "blue-1": 6,
+    "blue-2": 6,
+    "blue-3": 6
+  },
+  "credit_estimator_changed": false,
+  "current_probes_are_cross_opponent_transfers": true,
+  "diagnosis_sha256": "299b01b07cba314af92b78a6e04fdd86719c8151d28f445a6d01c5d20ea3f96e",
+  "frozen_or_development_data_used": false,
+  "optimizer_updates_used": 0,
+  "pilot_cases": 24,
+  "pilot_games": 96,
+  "pilot_screen_manifest_sha256": "f15d42ce9d80ca071271e1436fb63645a584c7cc7b74c6164992d004ad3c3c0f",
+  "pilot_trajectories_used_for_optimization": false,
+  "repaired_curriculum_sha256": "3e3d1829eb3172e9159cf14676480c14f6a2a6242573ef9a3990cfc2e6021e13",
+  "role_case_counts": {
+    "current_probe": 8,
+    "frontier_candidate": 16
+  },
+  "sha256": "1e5120b584b6e8aa9198179cc2172adae73ff0efff23ca230bb617dc2b85e5c6",
+  "source_hashes": {
+    "v14_1_curriculum": "46d44967baee5b084f4752b40ff67b619ce572d8ce3497b104cbbcfe77fac41c",
+    "v14_1_partial": "3f3c1f5e6030d4d35daa7d182332e41cdf1bd7c0cb1c9bbaafa753a1354e29df",
+    "v14_1_pool": "6c747e4a90dc0bdf93c17412f226cdb2d79949917ce3d919036a308545fa4763",
+    "v14_assessment": "5e72fd994091608ef99518b646f8ddc6df5b44607e032c9068e845b519906884"
+  },
+  "stage_gates_changed": false,
+  "status": "cpu_design_passed_gpu_pilot_pending",
+  "version": "arena-rl-v14.2-stable-frontier-v1"
+}

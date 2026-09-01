@@ -6583,6 +6583,125 @@ no more critical-specific than decoy-specific. Therefore:
   screen still prohibits update 1 and triggers immediate sync/teardown.
 - Instance decommissioned: not applicable; CPU-only work.
 
+### 2026-09-01 — V14.1 zero-update frontier-screen rejection
+
+- Status: rejected before optimizer update 1; exact provider instance removed.
+- Verdict: valid runtime certificate, irrecoverable zero-update admission failure.
+  No RL optimizer update, update-0 capability evaluation, controller, W&B run,
+  or training checkpoint was created.
+- Source and run: public source commit
+  `a7039c808795052b723c513010526b2372812897`; run
+  `rl-v14-1-frontier4b40-a7039c80`; frozen 32-case / 128-game screen body
+  SHA-256 `6ce147cf145918ab4f32d56512b500f63a34bc3bd1981585afee985033c0df7b`.
+- Runtime certificate: passed with optimizer isolation. Mean absolute log-prob
+  error was `0.0007271841`, p99 `0.0024429478`, mean mismatch KL
+  `0.0000654850`, and maximum mismatch KL `0.0548624992`, all under the
+  unchanged trainer gates.
+- Early terminal proof: the first complete policy block contained all eight
+  frozen blue-0 cases. Both blue-0/current cases were flat: one had four
+  returns of `0.0`; the other had four returns of `-0.075`. The exact committed
+  assessor recomputation over that complete block produced only
+  `blue-0/opponent_family_coverage` as failed. Blue-0 otherwise passed:
+  variable-return rate `0.375`, nonzero-advantage rate `0.375`, mean focused
+  action diversity `1.375`, six positive and six negative advantages. Variable
+  groups existed for base, SFT, and historical opponents, but none for current.
+- Monotonicity and stop: every remaining frozen case targeted blue-1/2/3, so
+  no later result could create a blue-0/current variable group. The screen was
+  stopped after 14/32 durable diagnostics instead of spending GPU time on an
+  already-impossible gate. Thresholds, manifest, assessor, and opponent
+  bindings were unchanged.
+- Evidence: aggregate rejection SHA-256
+  `8106d2f37ea341e6064dc4745773c2936e0feb2ad9b4559e99a1245e94d7fe15`.
+  Fourteen diagnostic JSONs, the runtime/parity evidence, manifests, and
+  incident snapshots were copied privately to
+  `../v14_1_rejection_archive/`. A broad public bundle and then a one-file
+  public receipt were both blocked by the execution safety layer because this
+  run had no payload-specific authorization for publishing rejection metadata;
+  no raw trace, log, config, credential, or rejection receipt was published.
+  Accidentally copied supervisor keys were deleted from the private archive
+  before handoff.
+- Failures and recoveries: setup incidents for a submodule SSH prompt,
+  submodule-sync overwrite, an overstrict PEFT import check, missing vLLM RPC
+  directories, and resolved-trainer binding were preserved. Recovery changed
+  only mechanics; the source commit and scientific gates stayed frozen.
+- GPU/cost: exact Lium pod `f4f07a60-8320-4747-a0fc-ae1d33d70cce`
+  (`zesty-shark-13`), `64.247.196.76:40308`, 4xL40S at `$1.52/hour`.
+  Provider-reported spend was `$1.30` at 51 minutes. Before teardown every GPU
+  reported zero utilization and zero MiB allocated.
+- Teardown: the provider inventory was re-resolved and required the exact pod
+  ID and IP match. Only
+  `lium rm f4f07a60-8320-4747-a0fc-ae1d33d70cce -y` was used; provider returned
+  `Removed 1 pod(s): zesty-shark-13`. A subsequent `lium ps --format json`
+  returned `[]`. The ten-minute V14.1 heartbeat was deleted.
+- Interpretation: the repair did not establish a trainable frontier against
+  the current-policy opponent even for blue-0, which had passed V14's older
+  screen. This is not a training regression because training never began. It
+  rejects another seed search or blind RL scaling under the current admission
+  contract. The next work is CPU-only: inspect why same-frontier competition
+  yields flat shared returns, then decide between a grounded scenario generator
+  that creates causally discriminating current-opponent states and a revised
+  critic/credit design. Any new design must freeze a fresh admission set and
+  retain regression anchors before another rental.
+- Instance decommissioned: yes, immediately after private evidence verification.
+
+### 2026-09-01 — V14.2 stable-frontier pilot and pilot-bound curriculum
+
+- Status: CPU design, implementation, audit, and credential-free freeze
+  complete. No GPU is rented, no optimizer update is authorized, and no
+  development or frozen evaluation data was opened.
+- Hypothesis: V14.1 rejected a noisy per-cell pass@4 gate rather than a broken
+  ordinary critic or demonstrated current-policy capacity limit. A disjoint
+  pilot can select a stable training frontier without conditioning optimizer
+  updates on favorable pilot trajectories.
+- Evidence: a compact hash-bound summary covers 14/32 completed V14.1 cases and
+  zero optimizer updates (file SHA-256 `3f3c1f5e...9df`, body SHA-256
+  `beaf7e40...86f`). Of seven V14 cases previously classified frontier and
+  retested in V14.1, only four remained frontier (`4/7 = 0.5714`). The exact
+  blue-0/current case `ordinary-screen-blue-0-15` was variable in V14 but
+  yielded four identical actions and flat returns in V14.1. Whenever actions
+  varied, returns varied and leave-one-out credit produced signed advantages;
+  flat cases had identical actions and returns. Verdict: change scenario
+  selection, not the terminal reward or critic.
+- Pilot: 24 cases / 96 games, six cases per policy. Four blocking cases per
+  policy span base, SFT, and historical opponents; two nonblocking
+  current-policy probes per policy are cross-opponent transfers of observed
+  frontier scenarios. Pilot trajectories are discarded and training must use
+  fresh sampling namespaces. There is no retry-until-variable path or GPU seed
+  search.
+- Admission: per policy, the blocking lane requires protocol `1.0`, at least
+  two variable groups across at least two families, nonzero-advantage rate
+  `>=0.25`, mean focused-action diversity `>=1.25`, and at least four positive
+  plus four negative advantages. Current-policy probes are diagnostic and
+  retained as anchors; they cannot veto otherwise real multi-family signed
+  signal. Existing stage gates, reward, credit estimator, policy balance, and
+  opponent rotation remain unchanged.
+- Fail-closed transition: a committed finalizer accepts only a complete passed,
+  hash-valid pilot. It binds the 24 exact cases and their classifications into
+  the established `OrdinaryCase` schema, preserves all 16 policy/opponent
+  cells, embeds the assessment hash in the curriculum, and discards all pilot
+  trajectories. Update 1 remains prohibited until this pilot-bound curriculum
+  is mirrored and a fresh production plan is built from it.
+- CPU verification: seven focused direct tests passed, including deterministic
+  construction, the observed `4/7` instability result, pass/fail assessor
+  boundaries, flat nonblocking current probes, finalizer rejection, exact pool
+  schema validation, and stage-one selection across all 16 policy/opponent
+  cells. Every new script and test compiled. Builder and CPU-bundle outputs
+  reproduced byte-for-byte in a second directory. Full pytest/Ruff were not
+  available because the local dependency environment is incomplete and PyPI
+  access is blocked; no failure was hidden behind that limitation.
+- Identities: diagnosis body `299b01b0...3f96e`; pilot body
+  `f15d42ce...3c0f`; pre-pilot curriculum body `3e3d1829...21e13`; audit body
+  `1e5120b5...e5c6`; CPU-bundle body `0054e16d...1118`. The bundle binds the
+  unchanged V14 stage-gate body `27098650...f8c2` and authorizes zero optimizer
+  updates before the pilot passes.
+- Compute decision: do not rent yet. First commit/publish and anonymously verify
+  the exact source, verify HF/W&B credentials and immediate teardown before
+  allocation, then run only the bounded 96-game pilot before rebuilding the
+  plan. The `$15` maximum, nine-hour TTL, stage-gate stops, and immediate
+  exact-pod teardown on rejection or verified completion remain unchanged.
+- Instance decommissioned: not applicable; CPU-only work and provider inventory
+  remains empty.
+
 ## Future entry template
 
 Copy this block for each material run:

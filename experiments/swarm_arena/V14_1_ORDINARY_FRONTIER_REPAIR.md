@@ -1,7 +1,7 @@
 # V14.1: Ordinary Frontier Repair
 
-Status: CPU repair implemented and audited. No GPU is rented and no optimizer
-update has run. The next action is one bounded 128-game, zero-update screen.
+Status: rejected by the bounded zero-update screen. No optimizer update ran and
+the exact GPU pod was decommissioned after private evidence preservation.
 
 ## What failed in V14
 
