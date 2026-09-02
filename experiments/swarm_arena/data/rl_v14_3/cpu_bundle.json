@@ -1,0 +1,84 @@
+{
+  "artifact_file_sha256": {
+    "assessment": "c5af46e4af3c96b64a60be5b9048e1467426cbfdf0e2ae19046ea8272146c4bd",
+    "audit": "593b51bac438502fcf77c1d1690c18f270c336ffcd1e26c9c9276058025e414a",
+    "curriculum": "b0009d70497c892916aaf15d6d2a98eab949ee8a802ad2b8c15819279bfcaa6d",
+    "ordinary_pool": "387d597721c89b756c10d3766e7d263d64e999d2d3fac6d294f5472d0c3e8ac4",
+    "stage_gates": "bec569b4521e231b9c7a8f55e82f6e46734914516b8dfc6fe8889d711b26d03e"
+  },
+  "code_file_sha256": {
+    "experiments/swarm_arena/scripts/build_staged_rl_plan.py": "e6a2b1186658ba2943dee5e4c7a163aa9dc2c64de35fed6dd26dfd4d8a3415e6",
+    "experiments/swarm_arena/scripts/finalize_v14_3_policy_routing.py": "28950c83e3011423d7c455227444a350acd4c104ed270e3371f3bafa7429c026",
+    "experiments/swarm_arena/scripts/freeze_v14_3_cpu_bundle.py": "fc387ee38a7bd70778bc27c2fdff053a6d618102e927a857856f3c24de7d6e4d",
+    "experiments/swarm_arena/scripts/launch_staged_rl.sh": "481f2e81a15a1c5c328ae75702232834f363807029e5d6286b3b18b8a461dbed",
+    "experiments/swarm_arena/scripts/preflight_staged_rl.py": "8bc5a2f728166d0205f5eaf8489763ca5da20f6a909490924ec9fadc791a7556",
+    "experiments/swarm_arena/scripts/run_live_rl.py": "f615e8831dfaf25a66d0cd54c00fe010ca76b1f7436719c7f79bbeecfd309ff9",
+    "experiments/swarm_arena/scripts/run_staged_pulses.py": "2d08a1910df7c4375dfce7831bcf9cda32c1d33d94104ff9d1985e2a70b3950d",
+    "experiments/swarm_arena/swarm_ctf_eval/adaptive_curriculum.py": "74acc227527c04ea7c7cce5a230bfe1a7be8006e3059c8e8b6564ffe42e43b1e",
+    "experiments/swarm_arena/swarm_ctf_eval/rl_production.py": "7ba38f7c648b2d87e227c011ac83f20e3133f4d42bf43c7608cb666a43bf3ff8"
+  },
+  "execution": {
+    "all_policy_updates_atomic": true,
+    "maximum_optimizer_updates": 40,
+    "no_retry_until_favorable": true,
+    "no_seed_search": true,
+    "selection_input": "complete preceding training stage only",
+    "stage_gate_steps": [
+      10,
+      20,
+      30,
+      40
+    ],
+    "stage_updates": 10,
+    "zero_advantage_batch_action": "telemetry_only_continue"
+  },
+  "frozen_data_opened": false,
+  "gpu_budget": {
+    "assumed_hourly_usd": 1.52,
+    "auto_stop": "at failed stage gate, hard budget, or completed final artifact sync",
+    "maximum_usd": 15.0,
+    "maximum_wall_hours": 9.0,
+    "never_rent_before_cpu_and_zero_update_preflight_pass": true,
+    "target_hardware": "4xL40S"
+  },
+  "initializer": {
+    "claim_boundary": "continuation warm start, not a communication-claim pass",
+    "policy_adapter_sha256": {
+      "blue-0": "24ccd2920d79e65c24bc47bd1e9c1318fb8ca6b582a6651273ab2a53749e2d53",
+      "blue-1": "deeb19976f8941a90a9b4dd1f72114e2926d28024d7b68bbe5c5834636f0ae7a",
+      "blue-2": "1612d158354327cd732aaad5e1978a28252af0cef91355aac201e48cd545da44",
+      "blue-3": "016402a737c9b9cf897f9e38879308b1f085d6871360cc1e464a21367a98637a"
+    },
+    "policy_revision": "9eec6d60cae1b11179f9b421b7bdd23ad456b3da912cb9d13a901f1337992228",
+    "run": "rl-v13-role-adaptive4b80-21d756d1",
+    "step": 80
+  },
+  "optimizer_updates_authorized_after_runtime_preflight": 40,
+  "required_preflight": [
+    "exact source commit is published and anonymously verified before renting",
+    "HF write credential and W&B-only credential are verified before renting",
+    "runtime certificate and parity pass on the exact serving and trainer stack",
+    "public compact-mirror preflight passes before optimizer update 1",
+    "update-0 development baseline and continuation record are valid",
+    "watcher, recovery supervisor, spend cap, TTL, and exact-pod teardown are armed"
+  ],
+  "routing": {
+    "curriculum_sha256": "197e50e9253798f75a83d29e306c321618c7b9633d3b86b4133e54bb0bb8e0e5",
+    "development_or_frozen_feedback": false,
+    "fresh_rollouts_only": true,
+    "ordinary_case_pool_sha256": "4d39e513aeb5a83b1cd836f3ea1a6e591fa8a312ffa868131aed429016b44999",
+    "pilot_assessment_sha256": "ba8abe53e1d973600f6c9c9c1690354cb9009d122586883e265fc98857bc3087",
+    "pilot_trajectories_used_for_optimization": false,
+    "policy_modes": {
+      "blue-0": "expand",
+      "blue-1": "consolidate",
+      "blue-2": "consolidate",
+      "blue-3": "discover"
+    },
+    "stage_gate_sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2"
+  },
+  "sha256": "1dbf1e12a86575ce174301411640a0dc98cb0b151411c00fd777afed0390c37e",
+  "status": "cpu_frozen_runtime_preflight_pending",
+  "stop_contract": "stage-gate rejection, hard budget, TTL, operationally unrecoverable fault, or verified completion requires compact sync and immediate exact-instance teardown",
+  "version": "arena-rl-v14.3-cpu-bundle-v1"
+}

@@ -33,6 +33,9 @@ class AdaptiveCurriculumConfig:
     stalled_anchor_fraction: float = 0.1
     selection_seed: int = 20_261_101
     candidate_cases: tuple[str, ...] = ()
+    policy_modes: tuple[str, ...] = ()
+    expand_frontier_fraction: float = 0.5
+    discovery_frontier_fraction: float = 0.25
 
     def validate(self) -> None:
         if self.version != "arena-rl-adaptive-curriculum-v1":
@@ -58,6 +61,26 @@ class AdaptiveCurriculumConfig:
                 or parts[2] not in {"blue-0", "blue-1", "blue-2", "blue-3"}
             ):
                 raise ValueError(f"invalid adaptive curriculum candidate case: {value}")
+        if self.policy_modes:
+            parsed_modes = [value.split(":") for value in self.policy_modes]
+            if any(
+                len(parts) != 2
+                or parts[0] not in {"blue-0", "blue-1", "blue-2", "blue-3"}
+                or parts[1] not in {"consolidate", "expand", "discover"}
+                for parts in parsed_modes
+            ):
+                raise ValueError("invalid adaptive curriculum policy mode")
+            if {parts[0] for parts in parsed_modes} != {
+                "blue-0",
+                "blue-1",
+                "blue-2",
+                "blue-3",
+            }:
+                raise ValueError("adaptive policy modes must bind all four policies exactly once")
+        if not 0 <= self.expand_frontier_fraction <= 1:
+            raise ValueError("adaptive expand frontier fraction must be between zero and one")
+        if not 0 <= self.discovery_frontier_fraction <= 1:
+            raise ValueError("adaptive discovery frontier fraction must be between zero and one")
 
 
 @dataclass(frozen=True)
@@ -649,6 +672,10 @@ class ProductionPlan:
             payload.pop("monitor_logical_update_signal")
         if self.adaptive_curriculum is None:
             payload.pop("adaptive_curriculum")
+        elif not self.adaptive_curriculum.policy_modes:
+            payload["adaptive_curriculum"].pop("policy_modes")
+            payload["adaptive_curriculum"].pop("expand_frontier_fraction")
+            payload["adaptive_curriculum"].pop("discovery_frontier_fraction")
         if not self.ordinary_case_pool:
             payload.pop("ordinary_case_pool")
             payload.pop("ordinary_case_pool_sha256")
@@ -794,6 +821,10 @@ def load_production_plan(path: Path) -> tuple[ProductionPlan, dict[str, Path | N
                     "candidate_cases": tuple(
                         str(value)
                         for value in raw["adaptive_curriculum"].get("candidate_cases", [])
+                    ),
+                    "policy_modes": tuple(
+                        str(value)
+                        for value in raw["adaptive_curriculum"].get("policy_modes", [])
                     ),
                 }
             )

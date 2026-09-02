@@ -270,11 +270,37 @@ def select_ordinary_stage_cases(
     for case in pool:
         case.validate()
         by_key[(case.focused_agent, case.opponent_family)].append(case)
+    policy_modes = _policy_modes(config)
+    routed_frontier_slots: Counter[str] = Counter()
+    has_frontier: dict[str, bool] = {}
+    for policy in (f"blue-{index}" for index in range(4)):
+        policy_cases = [case for case in pool if case.focused_agent == policy]
+        has_frontier[policy] = any(
+            stats.get(case.case_id, {}).get(
+                "classification", case.initial_classification
+            )
+            == "frontier"
+            for case in policy_cases
+        )
+    for assignment, requested in zip(ordinary, categories, strict=True):
+        if requested == "frontier":
+            routed_frontier_slots[f"blue-{assignment.ordinal % 4}"] += 1
+    route_sequences = {
+        policy: _ordinary_route_sequence(
+            slots,
+            mode=policy_modes.get(policy, "consolidate"),
+            has_frontier=has_frontier[policy],
+            config=config,
+        )
+        for policy, slots in routed_frontier_slots.items()
+    }
+    route_cursors: Counter[str] = Counter()
     selected: dict[int, OrdinaryCase] = {}
     cursors: Counter[tuple[str, str, str]] = Counter()
     used: dict[tuple[str, str], set[str]] = defaultdict(set)
     category_counts: Counter[str] = Counter()
     requested_counts: Counter[str] = Counter()
+    routed_counts: Counter[str] = Counter()
     for assignment, requested in zip(ordinary, categories, strict=True):
         policy = f"blue-{assignment.ordinal % 4}"
         family = opponent_schedule[assignment.ordinal].family
@@ -294,13 +320,21 @@ def select_ordinary_stage_cases(
                     "classification", case.initial_classification
                 )
             )
-            if category == "unseen":
-                category = "frontier"
             by_category[category].append(case)
         requested_counts[requested] += 1
+        routed = requested
+        if requested == "frontier":
+            routed = route_sequences[policy][route_cursors[policy]]
+            route_cursors[policy] += 1
+        routed_counts[f"{policy}/{routed}"] += 1
         candidates: list[OrdinaryCase] = []
-        selected_category = requested
-        for category in (requested, "frontier", "mastered", "stalled"):
+        selected_category = routed
+        preference = _ordinary_category_preference(
+            requested=requested,
+            routed=routed,
+            mode=policy_modes.get(policy, "consolidate"),
+        )
+        for category in preference:
             candidates = [
                 case for case in by_category.get(category, []) if case.case_id not in used[key]
             ]
@@ -326,7 +360,9 @@ def select_ordinary_stage_cases(
             str(ordinal): asdict(case) for ordinal, case in sorted(selected.items())
         },
         "requested_category_counts": dict(sorted(requested_counts.items())),
+        "routed_category_counts": dict(sorted(routed_counts.items())),
         "selected_category_counts": dict(sorted(category_counts.items())),
+        "policy_modes": dict(sorted(policy_modes.items())),
         "frozen_or_development_data_used": False,
     }
     body = json.loads(json.dumps(body, sort_keys=True))
@@ -350,6 +386,58 @@ def _category_sequence(slots: int, config: AdaptiveCurriculumConfig) -> list[str
         remaining[selected] -= 1
         previous = selected
     return sequence
+
+
+def _policy_modes(config: AdaptiveCurriculumConfig) -> dict[str, str]:
+    return {
+        policy: mode
+        for policy, mode in (value.split(":") for value in config.policy_modes)
+    }
+
+
+def _ordinary_route_sequence(
+    slots: int,
+    *,
+    mode: str,
+    has_frontier: bool,
+    config: AdaptiveCurriculumConfig,
+) -> list[str]:
+    if slots < 0:
+        raise ValueError("ordinary routed slot count cannot be negative")
+    if mode == "consolidate":
+        frontier_fraction = 1.0
+    elif mode == "expand":
+        frontier_fraction = config.expand_frontier_fraction
+    elif mode == "discover":
+        frontier_fraction = (
+            config.discovery_frontier_fraction if has_frontier else 0.0
+        )
+    else:
+        raise ValueError(f"unknown adaptive ordinary policy mode: {mode}")
+    frontier = round(slots * frontier_fraction)
+    remaining = {"frontier": frontier, "unseen": slots - frontier}
+    sequence: list[str] = []
+    previous = None
+    while sum(remaining.values()):
+        available = [name for name, count in remaining.items() if count]
+        candidates = [name for name in available if name != previous] or available
+        selected = sorted(candidates, key=lambda name: (-remaining[name], name))[0]
+        sequence.append(selected)
+        remaining[selected] -= 1
+        previous = selected
+    return sequence
+
+
+def _ordinary_category_preference(
+    *, requested: str, routed: str, mode: str
+) -> tuple[str, ...]:
+    if requested != "frontier":
+        order = (requested, "frontier", "unseen", "mastered", "stalled")
+    elif mode == "discover":
+        order = (routed, "unseen", "frontier", "stalled", "mastered")
+    else:
+        order = (routed, "frontier", "unseen", "mastered", "stalled")
+    return tuple(dict.fromkeys(order))
 
 
 def _stable_order(values: Iterable[tuple[int, str]], *, seed: str) -> list[tuple[int, str]]:

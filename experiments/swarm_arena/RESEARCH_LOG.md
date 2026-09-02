@@ -6646,9 +6646,9 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-09-01 — V14.2 stable-frontier pilot and pilot-bound curriculum
 
-- Status: CPU design, implementation, audit, and credential-free freeze
-  complete. No GPU is rented, no optimizer update is authorized, and no
-  development or frozen evaluation data was opened.
+- Status: rejected by the preregistered zero-update pilot. All 24 cases / 96
+  games completed once, no seed was searched or retried, no pilot trajectory
+  was used for optimization, and optimizer update 1 never began.
 - Hypothesis: V14.1 rejected a noisy per-cell pass@4 gate rather than a broken
   ordinary critic or demonstrated current-policy capacity limit. A disjoint
   pilot can select a stable training frontier without conditioning optimizer
@@ -6699,8 +6699,94 @@ no more critical-specific than decoy-specific. Therefore:
   allocation, then run only the bounded 96-game pilot before rebuilding the
   plan. The `$15` maximum, nine-hour TTL, stage-gate stops, and immediate
   exact-pod teardown on rejection or verified completion remain unchanged.
-- Instance decommissioned: not applicable; CPU-only work and provider inventory
-  remains empty.
+- GPU pilot outcome: source commit
+  `50c9f46ff321538a4e8ec4a026842fea75bb355c` and CPU-bundle body
+  `0054e16d...1118` were frozen. Protocol admission was `1.0`. Blue-1 and
+  blue-2 passed every aggregate signed-signal gate. Blue-0 produced one
+  variable blocking group in one family (`4/16` nonzero advantages, two
+  positive and two negative) and failed the required cross-family/count
+  evidence. Blue-3 produced zero nonzero advantages across all 16 blocking
+  replicas and failed the signed-signal gates. Nonblocking current-policy
+  probes did not veto admission. The assessment status was therefore `failed`
+  and the committed finalizer correctly never ran.
+- Artifacts: assessment SHA-256
+  `c5af46e4af3c96b64a60be5b9048e1467426cbfdf0e2ae19046ea8272146c4bd`;
+  pilot manifest SHA-256
+  `37f60e818a339f3066b57068318e020ce1a943a6d13eef870c8ae1a2cc2827b2`;
+  runtime-certificate SHA-256
+  `2f7699f17b8e0d96f23d8987ccdc9d9af1ed600bd220561fa7cfeeaf899f5df6`.
+  Compact evidence was published at HF revision
+  `9647707f8f31226aa82505eecc7fe75699b09d0c` and every published artifact was
+  anonymously re-downloaded and hash-verified. Raw trajectories, credentials,
+  and logs were not published. W&B was intentionally not started because no
+  optimizer run was admitted.
+- Interpretation: stable-frontier filtering found usable signal for only two
+  of four policies. Blindly scaling this curriculum would still train blue-1
+  and blue-2 while providing weak or absent grounded credit to blue-0 and
+  blue-3. This is a useful cheap rejection, not a capability result. The next
+  CPU design should expand causally discriminating scenario generation for
+  blue-0 and especially blue-3, while retaining blue-1/blue-2 cases as verified
+  anchors; it should not weaken the aggregate signed-signal requirements or
+  retry cases until favorable.
+- GPU/cost: exact Lium pod `c8e8ada1-8bfc-46d1-b2ed-088dd91618af`
+  (`golden-shark-69`), `64.247.196.76:40298`, 4xL40S at `$1.52/hour`.
+  Provider-reported final spend was `$4.07`, below the `$15` cap.
+- Instance decommissioned: yes. After anonymous public artifact verification,
+  the provider inventory was re-resolved and required the exact pod ID/IP
+  match. Only `lium rm c8e8ada1-8bfc-46d1-b2ed-088dd91618af -y` was used;
+  provider returned `Removed 1 pod(s): golden-shark-69`, a subsequent
+  `lium ps --format json` returned `[]`, and the ten-minute heartbeat was
+  deleted.
+
+### 2026-09-02 — V14.3 policy-routed adaptive curriculum
+
+- Status: CPU implementation, audit, focused tests, and reproducible bundle
+  complete. No GPU is rented and no V14.3 optimizer update has run.
+- Decision: replace the all-four-policies-or-nothing ordinary admission gate
+  with four hash-bound training lanes. Blue-1/2 are `consolidate`, blue-0 is
+  `expand`, and blue-3 is `discover`, derived deterministically from the
+  complete V14.2 assessment. Protocol failure remains blocking; signal
+  sparsity changes routing instead of vetoing the joint run.
+- Pool: all 128 training-only V14.1 cases remain available, eight per
+  policy/opponent cell. The 24 V14.2-observed identities are reclassified from
+  that immutable result as 8 frontier, 6 mastered, and 10 stalled; the other
+  104 are unseen. Pilot trajectories remain excluded and future optimizer
+  groups require fresh sampling namespaces.
+- Runtime behavior: `consolidate` prefers observed frontier; `expand` assigns
+  half its frontier requests to observed frontier and half to unseen cases;
+  `discover` rotates unseen cases and, only after a complete training stage
+  observes a frontier, reserves a 25% exploitation fraction. Fixed mastered
+  and stalled anchors remain. Each scheduled group runs once; an all-zero
+  realization yields zero gradient and telemetry but neither resampling nor a
+  halt. The exact next-stage selection is based only on the entire preceding
+  training stage and is written atomically for deterministic resume.
+- Scientific invariants: the four-policy atomic update, group mix, opponent
+  rotation, terminal reward, leave-one-out/paired credit, counterfactuals,
+  multi-turn offsets, 10-update stages, and update-10/20/30/40 development
+  gates are unchanged. Development/frozen data cannot feed routing. No new
+  broad signal screen is required before update 1; exact source publication,
+  credentials, runtime certificate/parity, public mirror preflight, update-0
+  baseline, watcher, recovery, budget, and TTL remain mandatory.
+- CPU verification: 46 relevant production/adaptive/V13/V14/V14.2/V14.3 tests
+  passed in an isolated `uv` environment. Ruff and Python compilation passed.
+  The first repository-environment pytest attempt could not start because the
+  local editable `deps/verifiers` checkout is incomplete; the isolated pure
+  CPU run avoided mutating that environment and passed. No live GPU process was
+  present during testing.
+- Frozen bodies: assessment `ba8abe53...3087`; pool
+  `4d39e513...4999`; curriculum `197e50e9...e0e5`; finalization audit
+  `ecffdd09...abcd`; CPU bundle `1dbf1e12...c37e`; unchanged stage gate
+  `27098650...f8c2`.
+- GPU contract: 4xL40S target, assumed `$1.52/hour`, `$15` hard cap, nine-hour
+  TTL, and at most 40 updates. Stop on the first failed stage gate, budget/TTL,
+  unrecoverable operational fault, or verified completion; sync compact
+  evidence and immediately decommission the exact resolved pod.
+- Next action: review the diff, commit and publish the exact source, verify the
+  public commit anonymously, and only then rent. On-node work should be limited
+  to frozen setup, runtime certification, mirror/update-0 preflight, and the
+  already-bound run; no curriculum coding or broad seed search may consume paid
+  GPU time.
+- Instance decommissioned: not applicable; provider inventory is empty.
 
 ## Future entry template
 

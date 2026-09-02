@@ -237,6 +237,18 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   on W&B availability. Store only compact summaries/artifacts there; publish a
   selected adapter separately to Hugging Face and never copy checkpoints to the
   local Mac.
+- When ordinary signal differs sharply by policy, bind all four policy lanes in
+  `adaptive_curriculum.policy_modes` instead of making one weak policy veto the
+  joint run. `consolidate` prefers observed frontier cases, `expand` splits its
+  frontier slots between observed and unseen cases, and `discover` rotates
+  unseen cases until complete training-stage evidence identifies a frontier,
+  then retains a bounded exploitation fraction. All lanes still execute the
+  immutable fresh rollout scheduled for that policy; a flat group naturally
+  contributes zero gradient and is recorded as telemetry. Never resample the
+  same slot until it becomes favorable, reuse screening trajectories, or let
+  development/frozen results feed routing. Recompute case classifications only
+  from the entire preceding completed training stage and hash-bind the exact
+  per-stage selection for deterministic resume.
 - Before renting a paid GPU, freeze a maximum dollar budget, a wall-time
   cutoff, stage-gate checkpoints, and the exact action for pass/fail. Install
   the independent watcher and recovery supervisor before update 1. After the
