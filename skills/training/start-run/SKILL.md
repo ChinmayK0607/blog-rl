@@ -53,6 +53,14 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   path for every `uv sync` and `uv run` invocation. Omitting it later can make
   uv resolve a second environment and repoint the repository `.venv` symlink.
   Use `uv run --no-sync` for verification after the frozen sync completes.
+- Custom staged launchers must use one checked-in runtime argv for every
+  subprocess. For the L40S Swarm stack this is
+  `uv run --frozen --extra flash-attn`; a bare later `uv run` may select a
+  different project environment and fail only after GPUs are allocated. Bind
+  the exact public base and adapter repository IDs as launcher inputs and
+  compare them to the immutable preparation record. When validating generated
+  orchestrator TOML, use the current serialized `student.model.lora` schema,
+  not the obsolete top-level `model.lora` validation alias.
 - Environment packages: before launching a config with a non-core verifier env id,
   verify the package imports under `uv run` (for example
   `uv run python -c "import importlib.util; print(importlib.util.find_spec('rlm_swe'))"`).
@@ -180,6 +188,16 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   admission, and the trainer must gather errors over the exact completion-token
   set and validate every bound threshold before `optimizer.step()`. A missing,
   changed or failed gate is a hard stop, never a diagnostic-only warning.
+  A run may prospectively declare bounded `rollout_parity_recovery` without
+  changing those numerical thresholds. In that mode, a failing *complete
+  atomic logical update* discards all four policies' gradients, does not step
+  any optimizer or scheduler, samples no replacement, appends and fsyncs the
+  exact metrics, and publishes unchanged weights so the predetermined schedule
+  advances. Keep the allowance small and stage-local (V14.5 uses at most one
+  per ten slots); exceeding it is a hard stop. Restore counts from the
+  append-only ledger on resume. Report logical slots and optimizer-applied
+  updates separately—a quarantined slot is never an optimizer update or
+  evidence of learning.
 - Launch long-lived inference inside `tmux` with the command as the pane's
   `exec` target and attach logging with `tmux pipe-pane`. Avoid making a shell
   pipeline ending in `tee` the pane's main process; a logging-process exit can

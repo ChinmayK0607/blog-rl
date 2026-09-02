@@ -9,6 +9,7 @@ from jaxtyping import Bool, Float, Int, jaxtyped
 from torch import Tensor
 
 from prime_rl.configs.trainer import CustomLossConfig, DefaultLossConfig, LossConfig
+from prime_rl.trainer.rl.parity import rollout_parity_failures
 from prime_rl.utils.utils import import_object
 
 
@@ -183,20 +184,7 @@ def rollout_parity_metrics(
 
 def validate_rollout_parity_metrics(metrics: dict[str, float], config: Any) -> None:
     """Reject a batch before its optimizer step when any certified gate fails."""
-    thresholds = {
-        "mean_logprob_error": config.max_mean_logprob_error,
-        "p99_logprob_error": config.max_p99_logprob_error,
-        "max_probability_error": config.max_probability_error,
-        "p99_probability_error": config.max_p99_probability_error,
-        "probability_tail_fraction": config.max_probability_tail_fraction,
-        "mean_mismatch_kl": config.max_mean_mismatch_kl,
-        "max_mismatch_kl": config.max_mismatch_kl,
-    }
-    exceeded = {
-        name: (metrics[name], threshold)
-        for name, threshold in thresholds.items()
-        if threshold is not None and metrics[name] > threshold
-    }
+    exceeded = rollout_parity_failures(metrics, config)
     if exceeded:
         detail = ", ".join(f"{name}={value:.8g}>{threshold:.8g}" for name, (value, threshold) in exceeded.items())
         raise RuntimeError(f"rollout/trainer numerical-parity gate failed: {detail}")

@@ -52,6 +52,13 @@ before or after an atomic optimizer update, and execute the already authorized
 recovery path. A watcher that only increments an error count while GPUs remain
 allocated is not a recovery system.
 
+When a run prospectively permits bounded numerical-parity quarantine, monitor
+and mirror `audit/rollout_parity_quarantine.jsonl`. Verify that every record says
+`optimizer_step_applied=false` and `replacement_batch_sampled=false`, and report
+scheduled logical slots separately from optimizer-applied updates. One allowed
+quarantine publishes unchanged weights; it is not training progress. A second
+failure in the same frozen stage is a scientific stop, not a recovery target.
+
 ### Evaluation completion and summary recovery
 
 Treat durable row generation and summary aggregation as separate milestones.
@@ -77,6 +84,12 @@ tmux send-keys -t "$SESSION:Launcher" 'your command here' Enter
 ```
 
 After a restart, verify all processes are back up and progress resumed before the next check-in.
+
+After a terminal stage-gate rejection or verified completion, first verify the
+compact mirror/checkpoint hashes and final W&B sync, then perform the authorized
+exact-instance teardown immediately. Do not leave a paid pod idle until the next
+heartbeat. Silence never supplies destructive authorization: if teardown was not
+authorized in the active run contract, request it explicitly.
 
 ---
 

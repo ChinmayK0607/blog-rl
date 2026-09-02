@@ -10,9 +10,6 @@ from experiments.swarm_arena.scripts.finalize_v14_3_policy_routing import (
     finalize,
 )
 from experiments.swarm_arena.scripts.freeze_v14_3_cpu_bundle import load_hashed
-from experiments.swarm_arena.scripts.freeze_v14_4_parity_recovery import (
-    build_bundle as build_v14_4_bundle,
-)
 from experiments.swarm_arena.swarm_ctf_eval.adaptive_curriculum import (
     select_ordinary_stage_cases,
 )
@@ -24,6 +21,9 @@ from experiments.swarm_arena.swarm_ctf_eval.rl_production import (
 )
 
 ROOT = Path(__file__).parents[1]
+V14_4_PARENT_SHA256 = (
+    "ef4c9c614856edbf23b525724e3cc9524a8fe749e6e7e5fc2e6f4e6dd887aef3"
+)
 
 
 def _json(path: Path) -> dict[str, object]:
@@ -180,28 +180,12 @@ def test_historical_cpu_bundle_remains_hash_valid() -> None:
     )
 
 
-def test_v14_4_cpu_bundle_reproduces_exactly() -> None:
+def test_v14_4_cpu_bundle_remains_a_valid_frozen_parent() -> None:
+    # Historical bundles bind the source tree at their original commit.  Later
+    # execution repairs must validate the immutable artifact itself rather than
+    # pretending current mutable launcher files can reproduce the old commit.
     data = ROOT / "data"
-    code_paths = tuple(
-        Path("experiments/swarm_arena") / path
-        for path in (
-            "scripts/freeze_v14_4_parity_recovery.py",
-            "scripts/certify_prime_parity.py",
-            "scripts/bind_runtime_certificate.py",
-            "scripts/capture_runtime_parity_probe.py",
-            "scripts/prepare_live_rl_run.py",
-            "scripts/build_staged_rl_plan.py",
-            "scripts/preflight_staged_rl.py",
-            "scripts/launch_staged_rl.sh",
-            "scripts/run_live_rl.py",
-            "scripts/run_staged_pulses.py",
-        )
-    )
-    actual = build_v14_4_bundle(
-        parent=load_hashed(data / "rl_v14_3" / "cpu_bundle.json"),
-        prior_trainer_path=ROOT / "configs" / "rl_v14_4b_grounded_40.toml",
-        trainer_path=ROOT / "configs" / "rl_v14_4_4b_policy_routed_40.toml",
-        code_paths=code_paths,
-    )
-
-    assert actual == load_hashed(data / "rl_v14_4" / "cpu_bundle.json")
+    bundle = load_hashed(data / "rl_v14_4" / "cpu_bundle.json")
+    assert bundle["version"] == "arena-rl-v14.4-parity-recovery-v1"
+    assert bundle["sha256"] == V14_4_PARENT_SHA256
+    assert bundle["frozen_data_opened"] is False

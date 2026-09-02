@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 from swarm_ctf_eval.handoff_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.rl_production import load_production_plan
 from swarm_ctf_eval.safety_supervisor import SharedReturnSpec
+from swarm_ctf_eval.staged_runtime import orchestrator_lora
 from swarm_ctf_eval.task_data_binding import resolve_task_data_binding
 
 
@@ -169,6 +170,8 @@ def main() -> None:
     parser.add_argument("--initial-adapter", type=Path, required=True)
     parser.add_argument("--initial-policy-adapter-manifest", type=Path)
     parser.add_argument("--model", type=Path, required=True)
+    parser.add_argument("--expected-public-base-repo", required=True)
+    parser.add_argument("--expected-public-adapter-repo", required=True)
     parser.add_argument("--base-url", action="append", default=[])
     parser.add_argument("--expected-updates", type=int, default=120)
     parser.add_argument("--checkpoint-interval", type=int, default=10)
@@ -237,6 +240,10 @@ def main() -> None:
         raise ValueError("prepared policy-step count does not match staged run")
     if prepare["checkpoint_interval"] != args.checkpoint_interval:
         raise ValueError("prepared checkpoint interval does not match staged run")
+    if prepare["public_inputs"]["base_repo"] != args.expected_public_base_repo:
+        raise ValueError("prepared public base repository differs from launch contract")
+    if prepare["public_inputs"]["adapter_repo"] != args.expected_public_adapter_repo:
+        raise ValueError("prepared public adapter repository differs from launch contract")
     _verify_public_inputs(prepare["public_inputs"])
     if certificate["base_revision"] != prepare["public_inputs"]["base_revision"]:
         raise ValueError("runtime certificate does not bind the public base revision")
@@ -278,6 +285,14 @@ def main() -> None:
         raise ValueError("staged run requires exactly four trainer policy slots")
     if not trainer.get("atomic_multi_run_updates", False):
         raise ValueError("staged run requires atomic four-policy optimizer updates")
+    parity_recovery = trainer.get("rollout_parity_recovery")
+    if parity_recovery is not None:
+        if parity_recovery.get("action") != "quarantine_logical_update":
+            raise ValueError("unsupported rollout parity recovery action")
+        if parity_recovery.get("window_size") != args.checkpoint_interval:
+            raise ValueError("parity quarantine window must match the stage interval")
+        if parity_recovery.get("max_quarantined_updates_per_window") != 1:
+            raise ValueError("staged parity quarantine limit must be exactly one")
     if trainer.get("max_steps") is not None:
         raise ValueError("trainer max_steps must remain controller-owned")
     # The resolved trainer config is already immutably bound by PREPARE.json,
@@ -399,10 +414,8 @@ def main() -> None:
             raise ValueError(f"blue-{index} permanent checkpoint retention mismatch")
         if orch["ckpt"].get("keep_last") != 2:
             raise ValueError(f"blue-{index} rolling checkpoint retention mismatch")
-        orch_lora = orch["model"].get("lora")
+        orch_lora = orchestrator_lora(orch, f"blue-{index}")
         trainer_lora = trainer["model"]["lora"]
-        if not isinstance(orch_lora, dict):
-            raise ValueError(f"blue-{index} orchestrator is missing LoRA metadata")
         if orch_lora.get("name") != f"blue-{index}":
             raise ValueError(f"blue-{index} orchestrator LoRA alias mismatch")
         if orch_lora.get("rank") != trainer_lora["rank"]:

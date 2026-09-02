@@ -12,6 +12,7 @@ from pathlib import Path
 from swarm_ctf_eval.progress_eval_v5 import PROGRESS_EVAL_V5_VERSION
 from swarm_ctf_eval.rl_production import load_production_plan
 from swarm_ctf_eval.stage_gate import evaluate_stage_gate, file_sha256, load_stage_gates
+from swarm_ctf_eval.staged_runtime import optimizer_application_summary
 
 
 def _digest(value: object) -> str:
@@ -393,6 +394,11 @@ def main() -> None:
                 summary,
                 step=step,
                 summary_sha256=file_sha256(summary_path),
+            )
+            gate["optimizer_application"] = optimizer_application_summary(
+                args.run_dir,
+                step=step,
+                interval=args.interval,
             )
             gate_path = output_dir / "STAGE_GATE.json"
             if gate_path.is_file():

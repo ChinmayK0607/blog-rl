@@ -70,6 +70,7 @@ def compact_files(run_dir: Path, extra_artifacts: tuple[Path, ...] = ()) -> dict
         "logs/trainer.log",
         "logs/pulses.log",
         "logs/wandb.log",
+        "audit/rollout_parity_quarantine.jsonl",
     )
     files = {
         f"live/{relative}": run_dir / relative

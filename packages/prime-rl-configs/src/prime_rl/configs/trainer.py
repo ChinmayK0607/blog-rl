@@ -550,6 +550,29 @@ class RolloutParityGateConfig(BaseConfig):
     max_mismatch_kl: float | None = Field(None, ge=0)
 
 
+class RolloutParityRecoveryConfig(BaseConfig):
+    """Bounded handling for a complete logical batch that fails parity.
+
+    The default trainer behavior remains fail-closed.  When this optional
+    configuration is present, one or more *pre-scheduled* logical updates may
+    be quarantined without applying gradients or resampling replacement data.
+    The unchanged policy weights are published so every policy advances
+    atomically and the rejected evidence remains part of the run record.
+    """
+
+    action: Literal["quarantine_logical_update"] = "quarantine_logical_update"
+    window_size: int = Field(10, ge=1)
+    max_quarantined_updates_per_window: int = Field(1, ge=1)
+
+    @model_validator(mode="after")
+    def validate_quarantine_limit(self):
+        if self.max_quarantined_updates_per_window > self.window_size:
+            raise ValueError(
+                "parity quarantine limit cannot exceed its logical-update window"
+            )
+        return self
+
+
 class TrainerConfig(BaseConfig):
     model: ModelConfig = ModelConfig()
 
@@ -575,6 +598,9 @@ class TrainerConfig(BaseConfig):
 
     rollout_parity_gate: RolloutParityGateConfig | None = None
     """Optional fail-closed numerical gate evaluated before gradients are applied."""
+
+    rollout_parity_recovery: RolloutParityRecoveryConfig | None = None
+    """Optional bounded no-resampling quarantine for failed logical batches."""
 
     log: TrainerLogConfig = TrainerLogConfig()
 

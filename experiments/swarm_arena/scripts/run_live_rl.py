@@ -70,6 +70,7 @@ from swarm_ctf_eval.safety_supervisor import (
     canonical_sha256,
     shared_return_evidence_payload,
 )
+from swarm_ctf_eval.staged_runtime import parity_quarantined_logical_updates
 from swarm_ctf_eval.task_data_binding import (
     TaskDataBinding,
     resolve_task_data_binding,
@@ -1759,11 +1760,20 @@ async def main() -> None:
             policy_revisions = digests
             policy_adapter_sha256 = dict(digests)
             policy_revision = canonical_sha256(policy_revisions)
+            quarantined_updates = parity_quarantined_logical_updates(args.output_dir)
+            logical_update = step + 1
+            optimizer_step_applied = logical_update not in quarantined_updates
             result_rows.append(
                 {
                     "step": step,
                     "groups": step_groups,
                     "logical_update_nonzero_advantage": logical_update_nonzero_advantage,
+                    "optimizer_step_applied": optimizer_step_applied,
+                    "parity_quarantined": not optimizer_step_applied,
+                    "cumulative_optimizer_steps_applied": (
+                        logical_update
+                        - sum(value <= logical_update for value in quarantined_updates)
+                    ),
                     "policy_adapter_sha256": digests,
                     "policy_revision": policy_revision,
                 }

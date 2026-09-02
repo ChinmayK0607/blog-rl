@@ -6908,6 +6908,77 @@ no more critical-specific than decoy-specific. Therefore:
   behavioral gate decide whether later stages are justified.
 - Instance decommissioned: not applicable; no V14.4 instance exists.
 
+### 2026-09-02 — V14.4 live rejection and teardown
+
+- Status: rejected by the unchanged pre-optimizer numerical-parity gate after
+  two durable optimizer updates; no behavioral stage gate was reached.
+- Admission evidence: the policy-local runtime certificate passed with pooled
+  mean mismatch KL `0.0000769950` and policy values `0.0001126874`,
+  `0.00000587886`, `0.0001630056`, and `0.0000191345` under the frozen `.002`
+  ceiling. The unchanged 192-row update-0 evaluation also passed: communication
+  drop `+0.0276072`, specificity `+0.02400836`, RL-specific lift
+  `+0.02817551`, ordinary-hard `+0.00898044`, ordinary-legacy `+0.01948507`,
+  overall `+0.01289070`, and protocol validity `1.0`.
+- Training outcome: exactly two atomic four-policy optimizer updates became
+  durable. At the next boundary, blue-0 and blue-1 passed at `0.00186907` and
+  `0.000148195`; blue-2 failed at `0.004621265 > 0.002`. Atomic multi-run
+  handling prevented a partial third update. No batch was retried, no seed was
+  searched, and no numerical or behavioral gate was loosened.
+- Mechanical incidents before admission: corrected the public base repository
+  identity, the stale top-level orchestrator `model.lora` validation path, and
+  a staged launcher subprocess that selected a bare `uv run` environment
+  without vLLM. These were execution defects, not scientific rejections.
+- Preservation: final compact HF revision `b26526...`; incident revision
+  `2ae2a...`; W&B run `v7x2mg6a` synced. Exact pod
+  `a19ad5ff-a1cc-423e-b286-9b8cd51ea458` was removed after verification and
+  confirmed absent. Final provider cost was `$4.42`.
+- Interpretation: V14.4 proved that the zero-update baseline and runtime
+  certificate were viable, but it did not test the adaptive curriculum. Two
+  optimizer steps are not evidence that V14 succeeded or failed behaviorally.
+
+### 2026-09-02 — V14.5 bounded execution repair CPU validation
+
+- Status: CPU-validated only. No pod was rented, no credentials were moved, no
+  optimizer work started, and frozen held-out data remains unopened.
+- Purpose: preserve V14.4's initializer, curriculum, reward, optimizer, loss,
+  DPPO masks, dtypes, `.002` parity thresholds, update-0 evaluation, and frozen
+  update-10/20/30/40 behavioral gates while preventing one isolated numerical
+  tail from wasting an otherwise valid ten-update stage.
+- Prospective recovery: at most one complete atomic logical batch per ten-slot
+  stage may be quarantined. It applies no optimizer or scheduler step, discards
+  every policy gradient, samples no replacement, appends and fsyncs all
+  policy-local metrics and thresholds, and publishes unchanged weights. A
+  second parity failure in the same stage aborts before optimization. Resume
+  restores the allowance from the append-only ledger and cannot erase a prior
+  rejection.
+- Truthful accounting: controller progress and stage artifacts distinguish
+  logical curriculum slots, optimizer-applied updates, and quarantined slots.
+  A ten-slot stage with one quarantine reports nine optimizer steps. The compact
+  public mirror includes the quarantine ledger and still excludes token exports.
+- Permanent launch repair: every staged subprocess now uses the same
+  `uv run --frozen --extra flash-attn` argv; launcher inputs bind the exact
+  public base/adapter repositories; preflight uses current
+  `student.model.lora` metadata and requires exactly one quarantine allowance
+  per ten-update stage.
+- Validation: 68 focused adaptive-curriculum, production-plan, stage-gate,
+  V13/V14, launcher, preflight, and V14.5 tests passed. Ruff, launcher shell
+  syntax, trainer-config parsing, and `git diff --check` passed. The config
+  retained rank 32 / alpha 64 and the `.002` mismatch-KL ceiling. The local Mac
+  cannot resolve the root frozen Linux-only lock; the pinned `deps/verifiers`
+  submodule was initialized and lightweight validation used an isolated
+  `uv run --no-project` environment rather than mutating the project runtime.
+- Frozen identities: plan file SHA-256 `1c585caf...69177`; trainer config
+  `d6e25765...11115`; CPU-bundle canonical body `7e9e41b5...06390` and file
+  SHA-256 `ab065645...8c3b`. Parent V14.4 bundle remains
+  `ef4c9c61...aef3` and self-validates at its historical source boundary.
+- Next action: review and commit the CPU-validated payload, obtain explicit
+  authorization for the exact non-force publication, anonymously verify source
+  and bundle, and render the complete launch environment before renting. The
+  first paid decision remains the unchanged update-10 behavioral gate; terminal
+  rejection or completion requires verified sync and immediate exact-pod
+  teardown.
+- Instance decommissioned: not applicable; no V14.5 instance exists.
+
 ## Future entry template
 
 Copy this block for each material run:

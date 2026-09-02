@@ -2,8 +2,10 @@ import prime_rl._compat  # noqa: F401 — patch ring_flash_attn compat before im
 
 from contextlib import nullcontext
 from collections import defaultdict
+import json
+import os
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 # Import environment before any other imports
 # ruff: noqa: I001
@@ -39,6 +41,11 @@ from prime_rl.trainer.rl.loss import (
     shift_tensor_left,
     shift_tensor_right,
     validate_rollout_parity_metrics,
+)
+from prime_rl.trainer.rl.parity import (
+    load_rollout_parity_quarantine_counts,
+    rollout_parity_failures,
+    rollout_parity_quarantine_disposition,
 )
 from prime_rl.trainer.rl.token_export import setup_token_exporter
 from prime_rl.trainer.model import (
@@ -265,6 +272,18 @@ def train(config: TrainerConfig):
     multi_run_parity: dict[int, dict[str, list[torch.Tensor]]] = defaultdict(
         lambda: defaultdict(list)
     )
+    parity_quarantines_by_window: dict[int, int] = defaultdict(int)
+    if config.rollout_parity_recovery is not None:
+        parity_quarantines_by_window.update(
+            load_rollout_parity_quarantine_counts(
+                config.output_dir / "audit" / "rollout_parity_quarantine.jsonl",
+                window_size=config.rollout_parity_recovery.window_size,
+            )
+        )
+        if max(parity_quarantines_by_window.values(), default=0) > (
+            config.rollout_parity_recovery.max_quarantined_updates_per_window
+        ):
+            raise RuntimeError("existing parity quarantine ledger exceeds configured limit")
     optimizer_step_completed = False
     is_first_step = True
     maybe_record_function = nullcontext
@@ -615,6 +634,7 @@ def train(config: TrainerConfig):
             multi_run_manager.used_idxs,
             atomic=config.atomic_multi_run_updates,
         )
+        parity_update_quarantined = False
         if config.rollout_parity_gate is not None and optimizer_step_ready:
             def gathered(values: list[torch.Tensor]) -> torch.Tensor:
                 local = (
@@ -644,6 +664,8 @@ def train(config: TrainerConfig):
                     for run_idx in multi_run_manager.ready_to_update_idxs
                 ]
 
+            parity_failures_by_run: dict[int | None, dict[str, tuple[float, float]]] = {}
+            parity_metrics_by_run: dict[int | None, dict[str, float]] = {}
             for run_idx, parity_inputs in ready_parity:
                 parity_metrics = rollout_parity_metrics(
                     *parity_inputs,
@@ -651,9 +673,13 @@ def train(config: TrainerConfig):
                         config.rollout_parity_gate.probability_tail_threshold
                     ),
                 )
-                validate_rollout_parity_metrics(
+                parity_metrics_by_run[run_idx] = parity_metrics
+                failures = rollout_parity_failures(
                     parity_metrics, config.rollout_parity_gate
                 )
+                if failures:
+                    parity_failures_by_run[run_idx] = failures
+                    continue
                 run_label = "" if run_idx is None else f" for run {run_idx}"
                 logger.info(
                     f"Rollout parity gate passed{run_label} before optimizer step: "
@@ -661,12 +687,96 @@ def train(config: TrainerConfig):
                         f"{name}={value:.6g}" for name, value in parity_metrics.items()
                     )
                 )
+            if parity_failures_by_run:
+                recovery = config.rollout_parity_recovery
+                if recovery is None:
+                    first_failed_run = next(iter(parity_failures_by_run))
+                    validate_rollout_parity_metrics(
+                        parity_metrics_by_run[first_failed_run],
+                        config.rollout_parity_gate,
+                    )
+                    raise AssertionError("unreachable parity validation path")
+                logical_steps = {
+                    multi_run_manager.progress[idx].step
+                    for idx in multi_run_manager.ready_to_update_idxs
+                }
+                if len(logical_steps) != 1:
+                    raise RuntimeError(
+                        "cannot quarantine a non-atomic logical update with "
+                        f"policy steps {sorted(logical_steps)}"
+                    )
+                logical_update = logical_steps.pop()
+                if logical_update < 1:
+                    raise RuntimeError("parity quarantine requires a positive logical update")
+                window_index = (logical_update - 1) // recovery.window_size
+                window_index, next_window_count, quarantine_allowed = (
+                    rollout_parity_quarantine_disposition(
+                        logical_update=logical_update,
+                        prior_window_count=parity_quarantines_by_window[window_index],
+                        window_size=recovery.window_size,
+                        window_limit=recovery.max_quarantined_updates_per_window,
+                    )
+                )
+                audit_record = {
+                    "version": "prime-rl-parity-quarantine-v1",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "logical_update": logical_update,
+                    "window_index": window_index,
+                    "window_size": recovery.window_size,
+                    "window_quarantine_count": next_window_count,
+                    "window_quarantine_limit": (
+                        recovery.max_quarantined_updates_per_window
+                    ),
+                    "policy_metrics": {
+                        "all" if run_idx is None else str(run_idx): metrics
+                        for run_idx, metrics in parity_metrics_by_run.items()
+                    },
+                    "failed_runs": {
+                        "all" if run_idx is None else str(run_idx): {
+                            "metrics": parity_metrics_by_run[run_idx],
+                            "exceeded": {
+                                name: {"value": value, "threshold": threshold}
+                                for name, (value, threshold) in failures.items()
+                            },
+                        }
+                        for run_idx, failures in parity_failures_by_run.items()
+                    },
+                    "action": (
+                        "quarantine_logical_update"
+                        if quarantine_allowed
+                        else "abort_quarantine_limit_exceeded"
+                    ),
+                    "optimizer_step_applied": False,
+                    "replacement_batch_sampled": False,
+                }
+                if world.is_master:
+                    audit_path = config.output_dir / "audit" / "rollout_parity_quarantine.jsonl"
+                    audit_path.parent.mkdir(parents=True, exist_ok=True)
+                    with audit_path.open("a", encoding="utf-8") as handle:
+                        handle.write(json.dumps(audit_record, sort_keys=True) + "\n")
+                        handle.flush()
+                        os.fsync(handle.fileno())
+                if not quarantine_allowed:
+                    raise RuntimeError(
+                        "rollout/trainer numerical-parity quarantine limit exceeded: "
+                        f"window={window_index}, count={next_window_count}, "
+                        f"limit={recovery.max_quarantined_updates_per_window}"
+                    )
+                parity_quarantines_by_window[window_index] = next_window_count
+                parity_update_quarantined = True
+                logger.warning(
+                    f"Quarantining logical update {logical_update} after policy-local "
+                    "parity failure; no optimizer or scheduler step will run and no "
+                    "replacement batch will be sampled. Publishing unchanged weights "
+                    f"({next_window_count}/{recovery.max_quarantined_updates_per_window} "
+                    f"in window {window_index})."
+                )
             for run_idx, _ in ready_parity:
                 if run_idx is not None:
                     del multi_run_parity[run_idx]
 
         grad_norm: torch.Tensor | None = None
-        if optimizer_step_ready:
+        if optimizer_step_ready and not parity_update_quarantined:
             # compute_loss already divided by the global token count. Undo FSDP's
             # per-rank averaging once, immediately before the complete update.
             for param in model.parameters():
@@ -690,6 +800,18 @@ def train(config: TrainerConfig):
                 current_lr = optimizer.param_groups[0]["lr"]
             else:
                 current_lr = optimizer.get_current_lr()
+        elif optimizer_step_ready:
+            # The complete predetermined batch failed the numerical-parity
+            # contract. Discard every gradient from the atomic four-policy
+            # update, keep optimizer/scheduler state unchanged, and publish the
+            # unchanged policy weights on the next loop so the controller can
+            # advance without favorable resampling.
+            optimizer.zero_grad()
+            zero_grad_ratio = get_zero_gradient_ratio(
+                model.parameters(), parallel_dims.dp_replicate
+            )
+            current_lr = 0.0
+            optimizer_step_completed = True
         else:
             zero_grad_ratio = get_zero_gradient_ratio(model.parameters(), parallel_dims.dp_replicate)
             current_lr = 0.0
@@ -743,6 +865,7 @@ def train(config: TrainerConfig):
         # Log optimizer metrics
         optim_metrics = {
             "optim/lr": current_lr,
+            "optim/parity_update_quarantined": float(parity_update_quarantined),
             "optim/zero_grad_ratio": zero_grad_ratio,
             "step": progress.step,
         }
