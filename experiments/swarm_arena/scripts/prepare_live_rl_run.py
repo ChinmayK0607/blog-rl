@@ -159,7 +159,11 @@ def main() -> None:
                 "max_steps": args.policy_steps,
                 "model": {
                     "name": args.model,
-                    "lora": {"name": f"blue-{index}", "rank": 16, "alpha": 32},
+                    "lora": {
+                        "name": f"blue-{index}",
+                        "rank": config.model.lora.rank,
+                        "alpha": config.model.lora.alpha,
+                    },
                 },
                 "optim": {"lr": config.optim.lr},
                 "train": {"env": [{"id": "reverse-text"}]},

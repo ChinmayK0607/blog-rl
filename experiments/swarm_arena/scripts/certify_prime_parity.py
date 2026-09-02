@@ -135,11 +135,22 @@ def main() -> None:
     parser.add_argument("--max-p99-logprob-error", type=float)
     parser.add_argument("--max-probability-error", type=float)
     parser.add_argument("--max-p99-probability-error", type=float)
-    parser.add_argument("--probability-tail-threshold", type=float, default=0.05)
+    parser.add_argument("--probability-tail-threshold", type=float)
     parser.add_argument("--max-probability-tail-fraction", type=float)
-    parser.add_argument("--max-mean-mismatch-kl", type=float, default=0.0005)
+    parser.add_argument("--max-mean-mismatch-kl", type=float)
     parser.add_argument("--max-mismatch-kl", type=float)
     args = parser.parse_args()
+
+    threshold_names = (
+        "max_mean_logprob_error",
+        "max_p99_logprob_error",
+        "max_probability_error",
+        "max_p99_probability_error",
+        "probability_tail_threshold",
+        "max_probability_tail_fraction",
+        "max_mean_mismatch_kl",
+        "max_mismatch_kl",
+    )
 
     if args.output_dir.exists():
         raise FileExistsError(f"refusing to reuse parity output directory: {args.output_dir}")
@@ -154,6 +165,14 @@ def main() -> None:
     trainer_config_sha256 = None
     initial_policy_adapter_manifest_sha256 = None
     if args.trainer_config is None:
+        # Preserve the standalone certifier's historical defaults. When a
+        # trainer config is supplied below, that immutable config is instead
+        # the sole source of truth so an omitted CLI flag cannot silently
+        # substitute a generic threshold.
+        if args.probability_tail_threshold is None:
+            args.probability_tail_threshold = 0.05
+        if args.max_mean_mismatch_kl is None:
+            args.max_mean_mismatch_kl = 0.0005
         config = TrainerConfig.model_validate(
             {
                 "output_dir": args.output_dir,
@@ -254,18 +273,21 @@ def main() -> None:
     parity_gate = config.rollout_parity_gate
     if parity_gate is None:
         raise ValueError("trainer config is missing the rollout parity gate")
-    expected_gate = {
-        "max_mean_logprob_error": args.max_mean_logprob_error,
-        "max_p99_logprob_error": args.max_p99_logprob_error,
-        "max_probability_error": args.max_probability_error,
-        "max_p99_probability_error": args.max_p99_probability_error,
-        "probability_tail_threshold": args.probability_tail_threshold,
-        "max_probability_tail_fraction": args.max_probability_tail_fraction,
-        "max_mean_mismatch_kl": args.max_mean_mismatch_kl,
-        "max_mismatch_kl": args.max_mismatch_kl,
-    }
-    if parity_gate.model_dump(mode="json") != expected_gate:
-        raise ValueError("trainer config parity gate does not match certificate thresholds")
+    expected_gate = parity_gate.model_dump(mode="json")
+    if args.trainer_config is not None:
+        conflicting = {
+            name: {"trainer": expected_gate[name], "cli": getattr(args, name)}
+            for name in threshold_names
+            if getattr(args, name) is not None
+            and getattr(args, name) != expected_gate[name]
+        }
+        if conflicting:
+            raise ValueError(
+                "explicit certificate thresholds conflict with trainer config: "
+                f"{conflicting}"
+            )
+        for name in threshold_names:
+            setattr(args, name, expected_gate[name])
     trainer_parity_gate_sha256 = canonical_sha256(expected_gate)
     device = torch.device("cuda", 0)
     manager = setup_multi_run_manager(args.output_dir, 4, device, config.model.lora)
@@ -290,6 +312,16 @@ def main() -> None:
     all_inference = []
     all_trainer = []
     all_branching = []
+    per_policy_inference: dict[int, list[torch.Tensor]] = {
+        index: [] for index in range(4)
+    }
+    per_policy_trainer: dict[int, list[torch.Tensor]] = {
+        index: [] for index in range(4)
+    }
+    per_policy_branching: dict[int, list[torch.Tensor]] = {
+        index: [] for index in range(4)
+    }
+    per_policy_samples = {index: 0 for index in range(4)}
     sample_summaries = []
     token_summaries = []
     distribution_summaries = []
@@ -362,7 +394,12 @@ def main() -> None:
                 )
         all_inference.append(inference_logprobs)
         all_trainer.append(trainer_logprobs)
-        all_branching.append(torch.tensor([len(row) > 1 for row in allowed_rows]))
+        sample_branching = torch.tensor([len(row) > 1 for row in allowed_rows])
+        all_branching.append(sample_branching)
+        per_policy_inference[policy_slot].append(inference_logprobs)
+        per_policy_trainer[policy_slot].append(trainer_logprobs)
+        per_policy_branching[policy_slot].append(sample_branching)
+        per_policy_samples[policy_slot] += 1
         sample_absolute_error = (trainer_logprobs - inference_logprobs).abs()
         sample_probability_error = (trainer_logprobs.exp() - inference_logprobs.exp()).abs()
         sample_log_ratio = trainer_logprobs - inference_logprobs
@@ -414,6 +451,17 @@ def main() -> None:
             }
         )
 
+    missing_policy_slots = [
+        policy_slot
+        for policy_slot, policy_rows in per_policy_inference.items()
+        if not policy_rows
+    ]
+    if missing_policy_slots:
+        raise ValueError(
+            "parity probe contains no samples for policy slots "
+            f"{missing_policy_slots}"
+        )
+
     inference_logprobs = torch.cat(all_inference)
     trainer_logprobs = torch.cat(all_trainer)
     branching = torch.cat(all_branching)
@@ -435,16 +483,103 @@ def main() -> None:
     def within(value: float, threshold: float | None) -> bool:
         return threshold is None or value <= threshold
 
-    parity_passed = all(
-        (
-            within(mean_absolute_error, args.max_mean_logprob_error),
-            within(p99_absolute_error, args.max_p99_logprob_error),
-            within(max_probability_error, args.max_probability_error),
-            within(p99_probability_error, args.max_p99_probability_error),
-            within(probability_tail_fraction, args.max_probability_tail_fraction),
-            within(mean_mismatch_kl, args.max_mean_mismatch_kl),
-            within(max_mismatch_kl, args.max_mismatch_kl),
+    parity_components = {
+        "mean_absolute_logprob_error": within(
+            mean_absolute_error, args.max_mean_logprob_error
+        ),
+        "p99_absolute_logprob_error": within(
+            p99_absolute_error, args.max_p99_logprob_error
+        ),
+        "max_probability_error": within(
+            max_probability_error, args.max_probability_error
+        ),
+        "p99_probability_error": within(
+            p99_probability_error, args.max_p99_probability_error
+        ),
+        "probability_tail_fraction": within(
+            probability_tail_fraction, args.max_probability_tail_fraction
+        ),
+        "mean_mismatch_kl": within(
+            mean_mismatch_kl, args.max_mean_mismatch_kl
+        ),
+        "max_mismatch_kl": within(max_mismatch_kl, args.max_mismatch_kl),
+    }
+
+    per_policy_parity = {}
+    for policy_slot in range(4):
+        policy_inference = torch.cat(per_policy_inference[policy_slot])
+        policy_trainer = torch.cat(per_policy_trainer[policy_slot])
+        policy_branching = torch.cat(per_policy_branching[policy_slot])
+        policy_absolute_error = (policy_trainer - policy_inference).abs()
+        policy_log_ratio = policy_trainer - policy_inference
+        policy_probability_error = (
+            policy_trainer.exp() - policy_inference.exp()
+        ).abs()
+        policy_mismatch_kl = (
+            policy_log_ratio.exp() - policy_log_ratio - 1.0
         )
+        policy_metrics = {
+            "mean_absolute_logprob_error": float(policy_absolute_error.mean()),
+            "p99_absolute_logprob_error": float(
+                torch.quantile(policy_absolute_error, 0.99)
+            ),
+            "max_probability_error": float(policy_probability_error.max()),
+            "p99_probability_error": float(
+                torch.quantile(policy_probability_error, 0.99)
+            ),
+            "probability_error_over_0_05_fraction": float(
+                (
+                    policy_probability_error
+                    > args.probability_tail_threshold
+                )
+                .float()
+                .mean()
+            ),
+            "mean_mismatch_kl": float(policy_mismatch_kl.mean()),
+            "max_mismatch_kl": float(policy_mismatch_kl.max()),
+        }
+        policy_components = {
+            "mean_absolute_logprob_error": within(
+                policy_metrics["mean_absolute_logprob_error"],
+                args.max_mean_logprob_error,
+            ),
+            "p99_absolute_logprob_error": within(
+                policy_metrics["p99_absolute_logprob_error"],
+                args.max_p99_logprob_error,
+            ),
+            "max_probability_error": within(
+                policy_metrics["max_probability_error"],
+                args.max_probability_error,
+            ),
+            "p99_probability_error": within(
+                policy_metrics["p99_probability_error"],
+                args.max_p99_probability_error,
+            ),
+            "probability_tail_fraction": within(
+                policy_metrics["probability_error_over_0_05_fraction"],
+                args.max_probability_tail_fraction,
+            ),
+            "mean_mismatch_kl": within(
+                policy_metrics["mean_mismatch_kl"],
+                args.max_mean_mismatch_kl,
+            ),
+            "max_mismatch_kl": within(
+                policy_metrics["max_mismatch_kl"],
+                args.max_mismatch_kl,
+            ),
+        }
+        per_policy_parity[f"blue-{policy_slot}"] = {
+            "policy_slot": policy_slot,
+            "samples": per_policy_samples[policy_slot],
+            "completion_tokens": len(policy_inference),
+            "branching_tokens": int(policy_branching.sum()),
+            **policy_metrics,
+            "parity_components": policy_components,
+            "parity_passed": all(policy_components.values()),
+        }
+
+    parity_passed = all(parity_components.values()) and all(
+        row["parity_passed"] for row in per_policy_parity.values()
     )
 
     optimizer_param_ids = []
@@ -523,15 +658,8 @@ def main() -> None:
         "probability_error_over_0_05_fraction": probability_tail_fraction,
         "optimizer_parameter_sets_disjoint": optimizer_sets_disjoint,
         "parity_passed": parity_passed,
-        "parity_components": {
-            "mean_absolute_logprob_error": within(mean_absolute_error, args.max_mean_logprob_error),
-            "p99_absolute_logprob_error": within(p99_absolute_error, args.max_p99_logprob_error),
-            "max_probability_error": within(max_probability_error, args.max_probability_error),
-            "p99_probability_error": within(p99_probability_error, args.max_p99_probability_error),
-            "probability_tail_fraction": within(probability_tail_fraction, args.max_probability_tail_fraction),
-            "mean_mismatch_kl": within(mean_mismatch_kl, args.max_mean_mismatch_kl),
-            "max_mismatch_kl": within(max_mismatch_kl, args.max_mismatch_kl),
-        },
+        "parity_components": parity_components,
+        "per_policy_parity": per_policy_parity,
         "parity_thresholds": {
             "max_mean_logprob_error": args.max_mean_logprob_error,
             "max_p99_logprob_error": args.max_p99_logprob_error,

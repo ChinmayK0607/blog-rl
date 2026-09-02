@@ -9,9 +9,9 @@ from experiments.swarm_arena.scripts.finalize_v14_3_policy_routing import (
     canonical_sha256,
     finalize,
 )
-from experiments.swarm_arena.scripts.freeze_v14_3_cpu_bundle import (
-    build_bundle,
-    load_hashed,
+from experiments.swarm_arena.scripts.freeze_v14_3_cpu_bundle import load_hashed
+from experiments.swarm_arena.scripts.freeze_v14_4_parity_recovery import (
+    build_bundle as build_v14_4_bundle,
 )
 from experiments.swarm_arena.swarm_ctf_eval.adaptive_curriculum import (
     select_ordinary_stage_cases,
@@ -173,39 +173,35 @@ def test_policy_routing_still_rejects_protocol_failure() -> None:
         raise AssertionError("policy routing bypassed protocol admission")
 
 
-def test_cpu_bundle_reproduces_exactly() -> None:
+def test_historical_cpu_bundle_remains_hash_valid() -> None:
+    bundle = load_hashed(ROOT / "data" / "rl_v14_3" / "cpu_bundle.json")
+    assert bundle["sha256"] == (
+        "2741872a8a4d9f632752c56a7f0c58537155812679427ea5c355d5806401ea32"
+    )
+
+
+def test_v14_4_cpu_bundle_reproduces_exactly() -> None:
     data = ROOT / "data"
-    results = ROOT / "results" / "rl_v14_2_zero_update_rejection"
-    artifacts = {
-        "assessment": results / "ASSESSMENT.json",
-        "audit": data / "rl_v14_3" / "finalization_audit.json",
-        "curriculum": data / "rl_v14_3" / "curriculum.json",
-        "ordinary_pool": data / "rl_v14_3" / "ordinary_case_pool.json",
-        "stage_gates": data / "rl_v14" / "stage_gates.json",
-    }
     code_paths = tuple(
         Path("experiments/swarm_arena") / path
         for path in (
-            "scripts/finalize_v14_3_policy_routing.py",
-            "scripts/freeze_v14_3_cpu_bundle.py",
-            "swarm_ctf_eval/adaptive_curriculum.py",
-            "swarm_ctf_eval/rl_production.py",
-            "scripts/run_live_rl.py",
+            "scripts/freeze_v14_4_parity_recovery.py",
+            "scripts/certify_prime_parity.py",
+            "scripts/bind_runtime_certificate.py",
+            "scripts/capture_runtime_parity_probe.py",
+            "scripts/prepare_live_rl_run.py",
             "scripts/build_staged_rl_plan.py",
             "scripts/preflight_staged_rl.py",
-            "scripts/run_staged_pulses.py",
             "scripts/launch_staged_rl.sh",
+            "scripts/run_live_rl.py",
+            "scripts/run_staged_pulses.py",
         )
     )
-    actual = build_bundle(
-        base_bundle=load_hashed(data / "rl_v14_2" / "cpu_bundle.json"),
-        assessment=load_hashed(artifacts["assessment"]),
-        audit=load_hashed(artifacts["audit"]),
-        curriculum=load_hashed(artifacts["curriculum"]),
-        ordinary_pool=load_hashed(artifacts["ordinary_pool"]),
-        stage_gates=load_hashed(artifacts["stage_gates"]),
-        artifact_paths=artifacts,
+    actual = build_v14_4_bundle(
+        parent=load_hashed(data / "rl_v14_3" / "cpu_bundle.json"),
+        prior_trainer_path=ROOT / "configs" / "rl_v14_4b_grounded_40.toml",
+        trainer_path=ROOT / "configs" / "rl_v14_4_4b_policy_routed_40.toml",
         code_paths=code_paths,
     )
 
-    assert actual == load_hashed(data / "rl_v14_3" / "cpu_bundle.json")
+    assert actual == load_hashed(data / "rl_v14_4" / "cpu_bundle.json")

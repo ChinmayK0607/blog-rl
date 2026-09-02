@@ -1,0 +1,127 @@
+{
+  "artifact_file_sha256": {
+    "assessment": "c5af46e4af3c96b64a60be5b9048e1467426cbfdf0e2ae19046ea8272146c4bd",
+    "audit": "593b51bac438502fcf77c1d1690c18f270c336ffcd1e26c9c9276058025e414a",
+    "curriculum": "b0009d70497c892916aaf15d6d2a98eab949ee8a802ad2b8c15819279bfcaa6d",
+    "ordinary_pool": "387d597721c89b756c10d3766e7d263d64e999d2d3fac6d294f5472d0c3e8ac4",
+    "stage_gates": "bec569b4521e231b9c7a8f55e82f6e46734914516b8dfc6fe8889d711b26d03e"
+  },
+  "code_file_sha256": {
+    "experiments/swarm_arena/scripts/bind_runtime_certificate.py": "057175aa1acfbfc4b462fcf3cd1bfdb2798b425a2a8f6b064d8ee6f6eb828e27",
+    "experiments/swarm_arena/scripts/build_staged_rl_plan.py": "e6a2b1186658ba2943dee5e4c7a163aa9dc2c64de35fed6dd26dfd4d8a3415e6",
+    "experiments/swarm_arena/scripts/capture_runtime_parity_probe.py": "2ddffe4fc013b3884fb6aee5eb0660e2784544a0ea8ebe9b0e6e3b7fda6a9d17",
+    "experiments/swarm_arena/scripts/certify_prime_parity.py": "94e283a845d8db5f6accdfe375a027773f3ee3d616d5ad536c3d006d12fa18d0",
+    "experiments/swarm_arena/scripts/freeze_v14_4_parity_recovery.py": "6e9cb740e39cdcd3c001e15d1a00ca057788f83059f8cebb552ba91e4522c642",
+    "experiments/swarm_arena/scripts/launch_staged_rl.sh": "ebc8c24fef7f1e5e7bb13f8bb4ccbdb732946e5758590fb7229375043e56eb04",
+    "experiments/swarm_arena/scripts/preflight_staged_rl.py": "8760d3f3792b864c03b824d58894fb1001e0974f5dec51e586681f5cf937e31b",
+    "experiments/swarm_arena/scripts/prepare_live_rl_run.py": "01338b9351913345f3ba0bc873c486c6c2194227bace51af3e428f7f3e31fc88",
+    "experiments/swarm_arena/scripts/run_live_rl.py": "f615e8831dfaf25a66d0cd54c00fe010ca76b1f7436719c7f79bbeecfd309ff9",
+    "experiments/swarm_arena/scripts/run_staged_pulses.py": "2d08a1910df7c4375dfce7831bcf9cda32c1d33d94104ff9d1985e2a70b3950d"
+  },
+  "execution": {
+    "all_policy_updates_atomic": true,
+    "first_spend_decision_update": 10,
+    "maximum_optimizer_updates": 40,
+    "no_retry_until_favorable": true,
+    "no_seed_search": true,
+    "restart_from_parent_initializer": "V13 update 80",
+    "resume_rejected_v14_3_run": false,
+    "selection_input": "complete preceding training stage only",
+    "stage_gate_steps": [
+      10,
+      20,
+      30,
+      40
+    ],
+    "stage_updates": 10,
+    "zero_advantage_batch_action": "telemetry_only_continue"
+  },
+  "frozen_data_opened": false,
+  "gpu_budget": {
+    "assumed_hourly_usd": 1.52,
+    "auto_stop": "at failed stage gate, hard budget, or completed final artifact sync",
+    "maximum_usd": 15.0,
+    "maximum_wall_hours": 9.0,
+    "never_rent_before_cpu_and_zero_update_preflight_pass": true,
+    "target_hardware": "4xL40S"
+  },
+  "initializer": {
+    "claim_boundary": "continuation warm start, not a communication-claim pass",
+    "policy_adapter_sha256": {
+      "blue-0": "24ccd2920d79e65c24bc47bd1e9c1318fb8ca6b582a6651273ab2a53749e2d53",
+      "blue-1": "deeb19976f8941a90a9b4dd1f72114e2926d28024d7b68bbe5c5834636f0ae7a",
+      "blue-2": "1612d158354327cd732aaad5e1978a28252af0cef91355aac201e48cd545da44",
+      "blue-3": "016402a737c9b9cf897f9e38879308b1f085d6871360cc1e464a21367a98637a"
+    },
+    "policy_revision": "9eec6d60cae1b11179f9b421b7bdd23ad456b3da912cb9d13a901f1337992228",
+    "run": "rl-v13-role-adaptive4b80-21d756d1",
+    "step": 80
+  },
+  "parent_cpu_bundle_sha256": "2741872a8a4d9f632752c56a7f0c58537155812679427ea5c355d5806401ea32",
+  "preventive_fixes": [
+    "no hidden certificate threshold default when a trainer config is supplied",
+    "no pooled-only certificate for a policy-local live gate",
+    "no missing or unbalanced policy slot in the 32-sample runtime probe",
+    "no certificate whose threshold body differs from its recorded gate hash",
+    "no reuse of rejected V14.3 progress under a changed runtime contract",
+    "local token evidence retained for any future parity rejection"
+  ],
+  "required_preflight": [
+    "publish and anonymously verify the exact source and this bundle before renting",
+    "resolve the trainer config and bind four distinct parent policy adapters",
+    "capture exactly eight parity samples for each policy across all three servers",
+    "pass pooled and all four policy-local parity gates at the trainer-declared thresholds",
+    "bind and rehash the complete threshold body in the runtime certificate",
+    "pass a compact public-mirror write/read/hash preflight before optimizer update 1",
+    "complete the unchanged update-0 baseline before optimizer update 1",
+    "arm progress watcher, pulse recovery, budget/TTL, and immediate exact-pod teardown"
+  ],
+  "routing": {
+    "curriculum_sha256": "197e50e9253798f75a83d29e306c321618c7b9633d3b86b4133e54bb0bb8e0e5",
+    "development_or_frozen_feedback": false,
+    "fresh_rollouts_only": true,
+    "ordinary_case_pool_sha256": "4d39e513aeb5a83b1cd836f3ea1a6e591fa8a312ffa868131aed429016b44999",
+    "pilot_assessment_sha256": "ba8abe53e1d973600f6c9c9c1690354cb9009d122586883e265fc98857bc3087",
+    "pilot_trajectories_used_for_optimization": false,
+    "policy_modes": {
+      "blue-0": "expand",
+      "blue-1": "consolidate",
+      "blue-2": "consolidate",
+      "blue-3": "discover"
+    },
+    "stage_gate_sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2"
+  },
+  "runtime_certificate": {
+    "conflicting_cli_thresholds_rejected": true,
+    "fresh_certificate_required": true,
+    "pooled_and_every_policy_must_pass": true,
+    "probe_samples": 32,
+    "required_policy_ids": [
+      "blue-0",
+      "blue-1",
+      "blue-2",
+      "blue-3"
+    ],
+    "samples_per_policy": 8,
+    "threshold_body_retained_and_rehashed_by_preflight": true,
+    "thresholds_derived_from_resolved_trainer_config": true
+  },
+  "sha256": "a29054539ef6b3f127ea4de311672d452df79d76c59076ede13b7739ab759be9",
+  "status": "cpu_frozen_runtime_preflight_pending",
+  "stop_contract": "stage-gate rejection, hard budget, TTL, operationally unrecoverable fault, or verified completion requires compact sync and immediate exact-instance teardown",
+  "trainer": {
+    "config": "experiments/swarm_arena/configs/rl_v14_4_4b_policy_routed_40.toml",
+    "config_file_sha256": "efd3cb87221e7a0dafa055ce67959e6b8a16962264a9e7ff14bdc1c94ebc83c9",
+    "optimization_dtype_changed": false,
+    "parity_thresholds": {
+      "max_mean_logprob_error": 0.25,
+      "max_mean_mismatch_kl": 0.002,
+      "probability_tail_threshold": 0.05
+    },
+    "prior_config_file_sha256": "2cdd1d6e413c1a9849c01cadfebcf294074f0a19cb53db6f6a7c02fdcc0147c2",
+    "reduce_dtype_changed": false,
+    "token_export": "enabled_local_only_not_mirrored",
+    "unchanged_scientific_body_sha256": "179f256a5ef180ecc5bab09ca6d674be0c4f7a3c8227ba9d825f1ac400d28e10"
+  },
+  "version": "arena-rl-v14.4-parity-recovery-v1"
+}

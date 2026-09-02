@@ -1,8 +1,9 @@
 # V14.3: Policy-routed adaptive curriculum
 
-Status: exact 4xL40S pod allocated and frozen setup complete. No V14.3
-optimizer update has run. Runtime certification is intentionally pending the
-corrected public launch identity below.
+Status: stopped fail-closed after seven durable updates; exact pod
+decommissioned. The update-10 behavioral gate was not reached. CPU diagnosis
+identified a pooled-certificate versus policy-local live parity mismatch; see
+`V14_3_PARITY_DIAGNOSIS.md`.
 
 ## Decision
 

@@ -5,6 +5,7 @@ import hashlib
 import importlib.metadata
 import json
 import subprocess
+from collections import Counter
 from pathlib import Path
 
 
@@ -20,6 +21,49 @@ def _digest(value: object) -> str:
     return hashlib.sha256(
         json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
+
+
+def _validated_per_policy_parity(
+    parity: dict, parity_probe: dict
+) -> dict[str, dict]:
+    per_policy_parity = parity.get("per_policy_parity")
+    expected_policies = {f"blue-{index}" for index in range(4)}
+    if not isinstance(per_policy_parity, dict) or set(per_policy_parity) != (
+        expected_policies
+    ):
+        raise ValueError("parity report must contain all four policy-local summaries")
+    samples = parity_probe.get("samples", [])
+    probe_counts = Counter(
+        int(row.get("policy_slot", sample_index % 4))
+        for sample_index, row in enumerate(samples)
+    )
+    expected_counts = {index: 8 for index in range(4)}
+    if dict(sorted(probe_counts.items())) != expected_counts:
+        raise ValueError(
+            "runtime parity probe must contain exactly eight samples per policy"
+        )
+    probe_token_counts = Counter()
+    for sample_index, row in enumerate(samples):
+        policy_slot = int(row.get("policy_slot", sample_index % 4))
+        completion_ids = row.get("completion_ids")
+        if not isinstance(completion_ids, list) or not completion_ids:
+            raise ValueError("runtime parity probe contains an empty completion")
+        probe_token_counts[policy_slot] += len(completion_ids)
+    for index in range(4):
+        policy_id = f"blue-{index}"
+        row = per_policy_parity[policy_id]
+        if (
+            not isinstance(row, dict)
+            or row.get("policy_slot") != index
+            or row.get("samples") != expected_counts[index]
+            or not isinstance(row.get("completion_tokens"), int)
+            or row["completion_tokens"] != probe_token_counts[index]
+            or row.get("parity_passed") is not True
+        ):
+            raise ValueError(
+                f"parity report did not pass the policy-local gate for {policy_id}"
+            )
+    return per_policy_parity
 
 
 def _gpu_inventory() -> list[dict[str, str | int]]:
@@ -89,7 +133,11 @@ def main() -> None:
         raise ValueError("serving probe must pass against exactly three rollout servers")
     if serving.get("adapter_sha256") != adapter_sha256:
         raise ValueError("serving probe adapter does not match the initial adapter")
-    if not isinstance(serving.get("base_urls"), list) or len(serving["base_urls"]) != 3:
+    if (
+        not isinstance(serving.get("base_urls"), list)
+        or len(serving["base_urls"]) != 3
+        or len(set(serving["base_urls"])) != 3
+    ):
         raise ValueError("serving probe must identify all three rollout server URLs")
     if parity.get("parity_passed") is not True:
         raise ValueError("numerical parity report did not pass")
@@ -101,10 +149,17 @@ def main() -> None:
         raise ValueError("runtime parity probe adapter does not match the initial adapter")
     if parity_probe.get("servers") != 3 or len(parity_probe.get("samples", [])) != 32:
         raise ValueError("runtime parity probe must contain 32 samples from three servers")
+    if (
+        not isinstance(parity_probe.get("base_urls"), list)
+        or parity_probe["base_urls"] != serving["base_urls"]
+        or len(set(parity_probe["base_urls"])) != 3
+    ):
+        raise ValueError("serving and parity probes must bind the same three servers")
     if {row.get("server_url") for row in parity_probe["samples"]} != set(
         parity_probe.get("base_urls", [])
     ):
         raise ValueError("runtime parity probe did not exercise every declared server")
+    per_policy_parity = _validated_per_policy_parity(parity, parity_probe)
     if parity.get("probe_sha256") != _sha256_file(args.parity_probe):
         raise ValueError("parity report does not bind the supplied runtime probe")
     if parity.get("trainer_config_sha256") != trainer_sha256:
@@ -121,6 +176,11 @@ def main() -> None:
         "policy_adapter_sha256"
     ):
         raise ValueError("parity report and runtime probe bind different policy adapters")
+    parity_thresholds = parity.get("parity_thresholds")
+    if not isinstance(parity_thresholds, dict) or _digest(parity_thresholds) != parity.get(
+        "trainer_parity_gate_sha256"
+    ):
+        raise ValueError("parity report threshold body does not match its gate digest")
 
     body = {
         "version": "swarm-runtime-certificate-v1",
@@ -149,10 +209,14 @@ def main() -> None:
             "sha256": _sha256_file(args.parity_report),
             "probe_sha256": _sha256_file(args.parity_probe),
             "trainer_parity_gate_sha256": parity["trainer_parity_gate_sha256"],
+            "parity_thresholds": parity_thresholds,
             "mean_absolute_logprob_error": parity["mean_absolute_logprob_error"],
             "p99_absolute_logprob_error": parity["p99_absolute_logprob_error"],
             "mean_mismatch_kl": parity["mean_mismatch_kl"],
             "max_mismatch_kl": parity["max_mismatch_kl"],
+            "completion_tokens": parity["completion_tokens"],
+            "branching_tokens": parity["branching_tokens"],
+            "per_policy_parity": per_policy_parity,
         },
     }
     certificate = {**body, "sha256": _digest(body)}

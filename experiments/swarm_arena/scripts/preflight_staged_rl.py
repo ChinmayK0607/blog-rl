@@ -251,6 +251,26 @@ def main() -> None:
         != prepare["trainer_parity_gate_sha256"]
     ):
         raise ValueError("runtime certificate does not bind the trainer parity gate")
+    parity_thresholds = certificate["parity_report"].get("parity_thresholds")
+    if not isinstance(parity_thresholds, dict):
+        raise ValueError("runtime certificate does not retain parity thresholds")
+    if hashlib.sha256(
+        json.dumps(
+            parity_thresholds, sort_keys=True, separators=(",", ":")
+        ).encode()
+    ).hexdigest() != prepare["trainer_parity_gate_sha256"]:
+        raise ValueError("runtime certificate parity thresholds do not match trainer gate")
+    per_policy_parity = certificate["parity_report"].get("per_policy_parity")
+    if not isinstance(per_policy_parity, dict) or set(per_policy_parity) != {
+        f"blue-{index}" for index in range(4)
+    }:
+        raise ValueError("runtime certificate lacks four policy-local parity results")
+    if any(
+        row.get("parity_passed") is not True
+        for row in per_policy_parity.values()
+        if isinstance(row, dict)
+    ) or any(not isinstance(row, dict) for row in per_policy_parity.values()):
+        raise ValueError("runtime certificate contains a failed policy-local parity result")
     if certificate["inference_config_sha256"] != _sha256_file(args.inference_config):
         raise ValueError("runtime certificate does not bind the inference config")
 
@@ -379,6 +399,16 @@ def main() -> None:
             raise ValueError(f"blue-{index} permanent checkpoint retention mismatch")
         if orch["ckpt"].get("keep_last") != 2:
             raise ValueError(f"blue-{index} rolling checkpoint retention mismatch")
+        orch_lora = orch["model"].get("lora")
+        trainer_lora = trainer["model"]["lora"]
+        if not isinstance(orch_lora, dict):
+            raise ValueError(f"blue-{index} orchestrator is missing LoRA metadata")
+        if orch_lora.get("name") != f"blue-{index}":
+            raise ValueError(f"blue-{index} orchestrator LoRA alias mismatch")
+        if orch_lora.get("rank") != trainer_lora["rank"]:
+            raise ValueError(f"blue-{index} orchestrator LoRA rank mismatch")
+        if orch_lora.get("alpha") != trainer_lora["alpha"]:
+            raise ValueError(f"blue-{index} orchestrator LoRA alpha mismatch")
     if (args.run_dir / "live_rl_progress.json").exists():
         raise FileExistsError("fresh staged run directory already contains progress")
 

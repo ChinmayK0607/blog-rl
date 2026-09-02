@@ -6796,6 +6796,112 @@ no more critical-specific than decoy-specific. Therefore:
   (`lunar-matrix-04`), `216.81.248.188:40299`, 4xL40S at `$1.52/hour`, with a
   provider 9-hour TTL. Setup/artifact hashes and three inference servers are
   healthy; optimizer work remains stopped.
+- Runtime outcome: update-0 completed its frozen 192-row baseline and admitted
+  training. Seven logical updates (steps 0-6) became durable and were mirrored
+  publicly with exact policy-adapter hashes. Step 6 was an all-zero-advantage
+  realization and correctly produced `observe_only_continue` telemetry without
+  resampling or halting. Before the next atomic optimizer update, the frozen
+  trainer parity gate rejected mean mismatch KL `0.0012214113`, above the
+  `0.0005` limit. The trainer stopped fail-closed at 2026-09-02 02:34:52Z;
+  update 10 and its development gate were never reached. No parity threshold,
+  curriculum, seed, reward, or resume setting was changed.
+- Rejection evidence: append-only incident
+  `20260902T023452Z-rollout-parity-gate-step7`; incident JSON SHA-256
+  `3c1842b6...155a`, trainer config SHA-256 `3b99f1d6...aa4c`, failure-tail
+  SHA-256 `7dc26959...e7f`, and final seven-update progress SHA-256
+  `e15bfb17...ca315`. The compact incident was published at HF revision
+  `6957853463633cc80e7f5d99e72a1cdb8f16670c` and anonymously re-downloaded
+  with matching hashes. The failed trainer's offline W&B run `mmdh3kem` synced
+  successfully; the controller logger had remained online.
+- GPU/cost: exact pod spend was `$2.51`. After public progress and incident
+  verification, only `lium rm 40886b85-7bab-48e3-9764-3ccc55399b99 -y` was
+  used; provider returned `Removed 1 pod(s): lunar-matrix-04`, subsequent
+  `lium ps --format json` returned `[]`, and the V14.3 heartbeat was deleted.
+  Instance decommissioned: yes.
+
+### 2026-09-02 — V14.3 parity rejection CPU diagnosis
+
+- Status: CPU diagnosis and certificate-contract repair complete; no GPU
+  allocated and no V14.3 resume authorized.
+- Root cause: `certify_prime_parity.py` pooled all four policy slots before
+  checking thresholds, while the live trainer gates each policy-local logical
+  batch. That aggregation mismatch allowed a pooled runtime certificate to pass
+  without proving the exact live per-policy condition.
+- Evidence: pooled certificate mean mismatch KL was `0.0000528359` with a
+  `0.0548625` maximum-token tail. At the rejected optimizer boundary run 0
+  passed at `1.38368e-08`, then run 1 failed at `0.0012214113`. Run 1's prior
+  accepted mean was `4.38786e-06`, and its seven accepted values show no
+  monotone drift. The rejected interval had 6/46 microbatches above `0.0005`;
+  its largest two local means were `0.00566593` and `0.00400513`.
+- Interpretation: high confidence that the stop was a policy-batch
+  concentration of an already observed vLLM/HF numerical tail, not global
+  stale weights or scientific collapse. Exact offending tokens were not
+  exported, so token-level safety is not retroactively asserted.
+- CPU repair: runtime certification now computes and gates pooled plus
+  `blue-0` through `blue-3` metrics. Binding fails unless all four policy slots
+  have eight samples, nonzero token coverage, and pass; token counts and the
+  full policy-local metric surface are retained in the bound certificate.
+  Python compilation, Ruff, and `git diff --check` passed.
+- Prospective decision: explicitly declare the already committed 4B
+  async-admission ceiling `0.002` in the next immutable trainer contract,
+  rather than restoring `0.15` or inheriting the generic `0.0005` CLI default.
+  Require a fresh per-policy certificate, enable local-only token export for
+  the bounded first stage, preserve all scientific/optimization settings, and
+  spend only through update 10 before the existing behavioral gate. Full
+  reasoning is in `V14_3_PARITY_DIAGNOSIS.md`.
+
+### 2026-09-02 — V14.4 policy-local parity recovery CPU freeze
+
+- Status: CPU-frozen; no GPU allocated, no optimizer work started, and no
+  publication or rental yet authorized for this new payload.
+- Hypothesis: V14.3's rejection came from a policy-local concentration of the
+  known vLLM/HF numerical tail that its pooled certificate did not test. A
+  fresh per-policy certificate under the pre-existing 4B `.002` numerical
+  envelope should distinguish a usable runtime from a real mismatch before
+  paying for another optimizer stage.
+- Scientific continuity: V14.4 restarts from the same distinct V13 update-80
+  initializer and retains the V14.3 curriculum, reward, credit, case pool,
+  opponent rotation, optimizer, DPPO masking, dtypes, ten-update stage gates,
+  and 40-update maximum. It does not rebind the seven V14.3 updates under a
+  different parity contract.
+- Runtime contract: the trainer explicitly declares mean mismatch KL `.002`.
+  The 32-row runtime probe must have exactly eight rows for each policy and
+  cover the same three distinct servers as the serving smoke test. Pooled and
+  all four policy-local metrics must pass. The certificate retains and hashes
+  the full threshold body, token coverage, and policy-local results; paid-run
+  preflight verifies them again. Local token export is enabled and excluded
+  from public mirroring.
+- Preventive fixes: removed the hidden `.0005` certifier default whenever a
+  trainer config is supplied; added conflict rejection for explicit CLI
+  thresholds; rejected empty/unbalanced policy probe coverage and duplicated
+  server URLs; and fixed the run-layout generator's hard-coded rank-16/alpha-32
+  orchestrator metadata. The latter could emit rank-16 adapter configs for
+  rank-32 tensors, the same export defect that previously required a repair.
+  Preflight now independently requires every policy alias/rank/alpha to match
+  the trainer.
+- Validation: Python compilation and Ruff passed for all changed runtime
+  scripts. The V14.4 config parsed through the real `TrainerConfig` and exposed
+  the expected complete threshold body with `.002` plus enabled token export.
+  Synthetic binder checks passed balanced coverage and rejected both a 7/9
+  policy split and a policy token-count mismatch. Seven focused policy-routing,
+  bundle-reproduction, and preflight tests passed. A broader isolated-suite
+  attempt first failed collection because the repository's incomplete editable
+  `deps/verifiers` package was selected; a corrected no-project attempt then
+  exposed undeclared test-only `httpx`, Hugging Face, Torch, and `tomli`
+  dependencies. These were preserved as invocation/environment failures; no
+  test or runtime gate was weakened and no GPU was live.
+- Frozen identities: V14.4 trainer file
+  `efd3cb87221e7a0dafa055ce67959e6b8a16962264a9e7ff14bdc1c94ebc83c9`;
+  V14.4 CPU-bundle body
+  `a29054539ef6b3f127ea4de311672d452df79d76c59076ede13b7739ab759be9`;
+  parent V14.3 bundle `2741872...ea32`; curriculum
+  `197e50e9...e0e5`; stage gates `27098650...f8c2`.
+- Next action: review the final diff, commit locally, then obtain explicit
+  authorization for that exact commit's non-force push. Only after anonymous
+  source/bundle verification and credential/teardown preflight should a fresh
+  4xL40S pod be rented. Spend first through update 10 and let the unchanged
+  behavioral gate decide whether later stages are justified.
+- Instance decommissioned: not applicable; no V14.4 instance exists.
 
 ## Future entry template
 
