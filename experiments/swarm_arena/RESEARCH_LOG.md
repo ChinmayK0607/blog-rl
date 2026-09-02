@@ -6740,8 +6740,9 @@ no more critical-specific than decoy-specific. Therefore:
 
 ### 2026-09-02 — V14.3 policy-routed adaptive curriculum
 
-- Status: CPU implementation, audit, focused tests, and reproducible bundle
-  complete. No GPU is rented and no V14.3 optimizer update has run.
+- Status: exact 4xL40S pod allocated and frozen setup complete. No V14.3
+  optimizer update has run. Runtime certification is pending the corrected
+  public launch identity.
 - Decision: replace the all-four-policies-or-nothing ordinary admission gate
   with four hash-bound training lanes. Blue-1/2 are `consolidate`, blue-0 is
   `expand`, and blue-3 is `discover`, derived deterministically from the
@@ -6775,18 +6776,26 @@ no more critical-specific than decoy-specific. Therefore:
   present during testing.
 - Frozen bodies: assessment `ba8abe53...3087`; pool
   `4d39e513...4999`; curriculum `197e50e9...e0e5`; finalization audit
-  `ecffdd09...abcd`; CPU bundle `1dbf1e12...c37e`; unchanged stage gate
-  `27098650...f8c2`.
+  `ecffdd09...abcd`; corrected CPU bundle `2741872a...ea32`; unchanged stage
+  gate `27098650...f8c2`.
 - GPU contract: 4xL40S target, assumed `$1.52/hour`, `$15` hard cap, nine-hour
   TTL, and at most 40 updates. Stop on the first failed stage gate, budget/TTL,
   unrecoverable operational fault, or verified completion; sync compact
   evidence and immediately decommission the exact resolved pod.
-- Next action: review the diff, commit and publish the exact source, verify the
-  public commit anonymously, and only then rent. On-node work should be limited
-  to frozen setup, runtime certification, mirror/update-0 preflight, and the
-  already-bound run; no curriculum coding or broad seed search may consume paid
-  GPU time.
-- Instance decommissioned: not applicable; provider inventory is empty.
+- Pre-optimizer launch correction: review found the generic launcher did not
+  forward the curriculum's existing target-swap sender retry count or the
+  mandatory stage-gate artifact. The partial certificate was preserved under
+  an append-only incident and stopped; optimizer progress remained absent. The
+  launcher now forwards those frozen values and uses the established
+  10,800-second operational ready-file timeout. This is wiring only: no reward,
+  curriculum, gate threshold, sampling namespace, or retry policy changed.
+  The superseded CPU-bundle body was `1dbf1e12...c37e`; certification and
+  training are prohibited until the corrected source and `2741872a...ea32`
+  bundle are public, anonymously verified, and rebound into monitoring.
+- Active instance: exact pod `40886b85-7bab-48e3-9764-3ccc55399b99`
+  (`lunar-matrix-04`), `216.81.248.188:40299`, 4xL40S at `$1.52/hour`, with a
+  provider 9-hour TTL. Setup/artifact hashes and three inference servers are
+  healthy; optimizer work remains stopped.
 
 ## Future entry template
 

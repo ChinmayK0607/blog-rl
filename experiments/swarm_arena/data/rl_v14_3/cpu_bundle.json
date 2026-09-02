@@ -10,7 +10,7 @@
     "experiments/swarm_arena/scripts/build_staged_rl_plan.py": "e6a2b1186658ba2943dee5e4c7a163aa9dc2c64de35fed6dd26dfd4d8a3415e6",
     "experiments/swarm_arena/scripts/finalize_v14_3_policy_routing.py": "28950c83e3011423d7c455227444a350acd4c104ed270e3371f3bafa7429c026",
     "experiments/swarm_arena/scripts/freeze_v14_3_cpu_bundle.py": "fc387ee38a7bd70778bc27c2fdff053a6d618102e927a857856f3c24de7d6e4d",
-    "experiments/swarm_arena/scripts/launch_staged_rl.sh": "481f2e81a15a1c5c328ae75702232834f363807029e5d6286b3b18b8a461dbed",
+    "experiments/swarm_arena/scripts/launch_staged_rl.sh": "ebc8c24fef7f1e5e7bb13f8bb4ccbdb732946e5758590fb7229375043e56eb04",
     "experiments/swarm_arena/scripts/preflight_staged_rl.py": "8bc5a2f728166d0205f5eaf8489763ca5da20f6a909490924ec9fadc791a7556",
     "experiments/swarm_arena/scripts/run_live_rl.py": "f615e8831dfaf25a66d0cd54c00fe010ca76b1f7436719c7f79bbeecfd309ff9",
     "experiments/swarm_arena/scripts/run_staged_pulses.py": "2d08a1910df7c4375dfce7831bcf9cda32c1d33d94104ff9d1985e2a70b3950d",
@@ -77,7 +77,7 @@
     },
     "stage_gate_sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2"
   },
-  "sha256": "1dbf1e12a86575ce174301411640a0dc98cb0b151411c00fd777afed0390c37e",
+  "sha256": "2741872a8a4d9f632752c56a7f0c58537155812679427ea5c355d5806401ea32",
   "status": "cpu_frozen_runtime_preflight_pending",
   "stop_contract": "stage-gate rejection, hard budget, TTL, operationally unrecoverable fault, or verified completion requires compact sync and immediate exact-instance teardown",
   "version": "arena-rl-v14.3-cpu-bundle-v1"

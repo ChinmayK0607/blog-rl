@@ -1,7 +1,8 @@
 # V14.3: Policy-routed adaptive curriculum
 
-Status: CPU implementation, audit, tests, and reproducible bundle complete. No
-GPU is rented and no V14.3 optimizer update has run.
+Status: exact 4xL40S pod allocated and frozen setup complete. No V14.3
+optimizer update has run. Runtime certification is intentionally pending the
+corrected public launch identity below.
 
 ## Decision
 
@@ -66,6 +67,16 @@ completion and artifact sync.
 - Finalization audit body:
   `ecffdd096e0e0aa2caec524931e3070bcc3c869b16e8f2370cffb96bf812abcd`
 - CPU bundle body:
-  `1dbf1e12a86575ce174301411640a0dc98cb0b151411c00fd777afed0390c37e`
+  `2741872a8a4d9f632752c56a7f0c58537155812679427ea5c355d5806401ea32`
 - Unchanged stage-gate body:
   `27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2`
+
+The first published bundle was `1dbf1e12...c37e`. Before any optimizer work,
+launch review found that the generic launcher did not forward the curriculum's
+already-frozen target-swap sender retry count or the mandatory stage-gate
+artifact. The in-progress runtime certificate was preserved and stopped as
+stale. The narrow wiring correction adds no new gate or scientific behavior:
+it forwards the existing values and uses the established 10,800-second
+operational ready-file timeout. The corrected bundle above supersedes the
+first identity; certification and training must bind only the corrected public
+source and bundle.
