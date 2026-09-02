@@ -6878,12 +6878,17 @@ no more critical-specific than decoy-specific. Therefore:
   orchestrator metadata. The latter could emit rank-16 adapter configs for
   rank-32 tensors, the same export defect that previously required a repair.
   Preflight now independently requires every policy alias/rank/alpha to match
-  the trainer.
+  the trainer. A second adversarial pass found the same hard-coded metadata in
+  the certifier's temporary policy configs; those now also derive the exact
+  alias, rank, and alpha from the resolved trainer contract.
 - Validation: Python compilation and Ruff passed for all changed runtime
   scripts. The V14.4 config parsed through the real `TrainerConfig` and exposed
   the expected complete threshold body with `.002` plus enabled token export.
   Synthetic binder checks passed balanced coverage and rejected both a 7/9
-  policy split and a policy token-count mismatch. Seven focused policy-routing,
+  policy split and a policy token-count mismatch. The second adversarial pass
+  also exercised the standalone default, trainer-authoritative `.002`, CLI
+  conflict rejection, and trainer-derived rank-32/alpha-64 parity-work config.
+  Fifty-one focused adaptive-curriculum, V13/V14, production-plan, stage-gate,
   bundle-reproduction, and preflight tests passed. A broader isolated-suite
   attempt first failed collection because the repository's incomplete editable
   `deps/verifiers` package was selected; a corrected no-project attempt then
@@ -6893,7 +6898,7 @@ no more critical-specific than decoy-specific. Therefore:
 - Frozen identities: V14.4 trainer file
   `efd3cb87221e7a0dafa055ce67959e6b8a16962264a9e7ff14bdc1c94ebc83c9`;
   V14.4 CPU-bundle body
-  `a29054539ef6b3f127ea4de311672d452df79d76c59076ede13b7739ab759be9`;
+  `ef4c9c614856edbf23b525724e3cc9524a8fe749e6e7e5fc2e6f4e6dd887aef3`;
   parent V14.3 bundle `2741872...ea32`; curriculum
   `197e50e9...e0e5`; stage gates `27098650...f8c2`.
 - Next action: review the final diff, commit locally, then obtain explicit

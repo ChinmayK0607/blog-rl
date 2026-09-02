@@ -45,6 +45,9 @@ The CPU audit found and repaired four recurrent sources of wasted compute:
    instead of being hard-coded to rank 16 / alpha 32. Preflight independently
    checks alias, rank, and alpha before training, preventing metadata-invalid
    rank-32 exports.
+5. The parity certifier's temporary four-policy run configs now use those same
+   trainer-derived aliases, ranks, and alphas. Certification therefore cannot
+   test a rank-16 orchestration surface and then approve a rank-32 paid run.
 
 The existing 10,800-second pulse wait, append-only incident policy, compact HF
 mirror, W&B isolation, `$15` cap, nine-hour TTL, and immediate exact-pod
@@ -61,7 +64,7 @@ not change scientific settings or resample until favorable.
 - V14.4 trainer config file:
   `efd3cb87221e7a0dafa055ce67959e6b8a16962264a9e7ff14bdc1c94ebc83c9`
 - V14.4 CPU-bundle body:
-  `a29054539ef6b3f127ea4de311672d452df79d76c59076ede13b7739ab759be9`
+  `ef4c9c614856edbf23b525724e3cc9524a8fe749e6e7e5fc2e6f4e6dd887aef3`
 - Unchanged curriculum body:
   `197e50e9253798f75a83d29e306c321618c7b9633d3b86b4133e54bb0bb8e0e5`
 - Unchanged stage-gate body:

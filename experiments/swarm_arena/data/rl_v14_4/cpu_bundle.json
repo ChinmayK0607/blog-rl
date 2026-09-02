@@ -10,8 +10,8 @@
     "experiments/swarm_arena/scripts/bind_runtime_certificate.py": "057175aa1acfbfc4b462fcf3cd1bfdb2798b425a2a8f6b064d8ee6f6eb828e27",
     "experiments/swarm_arena/scripts/build_staged_rl_plan.py": "e6a2b1186658ba2943dee5e4c7a163aa9dc2c64de35fed6dd26dfd4d8a3415e6",
     "experiments/swarm_arena/scripts/capture_runtime_parity_probe.py": "2ddffe4fc013b3884fb6aee5eb0660e2784544a0ea8ebe9b0e6e3b7fda6a9d17",
-    "experiments/swarm_arena/scripts/certify_prime_parity.py": "94e283a845d8db5f6accdfe375a027773f3ee3d616d5ad536c3d006d12fa18d0",
-    "experiments/swarm_arena/scripts/freeze_v14_4_parity_recovery.py": "6e9cb740e39cdcd3c001e15d1a00ca057788f83059f8cebb552ba91e4522c642",
+    "experiments/swarm_arena/scripts/certify_prime_parity.py": "6d3aa9ef38dbf2a178d4ec2f948e01c09534cc67ec5f9e532e0a784777ea3b65",
+    "experiments/swarm_arena/scripts/freeze_v14_4_parity_recovery.py": "82eaa8e44cd01deea349a3726a0308ecbb5b7671840dd1388d7d9c612f104788",
     "experiments/swarm_arena/scripts/launch_staged_rl.sh": "ebc8c24fef7f1e5e7bb13f8bb4ccbdb732946e5758590fb7229375043e56eb04",
     "experiments/swarm_arena/scripts/preflight_staged_rl.py": "8760d3f3792b864c03b824d58894fb1001e0974f5dec51e586681f5cf937e31b",
     "experiments/swarm_arena/scripts/prepare_live_rl_run.py": "01338b9351913345f3ba0bc873c486c6c2194227bace51af3e428f7f3e31fc88",
@@ -63,6 +63,7 @@
     "no pooled-only certificate for a policy-local live gate",
     "no missing or unbalanced policy slot in the 32-sample runtime probe",
     "no certificate whose threshold body differs from its recorded gate hash",
+    "no hard-coded rank or alpha in parity-work policy metadata",
     "no reuse of rejected V14.3 progress under a changed runtime contract",
     "local token evidence retained for any future parity rejection"
   ],
@@ -106,7 +107,7 @@
     "threshold_body_retained_and_rehashed_by_preflight": true,
     "thresholds_derived_from_resolved_trainer_config": true
   },
-  "sha256": "a29054539ef6b3f127ea4de311672d452df79d76c59076ede13b7739ab759be9",
+  "sha256": "ef4c9c614856edbf23b525724e3cc9524a8fe749e6e7e5fc2e6f4e6dd887aef3",
   "status": "cpu_frozen_runtime_preflight_pending",
   "stop_contract": "stage-gate rejection, hard budget, TTL, operationally unrecoverable fault, or verified completion requires compact sync and immediate exact-instance teardown",
   "trainer": {

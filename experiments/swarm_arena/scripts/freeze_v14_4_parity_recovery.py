@@ -135,6 +135,7 @@ def build_bundle(
             "no pooled-only certificate for a policy-local live gate",
             "no missing or unbalanced policy slot in the 32-sample runtime probe",
             "no certificate whose threshold body differs from its recorded gate hash",
+            "no hard-coded rank or alpha in parity-work policy metadata",
             "no reuse of rejected V14.3 progress under a changed runtime contract",
             "local token evidence retained for any future parity rejection",
         ],

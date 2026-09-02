@@ -46,7 +46,56 @@ def canonical_sha256(value: object) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def write_run_config(output_dir: Path, run_id: str, model: str) -> None:
+PARITY_THRESHOLD_NAMES = (
+    "max_mean_logprob_error",
+    "max_p99_logprob_error",
+    "max_probability_error",
+    "max_p99_probability_error",
+    "probability_tail_threshold",
+    "max_probability_tail_fraction",
+    "max_mean_mismatch_kl",
+    "max_mismatch_kl",
+)
+
+
+def resolve_certificate_thresholds(
+    cli_thresholds: dict[str, float | None],
+    trainer_thresholds: dict[str, float | None] | None,
+) -> dict[str, float | None]:
+    if set(cli_thresholds) != set(PARITY_THRESHOLD_NAMES):
+        raise ValueError("certificate threshold fields are incomplete")
+    if trainer_thresholds is None:
+        resolved = dict(cli_thresholds)
+        if resolved["probability_tail_threshold"] is None:
+            resolved["probability_tail_threshold"] = 0.05
+        if resolved["max_mean_mismatch_kl"] is None:
+            resolved["max_mean_mismatch_kl"] = 0.0005
+        return resolved
+    if set(trainer_thresholds) != set(PARITY_THRESHOLD_NAMES):
+        raise ValueError("trainer parity gate fields are incomplete")
+    conflicting = {
+        name: {"trainer": trainer_thresholds[name], "cli": cli_thresholds[name]}
+        for name in PARITY_THRESHOLD_NAMES
+        if cli_thresholds[name] is not None
+        and cli_thresholds[name] != trainer_thresholds[name]
+    }
+    if conflicting:
+        raise ValueError(
+            "explicit certificate thresholds conflict with trainer config: "
+            f"{conflicting}"
+        )
+    return dict(trainer_thresholds)
+
+
+def write_run_config(
+    output_dir: Path,
+    run_id: str,
+    model: str,
+    *,
+    lora_name: str,
+    lora_rank: int,
+    lora_alpha: float,
+) -> None:
     control = output_dir / run_id / "control"
     control.mkdir(parents=True)
     control.joinpath("orch.toml").write_text(
@@ -59,8 +108,9 @@ max_steps = 1
 name = "{model}"
 
 [model.lora]
-rank = 16
-alpha = 32
+name = "{lora_name}"
+rank = {lora_rank}
+alpha = {lora_alpha}
 
 [optim]
 lr = 0.00001
@@ -141,21 +191,12 @@ def main() -> None:
     parser.add_argument("--max-mismatch-kl", type=float)
     args = parser.parse_args()
 
-    threshold_names = (
-        "max_mean_logprob_error",
-        "max_p99_logprob_error",
-        "max_probability_error",
-        "max_p99_probability_error",
-        "probability_tail_threshold",
-        "max_probability_tail_fraction",
-        "max_mean_mismatch_kl",
-        "max_mismatch_kl",
-    )
+    cli_thresholds = {
+        name: getattr(args, name) for name in PARITY_THRESHOLD_NAMES
+    }
 
     if args.output_dir.exists():
         raise FileExistsError(f"refusing to reuse parity output directory: {args.output_dir}")
-    for index in range(4):
-        write_run_config(args.output_dir, f"run_blue_{index}", args.model)
     probe = json.loads(args.probe.read_text(encoding="utf-8"))
     samples = list(probe["samples"])
     if not samples:
@@ -169,10 +210,10 @@ def main() -> None:
         # trainer config is supplied below, that immutable config is instead
         # the sole source of truth so an omitted CLI flag cannot silently
         # substitute a generic threshold.
-        if args.probability_tail_threshold is None:
-            args.probability_tail_threshold = 0.05
-        if args.max_mean_mismatch_kl is None:
-            args.max_mean_mismatch_kl = 0.0005
+        for name, value in resolve_certificate_thresholds(
+            cli_thresholds, None
+        ).items():
+            setattr(args, name, value)
         config = TrainerConfig.model_validate(
             {
                 "output_dir": args.output_dir,
@@ -273,22 +314,27 @@ def main() -> None:
     parity_gate = config.rollout_parity_gate
     if parity_gate is None:
         raise ValueError("trainer config is missing the rollout parity gate")
-    expected_gate = parity_gate.model_dump(mode="json")
-    if args.trainer_config is not None:
-        conflicting = {
-            name: {"trainer": expected_gate[name], "cli": getattr(args, name)}
-            for name in threshold_names
-            if getattr(args, name) is not None
-            and getattr(args, name) != expected_gate[name]
-        }
-        if conflicting:
-            raise ValueError(
-                "explicit certificate thresholds conflict with trainer config: "
-                f"{conflicting}"
-            )
-        for name in threshold_names:
-            setattr(args, name, expected_gate[name])
+    trainer_gate = parity_gate.model_dump(mode="json")
+    expected_gate = resolve_certificate_thresholds(
+        cli_thresholds,
+        trainer_gate if args.trainer_config is not None else None,
+    )
+    if trainer_gate != expected_gate:
+        raise ValueError("resolved certificate thresholds differ from trainer parity gate")
+    for name, value in expected_gate.items():
+        setattr(args, name, value)
     trainer_parity_gate_sha256 = canonical_sha256(expected_gate)
+    if config.model.lora is None:
+        raise ValueError("parity certification requires trainer LoRA configuration")
+    for index in range(4):
+        write_run_config(
+            args.output_dir,
+            f"run_blue_{index}",
+            args.model,
+            lora_name=f"blue-{index}",
+            lora_rank=config.model.lora.rank,
+            lora_alpha=config.model.lora.alpha,
+        )
     device = torch.device("cuda", 0)
     manager = setup_multi_run_manager(args.output_dir, 4, device, config.model.lora)
     parallel_dims = get_parallel_dims(config.model)
