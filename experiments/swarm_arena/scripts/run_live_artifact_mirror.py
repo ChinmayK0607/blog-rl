@@ -71,6 +71,7 @@ def compact_files(run_dir: Path, extra_artifacts: tuple[Path, ...] = ()) -> dict
         "logs/pulses.log",
         "logs/wandb.log",
         "audit/rollout_parity_quarantine.jsonl",
+        "audit/runtime_profile.json",
     )
     files = {
         f"live/{relative}": run_dir / relative

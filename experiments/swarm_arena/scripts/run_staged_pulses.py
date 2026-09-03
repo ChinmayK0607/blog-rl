@@ -237,8 +237,8 @@ def main() -> None:
         parser.error("updates and interval must be positive")
     if args.expected_updates % args.interval:
         parser.error("pulse interval must divide expected updates")
-    if len(args.base_url) != 3:
-        parser.error("staged pulses require exactly three rollout server URLs")
+    if not args.base_url or len(set(args.base_url)) != len(args.base_url):
+        parser.error("staged pulses require one or more distinct rollout server URLs")
     if args.communication_remaining_turns < 1:
         parser.error("communication remaining turns must be positive")
     if args.stage_gates is not None and args.evaluation_mode != "full":

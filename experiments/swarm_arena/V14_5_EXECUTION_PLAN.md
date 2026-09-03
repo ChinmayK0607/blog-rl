@@ -71,6 +71,37 @@ update-10 behavioral gate. Completion, rejection, or an unrecoverable
 operational fault requires final compact sync followed by immediate exact-pod
 decommissioning.
 
+## Eight-GPU execution profile
+
+V14.5 may use one eight-L40S node only with an exhaustive, disjoint GPU
+partition. The initial eight-GPU profile is two trainer ranks on GPUs 0--1 and
+six isolated rollout servers on GPUs 2--7. Each inference process has its own
+port, RPC port, TorchInductor cache, Triton cache, vLLM cache, log, and tmux
+session. The established one-trainer/three-server layout remains the launcher
+default for four-GPU hosts.
+
+This is an execution change, not a curriculum change. The same complete
+logical update is packed across two FSDP ranks; no rollout, token, policy,
+optimizer, scheduler, reward, or gate is added or removed. Because distributed
+kernel order can change numerical parity, the runtime certificate must be
+regenerated on the exact two-trainer/six-server host. Its 32 probe decisions
+must exercise every declared server and retain exactly eight samples per
+policy. A failed certificate remains a hard stop.
+
+The controller records reward-blind wall times for rollout generation, batch
+preparation, trainer/update wait, and the whole durable update. After at least
+three updates, `summarize_runtime_profile.py` uses exactly the first three and
+applies a frozen operational rule:
+favor inference when rollout generation is at least 60% of median update time,
+favor training when trainer wait is at least 35%, and otherwise retain the
+balanced split. This result advises a future run only. It cannot inspect
+rewards, advantages, evaluation results, or gate outcomes and cannot change the
+topology of a certified run in progress.
+
+The eight-GPU rental ceiling is $60 over the existing nine-hour TTL. Setup,
+certification, evaluation, completion, rejection, and teardown rules are
+unchanged, including immediate exact-pod deletion after final sync.
+
 ## Interpretation boundary
 
 V14.5 can tell us whether the grounded V14 curriculum improves communication

@@ -6979,6 +6979,65 @@ no more critical-specific than decoy-specific. Therefore:
   teardown.
 - Instance decommissioned: not applicable; no V14.5 instance exists.
 
+### 2026-09-03 — V14.5 eight-GPU topology and profiling extension
+
+- Status: CPU-validated only. No node was rented, no credentials were moved,
+  no optimizer/evaluation work started, and provider spend is `$0`.
+- Purpose: use an available eight-L40S node without leaving paid GPUs idle and
+  measure whether the next bottleneck is rollout inference or training. The
+  initial bound partition is trainer GPUs `0,1` plus six isolated inference
+  GPUs `2,3,4,5,6,7` on ports `8001`--`8006`; the prior one-trainer/three-server
+  layout remains the four-GPU default.
+- Scientific invariants: V14.5's initializer, predetermined rollout schedule,
+  curriculum, reward, optimizer, scheduler, LR, loss, DPPO masks, dtypes,
+  parity thresholds, quarantine semantics, update-0 evaluation, and frozen
+  update-10/20/30/40 gates are unchanged. The trainer config SHA-256 remains
+  `d6e257658468c6e49c29ebdda3a77b987047b9f0592b7daa7274ec55fdd41115`;
+  its unchanged scientific body is
+  `d385f2a678ba548b9325591a27d71d362a5ecc79f9085b3c7153ea979b11ab74`.
+- Execution changes: the inference-pool launcher rejects partial, overlapping,
+  or duplicate assignments before model load; gives every server isolated
+  compile caches, RPC port, log, and tmux session; and tears down only its new
+  sessions on failed startup. The staged launcher derives the trainer
+  `torchrun` world size and every consumer's URL list from the declared
+  topology. Runtime probe, certificate, preflight, pulses, and controller now
+  accept a nonempty distinct server set. The certificate binds the exact GPU
+  partition and preflight rejects a different launch partition.
+- Batch-equivalence audit: Prime's multi-run packer consumes the same complete
+  predetermined logical update before the atomic optimizer boundary and shards
+  its microbatches over the data-parallel ranks. A second rank therefore does
+  not add or select rollout samples. It can change distributed floating-point
+  order, so a fresh exact-host two-rank parity certificate is mandatory and
+  retains the unchanged `.002` mismatch-KL ceiling.
+- Profiling: controller progress now records rollout-generation, batch-prepare,
+  trainer-update-wait, and total durable-update wall times. After at least three
+  updates, a reward-blind sidecar uses exactly the first three and writes
+  `audit/runtime_profile.json`: favor
+  inference if rollout generation is at least 60% of median update time, favor
+  training if trainer wait is at least 35%, otherwise retain the balanced
+  split. The profile cannot read rewards, advantages, evaluation metrics, or
+  gates and only advises a future freshly certified run; it cannot reconfigure
+  the active run.
+- Validation: 27 focused topology, launcher, preflight, and V14.5 reliability
+  tests passed; Ruff, Python compilation, both launcher shell syntax checks,
+  and `git diff --check` passed. CPU-bundle canonical body SHA-256 is
+  `8631449b372fafb1e3affbfbedf55b4996853468281b46d362651f6e24b55586`;
+  file SHA-256 is
+  `fe69891ab8c80f682dc5aef6b4a1df4e4d74661d2060d110ae4cc6e676f80184`;
+  plan SHA-256 is
+  `09ce00d8121380fd6f5292f63da6cea16c805b99ecaf0d8b2be63401ed768237`.
+- Budget/teardown: the eight-GPU execution ceiling is `$60` over the existing
+  nine-hour TTL. Immediate exact-pod teardown after verified completion or
+  rejection remains mandatory.
+- Interpretation: `6 inference + 2 trainer` is the safe first profile point,
+  not a speed claim. For this 4B LoRA workload, rollout generation is expected
+  to dominate; if measured rollout share exceeds the frozen rule, a future
+  `7+1` run may be faster because two-rank FSDP communication has overhead.
+- Next action: commit and publish the new exact source/bundle, independently
+  verify them, rebind the rental automation from the stale four-GPU identity,
+  and only then rent the eight-GPU node if still available.
+- Instance decommissioned: not applicable; no V14.5 instance exists.
+
 ## Future entry template
 
 Copy this block for each material run:

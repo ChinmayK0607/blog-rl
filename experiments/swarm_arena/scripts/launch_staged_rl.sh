@@ -44,6 +44,45 @@ swarm_final_sync_margin=${SWARM_FINAL_SYNC_MARGIN:-2700}
 swarm_pulse_mode=${SWARM_PULSE_MODE:-$(jq -r '.runtime.online_evaluation_mode // "full"' "$swarm_curriculum_artifact")}
 swarm_communication_eval_turns=${SWARM_COMMUNICATION_EVAL_TURNS:-$(jq -r '.runtime.online_eval_remaining_turns // 2' "$swarm_curriculum_artifact")}
 swarm_mirror_interval_steps=${SWARM_MIRROR_INTERVAL_STEPS:-1}
+swarm_trainer_gpu_ids=${SWARM_TRAINER_GPU_IDS:-0}
+swarm_inference_gpu_ids=${SWARM_INFERENCE_GPU_IDS:-1,2,3}
+swarm_rollout_ports=${SWARM_ROLLOUT_PORTS:-8001,8002,8003}
+IFS=',' read -r -a swarm_trainer_gpus <<< "$swarm_trainer_gpu_ids"
+IFS=',' read -r -a swarm_inference_gpus <<< "$swarm_inference_gpu_ids"
+IFS=',' read -r -a swarm_ports <<< "$swarm_rollout_ports"
+if (( ${#swarm_trainer_gpus[@]} < 1 || ${#swarm_inference_gpus[@]} < 1 )); then
+  echo "trainer and inference GPU partitions must both be non-empty" >&2
+  exit 1
+fi
+if (( ${#swarm_inference_gpus[@]} != ${#swarm_ports[@]} )); then
+  echo "SWARM_INFERENCE_GPU_IDS and SWARM_ROLLOUT_PORTS must have equal lengths" >&2
+  exit 1
+fi
+swarm_base_url_args=()
+swarm_trainer_gpu_args=()
+swarm_inference_gpu_args=()
+for swarm_gpu in "${swarm_trainer_gpus[@]}"; do
+  if ! [[ "$swarm_gpu" =~ ^[0-9]+$ ]]; then
+    echo "trainer GPU IDs must be non-negative integers" >&2
+    exit 1
+  fi
+  swarm_trainer_gpu_args+=(--trainer-gpu-id "$swarm_gpu")
+done
+for swarm_gpu in "${swarm_inference_gpus[@]}"; do
+  if ! [[ "$swarm_gpu" =~ ^[0-9]+$ ]]; then
+    echo "inference GPU IDs must be non-negative integers" >&2
+    exit 1
+  fi
+  swarm_inference_gpu_args+=(--inference-gpu-id "$swarm_gpu")
+done
+for swarm_port in "${swarm_ports[@]}"; do
+  if ! [[ "$swarm_port" =~ ^[1-9][0-9]{0,4}$ ]] || (( swarm_port > 65535 )); then
+    echo "rollout ports must be integers between 1 and 65535" >&2
+    exit 1
+  fi
+  swarm_base_url_args+=(--base-url "http://127.0.0.1:$swarm_port")
+done
+printf -v swarm_base_url_command '%q ' "${swarm_base_url_args[@]}"
 swarm_initial_policy_args=()
 swarm_initial_policy_mirror_args=()
 if [[ -n "${SWARM_INITIAL_POLICY_ADAPTER_MANIFEST:-}" ]]; then
@@ -79,7 +118,7 @@ if ! [[ "$swarm_mirror_interval_steps" =~ ^[1-9][0-9]*$ ]]; then
   exit 1
 fi
 
-for swarm_port in 8001 8002 8003; do
+for swarm_port in "${swarm_ports[@]}"; do
   curl -fsS "http://127.0.0.1:$swarm_port/health" >/dev/null
 done
 
@@ -99,9 +138,9 @@ export PYTHONPATH=$SWARM_REPO_ROOT/experiments/swarm_arena
   --model "$SWARM_MODEL" \
   --expected-public-base-repo "$SWARM_PUBLIC_BASE_REPO" \
   --expected-public-adapter-repo "$SWARM_PUBLIC_ADAPTER_REPO" \
-  --base-url http://127.0.0.1:8001 \
-  --base-url http://127.0.0.1:8002 \
-  --base-url http://127.0.0.1:8003 \
+  "${swarm_base_url_args[@]}" \
+  "${swarm_trainer_gpu_args[@]}" \
+  "${swarm_inference_gpu_args[@]}" \
   --expected-updates "$swarm_expected_updates" \
   --checkpoint-interval "$swarm_checkpoint_interval" \
   --shared-return-credit-assignment "$swarm_credit_assignment" \
@@ -127,7 +166,7 @@ mkdir -p "$SWARM_RUN_DIR/logs" "$swarm_eval_root" "$swarm_rescore_dir"
   --preflight-only \
   > "$SWARM_RUN_DIR/logs/mirror-preflight.log" 2>&1
 
-for swarm_role in trainer rescore pulses wandb mirror controller; do
+for swarm_role in trainer rescore pulses wandb mirror controller profile; do
   if tmux has-session -t "$swarm_session_prefix-$swarm_role" 2>/dev/null; then
     echo "refusing to reuse tmux session $swarm_session_prefix-$swarm_role" >&2
     exit 1
@@ -135,13 +174,13 @@ for swarm_role in trainer rescore pulses wandb mirror controller; do
 done
 
 tmux new-session -d -s "$swarm_session_prefix-trainer" \
-  "cd $SWARM_REPO_ROOT && export CUDA_VISIBLE_DEVICES=0 PYTORCH_CUDA_ALLOC_CONF=$swarm_pytorch_cuda_alloc_conf && exec ${swarm_uv_command}torchrun --standalone --nproc-per-node=1 .venv/bin/trainer @ $SWARM_RUN_DIR/trainer.toml > $SWARM_RUN_DIR/logs/trainer.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export CUDA_VISIBLE_DEVICES=$swarm_trainer_gpu_ids PYTORCH_CUDA_ALLOC_CONF=$swarm_pytorch_cuda_alloc_conf && exec ${swarm_uv_command}torchrun --standalone --nproc-per-node=${#swarm_trainer_gpus[@]} .venv/bin/trainer @ $SWARM_RUN_DIR/trainer.toml > $SWARM_RUN_DIR/logs/trainer.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-rescore" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec ${swarm_uv_command}python experiments/swarm_arena/scripts/run_lag_zero_rescore_worker.py --root $swarm_rescore_dir --snapshot-manifest $swarm_rescore_dir/current_snapshots.json --production-plan-sha256 $swarm_plan_sha > $SWARM_RUN_DIR/logs/rescore.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-pulses" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec ${swarm_uv_command}python experiments/swarm_arena/scripts/run_staged_pulses.py --repo-root $SWARM_REPO_ROOT --run-dir $SWARM_RUN_DIR --production-plan $SWARM_PRODUCTION_PLAN --barrier-dir $swarm_barrier_dir --eval-root $swarm_eval_root --data-dir $swarm_data_dir --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --baseline-revision $SWARM_INITIAL_POLICY_REVISION --expected-updates $swarm_expected_updates --interval $swarm_checkpoint_interval --wait-timeout 10800 --evaluation-mode $swarm_pulse_mode --communication-remaining-turns $swarm_communication_eval_turns --stage-gates $swarm_stage_gates ${swarm_multipair_args[*]} > $SWARM_RUN_DIR/logs/pulses.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec ${swarm_uv_command}python experiments/swarm_arena/scripts/run_staged_pulses.py --repo-root $SWARM_REPO_ROOT --run-dir $SWARM_RUN_DIR --production-plan $SWARM_PRODUCTION_PLAN --barrier-dir $swarm_barrier_dir --eval-root $swarm_eval_root --data-dir $swarm_data_dir ${swarm_base_url_command}--baseline-revision $SWARM_INITIAL_POLICY_REVISION --expected-updates $swarm_expected_updates --interval $swarm_checkpoint_interval --wait-timeout 10800 --evaluation-mode $swarm_pulse_mode --communication-remaining-turns $swarm_communication_eval_turns --stage-gates $swarm_stage_gates ${swarm_multipair_args[*]} > $SWARM_RUN_DIR/logs/pulses.log 2>&1"
 
 tmux new-session -d -s "$swarm_session_prefix-wandb" \
   "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec ${swarm_uv_command}python experiments/swarm_arena/scripts/log_live_rl_wandb.py --progress $SWARM_RUN_DIR/live_rl_progress.json --eval-root $swarm_eval_root --expected-updates $swarm_expected_updates --finish-marker $swarm_eval_root/COMPLETE --project swarm-arena-rl --group $swarm_wandb_group --run-name $SWARM_RUN_ID-controller --run-id $SWARM_RUN_ID-controller-v1 --tag $swarm_wandb_model_tag --tag causal-communication --tag development ${swarm_wandb_mode_arg[*]} --compact-artifact $SWARM_PRODUCTION_PLAN --compact-artifact $swarm_curriculum_artifact > $SWARM_RUN_DIR/logs/wandb.log 2>&1"
@@ -156,13 +195,16 @@ if ! tmux has-session -t "$swarm_session_prefix-trainer" 2>/dev/null; then
 fi
 
 tmux new-session -d -s "$swarm_session_prefix-controller" \
-  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec ${swarm_uv_command}python experiments/swarm_arena/scripts/run_live_rl.py --output-dir $SWARM_RUN_DIR --trainer-config $SWARM_RUN_DIR/trainer.toml --inference-config $swarm_inference_config --data-dir $swarm_data_dir --task-data-version v4 --tokenizer $SWARM_MODEL --initial-adapter $SWARM_INITIAL_ADAPTER ${swarm_initial_policy_args[*]} --base-url http://127.0.0.1:8001 --base-url http://127.0.0.1:8002 --base-url http://127.0.0.1:8003 --actor vllm --run-id $SWARM_RUN_ID --source-commit $swarm_source_commit --base-revision $SWARM_BASE_REVISION --initial-policy-revision $SWARM_INITIAL_POLICY_REVISION --credit-estimator shared_return --shared-return-replicas $swarm_shared_return_replicas --shared-return-credit-assignment $swarm_credit_assignment --shared-return-action-prompt-profile $swarm_action_prompt_profile --production-plan $SWARM_PRODUCTION_PLAN --async-rescore-dir $swarm_rescore_dir --async-rescore-timeout 600 --steps $swarm_expected_updates --groups-per-step 4 --scenario-source curriculum --curriculum-split train --target-swap-sender-retries $swarm_target_swap_sender_retries --update-timeout 1200 --checkpoint-barrier-dir $swarm_barrier_dir --checkpoint-barrier-interval $swarm_checkpoint_interval --checkpoint-barrier-timeout 7200 > $SWARM_RUN_DIR/logs/controller.log 2>&1"
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec ${swarm_uv_command}python experiments/swarm_arena/scripts/run_live_rl.py --output-dir $SWARM_RUN_DIR --trainer-config $SWARM_RUN_DIR/trainer.toml --inference-config $swarm_inference_config --data-dir $swarm_data_dir --task-data-version v4 --tokenizer $SWARM_MODEL --initial-adapter $SWARM_INITIAL_ADAPTER ${swarm_initial_policy_args[*]} ${swarm_base_url_command}--actor vllm --run-id $SWARM_RUN_ID --source-commit $swarm_source_commit --base-revision $SWARM_BASE_REVISION --initial-policy-revision $SWARM_INITIAL_POLICY_REVISION --credit-estimator shared_return --shared-return-replicas $swarm_shared_return_replicas --shared-return-credit-assignment $swarm_credit_assignment --shared-return-action-prompt-profile $swarm_action_prompt_profile --production-plan $SWARM_PRODUCTION_PLAN --async-rescore-dir $swarm_rescore_dir --async-rescore-timeout 600 --steps $swarm_expected_updates --groups-per-step 4 --scenario-source curriculum --curriculum-split train --target-swap-sender-retries $swarm_target_swap_sender_retries --update-timeout 1200 --checkpoint-barrier-dir $swarm_barrier_dir --checkpoint-barrier-interval $swarm_checkpoint_interval --checkpoint-barrier-timeout 7200 > $SWARM_RUN_DIR/logs/controller.log 2>&1"
+
+tmux new-session -d -s "$swarm_session_prefix-profile" \
+  "cd $SWARM_REPO_ROOT && export PYTHONPATH=$PYTHONPATH && exec ${swarm_uv_command}python experiments/swarm_arena/scripts/summarize_runtime_profile.py --progress $SWARM_RUN_DIR/live_rl_progress.json --trainer-gpus ${#swarm_trainer_gpus[@]} --inference-gpus ${#swarm_inference_gpus[@]} --minimum-updates 3 --wait-timeout 10800 --output $SWARM_RUN_DIR/audit/runtime_profile.json > $SWARM_RUN_DIR/logs/runtime-profile.log 2>&1"
 
 sleep 10
 for swarm_role in trainer rescore pulses wandb mirror controller; do
   if ! tmux has-session -t "$swarm_session_prefix-$swarm_role" 2>/dev/null; then
     echo "$swarm_role exited during launch; stopping the new training stack" >&2
-    for swarm_cleanup in trainer rescore pulses wandb mirror controller; do
+    for swarm_cleanup in trainer rescore pulses wandb mirror controller profile; do
       tmux kill-session -t "$swarm_session_prefix-$swarm_cleanup" 2>/dev/null || true
     done
     exit 1

@@ -7,13 +7,18 @@
     "stage_gates": "bec569b4521e231b9c7a8f55e82f6e46734914516b8dfc6fe8889d711b26d03e"
   },
   "code_file_sha256": {
-    "experiments/swarm_arena/scripts/freeze_v14_5_reliable_execution.py": "efc4a2b6b19603cb44231d18e87fe3134e8ab8e3cf676e85d5863fb93a5c1f6a",
-    "experiments/swarm_arena/scripts/launch_staged_rl.sh": "f04b94eb64ebe18df1aa2c114c4de1ed4f54ab43dda21d189da500dc28423a75",
-    "experiments/swarm_arena/scripts/preflight_staged_rl.py": "04c28a022fb2cadf336367f3a275143bbffe2dd3d415e4f9bf5f047d5419feac",
+    "experiments/swarm_arena/scripts/bind_runtime_certificate.py": "94f24e21b2d3a0d6911b958a5c7c93cb31355a1c93e9d5de557866989e7bc910",
+    "experiments/swarm_arena/scripts/capture_runtime_parity_probe.py": "3d4977c067dffe0998d3294156dc2bf9f0be6defaacca10b341350803d570f57",
+    "experiments/swarm_arena/scripts/freeze_v14_5_reliable_execution.py": "1d647d60af03d78b664942ba12f6eaea06de65845d4d83e7f2e305782ec1d65c",
+    "experiments/swarm_arena/scripts/launch_inference_pool.sh": "5718cfa2114e31fa37c403d16b4b324e5e6b9c4eca5852478e869fee800fa1ae",
+    "experiments/swarm_arena/scripts/launch_staged_rl.sh": "bf1d31e49f08eca6465b66e20e0a89b2a1ce9f969f85467b24a522b40498d673",
+    "experiments/swarm_arena/scripts/preflight_staged_rl.py": "29d80e76ae6a0806e9e39a9d135bb2eba1b67d0442909bdf263ade3fcd4e6273",
     "experiments/swarm_arena/scripts/prepare_live_rl_run.py": "01338b9351913345f3ba0bc873c486c6c2194227bace51af3e428f7f3e31fc88",
-    "experiments/swarm_arena/scripts/run_live_artifact_mirror.py": "d42d486772537b22d0fa547132c86ca78492b95693d90f4a3928f8f28b26c3d9",
-    "experiments/swarm_arena/scripts/run_live_rl.py": "2597d5394b259531ed04e97a466d2b6e5777143a9cacd8adf4b450e4a2d1be4e",
-    "experiments/swarm_arena/scripts/run_staged_pulses.py": "7ca005067581e677ae7d0470355fdeedebba20458a9ead5de930c3bf1150f184",
+    "experiments/swarm_arena/scripts/run_live_artifact_mirror.py": "5dd76b082e3b5550e5df20885c0d32b65a909f2946e92a117aa816be6ab4994f",
+    "experiments/swarm_arena/scripts/run_live_rl.py": "c0fe5bbbfc82a1ae10bf8296cf74ecae4ddad8951ad83d3931ae6088649c23cb",
+    "experiments/swarm_arena/scripts/run_staged_pulses.py": "98f5a97a5a89816bc04a5b33c4308dbcf9ebad009beae7381d0732866a161bfe",
+    "experiments/swarm_arena/scripts/summarize_runtime_profile.py": "0b441544cbb678fe27c3dbd5b7440633c7829da6a69e263a98f9d16ea79291c5",
+    "experiments/swarm_arena/swarm_ctf_eval/runtime_topology.py": "2cd18e461e3fd3c39d0f92f54a2992d0be8fcd3f62385c56efbddca07dca4928",
     "experiments/swarm_arena/swarm_ctf_eval/staged_runtime.py": "4b63b7f533a0c2d039473810702db22c7121e2389188489dc4126892944ddaca",
     "packages/prime-rl-configs/src/prime_rl/configs/trainer.py": "6d0429723838e77374f2bc42054fcf5321fb588747283c13bd42f0cb0dfcc5fe",
     "src/prime_rl/trainer/rl/loss.py": "340bcbbaa4660b7554ef5d958f8fb1f23651767292262e3888ac955805c9fc78",
@@ -47,12 +52,12 @@
   },
   "frozen_data_opened": false,
   "gpu_budget": {
-    "assumed_hourly_usd": 1.52,
+    "assumed_hourly_usd": 6.0,
     "auto_stop": "at failed stage gate, hard budget, or completed final artifact sync",
-    "maximum_usd": 15.0,
+    "maximum_usd": 60.0,
     "maximum_wall_hours": 9.0,
     "never_rent_before_cpu_and_zero_update_preflight_pass": true,
-    "target_hardware": "4xL40S"
+    "target_hardware": "8xL40S"
   },
   "initializer": {
     "claim_boundary": "continuation warm start, not a communication-claim pass",
@@ -70,8 +75,44 @@
     "base_repo": "Qwen/Qwen3-4B-Instruct-2507",
     "base_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
     "cpu_rehearsal_before_rental": true,
+    "eight_gpu_initial_profile": {
+      "inference_gpu_ids": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "rollout_ports": [
+        8001,
+        8002,
+        8003,
+        8004,
+        8005,
+        8006
+      ],
+      "trainer_gpu_ids": [
+        0,
+        1
+      ]
+    },
+    "four_gpu_default": {
+      "inference_gpu_ids": [
+        1,
+        2,
+        3
+      ],
+      "trainer_gpu_ids": [
+        0
+      ]
+    },
     "orchestrator_lora_schema": "student.model.lora",
     "public_base_and_adapter_repo_ids_required": true,
+    "runtime_certificate_regenerated_for_exact_topology": true,
+    "runtime_topology_must_assign_every_gpu_exactly_once": true,
+    "topology_profile_inputs": "operational_timings_only",
+    "topology_profile_minimum_updates": 3,
     "uv_argv": [
       "run",
       "--frozen",
@@ -82,7 +123,7 @@
   "parent_cpu_bundle_sha256": "ef4c9c614856edbf23b525724e3cc9524a8fe749e6e7e5fc2e6f4e6dd887aef3",
   "plan": {
     "path": "experiments/swarm_arena/V14_5_EXECUTION_PLAN.md",
-    "sha256": "1c585cafcfc0f22e51437a2b063ccbf15545dc606f339c4a0c1b1a27f2569177"
+    "sha256": "09ce00d8121380fd6f5292f63da6cea16c805b99ecaf0d8b2be63401ed768237"
   },
   "preventive_fixes": [
     "current student.model.lora preflight schema",
@@ -91,7 +132,9 @@
     "bounded no-resampling parity quarantine",
     "truthful logical-versus-optimizer update accounting",
     "restart-safe append-only parity allowance",
-    "compact off-node parity decision mirroring"
+    "compact off-node parity decision mirroring",
+    "topology-bound multi-rank trainer and dynamic rollout-server launch",
+    "reward-blind durable per-update runtime profiling"
   ],
   "required_preflight": [
     "complete all V14.5 CPU validation before rental",
@@ -102,6 +145,7 @@
     "pass pooled and policy-local runtime parity calibration",
     "pass compact public HF and W&B authentication preflights",
     "complete unchanged update-zero evaluation before optimizer work",
+    "assign every GPU exactly once and isolate every inference server",
     "arm watcher, recovery supervisor, budget, TTL, and exact teardown"
   ],
   "routing": {
@@ -119,7 +163,7 @@
     },
     "stage_gate_sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2"
   },
-  "sha256": "7e9e41b5686222f58950b61bd6f3451c1d1bb98d27e820ed006d1029e8906390",
+  "sha256": "8631449b372fafb1e3affbfbedf55b4996853468281b46d362651f6e24b55586",
   "status": "cpu_validated",
   "stop_contract": "stage-gate rejection, hard budget, TTL, operationally unrecoverable fault, or verified completion requires compact sync and immediate exact-instance teardown",
   "trainer": {
@@ -150,5 +194,5 @@
     "rejected_pending_policy": "blue-2",
     "threshold": 0.002
   },
-  "version": "arena-rl-v14.5-reliable-execution-v1"
+  "version": "arena-rl-v14.5-reliable-execution-v2-topology-profile"
 }

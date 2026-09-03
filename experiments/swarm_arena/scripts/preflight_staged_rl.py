@@ -13,6 +13,7 @@ from urllib.request import Request, urlopen
 
 from swarm_ctf_eval.handoff_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.rl_production import load_production_plan
+from swarm_ctf_eval.runtime_topology import runtime_topology
 from swarm_ctf_eval.safety_supervisor import SharedReturnSpec
 from swarm_ctf_eval.staged_runtime import orchestrator_lora
 from swarm_ctf_eval.task_data_binding import resolve_task_data_binding
@@ -173,6 +174,8 @@ def main() -> None:
     parser.add_argument("--expected-public-base-repo", required=True)
     parser.add_argument("--expected-public-adapter-repo", required=True)
     parser.add_argument("--base-url", action="append", default=[])
+    parser.add_argument("--trainer-gpu-id", type=int, action="append", default=[])
+    parser.add_argument("--inference-gpu-id", type=int, action="append", default=[])
     parser.add_argument("--expected-updates", type=int, default=120)
     parser.add_argument("--checkpoint-interval", type=int, default=10)
     parser.add_argument(
@@ -431,19 +434,38 @@ def main() -> None:
             f"only {free_gib:.1f} GiB free; require {args.minimum_free_gib:.1f} GiB"
         )
     gpu_inventory = []
+    trainer_gpu_ids = args.trainer_gpu_id or [0]
+    inference_gpu_ids = args.inference_gpu_id or [1, 2, 3]
+    try:
+        rollout_ports = [
+            int(value.rstrip("/").rsplit(":", 1)[1]) for value in args.base_url
+        ]
+    except (IndexError, ValueError) as error:
+        raise ValueError("rollout server URLs must end in an explicit numeric port") from error
+    topology = runtime_topology(
+        trainer_gpu_ids,
+        inference_gpu_ids,
+        rollout_ports,
+    )
+    if tuple(args.base_url) != topology.base_urls:
+        raise ValueError("rollout server URLs do not match the declared topology ports")
+    if certificate.get("topology") != topology.to_dict():
+        raise ValueError("launch topology differs from the runtime certificate")
     if not args.skip_hardware:
         if importlib.metadata.version("vllm") != plan.backend.version:
             raise ValueError("installed vLLM version differs from the certified backend")
         gpu_inventory = _gpu_inventory()
-        if len(gpu_inventory) != 4:
-            raise RuntimeError("staged run requires exactly four visible GPUs")
+        topology.validate(visible_gpu_count=len(gpu_inventory))
         if min(int(row["memory_total_mib"]) for row in gpu_inventory) < 22_000:
             raise RuntimeError("every visible GPU must have at least 22 GiB VRAM")
         if args.skip_serving:
             if max(int(row["memory_used_mib"]) for row in gpu_inventory) > 1_024:
                 raise RuntimeError("hardware preflight requires idle GPUs before model launch")
-        elif int(gpu_inventory[0]["memory_used_mib"]) > 1_024:
-            raise RuntimeError("GPU 0 must remain idle for the trainer before launch")
+        elif any(
+            int(gpu_inventory[index]["memory_used_mib"]) > 1_024
+            for index in topology.trainer_gpu_ids
+        ):
+            raise RuntimeError("every declared trainer GPU must remain idle before launch")
         certified_gpus = [
             {
                 "index": row["index"],
@@ -466,8 +488,8 @@ def main() -> None:
             raise RuntimeError("current GPUs differ from the certified runtime inventory")
     serving = []
     if not args.skip_serving:
-        if len(args.base_url) != 3:
-            raise ValueError("staged run requires exactly three rollout server URLs")
+        if len(args.base_url) != len(topology.inference_gpu_ids):
+            raise ValueError("staged run requires one rollout server per inference GPU")
         if args.base_url != certificate["serving_probe"]["base_urls"]:
             raise ValueError("rollout server URLs differ from the certified serving probe")
         for base_url in args.base_url:
@@ -508,6 +530,7 @@ def main() -> None:
         "checkpoint_interval": args.checkpoint_interval,
         "free_gib": free_gib,
         "gpus": gpu_inventory,
+        "topology": topology.to_dict(),
         "serving": serving,
     }
     output = args.run_dir / "PREFLIGHT.json"

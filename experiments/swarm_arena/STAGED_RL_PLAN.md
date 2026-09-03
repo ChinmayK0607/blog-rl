@@ -156,8 +156,19 @@ uv run python experiments/swarm_arena/scripts/bind_runtime_certificate.py \
   --serving-probe /workspace/run-inputs/staged-120-serving-probe.json \
   --parity-probe /workspace/run-inputs/staged-120-parity-probe.json \
   --parity-report /workspace/run-inputs/staged-120-parity-report.json \
+  --trainer-gpu-id 0 \
+  --inference-gpu-id 1 \
+  --inference-gpu-id 2 \
+  --inference-gpu-id 3 \
   --output /workspace/run-inputs/staged-120-runtime-certificate.json
 ```
+
+For an eight-GPU V14.5 profile, use trainer IDs 0 and 1, inference IDs
+2 through 7, and six distinct rollout URLs consistently in the serving probe,
+parity probe, certificate, preflight, pulse evaluator, and controller. Run the
+trainer-side parity command and the staged trainer with
+`CUDA_VISIBLE_DEVICES=0,1 --nproc-per-node=2`. The runtime certificate binds
+the complete partition; a different split requires a fresh certificate.
 
 Set `SWARM_RUNTIME_CERTIFICATE` to that final file before invoking
 `scripts/launch_staged_rl.sh`. The launcher runs the full preflight itself and

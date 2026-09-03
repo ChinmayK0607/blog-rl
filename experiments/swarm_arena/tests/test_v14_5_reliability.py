@@ -217,10 +217,15 @@ def test_v14_5_cpu_bundle_reproduces_exactly() -> None:
             "experiments/swarm_arena/swarm_ctf_eval/staged_runtime.py",
             "experiments/swarm_arena/scripts/prepare_live_rl_run.py",
             "experiments/swarm_arena/scripts/preflight_staged_rl.py",
+            "experiments/swarm_arena/scripts/capture_runtime_parity_probe.py",
+            "experiments/swarm_arena/scripts/bind_runtime_certificate.py",
+            "experiments/swarm_arena/scripts/launch_inference_pool.sh",
             "experiments/swarm_arena/scripts/launch_staged_rl.sh",
             "experiments/swarm_arena/scripts/run_live_rl.py",
             "experiments/swarm_arena/scripts/run_staged_pulses.py",
             "experiments/swarm_arena/scripts/run_live_artifact_mirror.py",
+            "experiments/swarm_arena/scripts/summarize_runtime_profile.py",
+            "experiments/swarm_arena/swarm_ctf_eval/runtime_topology.py",
             "experiments/swarm_arena/scripts/freeze_v14_5_reliable_execution.py",
         )
     )

@@ -9,7 +9,7 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-VERSION = "arena-rl-v14.5-reliable-execution-v1"
+VERSION = "arena-rl-v14.5-reliable-execution-v2-topology-profile"
 EXPECTED_PARENT_SHA256 = (
     "ef4c9c614856edbf23b525724e3cc9524a8fe749e6e7e5fc2e6f4e6dd887aef3"
 )
@@ -120,8 +120,26 @@ def build_bundle(
             "public_base_and_adapter_repo_ids_required": True,
             "orchestrator_lora_schema": "student.model.lora",
             "cpu_rehearsal_before_rental": True,
+            "four_gpu_default": {
+                "trainer_gpu_ids": [0],
+                "inference_gpu_ids": [1, 2, 3],
+            },
+            "eight_gpu_initial_profile": {
+                "trainer_gpu_ids": [0, 1],
+                "inference_gpu_ids": [2, 3, 4, 5, 6, 7],
+                "rollout_ports": [8001, 8002, 8003, 8004, 8005, 8006],
+            },
+            "runtime_topology_must_assign_every_gpu_exactly_once": True,
+            "runtime_certificate_regenerated_for_exact_topology": True,
+            "topology_profile_inputs": "operational_timings_only",
+            "topology_profile_minimum_updates": 3,
         },
-        "gpu_budget": parent["gpu_budget"],
+        "gpu_budget": {
+            **parent["gpu_budget"],
+            "assumed_hourly_usd": 6.0,
+            "maximum_usd": 60.0,
+            "target_hardware": "8xL40S",
+        },
         "required_preflight": [
             "complete all V14.5 CPU validation before rental",
             "publish and anonymously verify the exact source and bundle",
@@ -131,6 +149,7 @@ def build_bundle(
             "pass pooled and policy-local runtime parity calibration",
             "pass compact public HF and W&B authentication preflights",
             "complete unchanged update-zero evaluation before optimizer work",
+            "assign every GPU exactly once and isolate every inference server",
             "arm watcher, recovery supervisor, budget, TTL, and exact teardown",
         ],
         "preventive_fixes": [
@@ -141,6 +160,8 @@ def build_bundle(
             "truthful logical-versus-optimizer update accounting",
             "restart-safe append-only parity allowance",
             "compact off-node parity decision mirroring",
+            "topology-bound multi-rank trainer and dynamic rollout-server launch",
+            "reward-blind durable per-update runtime profiling",
         ],
         "v14_4_observed_failure": {
             "durable_logical_updates": 2,

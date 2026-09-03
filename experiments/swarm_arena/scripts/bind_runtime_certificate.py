@@ -8,6 +8,8 @@ import subprocess
 from collections import Counter
 from pathlib import Path
 
+from swarm_ctf_eval.runtime_topology import runtime_topology
+
 
 def _sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
@@ -103,6 +105,8 @@ def main() -> None:
     parser.add_argument("--serving-probe", type=Path, required=True)
     parser.add_argument("--parity-probe", type=Path, required=True)
     parser.add_argument("--parity-report", type=Path, required=True)
+    parser.add_argument("--trainer-gpu-id", type=int, action="append", default=[])
+    parser.add_argument("--inference-gpu-id", type=int, action="append", default=[])
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
@@ -129,16 +133,21 @@ def main() -> None:
         if args.initial_policy_adapter_manifest is not None
         else None
     )
-    if serving.get("status") != "passed" or serving.get("servers") != 3:
-        raise ValueError("serving probe must pass against exactly three rollout servers")
+    server_count = serving.get("servers")
+    if (
+        serving.get("status") != "passed"
+        or not isinstance(server_count, int)
+        or server_count < 1
+    ):
+        raise ValueError("serving probe must pass against at least one rollout server")
     if serving.get("adapter_sha256") != adapter_sha256:
         raise ValueError("serving probe adapter does not match the initial adapter")
     if (
         not isinstance(serving.get("base_urls"), list)
-        or len(serving["base_urls"]) != 3
-        or len(set(serving["base_urls"])) != 3
+        or len(serving["base_urls"]) != server_count
+        or len(set(serving["base_urls"])) != server_count
     ):
-        raise ValueError("serving probe must identify all three rollout server URLs")
+        raise ValueError("serving probe must identify every distinct rollout server URL")
     if parity.get("parity_passed") is not True:
         raise ValueError("numerical parity report did not pass")
     if parity.get("isolation_passed") is not True:
@@ -147,14 +156,19 @@ def main() -> None:
         raise ValueError("parity report adapter does not match the initial adapter")
     if parity_probe.get("adapter_sha256") != adapter_sha256:
         raise ValueError("runtime parity probe adapter does not match the initial adapter")
-    if parity_probe.get("servers") != 3 or len(parity_probe.get("samples", [])) != 32:
-        raise ValueError("runtime parity probe must contain 32 samples from three servers")
+    if (
+        parity_probe.get("servers") != server_count
+        or len(parity_probe.get("samples", [])) != 32
+    ):
+        raise ValueError(
+            "runtime parity probe must contain 32 samples from every serving-probe server"
+        )
     if (
         not isinstance(parity_probe.get("base_urls"), list)
         or parity_probe["base_urls"] != serving["base_urls"]
-        or len(set(parity_probe["base_urls"])) != 3
+        or len(set(parity_probe["base_urls"])) != server_count
     ):
-        raise ValueError("serving and parity probes must bind the same three servers")
+        raise ValueError("serving and parity probes must bind the same servers")
     if {row.get("server_url") for row in parity_probe["samples"]} != set(
         parity_probe.get("base_urls", [])
     ):
@@ -182,6 +196,23 @@ def main() -> None:
     ):
         raise ValueError("parity report threshold body does not match its gate digest")
 
+    gpu_inventory = _gpu_inventory()
+    try:
+        rollout_ports = [
+            int(value.rstrip("/").rsplit(":", 1)[1])
+            for value in serving["base_urls"]
+        ]
+    except (IndexError, ValueError) as error:
+        raise ValueError("serving URLs must end in explicit numeric ports") from error
+    topology = runtime_topology(
+        args.trainer_gpu_id or [0],
+        args.inference_gpu_id or [1, 2, 3],
+        rollout_ports,
+        visible_gpu_count=len(gpu_inventory),
+    )
+    if list(topology.base_urls) != serving["base_urls"]:
+        raise ValueError("declared topology does not match the serving probe URLs")
+
     body = {
         "version": "swarm-runtime-certificate-v1",
         "status": "passed",
@@ -198,7 +229,8 @@ def main() -> None:
             "name": "vllm",
             "version": importlib.metadata.version("vllm"),
         },
-        "gpu_inventory": _gpu_inventory(),
+        "gpu_inventory": gpu_inventory,
+        "topology": topology.to_dict(),
         "serving_probe": {
             "sha256": _sha256_file(args.serving_probe),
             "base_urls": serving["base_urls"],

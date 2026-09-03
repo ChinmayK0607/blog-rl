@@ -1029,6 +1029,7 @@ async def main() -> None:
                 timeout=args.checkpoint_barrier_timeout,
             )
         for step in range(start_step, args.steps):
+            step_started_at = time.monotonic()
             if (
                 production_plan is not None
                 and production_plan.adaptive_curriculum is not None
@@ -1089,6 +1090,7 @@ async def main() -> None:
             )
             routed_groups = []
             step_groups = []
+            rollout_started_at = time.monotonic()
             for group_index in range(args.groups_per_step):
                 ordinal = step * args.groups_per_step + group_index
                 scheduled_opponent = opponent_schedule[ordinal] if opponent_schedule is not None else None
@@ -1711,8 +1713,18 @@ async def main() -> None:
                         "scenario": scenario_metadata,
                     }
                 )
+            rollout_generation_seconds = time.monotonic() - rollout_started_at
             if args.rollout_only:
-                result_rows.append({"step": step, "groups": step_groups})
+                result_rows.append(
+                    {
+                        "step": step,
+                        "groups": step_groups,
+                        "timing": {
+                            "rollout_generation_seconds": rollout_generation_seconds,
+                            "total_seconds": time.monotonic() - step_started_at,
+                        },
+                    }
+                )
                 diagnostic_path = args.output_dir / "live_rl_diagnostic.json"
                 diagnostic_path.write_text(
                     json.dumps(result_rows, indent=2, sort_keys=True) + "\n",
@@ -1731,6 +1743,7 @@ async def main() -> None:
                         "action": "observe_only_continue",
                     },
                 )
+            batch_prepare_started_at = time.monotonic()
             batches = (
                 async_queue.pop_logical_update(
                     groups=args.groups_per_step,
@@ -1750,6 +1763,8 @@ async def main() -> None:
                     seq_len=config.model.seq_len,
                 )
             await send_approved_batches(args.output_dir, batches)
+            batch_prepare_seconds = time.monotonic() - batch_prepare_started_at
+            trainer_update_started_at = time.monotonic()
             digests = await wait_for_policy_updates(
                 args.output_dir,
                 base_urls,
@@ -1757,6 +1772,7 @@ async def main() -> None:
                 timeout=args.update_timeout,
                 hf_generator=(generator if isinstance(generator, HFChoiceGenerator) else None),
             )
+            trainer_update_seconds = time.monotonic() - trainer_update_started_at
             policy_revisions = digests
             policy_adapter_sha256 = dict(digests)
             policy_revision = canonical_sha256(policy_revisions)
@@ -1776,6 +1792,12 @@ async def main() -> None:
                     ),
                     "policy_adapter_sha256": digests,
                     "policy_revision": policy_revision,
+                    "timing": {
+                        "rollout_generation_seconds": rollout_generation_seconds,
+                        "batch_prepare_seconds": batch_prepare_seconds,
+                        "trainer_update_seconds": trainer_update_seconds,
+                        "total_seconds": time.monotonic() - step_started_at,
+                    },
                 }
             )
             (args.output_dir / "live_rl_progress.json").write_text(

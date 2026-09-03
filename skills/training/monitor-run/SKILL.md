@@ -34,6 +34,13 @@ Default cadence: **1 hour** (researcher can override). At each check-in:
 **Notes**: anything unusual (errors, restarts, hangs). Omit if nothing notable.
 ```
 
+For topology profiling, use only the controller's durable `timing` fields and
+trainer performance counters; never choose a GPU split from rewards,
+advantages, or gate outcomes. V14.5's frozen operational summary uses exactly
+the first three timed updates and writes `audit/runtime_profile.json`. A profile
+may recommend a different split for a future freshly certified run, but must
+not reconfigure the topology of the run in progress.
+
 Do not run the repository pytest suite as a health check while `torchrun` is
 live. Its repository-level zombie-cleanup fixture uses `pkill -f torchrun` and
 will terminate unrelated training or rollout jobs owned by the same user.

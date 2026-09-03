@@ -61,10 +61,12 @@ async def main() -> None:
     args = parser.parse_args()
     if args.samples < 8 or args.samples % 8:
         parser.error("samples must be a positive multiple of eight and at least eight")
-    if len(args.base_url) != 3:
-        parser.error("runtime parity capture requires exactly three rollout servers")
-    if len(set(args.base_url)) != 3:
-        parser.error("runtime parity capture requires three distinct rollout servers")
+    if not args.base_url:
+        parser.error("runtime parity capture requires at least one rollout server")
+    if len(set(args.base_url)) != len(args.base_url):
+        parser.error("runtime parity capture requires distinct rollout servers")
+    if len(args.base_url) > args.samples:
+        parser.error("runtime parity capture requires at least one sample per server")
     from probe_constrained_rollout import sha256_file
 
     actual_adapter_sha256 = sha256_file(args.adapter / "adapter_model.safetensors")

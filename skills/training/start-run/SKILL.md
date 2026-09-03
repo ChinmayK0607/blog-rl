@@ -209,13 +209,22 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   live training, certification, or rollout process on the same host.
 - For the staged Swarm Arena run, first bind
   the exact host to a fresh `swarm-runtime-certificate-v1`: capture a new
-  32-decision constrained probe across all three rollout servers, certify it
+  32-decision constrained probe across every declared rollout server, certify it
   against the resolved trainer TOML, pass the live broadcast/action probe, and
   bind source, model/adapter/config hashes, vLLM version, driver and GPU
   inventory with `scripts/bind_runtime_certificate.py`. Then pass that
   certificate to `scripts/build_staged_rl_plan.py` and
   `scripts/preflight_staged_rl.py`. Never reuse a certificate after any bound
   component changes or bypass a failed v2 preflight.
+  For an eight-GPU host, set an exhaustive disjoint topology before any model
+  launch: V14.5 initially profiles `SWARM_TRAINER_GPU_IDS=0,1`,
+  `SWARM_INFERENCE_GPU_IDS=2,3,4,5,6,7`, and six matching rollout ports. Start
+  the isolated servers through `scripts/launch_inference_pool.sh`; it assigns
+  separate compile caches, RPC ports, logs, and tmux sessions and tears down
+  the newly created pool if startup fails. The staged launcher derives
+  `torchrun --nproc-per-node` from the trainer partition and passes every URL
+  through preflight, pulses, and the controller. Never change a certified
+  topology during a live run.
   The selected checked-in curriculum and resulting plan declare their exact
   update count; never shorten or extend them under the same run identity. The
   staged launcher derives its horizon from that plan. A focused-agent run must
