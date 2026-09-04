@@ -7099,6 +7099,47 @@ no more critical-specific than decoy-specific. Therefore:
   sequence.
 - Instance decommissioned: not applicable; no V14.6 instance exists.
 
+### 2026-09-04 — V14.7 four-A6000 hardware rebind
+
+- Status: CPU-validated; no GPU allocated and provider spend is `$0` for this
+  hardware rebind.
+- Purpose: make the already-authorized available four-A6000 fallback truthful
+  without treating V14.6's L40/L40S declaration as portable evidence.
+- Scientific continuity: the V14.6 initializer, predetermined curriculum,
+  reward, optimizer, scheduler, learning rate, loss, DPPO masks, training
+  dtypes, `.002` mean mismatch-KL ceiling, quarantine semantics, unchanged
+  192-row update-zero evaluation, and frozen update-10/20/30/40 behavioral
+  gates are unchanged.
+- Hardware and topology contract: exactly four NVIDIA RTX A6000 GPUs with at
+  least 48 GB each; trainer GPU 0 plus isolated rollout servers on GPUs 1--3.
+  Every GPU must be assigned exactly once. The nine-hour and `$60` hard limits
+  remain, with an expected `$1.68/hour` rate and `$15.12` nine-hour ceiling for
+  the observed candidate.
+- Serving continuity: the A6000-named inference config is byte-identical to the
+  V14.6 strict config and retains eager execution, synchronous scheduling,
+  neutral vLLM generation settings, native RMSNorm kernels, and a four-sequence
+  cap. Exact-host certification still requires 128 predetermined decisions at
+  four concurrent requests per server plus pooled and policy-local gates.
+- Validation: nine focused V14.6/V14.7 tests passed, including exact bundle
+  reproduction and rejection of any inference-setting drift. Ruff, Python
+  compilation, and `git diff --check` passed. A broader run passed 29 of 30
+  tests; the only failure was the historical V14.5 bundle-reproduction test
+  comparing shared runtime files changed and frozen by V14.6, not an A6000
+  path regression.
+- Frozen identities: parent V14.6 CPU-bundle body SHA-256
+  `5dd516d131ee1459d4d9f3007b96cf18e82ca83106f7195a88c60780f6697cea`;
+  V14.7 body SHA-256
+  `b3dafe8339cc68180707f772e39b3ed6e72d9690530d49034ebfac831f819fa7`;
+  V14.7 bundle file SHA-256
+  `656d894721fd8aa9fb70df0fc7bebeadf8009bdc8a241d21714860be05946264`;
+  strict inference config SHA-256
+  `fa561ff94f8114ecb9de0bfb1f026a0d1656c9e2422321e36ba5aaf191d725a2`.
+- Next action: commit and publish the exact payload, independently fetch and
+  verify it, re-resolve the approved four-A6000 candidate, and rent only that
+  exact ID/configuration/rate if it remains available. Exact-host admission
+  gates still block evaluation and optimization on failure.
+- Instance decommissioned: not applicable; no V14.7 instance exists.
+
 ## Future entry template
 
 Copy this block for each material run:

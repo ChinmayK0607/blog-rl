@@ -13,6 +13,9 @@ from experiments.swarm_arena.scripts.freeze_v14_6_parity_stable_execution import
     build_bundle,
     load_hashed,
 )
+from experiments.swarm_arena.scripts.freeze_v14_7_a6000_execution import (
+    build_bundle as build_a6000_bundle,
+)
 from experiments.swarm_arena.scripts.preflight_staged_rl import (
     _validate_strict_parity_probe,
 )
@@ -135,5 +138,61 @@ def test_v14_6_bundle_rejects_changed_parent() -> None:
                 arena_root / "configs" / "inference_4b_l40s_parity_strict.toml"
             ),
             plan_path=arena_root / "V14_6_EXECUTION_PLAN.md",
+            code_paths=(),
+        )
+
+
+def test_v14_7_a6000_bundle_reproduces_exactly() -> None:
+    arena_root = Path(__file__).parents[1]
+    repo_root = arena_root.parents[1]
+    code_paths = tuple(
+        repo_root / path
+        for path in (
+            "experiments/swarm_arena/scripts/capture_runtime_parity_probe.py",
+            "experiments/swarm_arena/scripts/bind_runtime_certificate.py",
+            "experiments/swarm_arena/scripts/preflight_staged_rl.py",
+            "experiments/swarm_arena/scripts/launch_inference_pool.sh",
+            "experiments/swarm_arena/scripts/launch_staged_rl.sh",
+            "experiments/swarm_arena/scripts/freeze_v14_7_a6000_execution.py",
+        )
+    )
+    actual = build_a6000_bundle(
+        parent=load_hashed(arena_root / "data" / "rl_v14_6" / "cpu_bundle.json"),
+        trainer_path=(
+            arena_root / "configs" / "rl_v14_5_4b_policy_routed_40.toml"
+        ),
+        parent_inference_path=(
+            arena_root / "configs" / "inference_4b_l40s_parity_strict.toml"
+        ),
+        inference_path=(
+            arena_root / "configs" / "inference_4b_a6000_parity_strict.toml"
+        ),
+        plan_path=arena_root / "V14_7_A6000_EXECUTION_PLAN.md",
+        code_paths=code_paths,
+    )
+    expected = load_hashed(arena_root / "data" / "rl_v14_7" / "cpu_bundle.json")
+    assert actual == expected
+
+
+def test_v14_7_rejects_inference_setting_change(tmp_path: Path) -> None:
+    arena_root = Path(__file__).parents[1]
+    changed = (
+        arena_root / "configs" / "inference_4b_a6000_parity_strict.toml"
+    ).read_text(encoding="utf-8").replace("max_num_seqs = 4", "max_num_seqs = 8")
+    changed_path = tmp_path / "changed.toml"
+    changed_path.write_text(changed, encoding="utf-8")
+    with pytest.raises(ValueError, match="strict inference settings"):
+        build_a6000_bundle(
+            parent=load_hashed(
+                arena_root / "data" / "rl_v14_6" / "cpu_bundle.json"
+            ),
+            trainer_path=(
+                arena_root / "configs" / "rl_v14_5_4b_policy_routed_40.toml"
+            ),
+            parent_inference_path=(
+                arena_root / "configs" / "inference_4b_l40s_parity_strict.toml"
+            ),
+            inference_path=changed_path,
+            plan_path=arena_root / "V14_7_A6000_EXECUTION_PLAN.md",
             code_paths=(),
         )
