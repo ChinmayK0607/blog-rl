@@ -39,10 +39,15 @@ def _validated_per_policy_parity(
         int(row.get("policy_slot", sample_index % 4))
         for sample_index, row in enumerate(samples)
     )
-    expected_counts = {index: 8 for index in range(4)}
+    if len(samples) < 32 or len(samples) % 4:
+        raise ValueError(
+            "runtime parity probe must contain at least 32 samples balanced over four policies"
+        )
+    expected_count = len(samples) // 4
+    expected_counts = {index: expected_count for index in range(4)}
     if dict(sorted(probe_counts.items())) != expected_counts:
         raise ValueError(
-            "runtime parity probe must contain exactly eight samples per policy"
+            "runtime parity probe must contain equal samples for all four policies"
         )
     probe_token_counts = Counter()
     for sample_index, row in enumerate(samples):
@@ -156,13 +161,21 @@ def main() -> None:
         raise ValueError("parity report adapter does not match the initial adapter")
     if parity_probe.get("adapter_sha256") != adapter_sha256:
         raise ValueError("runtime parity probe adapter does not match the initial adapter")
-    if (
-        parity_probe.get("servers") != server_count
-        or len(parity_probe.get("samples", [])) != 32
+    parity_samples = parity_probe.get("samples", [])
+    if parity_probe.get("servers") != server_count or not isinstance(
+        parity_samples, list
     ):
         raise ValueError(
-            "runtime parity probe must contain 32 samples from every serving-probe server"
+            "runtime parity probe must contain samples from every serving-probe server"
         )
+    capture_concurrency_per_server = parity_probe.get(
+        "capture_concurrency_per_server", 1
+    )
+    if (
+        not isinstance(capture_concurrency_per_server, int)
+        or not 1 <= capture_concurrency_per_server <= len(parity_samples)
+    ):
+        raise ValueError("runtime parity probe has invalid per-server concurrency")
     if (
         not isinstance(parity_probe.get("base_urls"), list)
         or parity_probe["base_urls"] != serving["base_urls"]
@@ -240,6 +253,8 @@ def main() -> None:
         "parity_report": {
             "sha256": _sha256_file(args.parity_report),
             "probe_sha256": _sha256_file(args.parity_probe),
+            "samples": len(parity_samples),
+            "capture_concurrency_per_server": capture_concurrency_per_server,
             "trainer_parity_gate_sha256": parity["trainer_parity_gate_sha256"],
             "parity_thresholds": parity_thresholds,
             "mean_absolute_logprob_error": parity["mean_absolute_logprob_error"],

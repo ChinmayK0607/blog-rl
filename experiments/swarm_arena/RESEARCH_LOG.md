@@ -7038,6 +7038,67 @@ no more critical-specific than decoy-specific. Therefore:
   and only then rent the eight-GPU node if still available.
 - Instance decommissioned: not applicable; no V14.5 instance exists.
 
+### 2026-09-04 — V14.5 live parity rejection and teardown
+
+- Status: rejected and fully decommissioned. The unchanged 192-row update-zero
+  evaluation passed before optimizer work.
+- Source/run identity: public source commit
+  `d36afdda95868d8959c8fbc92aa9015033cd37f6`; CPU-bundle canonical body
+  `7e9e41b5686222f58950b61bd6f3451c1d1bb98d27e820ed006d1029e8906390`;
+  exact 4xL40S pod `4f3628c7-58f0-4ebb-9c82-c84fe3e29621` at `$1.52/hour`.
+- Training outcome: logical update 1 failed mean mismatch KL at
+  `0.011002085 > 0.002` and was quarantined with no optimizer or scheduler
+  step and no replacement. Logical updates 2 and 3 produced two durable atomic
+  optimizer steps. Logical update 4 then failed at `0.003157224 > 0.002`; the
+  second failure in stage zero aborted before optimization as preregistered.
+  No behavioral stage gate was reached, no batch was replaced, and frozen data
+  remained unopened.
+- Preservation: final public HF revision
+  `82dd2cdd99ad5a2c1cbf86e22db3ca367ed6dd2a` was independently downloaded and
+  all 16 files hash-verified. The finished W&B compact-run artifact digest was
+  `c6a459ca16b618843f40538ede45fe67`; its five key files were downloaded and
+  hash-verified. The terminal quarantine ledger SHA-256 was
+  `cb92f7dda2b1a7df273638647e3b2c73b654fd37cf202715e772e43eaa962bc6`.
+- GPU/cost and teardown: final provider cost was `$5.36`. After GPU work was
+  stopped and compact outputs verified, only the exact pod was deleted and its
+  absence confirmed at 2026-09-04 04:40:46 UTC. Teardown record:
+  `/private/tmp/v14_5_final_teardown_4f3628c7.json`. The rental automation was
+  deleted. Instance decommissioned: yes.
+- Verdict: **rejected**. Two parity failures among four attempted logical
+  batches show that an unchanged restart would be a known-incompatible rerun,
+  not a justified recovery.
+
+### 2026-09-04 — V14.6 parity-stable serving repair
+
+- Status: CPU-validated; no GPU allocated and provider spend is `$0` for this
+  successor run.
+- Hypothesis: V14.5's sequential 32-decision runtime certificate failed to
+  exercise production request batching. A correctness-first vLLM profile plus
+  a concurrent, higher-coverage exact-host certificate can prevent the known
+  serving/trainer numerical tail without changing any scientific threshold.
+- Scientific continuity: the four initial policies, predetermined curriculum,
+  reward, optimizer, scheduler, learning rate, loss, DPPO masks, training
+  dtypes, `.002` mean mismatch-KL ceiling, quarantine semantics, 192-row
+  update-zero evaluation, and frozen update-10/20/30/40 gates remain unchanged.
+- Prospective execution change: eager vLLM execution, synchronous scheduling,
+  neutral vLLM generation config, native RMSNorm kernels, and a four-sequence
+  serving cap. Runtime certification expands to 128 predetermined decisions in
+  four concurrent requests per server, with 32 samples per policy and coverage
+  of every declared server. The certificate and staged preflight bind both the
+  sample count and per-server concurrency.
+- Budget/topology: one 4x or separately certified 8x NVIDIA L40/L40S node,
+  every GPU assigned, nine-hour TTL, `$60` hard ceiling, and immediate exact-pod
+  teardown after verified completion or rejection.
+- Validation: 15 focused V14.6 and topology tests passed. Ruff and
+  `git diff --check` passed. Strict inference-config SHA-256 is
+  `fa561ff94f8114ecb9de0bfb1f026a0d1656c9e2422321e36ba5aaf191d725a2`;
+  CPU-bundle canonical body SHA-256 is
+  `5dd516d131ee1459d4d9f3007b96cf18e82ca83106f7195a88c60780f6697cea`.
+- Next action: publish and independently verify the exact commit, then rent the
+  first qualifying node and run the strengthened exact-host admission
+  sequence.
+- Instance decommissioned: not applicable; no V14.6 instance exists.
+
 ## Future entry template
 
 Copy this block for each material run:

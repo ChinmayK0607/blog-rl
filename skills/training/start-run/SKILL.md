@@ -174,6 +174,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   exactly equal the independently reconstructed xgrammar set. The parity
   certificate reports full-row normalization error, total variation and both
   KL directions in addition to the frozen sampled-token gates.
+- Match certification request concurrency to production serving. A sequential
+  parity probe cannot certify a concurrent rollout path after batching has
+  produced a live-only numerical tail. The Swarm Arena parity-stable L40S
+  profile uses 128 predetermined decisions with four concurrent requests per
+  server, binds the sample count and per-server concurrency into the runtime
+  certificate, and requires those exact values at staged preflight.
 - When diagnosing a parity failure, run
   `experiments/swarm_arena/scripts/certify_prime_parity_matrix.py` with
   `configs/parity_matrix_1_7b.json`. It allocates one declared trainer variant

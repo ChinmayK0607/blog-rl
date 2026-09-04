@@ -32,6 +32,30 @@ def _read_toml(path: Path) -> dict:
         return tomllib.load(handle)
 
 
+def _validate_strict_parity_probe(inference: dict, certificate: dict) -> None:
+    inference_extra = inference.get("vllm_extra", {})
+    strict_parity_profile = (
+        inference.get("model", {}).get("enforce_eager") is True
+        and "qwen3-4b" in str(inference.get("model", {}).get("name", "")).lower()
+        and inference.get("max_lora_rank") == 32
+        and inference_extra.get("generation_config") == "vllm"
+        and inference_extra.get("async_scheduling") is False
+        and inference_extra.get("max_num_seqs") == 4
+        and inference_extra.get("ir_op_priority")
+        == {
+            "rms_norm": ["native"],
+            "fused_add_rms_norm": ["native"],
+        }
+    )
+    if strict_parity_profile and (
+        certificate["parity_report"].get("samples") != 128
+        or certificate["parity_report"].get("capture_concurrency_per_server") != 4
+    ):
+        raise ValueError(
+            "strict parity serving requires 128 runtime samples at per-server concurrency four"
+        )
+
+
 def _verify_initial_policy_adapter_manifest(
     trainer: dict, manifest_path: Path | None
 ) -> str | None:
@@ -283,6 +307,7 @@ def main() -> None:
         raise ValueError("runtime certificate contains a failed policy-local parity result")
     if certificate["inference_config_sha256"] != _sha256_file(args.inference_config):
         raise ValueError("runtime certificate does not bind the inference config")
+    _validate_strict_parity_probe(inference, certificate)
 
     if trainer["max_concurrent_runs"] != 4:
         raise ValueError("staged run requires exactly four trainer policy slots")

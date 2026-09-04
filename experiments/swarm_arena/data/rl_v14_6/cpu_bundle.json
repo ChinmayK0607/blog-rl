@@ -1,0 +1,200 @@
+{
+  "artifact_file_sha256": {
+    "assessment": "c5af46e4af3c96b64a60be5b9048e1467426cbfdf0e2ae19046ea8272146c4bd",
+    "audit": "593b51bac438502fcf77c1d1690c18f270c336ffcd1e26c9c9276058025e414a",
+    "curriculum": "b0009d70497c892916aaf15d6d2a98eab949ee8a802ad2b8c15819279bfcaa6d",
+    "ordinary_pool": "387d597721c89b756c10d3766e7d263d64e999d2d3fac6d294f5472d0c3e8ac4",
+    "stage_gates": "bec569b4521e231b9c7a8f55e82f6e46734914516b8dfc6fe8889d711b26d03e"
+  },
+  "code_file_sha256": {
+    "experiments/swarm_arena/scripts/bind_runtime_certificate.py": "c846711c090b7633d8a9ea67e67a3f10027536896d24d9056af590a6f42b67f6",
+    "experiments/swarm_arena/scripts/capture_runtime_parity_probe.py": "0bfd03460d3f94a1e02fe93c845cefa98a4322175493e8d23e66e9d79b897d0b",
+    "experiments/swarm_arena/scripts/freeze_v14_6_parity_stable_execution.py": "4c4ebf59b68aa3383c17aa1d17cff8a7ba43fb5e1133359639ef0afb8e062df2",
+    "experiments/swarm_arena/scripts/launch_inference_pool.sh": "5718cfa2114e31fa37c403d16b4b324e5e6b9c4eca5852478e869fee800fa1ae",
+    "experiments/swarm_arena/scripts/launch_staged_rl.sh": "bf1d31e49f08eca6465b66e20e0a89b2a1ce9f969f85467b24a522b40498d673",
+    "experiments/swarm_arena/scripts/preflight_staged_rl.py": "567fc316fda4fadc54f9e7852d1da65c84aa1a543fdb28e4e037ba4efdc05afb"
+  },
+  "execution": {
+    "all_policy_updates_atomic": true,
+    "first_spend_decision_update": 10,
+    "logical_update_reporting_separate_from_optimizer_steps": true,
+    "maximum_optimizer_updates": 40,
+    "maximum_parity_quarantines_per_ten_update_stage": 1,
+    "no_retry_until_favorable": true,
+    "no_seed_search": true,
+    "parity_failure_optimizer_action": "discard_complete_atomic_update",
+    "parity_failure_sampling_action": "advance_without_replacement",
+    "parity_failure_scheduler_action": "do_not_step",
+    "restart_from_parent_initializer": "V13 update 80",
+    "resume_rejected_v14_3_run": false,
+    "resume_restores_append_only_quarantine_counts": true,
+    "runtime_probe_concurrency_per_server": 4,
+    "runtime_probe_samples": 128,
+    "runtime_probe_samples_per_policy": 32,
+    "runtime_probe_uses_production_like_batching": true,
+    "second_parity_failure_in_stage": "abort_before_optimizer_step",
+    "selection_input": "complete preceding training stage only",
+    "serving_profile": "parity_stable_l40s_v1",
+    "stage_gate_steps": [
+      10,
+      20,
+      30,
+      40
+    ],
+    "stage_updates": 10,
+    "zero_advantage_batch_action": "telemetry_only_continue"
+  },
+  "frozen_data_opened": false,
+  "gpu_budget": {
+    "assumed_hourly_usd": 6.0,
+    "auto_stop": "at failed stage gate, hard budget, or completed final artifact sync",
+    "maximum_usd": 60.0,
+    "maximum_wall_hours": 9.0,
+    "never_rent_before_cpu_and_zero_update_preflight_pass": true,
+    "target_hardware": "single 4x or 8x NVIDIA L40/L40S"
+  },
+  "inference": {
+    "async_scheduling": false,
+    "config": "experiments/swarm_arena/configs/inference_4b_l40s_parity_strict.toml",
+    "config_file_sha256": "fa561ff94f8114ecb9de0bfb1f026a0d1656c9e2422321e36ba5aaf191d725a2",
+    "enforce_eager": true,
+    "generation_config": "vllm",
+    "max_num_seqs": 4,
+    "native_rms_norm_kernels": true
+  },
+  "initializer": {
+    "claim_boundary": "continuation warm start, not a communication-claim pass",
+    "policy_adapter_sha256": {
+      "blue-0": "24ccd2920d79e65c24bc47bd1e9c1318fb8ca6b582a6651273ab2a53749e2d53",
+      "blue-1": "deeb19976f8941a90a9b4dd1f72114e2926d28024d7b68bbe5c5834636f0ae7a",
+      "blue-2": "1612d158354327cd732aaad5e1978a28252af0cef91355aac201e48cd545da44",
+      "blue-3": "016402a737c9b9cf897f9e38879308b1f085d6871360cc1e464a21367a98637a"
+    },
+    "policy_revision": "9eec6d60cae1b11179f9b421b7bdd23ad456b3da912cb9d13a901f1337992228",
+    "run": "rl-v13-role-adaptive4b80-21d756d1",
+    "step": 80
+  },
+  "launch_contract": {
+    "base_repo": "Qwen/Qwen3-4B-Instruct-2507",
+    "base_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+    "cpu_rehearsal_before_rental": true,
+    "eight_gpu_initial_profile": {
+      "inference_gpu_ids": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "rollout_ports": [
+        8001,
+        8002,
+        8003,
+        8004,
+        8005,
+        8006
+      ],
+      "trainer_gpu_ids": [
+        0,
+        1
+      ]
+    },
+    "four_gpu_default": {
+      "inference_gpu_ids": [
+        1,
+        2,
+        3
+      ],
+      "trainer_gpu_ids": [
+        0
+      ]
+    },
+    "orchestrator_lora_schema": "student.model.lora",
+    "public_base_and_adapter_repo_ids_required": true,
+    "runtime_certificate_regenerated_for_exact_topology": true,
+    "runtime_topology_must_assign_every_gpu_exactly_once": true,
+    "topology_profile_inputs": "operational_timings_only",
+    "topology_profile_minimum_updates": 3,
+    "uv_argv": [
+      "run",
+      "--frozen",
+      "--extra",
+      "flash-attn"
+    ]
+  },
+  "parent_cpu_bundle_sha256": "8631449b372fafb1e3affbfbedf55b4996853468281b46d362651f6e24b55586",
+  "plan": {
+    "path": "experiments/swarm_arena/V14_6_EXECUTION_PLAN.md",
+    "sha256": "956ef938a3dda2d51c397c56a632b5b1db34e78aee874de46c14b81890ed4e51"
+  },
+  "preventive_fixes": [
+    "eager vLLM execution",
+    "synchronous scheduling",
+    "neutral vLLM generation config",
+    "native RMSNorm serving kernels",
+    "four-sequence serving cap",
+    "production-like concurrent runtime parity certification"
+  ],
+  "required_preflight": [
+    "publish and anonymously verify the exact V14.6 source and bundle",
+    "bind the strict inference config to the exact runtime certificate",
+    "capture 128 predetermined parity decisions at concurrency four",
+    "pass pooled and policy-local parity under unchanged thresholds",
+    "complete the unchanged 192-row update-zero evaluation",
+    "arm exact-pod recovery, idle, terminal, budget, and teardown supervisors"
+  ],
+  "routing": {
+    "curriculum_sha256": "197e50e9253798f75a83d29e306c321618c7b9633d3b86b4133e54bb0bb8e0e5",
+    "development_or_frozen_feedback": false,
+    "fresh_rollouts_only": true,
+    "ordinary_case_pool_sha256": "4d39e513aeb5a83b1cd836f3ea1a6e591fa8a312ffa868131aed429016b44999",
+    "pilot_assessment_sha256": "ba8abe53e1d973600f6c9c9c1690354cb9009d122586883e265fc98857bc3087",
+    "pilot_trajectories_used_for_optimization": false,
+    "policy_modes": {
+      "blue-0": "expand",
+      "blue-1": "consolidate",
+      "blue-2": "consolidate",
+      "blue-3": "discover"
+    },
+    "stage_gate_sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2"
+  },
+  "sha256": "5dd516d131ee1459d4d9f3007b96cf18e82ca83106f7195a88c60780f6697cea",
+  "status": "cpu_validated",
+  "stop_contract": "stage-gate rejection, hard budget, TTL, operationally unrecoverable fault, or verified completion requires compact sync and immediate exact-instance teardown",
+  "trainer": {
+    "config": "experiments/swarm_arena/configs/rl_v14_5_4b_policy_routed_40.toml",
+    "config_file_sha256": "d6e257658468c6e49c29ebdda3a77b987047b9f0592b7daa7274ec55fdd41115",
+    "optimization_dtype_changed": false,
+    "parity_recovery": {
+      "action": "quarantine_logical_update",
+      "max_quarantined_updates_per_window": 1,
+      "window_size": 10
+    },
+    "parity_thresholds": {
+      "max_mean_logprob_error": 0.25,
+      "max_mean_mismatch_kl": 0.002,
+      "probability_tail_threshold": 0.05
+    },
+    "prior_config_file_sha256": "efd3cb87221e7a0dafa055ce67959e6b8a16962264a9e7ff14bdc1c94ebc83c9",
+    "reduce_dtype_changed": false,
+    "unchanged_scientific_body_sha256": "d385f2a678ba548b9325591a27d71d362a5ecc79f9085b3c7153ea979b11ab74"
+  },
+  "v14_5_observed_failure": {
+    "durable_optimizer_steps": 2,
+    "final_pod_cost_usd": 5.36,
+    "first_failed_mean_mismatch_kl": 0.011002085,
+    "logical_updates_attempted": 4,
+    "pod_decommissioned": true,
+    "quarantined_logical_updates": [
+      1
+    ],
+    "second_failed_logical_update": 4,
+    "second_failed_mean_mismatch_kl": 0.003157224,
+    "stage_gate_evaluated": false,
+    "threshold": 0.002,
+    "update_zero_passed": true,
+    "update_zero_rows": 192
+  },
+  "version": "arena-rl-v14.6-parity-stable-execution-v1"
+}

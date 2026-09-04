@@ -88,8 +88,11 @@ tree, missing public inputs, an existing progress file, insufficient disk,
 wrong checkpoint retention, the wrong opponent rotation, unavailable servers,
 or a non-idle trainer GPU.
 
-The two runtime probes are deliberately small. They are a few minutes of
-insurance against wasting a roughly half-day training run; they are not an
+The two runtime probes are deliberately bounded. The standard profile uses 32
+sequential decisions. After a production-only numerical tail escapes that
+probe, the parity-stable profile uses 128 predetermined decisions with four
+concurrent requests per server and the preflight requires those exact capture settings. Both
+are insurance against wasting a roughly half-day training run; neither is an
 evaluation result.
 
 ## Build the immutable runtime plan
@@ -169,6 +172,13 @@ parity probe, certificate, preflight, pulse evaluator, and controller. Run the
 trainer-side parity command and the staged trainer with
 `CUDA_VISIBLE_DEVICES=0,1 --nproc-per-node=2`. The runtime certificate binds
 the complete partition; a different split requires a fresh certificate.
+
+For the V14.6 parity-stable profile, use
+`configs/inference_4b_l40s_parity_strict.toml` and capture the parity probe with
+`--samples 128 --concurrency 4`. The certificate records the sample count and
+per-server concurrency, and staged
+preflight rejects a strict serving certificate produced with any other capture
+shape.
 
 Set `SWARM_RUNTIME_CERTIFICATE` to that final file before invoking
 `scripts/launch_staged_rl.sh`. The launcher runs the full preflight itself and

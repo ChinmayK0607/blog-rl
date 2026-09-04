@@ -57,6 +57,7 @@ async def main() -> None:
     parser.add_argument("--initial-policy-adapter-manifest", type=Path)
     parser.add_argument("--base-url", action="append", required=True)
     parser.add_argument("--samples", type=int, default=32)
+    parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.samples < 8 or args.samples % 8:
@@ -67,6 +68,8 @@ async def main() -> None:
         parser.error("runtime parity capture requires distinct rollout servers")
     if len(args.base_url) > args.samples:
         parser.error("runtime parity capture requires at least one sample per server")
+    if args.concurrency < 1 or args.concurrency > args.samples:
+        parser.error("concurrency must be between one and the sample count")
     from probe_constrained_rollout import sha256_file
 
     actual_adapter_sha256 = sha256_file(args.adapter / "adapter_model.safetensors")
@@ -86,7 +89,7 @@ async def main() -> None:
 
     samples = []
     async with VLLMChoiceGenerator(args.tokenizer) as generator:
-        for sample_index in range(args.samples):
+        async def capture_sample(sample_index: int) -> dict:
             seed = 7_100_000 + sample_index // 8
             agent_index = (sample_index // 2) % 4
             agent_id = f"blue-{agent_index}"
@@ -139,29 +142,34 @@ async def main() -> None:
                 messages,
                 sampling_key=f"runtime-parity:{sample_index}:{phase}:{agent_id}",
             )
-            samples.append(
-                {
-                    "decision_id": f"runtime-parity-{sample_index}",
-                    "game_id": f"runtime-parity-seed-{seed}",
-                    "replica_index": 0,
-                    "agent_id": agent_id,
-                    "policy_id": endpoint.policy_id,
-                    "policy_slot": agent_index,
-                    "phase": phase,
-                    "turn": 0,
-                    "prompt_ids": list(completion.prompt_ids),
-                    "completion_ids": list(completion.completion_ids),
-                    "completion_logprobs": list(completion.logprobs),
-                    "allowed_token_ids": [
-                        list(row) for row in completion.allowed_token_ids
-                    ],
-                    "serving_allowed_logprobs": [
-                        [list(value) for value in row]
-                        for row in completion.serving_allowed_logprobs
-                    ],
-                    "request_sha256": completion.request_sha256,
-                    "server_url": endpoint.base_urls[0],
-                }
+            return {
+                "decision_id": f"runtime-parity-{sample_index}",
+                "game_id": f"runtime-parity-seed-{seed}",
+                "replica_index": 0,
+                "agent_id": agent_id,
+                "policy_id": endpoint.policy_id,
+                "policy_slot": agent_index,
+                "phase": phase,
+                "turn": 0,
+                "prompt_ids": list(completion.prompt_ids),
+                "completion_ids": list(completion.completion_ids),
+                "completion_logprobs": list(completion.logprobs),
+                "allowed_token_ids": [list(row) for row in completion.allowed_token_ids],
+                "serving_allowed_logprobs": [
+                    [list(value) for value in row]
+                    for row in completion.serving_allowed_logprobs
+                ],
+                "request_sha256": completion.request_sha256,
+                "server_url": endpoint.base_urls[0],
+            }
+
+        batch_width = args.concurrency * len(base_urls)
+        for start in range(0, args.samples, batch_width):
+            stop = min(start + batch_width, args.samples)
+            samples.extend(
+                await asyncio.gather(
+                    *(capture_sample(sample_index) for sample_index in range(start, stop))
+                )
             )
 
     result = {
@@ -178,6 +186,7 @@ async def main() -> None:
         },
         "servers": len(base_urls),
         "base_urls": list(base_urls),
+        "capture_concurrency_per_server": args.concurrency,
         "samples": samples,
     }
     if args.output.exists():
