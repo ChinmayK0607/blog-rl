@@ -1,0 +1,200 @@
+{
+  "variant_a_step12": {
+    "candidate_normal_protocol": {
+      "action_protocol_rate": 1.0,
+      "broadcast_grounded_rate": 1.0,
+      "broadcast_protocol_rate": 1.0
+    },
+    "candidate_normal_return_by_opponent": {
+      "base": 0.023809523809523808,
+      "historical_league": 0.047619047619047616,
+      "sft": 0.04761904761904762
+    },
+    "critical_normal_minus_intervention": {
+      "delayed": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      },
+      "dropped": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      },
+      "sender_shuffled": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      },
+      "zero_budget": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      }
+    },
+    "critical_sft_normal_minus_dropped": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 6,
+      "positive_rate": 0
+    },
+    "decoy_candidate_normal_minus_dropped": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 6,
+      "positive_rate": 0
+    },
+    "ordinary_candidate_minus_sft": {
+      "max": 0.21428571428571427,
+      "mean_difference": 0.08333333333333331,
+      "min": 0.0,
+      "paired_cells": 6,
+      "positive_rate": 0.6666666666666666
+    },
+    "rows": 66,
+    "scope": "development-only checkpoint selection; frozen OOD remains unopened",
+    "version": "arena-final-eval-development-v2"
+  },
+  "variant_b_step4": {
+    "candidate_normal_protocol": {
+      "action_protocol_rate": 1.0,
+      "broadcast_grounded_rate": 1.0,
+      "broadcast_protocol_rate": 1.0
+    },
+    "candidate_normal_return_by_opponent": {
+      "base": -0.011904761904761904,
+      "historical_league": 0.011904761904761904,
+      "sft": 0.011904761904761904
+    },
+    "critical_normal_minus_intervention": {
+      "delayed": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      },
+      "dropped": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      },
+      "sender_shuffled": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      },
+      "zero_budget": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      }
+    },
+    "critical_sft_normal_minus_dropped": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 6,
+      "positive_rate": 0
+    },
+    "decoy_candidate_normal_minus_dropped": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 6,
+      "positive_rate": 0
+    },
+    "ordinary_candidate_minus_sft": {
+      "max": 0.07142857142857142,
+      "mean_difference": 0.03571428571428571,
+      "min": 0.0,
+      "paired_cells": 6,
+      "positive_rate": 0.5
+    },
+    "rows": 66,
+    "scope": "development-only checkpoint selection; frozen OOD remains unopened",
+    "version": "arena-final-eval-development-v2"
+  },
+  "variant_a_step8": {
+    "candidate_normal_protocol": {
+      "action_protocol_rate": 1.0,
+      "broadcast_grounded_rate": 1.0,
+      "broadcast_protocol_rate": 1.0
+    },
+    "candidate_normal_return_by_opponent": {
+      "base": 0.03571428571428572,
+      "historical_league": 0.047619047619047616,
+      "sft": 0.047619047619047616
+    },
+    "critical_normal_minus_intervention": {
+      "delayed": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      },
+      "dropped": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      },
+      "sender_shuffled": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      },
+      "zero_budget": {
+        "max": 0.0,
+        "mean_difference": 0.0,
+        "min": 0.0,
+        "paired_cells": 6,
+        "positive_rate": 0
+      }
+    },
+    "critical_sft_normal_minus_dropped": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 6,
+      "positive_rate": 0
+    },
+    "decoy_candidate_normal_minus_dropped": {
+      "max": 0.0,
+      "mean_difference": 0.0,
+      "min": 0.0,
+      "paired_cells": 6,
+      "positive_rate": 0
+    },
+    "ordinary_candidate_minus_sft": {
+      "max": 0.35714285714285715,
+      "mean_difference": 0.15476190476190474,
+      "min": -0.07142857142857142,
+      "paired_cells": 6,
+      "positive_rate": 0.5
+    },
+    "rows": 66,
+    "scope": "development-only checkpoint selection; frozen OOD remains unopened",
+    "version": "arena-final-eval-development-v2"
+  }
+}

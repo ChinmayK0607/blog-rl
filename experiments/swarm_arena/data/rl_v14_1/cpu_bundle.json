@@ -1,0 +1,67 @@
+{
+  "artifact_file_sha256": {
+    "admission_limits": "07d0de3800ff692fd15bb5a6a70ee96ce66e39a77c5091ccaf564985977e0adc",
+    "audit": "5df8e2006fe2ee14c3cb615f542ed8b1286bf9c433f5494753d6ab19b5faa068",
+    "base_plan": "725862d1ed4d9d8f0857868241aa641415241e13aab739277f3a6e7364702556",
+    "curriculum": "46d44967baee5b084f4752b40ff67b619ce572d8ce3497b104cbbcfe77fac41c",
+    "handoff_manifest": "a5c3eba07055f1afb7129a031e0954a454fa3a4f1b31704174b699b54c77967b",
+    "ordinary_case_pool": "6c747e4a90dc0bdf93c17412f226cdb2d79949917ce3d919036a308545fa4763",
+    "ordinary_frontier_screen": "36bc02d60ec7690f77a8b6a400faae2ee23771a8a5b4e4f5677ffe0375c57cf4",
+    "stage_gates": "bec569b4521e231b9c7a8f55e82f6e46734914516b8dfc6fe8889d711b26d03e",
+    "trainer_config": "2cdd1d6e413c1a9849c01cadfebcf294074f0a19cb53db6f6a7c02fdcc0147c2"
+  },
+  "code_file_sha256": {
+    "experiments/swarm_arena/scripts/assess_v13_ordinary_signal_screen.py": "9c62b8d78656f9ad2962650c34608b6efc63b3e82cbc776c47df835606d5d4a3",
+    "experiments/swarm_arena/scripts/build_staged_rl_plan.py": "e6a2b1186658ba2943dee5e4c7a163aa9dc2c64de35fed6dd26dfd4d8a3415e6",
+    "experiments/swarm_arena/scripts/build_v14_ordinary_frontier_repair.py": "8f2d71048e8b3a3557c4dfd63c5c4ffd064fccd0e44947410acaa0d8c109c183",
+    "experiments/swarm_arena/scripts/freeze_v14_1_cpu_bundle.py": "fbc6743e91a194740ab02da3317bf6beb5737ea0b8504017c18fdbefa141149c",
+    "experiments/swarm_arena/scripts/run_live_rl.py": "f615e8831dfaf25a66d0cd54c00fe010ca76b1f7436719c7f79bbeecfd309ff9",
+    "experiments/swarm_arena/scripts/run_v13_ordinary_signal_screen.py": "3c3e7fd7b101708fdb76c475b0fbd20b449e1e80770e2d3f9e5884908232ff51",
+    "experiments/swarm_arena/swarm_ctf_eval/adaptive_curriculum.py": "be442710558b58268222474defbbf5dc8d890acce3501bf5884dfd9f9d0c7994",
+    "experiments/swarm_arena/swarm_ctf_eval/rl_production.py": "a33bd27c54ad478deb1277c4f75a299b8ee17442c3c37c7756ddf72558382c3e"
+  },
+  "frozen_data_opened": false,
+  "gpu_budget": {
+    "assumed_hourly_usd": 1.52,
+    "auto_stop": "at failed stage gate, hard budget, or completed final artifact sync",
+    "maximum_usd": 15.0,
+    "maximum_wall_hours": 9.0,
+    "never_rent_before_cpu_and_zero_update_preflight_pass": true,
+    "target_hardware": "4xL40S"
+  },
+  "initializer": {
+    "claim_boundary": "continuation warm start, not a communication-claim pass",
+    "policy_adapter_sha256": {
+      "blue-0": "24ccd2920d79e65c24bc47bd1e9c1318fb8ca6b582a6651273ab2a53749e2d53",
+      "blue-1": "deeb19976f8941a90a9b4dd1f72114e2926d28024d7b68bbe5c5834636f0ae7a",
+      "blue-2": "1612d158354327cd732aaad5e1978a28252af0cef91355aac201e48cd545da44",
+      "blue-3": "016402a737c9b9cf897f9e38879308b1f085d6871360cc1e464a21367a98637a"
+    },
+    "policy_revision": "9eec6d60cae1b11179f9b421b7bdd23ad456b3da912cb9d13a901f1337992228",
+    "run": "rl-v13-role-adaptive4b80-21d756d1",
+    "step": 80
+  },
+  "optimizer_updates_authorized": 0,
+  "repair": {
+    "curriculum_sha256": "eb40420decf44d8b58b8e8a7a33333a710ef5c445a249bebe1a5fcb93578d5e1",
+    "failed_assessment_sha256": "5e72fd994091608ef99518b646f8ddc6df5b44607e032c9068e845b519906884",
+    "ordinary_case_pool_cases": 128,
+    "ordinary_case_pool_sha256": "521fb25bdd04d45524124bb8bea3f1aec1958b141ee01730f1ecfc6e51103d28",
+    "screen_cases": 32,
+    "screen_games": 128,
+    "screen_manifest_sha256": "6ce147cf145918ab4f32d56512b500f63a34bc3bd1981585afee985033c0df7b",
+    "stage_gate_sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2",
+    "thresholds_unchanged": true
+  },
+  "required_preflight": [
+    "exact source commit is published and anonymously verified",
+    "HF write credential availability is verified before renting",
+    "runtime certificate and parity pass on the exact serving stack",
+    "32-case / 128-game ordinary frontier screen passes every unchanged gate",
+    "HF compact mirror, W&B, watcher, recovery, spend, and exact-pod teardown are armed before update 1"
+  ],
+  "sha256": "ce84f961050b470407ddc3c18f41223dd55c81c37b81563a82922d2d2e12bae4",
+  "status": "cpu_frozen_source_publication_and_gpu_screen_pending",
+  "stop_contract": "screen rejection, stage-gate rejection, hard budget, or verified completion requires evidence sync and immediate exact-pod teardown",
+  "version": "arena-rl-v14.1-cpu-bundle-v1"
+}

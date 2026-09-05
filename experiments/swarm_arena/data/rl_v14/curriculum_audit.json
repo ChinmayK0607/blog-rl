@@ -1,0 +1,77 @@
+{
+  "adaptive_curriculum": {
+    "bootstrap_classification_counts": {
+      "critical": {
+        "frontier": 8,
+        "mastered": 1,
+        "stalled": 1
+      },
+      "decoy": {
+        "frontier": 1,
+        "stalled": 1,
+        "unseen": 8
+      }
+    },
+    "config_sha256": "9da6618458d1c7d7ee29afbe393a0a1030e224eced023543806eb8107f42729b",
+    "development_or_frozen_data_used": false,
+    "later_stage_source": "immediately preceding completed training stage",
+    "ordinary_schedule_changed": false,
+    "v13_frontier_analysis_sha256": "1b903e9143d74496cdbfafb55451897ff1656c41a5953522e6c1526946679192"
+  },
+  "decoys_are_update_local_matched_critical_subset": true,
+  "frozen_data_opened": false,
+  "group_counts": {
+    "critical": 70,
+    "decoy": 40,
+    "ordinary": 50
+  },
+  "launch_ready": false,
+  "old_plan_hash_compatibility_required": true,
+  "ordinary_seeds_unique": true,
+  "receiver_counts": {
+    "critical": {
+      "blue-0": 18,
+      "blue-1": 18,
+      "blue-2": 17,
+      "blue-3": 17
+    },
+    "decoy": {
+      "blue-0": 10,
+      "blue-1": 10,
+      "blue-2": 10,
+      "blue-3": 10
+    }
+  },
+  "remaining_blockers": [
+    "render immutable V14 production/trainer configs from a fresh runtime certificate",
+    "run zero-update ordinary signal and multiturn exact-replay preflight",
+    "verify public V13-u80 adapter hashes on the eventual GPU host",
+    "verify HF mirror, W&B, watcher, recovery supervisor, and hard budget cutoff"
+  ],
+  "schedule_sha256": "6656b76537e19fb4cc1b7f6d2be53db6c3e921ef6e9ab92427229741d654f59e",
+  "stage_offsets": {
+    "long_horizon_conversion": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "specificity_consolidation": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "three_turn_transfer": [
+      0,
+      1,
+      2
+    ],
+    "two_turn_mechanism": [
+      0,
+      1
+    ]
+  },
+  "status": "cpu_schedule_passed_gpu_preflight_pending",
+  "version": "arena-rl-v14-curriculum-audit-v1"
+}

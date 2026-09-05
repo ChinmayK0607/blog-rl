@@ -1,0 +1,13 @@
+{
+  "content_sha256": "4f5a5f964b1c2843cd718bc9d8bd010b8010a727186c8ed99daf633fca9211fe",
+  "dataset_version": "arena-warmstart-v3",
+  "replay_rows_requested": 1280,
+  "replay_source": "Qwen3-4B-Instruct-2507 deterministic responses to filtered UltraChat 200k prompts",
+  "train_by_source": {
+    "arena_protocol": 640,
+    "base_behavior_replay": 1280,
+    "instruction_preservation": 640
+  },
+  "train_examples": 2560,
+  "validation_examples": 192
+}

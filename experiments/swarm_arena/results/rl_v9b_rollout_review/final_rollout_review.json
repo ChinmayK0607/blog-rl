@@ -1,0 +1,62 @@
+{
+  "version": "swarm-v9b-final-rollout-review-v1",
+  "run_id": "rl-v9b-semantic4b60-34444777",
+  "review_scope": {
+    "training_updates": [40, 50, 60],
+    "source_steps": [39, 49, 59],
+    "groups": 12,
+    "critical_groups": 9,
+    "critical_replica_pairs": 36,
+    "ordinary_groups": 3
+  },
+  "source_evidence": {
+    "path_on_ephemeral_pod": "/workspace/runs/rl-v9b-semantic4b60-34444777/audit/shared_return_evidence.jsonl",
+    "records": 240,
+    "approximate_size": "848 MiB",
+    "sha256": "0054b82bb2442d6701ef9e4379b13edd154f26289d57a4793837f6330bc65d5d",
+    "full_file_publicly_mirrored": false
+  },
+  "aggregate_findings": {
+    "actual_active_target_actions": "32/36",
+    "swapped_alternate_target_actions": "36/36",
+    "message_conditioned_action_switches": "32/36",
+    "nonzero_terminal_return_effects": "4/36",
+    "nonzero_effect_with_unchanged_focused_action": "4/4",
+    "interpretation": "The learned message-to-action mapping is real and strong, but most reviewed late-curriculum candidate pairs were terminal-return equivalent. The only reviewed nonzero return effect occurred while the credited receiver action was unchanged, so it was mediated by other teammates and is noisy focused-agent credit."
+  },
+  "milestones": {
+    "step_39": {
+      "critical_action_switches": "8/12",
+      "nonzero_return_effects": "4/12",
+      "ordinary_return": 0.10344827586206898,
+      "ordinary_actions": ["PROBE", "WAIT", "CAPTURE"]
+    },
+    "step_49": {
+      "critical_action_switches": "12/12",
+      "nonzero_return_effects": "0/12",
+      "ordinary_return": 0.20689655172413793,
+      "ordinary_actions": ["PROBE", "WAIT", "CAPTURE"]
+    },
+    "step_59": {
+      "critical_action_switches": "12/12",
+      "nonzero_return_effects": "0/12",
+      "ordinary_return": 0.06896551724137931,
+      "ordinary_actions": ["RECOVER", "WAIT", "FORTIFY"]
+    }
+  },
+  "reviewed_records": [
+    {"sequence": 156, "record_sha256": "63a5221876e11615b477537e86593f10541353f38e1079913628e41dcb43ae07"},
+    {"sequence": 157, "record_sha256": "0ba487bcba66addb6ba304c5091aab295a502b84370dd04e5414814678206a47"},
+    {"sequence": 158, "record_sha256": "3c8c644dfc9992c437dba2029946cdc4097d1cef606329720a4bb888d2108abf"},
+    {"sequence": 159, "record_sha256": "8bfedf7604a57adab72942fd4f5069b0b82a150be1db5db37201836802527528"},
+    {"sequence": 196, "record_sha256": "7b329f64791680a7ef7c6a0e842212b083e0e3103b79ebfd68b7cdae2cb0daf0"},
+    {"sequence": 197, "record_sha256": "04a88b2b296c30b5021b14886c8f3bc2af1d0be083b631edd9de8afd96750570"},
+    {"sequence": 198, "record_sha256": "d91e43494ced9d2f32001bbae9b634523846309a159b594f381003a0497644d0"},
+    {"sequence": 199, "record_sha256": "b3d927cf76a201fd229129bc05daeb901c2ebc95618f180393253575fafd8ce9"},
+    {"sequence": 236, "record_sha256": "77b39f7a73c48a1ff8ee26d6194982f218775ba9daf9150dd773abc3700e8f50"},
+    {"sequence": 237, "record_sha256": "d893d92aae77f9379e9bd4d5b0961638e091cc5d767e9e48ed133f262875b54a"},
+    {"sequence": 238, "record_sha256": "0d9f4beadeec82003867889fd9a56517340129daac4fc5f75cb5eae8b1d774d6"},
+    {"sequence": 239, "record_sha256": "c0676f3e0c7315f2fcbcd33080851181dbebde41ad7cca8d8a77561177c38eba"}
+  ],
+  "claim_boundary": "The evidence supports learned causal message-conditioned target selection and a positive aggregate held-out endpoint effect. It does not establish robust emergent swarm intelligence or clean per-agent credit assignment."
+}

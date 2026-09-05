@@ -1,0 +1,58 @@
+{
+  "promotion_rule": "all gates must pass on the frozen development split",
+  "reward": "terminal_control_delta_only",
+  "stages": [
+    {
+      "gates": {
+        "critical_normal_minus_dropped_min": 0.02,
+        "decoy_normal_minus_dropped_abs_max": 0.01,
+        "min_opponents_passed": 3,
+        "protocol_validity_min": 0.995
+      },
+      "horizon": 2,
+      "mixture": {
+        "certified_critical": 0.5,
+        "matched_decoy": 0.5
+      },
+      "stage": 1,
+      "status": "ready"
+    },
+    {
+      "gates": {
+        "critical_all_intervention_effects_positive": true,
+        "no_single_opponent_failure": true,
+        "ordinary_return_non_regression": true
+      },
+      "horizon": [
+        2,
+        3
+      ],
+      "mixture": {
+        "certified_critical": 0.25,
+        "matched_decoy": 0.25,
+        "ordinary_procedural": 0.5
+      },
+      "stage": 2,
+      "status": "planned_after_rollout_integration"
+    },
+    {
+      "gates": {
+        "communication_effect_persists": true,
+        "frozen_ood_capability_improves": true,
+        "regression_suites_pass": true
+      },
+      "horizon": [
+        4,
+        6
+      ],
+      "mixture": {
+        "certified_critical": 0.125,
+        "matched_decoy": 0.125,
+        "ordinary_procedural": 0.75
+      },
+      "stage": 3,
+      "status": "planned_after_rollout_integration"
+    }
+  ],
+  "version": "arena-rl-v3-curriculum-v1"
+}

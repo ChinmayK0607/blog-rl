@@ -1,0 +1,34 @@
+{
+  "decoys_are_matched_critical_subset": true,
+  "frozen_data_used": false,
+  "group_counts": {
+    "critical": 100,
+    "decoy": 80,
+    "ordinary": 140
+  },
+  "launch_ready": false,
+  "ordinary_seeds_unique": true,
+  "receiver_counts": {
+    "critical": {
+      "blue-0": 28,
+      "blue-1": 18,
+      "blue-2": 30,
+      "blue-3": 24
+    },
+    "decoy": {
+      "blue-0": 23,
+      "blue-1": 13,
+      "blue-2": 25,
+      "blue-3": 19
+    }
+  },
+  "remaining_blockers": [
+    "run training-only ordinary pass@4 signal screen"
+  ],
+  "schedule_sha256": "b55afd36a347e07fa2c12ddcc5fca0df1763c9ffddab990557616f00839aa6b7",
+  "selection_file_sha256": "2210a5346f2b8cff9ade62c8d2bbc4239a76b40dc7f0717f022e257bc831f382",
+  "selection_sha256": "be881e3d207af37bca3e71c5605504ce4af68a47e27bae7433404b0a56a306a3",
+  "status": "cpu_schedule_passed_gpu_gates_pending",
+  "train_manifest_file_sha256": "12eae0b2752fd7c33c151d3b68c1f4a5f6e1960e18c0558aa5e4833c61cccbc2",
+  "version": "arena-rl-v13-curriculum-audit-v1"
+}

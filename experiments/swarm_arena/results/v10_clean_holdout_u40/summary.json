@@ -1,0 +1,547 @@
+{
+  "lock_sha256": "1a5bb75f165cbf320e9f9761064d2baa9d000533c537ad367e45a7518a9ffb32",
+  "rows": 4260,
+  "scope": "clean unexposed frozen remainder; one selected checkpoint",
+  "semantic": {
+    "by_opponent": {
+      "base": {
+        "definition": "candidate critical normal minus receiver-only target-swapped return vs base",
+        "independent_units": 22,
+        "mean_difference": 0.03841864957066503,
+        "mean_difference_95": [
+          0.01784858296140001,
+          0.05974685321216361
+        ],
+        "positive_unit_rate": 0.6818181818181818,
+        "unit_effects_sha256": "f37a330727a3f9d95e974c47b15022f139129fe0b2b6f3d9576fe3a8e3233c62"
+      },
+      "historical_league": {
+        "definition": "candidate critical normal minus receiver-only target-swapped return vs historical_league",
+        "independent_units": 22,
+        "mean_difference": 0.023608864945141632,
+        "mean_difference_95": [
+          0.0005610569009741774,
+          0.047975215135238614
+        ],
+        "positive_unit_rate": 0.5909090909090909,
+        "unit_effects_sha256": "9cecc367001a5e34c52ebd13bd55220ca84b10f60e11e2dc9faa4a4251fff0d7"
+      },
+      "sft": {
+        "definition": "candidate critical normal minus receiver-only target-swapped return vs sft",
+        "independent_units": 22,
+        "mean_difference": 0.03421584286536374,
+        "mean_difference_95": [
+          0.005886348748951483,
+          0.06257860979843424
+        ],
+        "positive_unit_rate": 0.7727272727272727,
+        "unit_effects_sha256": "59cae57eddc39dd2c536ae3869ab83b5299125a477145479287ae98721409c80"
+      }
+    },
+    "candidate_critical_normal_minus_target_swapped": {
+      "definition": "candidate critical normal minus receiver-only target-swapped terminal return (ITT)",
+      "independent_units": 22,
+      "mean_difference": 0.0320811191270568,
+      "mean_difference_95": [
+        0.015734208276535145,
+        0.05068184420110311
+      ],
+      "positive_unit_rate": 0.7727272727272727,
+      "unit_effects_sha256": "064dbe6f428d5a76fa62fae1c40c2281981399ccc621543cee6573e743999c8d"
+    },
+    "candidate_normal_receiver_target_action_rate": {
+      "definition": "candidate_rl handoff_critical normal receiver_target_action",
+      "independent_units": 22,
+      "mean": 0.7803030303030303,
+      "mean_95": [
+        0.6628787878787878,
+        0.8863636363636364
+      ],
+      "values_sha256": "1a31db77dbf244f3134e74e9904281120c97e187a8cc23c43a668e2f9a32655d"
+    },
+    "candidate_normal_sender_target_fact_rate": {
+      "definition": "candidate_rl handoff_critical normal sender_target_fact",
+      "independent_units": 22,
+      "mean": 0.8825757575757576,
+      "mean_95": [
+        0.7537878787878788,
+        0.9848484848484849
+      ],
+      "values_sha256": "d683e08e78fcdcac6b82b4481c25bdd504180cb87ab9cccfb2d11dd555a49fb9"
+    },
+    "candidate_swapped_receiver_target_action_rate": {
+      "definition": "candidate_rl handoff_critical target_swapped receiver_target_action",
+      "independent_units": 22,
+      "mean": 0.21212121212121213,
+      "mean_95": [
+        0.11742424242424242,
+        0.3068181818181818
+      ],
+      "values_sha256": "7e495edbc475b61874b1fdf3fc8e8d89f727ade23dd89b1378d485b0f8056bf9"
+    },
+    "candidate_target_swap_eligibility": {
+      "definition": "candidate_rl handoff_critical target_swapped target_swap_eligible",
+      "independent_units": 22,
+      "mean": 0.8825757575757576,
+      "mean_95": [
+        0.75,
+        0.9924242424242424
+      ],
+      "values_sha256": "6ea846ac26a08f05dafd66c7838a4d5a1bef28524bddca5a4142a27a22f009c0"
+    },
+    "claim_checks": {
+      "candidate_semantic_interval_positive": true,
+      "candidate_swap_eligibility_at_least_80pct": true,
+      "critical_specificity_interval_positive": false,
+      "effect_positive_against_every_opponent": true,
+      "receiver_action_gap_interval_positive": true,
+      "rl_specific_semantic_interval_positive": false
+    },
+    "critical_minus_decoy_semantic_specificity": {
+      "definition": "candidate critical-minus-decoy receiver-only target-swap sensitivity",
+      "independent_units": 22,
+      "mean_difference": 0.013163871509255444,
+      "mean_difference_95": [
+        -0.0022569244466701856,
+        0.029060355499184537
+      ],
+      "positive_unit_rate": 0.6363636363636364,
+      "unit_effects_sha256": "0fd52cc35b8bce741addc41c367885e23e83877347a54d19984a4505640d7e34"
+    },
+    "estimand": "intention-to-treat: ineligible sender messages remain zero-strength interventions rather than being retried or discarded",
+    "independent_unit": "two-world latent handoff bundle",
+    "receiver_target_action_gap": {
+      "definition": "candidate critical normal-minus-target-swapped receiver target-action rate",
+      "independent_units": 22,
+      "mean_difference": 0.5681818181818182,
+      "mean_difference_95": [
+        0.3939393939393939,
+        0.7348484848484849
+      ],
+      "positive_unit_rate": 0.8181818181818182,
+      "unit_effects_sha256": "295118f50ee00d3e0db9f103cf531bd81cd45831a7f95cdb56adbef5325c2dd3"
+    },
+    "rl_specific_semantic_lift": {
+      "definition": "candidate-minus-SFT receiver-only target-swap return sensitivity",
+      "independent_units": 22,
+      "mean_difference": 0.01940629614427787,
+      "mean_difference_95": [
+        -0.0003997905893253409,
+        0.038626235247862434
+      ],
+      "positive_unit_rate": 0.7727272727272727,
+      "unit_effects_sha256": "4cf8945fb25185bcec1b91037bca6d3106e15e127bd582127393215f46eb660a"
+    },
+    "sft_critical_normal_minus_target_swapped": {
+      "definition": "SFT critical normal minus receiver-only target-swapped terminal return (ITT)",
+      "independent_units": 22,
+      "mean_difference": 0.012674822982778928,
+      "mean_difference_95": [
+        -0.0020645734878366804,
+        0.02694563885174156
+      ],
+      "positive_unit_rate": 0.6363636363636364,
+      "unit_effects_sha256": "ff9226d6ce54bfe2a1b6dbb988adda7b3108eab996b1dfb5b017075e661c75db"
+    },
+    "sft_target_swap_eligibility": {
+      "definition": "sft_init handoff_critical target_swapped target_swap_eligible",
+      "independent_units": 22,
+      "mean": 0.8409090909090909,
+      "mean_95": [
+        0.7045454545454546,
+        0.9545454545454546
+      ],
+      "values_sha256": "9c41f8937994a58eaefe35e45553e39d241406fea441ced00eac97547766d562"
+    },
+    "version": "arena-rl-v10-clean-semantic-holdout-v1"
+  },
+  "standard": {
+    "candidate_protocol": {
+      "action_protocol_rate": 1.0,
+      "broadcast_grounded_rate": 1.0,
+      "broadcast_protocol_rate": 1.0
+    },
+    "candidate_protocol_denominators": {
+      "action_protocol_rate": {
+        "defined_rows": 2394,
+        "undefined_rows": 0
+      },
+      "broadcast_grounded_rate": {
+        "defined_rows": 2130,
+        "undefined_rows": 264
+      },
+      "broadcast_protocol_rate": {
+        "defined_rows": 2130,
+        "undefined_rows": 264
+      }
+    },
+    "capability_rl_minus_sft": {
+      "ordinary_hard": {
+        "definition": "candidate RL minus SFT, paired by map/opponent/side",
+        "independent_units": 22,
+        "mean_difference": 0.007536692962811296,
+        "mean_difference_95": [
+          -0.01546607397849345,
+          0.030230475742926765
+        ],
+        "paired_cells": 132,
+        "positive_unit_rate": 0.45454545454545453,
+        "unit_effects_sha256": "84b5d000979e5a4d05c234426c4755e0a50c09a6bf38c95448d9223f75e9f168"
+      },
+      "ordinary_legacy": {
+        "definition": "candidate RL minus SFT, paired by map/opponent/side",
+        "independent_units": 23,
+        "mean_difference": 0.00010705389039407492,
+        "mean_difference_95": [
+          -0.015349181909070846,
+          0.0162470026371004
+        ],
+        "paired_cells": 414,
+        "positive_unit_rate": 0.43478260869565216,
+        "unit_effects_sha256": "098316fdb9794638d2b04a1f4cd2192feefb46156d9e2554c7c70986d21eba46"
+      }
+    },
+    "claim_boundary": "A communication-learning claim requires more message sensitivity than the SFT initializer and more sensitivity on critical than matched-decoy cases. Absolute candidate message sensitivity alone is insufficient.",
+    "claim_checks": {
+      "all_tested_critical_intervention_intervals_positive": false,
+      "communication_claim_passed": false,
+      "critical_effect_positive_against_every_opponent": true,
+      "critical_minus_decoy_interval_positive": false,
+      "full_intervention_matrix": true,
+      "hard_capability_interval_positive": false,
+      "legacy_capability_interval_positive": false,
+      "matched_decoy_interval_includes_zero": true,
+      "rl_specific_lift_interval_positive": false
+    },
+    "communication_effects": {
+      "normal_minus_delayed": {
+        "definition": "critical handoff normal minus delayed",
+        "independent_units": 22,
+        "mean_difference": 0.022965067643853698,
+        "mean_difference_95": [
+          0.003262229134524252,
+          0.04341087323853237
+        ],
+        "paired_cells": 264,
+        "positive_unit_rate": 0.6818181818181818,
+        "unit_effects_sha256": "5a05db143bff7f098ed3867125966c6910586cbc7efa6fbb3ec84829bf6fdcb3"
+      },
+      "normal_minus_dropped": {
+        "definition": "critical handoff normal minus dropped",
+        "independent_units": 22,
+        "mean_difference": 0.02572085541872402,
+        "mean_difference_95": [
+          -0.0005504730790380357,
+          0.05181572331715159
+        ],
+        "paired_cells": 264,
+        "positive_unit_rate": 0.6363636363636364,
+        "unit_effects_sha256": "ae31a889ab9ad5295b4b18df14e3e33add560e2c131e96a15797184859a61d2a"
+      },
+      "normal_minus_sender_shuffled": {
+        "definition": "critical handoff normal minus sender_shuffled",
+        "independent_units": 22,
+        "mean_difference": 0.017971589226901813,
+        "mean_difference_95": [
+          0.0021362375023330615,
+          0.03539575731362863
+        ],
+        "paired_cells": 264,
+        "positive_unit_rate": 0.6363636363636364,
+        "unit_effects_sha256": "6b778ac70b7cccbaa6ad39e5c3e2d4f6182b27318f08ed0c93185b74c322e024"
+      },
+      "normal_minus_zero_budget": {
+        "definition": "critical handoff normal minus zero_budget",
+        "independent_units": 22,
+        "mean_difference": 0.013325295904177083,
+        "mean_difference_95": [
+          -0.012256533986815936,
+          0.04010237524395579
+        ],
+        "paired_cells": 264,
+        "positive_unit_rate": 0.5909090909090909,
+        "unit_effects_sha256": "0a96f991a031d7d8ed822d3a3d2185558acd7c4b71d0d97a0abd4a75f8df498c"
+      }
+    },
+    "communication_effects_by_opponent": {
+      "base": {
+        "normal_minus_delayed": {
+          "definition": "critical handoff normal minus delayed vs base",
+          "independent_units": 22,
+          "mean_difference": 0.02661510721146798,
+          "mean_difference_95": [
+            2.1829879871248737e-05,
+            0.055764489837813944
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.5454545454545454,
+          "unit_effects_sha256": "e10d0d1db58c66dfad8a3fdf12148be5e12202f403f7f2ba868d27ab4a4e4c20"
+        },
+        "normal_minus_dropped": {
+          "definition": "critical handoff normal minus dropped vs base",
+          "independent_units": 22,
+          "mean_difference": 0.01351544676934616,
+          "mean_difference_95": [
+            -0.01571298494026158,
+            0.04505902549509652
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.5454545454545454,
+          "unit_effects_sha256": "5e186c9dc806e982a06074aaef1fc22a3b04297c6816910f10c1bb557ccf647c"
+        },
+        "normal_minus_sender_shuffled": {
+          "definition": "critical handoff normal minus sender_shuffled vs base",
+          "independent_units": 22,
+          "mean_difference": 0.026592623378144723,
+          "mean_difference_95": [
+            0.005766467801254112,
+            0.04896166092618705
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.6363636363636364,
+          "unit_effects_sha256": "0aa4705ca406a215f80b37a1cbd3dc0c979452282c4797480087d52f9463c0e3"
+        },
+        "normal_minus_zero_budget": {
+          "definition": "critical handoff normal minus zero_budget vs base",
+          "independent_units": 22,
+          "mean_difference": 0.012941024971778741,
+          "mean_difference_95": [
+            -0.019886687276061032,
+            0.04649398366354797
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.5454545454545454,
+          "unit_effects_sha256": "1941defa179c7164b0312e6614d00cfbdfbb75a7b935a164c24a04a406afbf0c"
+        }
+      },
+      "historical_league": {
+        "normal_minus_delayed": {
+          "definition": "critical handoff normal minus delayed vs historical_league",
+          "independent_units": 22,
+          "mean_difference": 0.01700773734683765,
+          "mean_difference_95": [
+            -0.00472316298667696,
+            0.04157095439341637
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.5909090909090909,
+          "unit_effects_sha256": "932077f19f2069f74eff9ff6fe104f2719938011be7278bae8d0ba76992c827a"
+        },
+        "normal_minus_dropped": {
+          "definition": "critical handoff normal minus dropped vs historical_league",
+          "independent_units": 22,
+          "mean_difference": 0.027831470828446118,
+          "mean_difference_95": [
+            -0.0023914811447733266,
+            0.05780324546923583
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.6818181818181818,
+          "unit_effects_sha256": "3cda057ef7fe5108246cb91fbcd89b1271a44d8d53274d223db1f28e3f439e69"
+        },
+        "normal_minus_sender_shuffled": {
+          "definition": "critical handoff normal minus sender_shuffled vs historical_league",
+          "independent_units": 22,
+          "mean_difference": 0.006175408575890019,
+          "mean_difference_95": [
+            -0.017745766326470916,
+            0.028378979873625677
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.5,
+          "unit_effects_sha256": "1f37cc6a0dd695d8900f66dc1565d7473be0598c8ec57965dfb03f50a1fdb957"
+        },
+        "normal_minus_zero_budget": {
+          "definition": "critical handoff normal minus zero_budget vs historical_league",
+          "independent_units": 22,
+          "mean_difference": 0.008356765816613402,
+          "mean_difference_95": [
+            -0.0213677736370288,
+            0.0372204689832149
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.5454545454545454,
+          "unit_effects_sha256": "487d3e65e8cfbd6e79bc6d67b81508c8cdd15aa7ce2413cc3ae45aa434db6101"
+        }
+      },
+      "sft": {
+        "normal_minus_delayed": {
+          "definition": "critical handoff normal minus delayed vs sft",
+          "independent_units": 22,
+          "mean_difference": 0.02527235837325546,
+          "mean_difference_95": [
+            0.00012261034231051006,
+            0.048766620440488996
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.6818181818181818,
+          "unit_effects_sha256": "23e233a9927ac4e79e876e45bedaf15243b313023f292259810b94b8f44a06ee"
+        },
+        "normal_minus_dropped": {
+          "definition": "critical handoff normal minus dropped vs sft",
+          "independent_units": 22,
+          "mean_difference": 0.03581564865837979,
+          "mean_difference_95": [
+            0.00626257160610835,
+            0.06583187754991532
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.7272727272727273,
+          "unit_effects_sha256": "d54ccc8f2fb49f2cd2de8c8e3ab5ecff979e3e72fc48489f15043281ed362340"
+        },
+        "normal_minus_sender_shuffled": {
+          "definition": "critical handoff normal minus sender_shuffled vs sft",
+          "independent_units": 22,
+          "mean_difference": 0.021146735726670703,
+          "mean_difference_95": [
+            -0.00010971138066402921,
+            0.04339037150773521
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.6363636363636364,
+          "unit_effects_sha256": "2504c139b391e0f1f00b327fec58d1b33bc4327557ed5b32c11983ed050a5c34"
+        },
+        "normal_minus_zero_budget": {
+          "definition": "critical handoff normal minus zero_budget vs sft",
+          "independent_units": 22,
+          "mean_difference": 0.018678096924139104,
+          "mean_difference_95": [
+            -0.008278304863703803,
+            0.04737385419713899
+          ],
+          "paired_cells": 88,
+          "positive_unit_rate": 0.6363636363636364,
+          "unit_effects_sha256": "8c28e0c79b0a0b10749f7abc53e34a4a052198b0c890b02f24becdbf0a0be746"
+        }
+      }
+    },
+    "communication_mechanism": {
+      "candidate_capture_normal_minus_dropped": {
+        "definition": "candidate critical capture rate under normal minus dropped messaging",
+        "independent_units": 22,
+        "mean_difference": 0.22348484848484848,
+        "mean_difference_95": [
+          0.12121212121212122,
+          0.32196969696969696
+        ],
+        "positive_unit_rate": 0.5909090909090909,
+        "unit_effects_sha256": "5b104d31f79789cfd33d36a2e0c03126418d4838066e4e765e94e2db5fd37dad"
+      },
+      "candidate_sender_target_fact_rate": {
+        "definition": "candidate_rl handoff_critical normal sender_target_fact rate",
+        "independent_units": 22,
+        "mean_difference": 0.8825757575757576,
+        "mean_difference_95": [
+          0.7537878787878788,
+          0.9848484848484849
+        ],
+        "positive_unit_rate": 0.9545454545454546,
+        "unit_effects_sha256": "d683e08e78fcdcac6b82b4481c25bdd504180cb87ab9cccfb2d11dd555a49fb9"
+      },
+      "rl_specific_capture_lift": {
+        "definition": "candidate-minus-SFT lift in critical capture dependence on messages",
+        "independent_units": 22,
+        "mean_difference": -0.06818181818181819,
+        "mean_difference_95": [
+          -0.17424242424242425,
+          0.03787878787878788
+        ],
+        "positive_unit_rate": 0.22727272727272727,
+        "unit_effects_sha256": "464adc013582626fe5d8674553d6f67cd9d83b1cb9a2a35f87d8ba76d78d0b8c"
+      },
+      "sft_capture_normal_minus_dropped": {
+        "definition": "SFT critical capture rate under normal minus dropped messaging",
+        "independent_units": 22,
+        "mean_difference": 0.2916666666666667,
+        "mean_difference_95": [
+          0.19318181818181818,
+          0.39015151515151514
+        ],
+        "positive_unit_rate": 0.6818181818181818,
+        "unit_effects_sha256": "155b09811c48b88ef7490f86de5f4335e6deef5dbb3b8a2fb334c985dcc59ccd"
+      },
+      "sft_sender_target_fact_rate": {
+        "definition": "sft_init handoff_critical normal sender_target_fact rate",
+        "independent_units": 22,
+        "mean_difference": 0.8409090909090909,
+        "mean_difference_95": [
+          0.7121212121212122,
+          0.9507575757575758
+        ],
+        "positive_unit_rate": 1,
+        "unit_effects_sha256": "fadc10702f3f4ba589f79ebc20f963edc27760ebf11ff2ae640dd88ab4fe55fa"
+      }
+    },
+    "critical_minus_decoy_specificity": {
+      "definition": "RL critical normal-minus-dropped minus matched-decoy normal-minus-dropped",
+      "independent_units": 22,
+      "mean_difference": 0.008387061142985082,
+      "mean_difference_95": [
+        -0.0073241093416057616,
+        0.02445385524782367
+      ],
+      "positive_unit_rate": 0.5909090909090909,
+      "unit_effects_sha256": "5e0031742c39ebc5e6fda6eca1d73ff2dbfccaa351fc6ba8373f51c4ad4d55ee"
+    },
+    "handoff_capability_rl_minus_sft": {
+      "definition": "candidate RL minus SFT return on critical handoffs under normal messaging",
+      "independent_units": 22,
+      "mean_difference": 0.008228756037334993,
+      "mean_difference_95": [
+        -0.0050176852337084745,
+        0.02085608981127199
+      ],
+      "positive_unit_rate": 0.5454545454545454,
+      "unit_effects_sha256": "2a2411896d0b8de14d2509e2096ee7a433be9a44b25537e47e56db63ca1b57fd"
+    },
+    "independent_unit": "game seed for ordinary cases; two-world latent bundle for handoffs",
+    "matched_decoy_normal_minus_dropped": {
+      "definition": "matched-decoy normal minus dropped",
+      "independent_units": 22,
+      "mean_difference": 0.017333794275738938,
+      "mean_difference_95": [
+        -0.001851932299327426,
+        0.03703188482121725
+      ],
+      "paired_cells": 264,
+      "positive_unit_rate": 0.6818181818181818,
+      "unit_effects_sha256": "ce379ba7245481a2d6a06b29b9dc61fc66bbed25d666a21e31f1a4cc40858bbe"
+    },
+    "overall_gameplay_rl_minus_sft": {
+      "definition": "candidate RL minus SFT return over equally represented legacy, hard, and critical-handoff units",
+      "independent_units": 67,
+      "mean_difference": 0.005213464440034061,
+      "mean_difference_95": [
+        -0.00516497092083681,
+        0.015587721996559873
+      ],
+      "positive_unit_rate": 0.4925373134328358,
+      "unit_effects_sha256": "7bc223cef3ed9ff6c02292fc8d055a3ed915bd9f1a90cf0debd240e813f96d68"
+    },
+    "rl_specific_communication_lift": {
+      "definition": "(RL critical normal-minus-dropped) minus (SFT critical normal-minus-dropped)",
+      "independent_units": 22,
+      "mean_difference": 0.008888685473463942,
+      "mean_difference_95": [
+        -0.008653109071988985,
+        0.026152357399598102
+      ],
+      "positive_unit_rate": 0.5454545454545454,
+      "unit_effects_sha256": "05279382d093ebafbd5728daf997ab23c462191b85581ab36795465b7d983c05"
+    },
+    "rows": 3468,
+    "sft_critical_normal_minus_dropped": {
+      "definition": "SFT critical normal minus dropped",
+      "independent_units": 22,
+      "mean_difference": 0.01683216994526008,
+      "mean_difference_95": [
+        -0.005917056850090976,
+        0.03942543504404873
+      ],
+      "positive_unit_rate": 0.6818181818181818,
+      "unit_effects_sha256": "1d5cd0426917ce91c3d84c32873ab459b767bbfbab3097a78454a1bdccc1ddf1"
+    },
+    "version": "arena-rl-progress-eval-v5-rl-specific-communication"
+  },
+  "version": "arena-rl-v10-clean-holdout-runner-v1"
+}

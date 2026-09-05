@@ -1,0 +1,127 @@
+{
+  "all_gates_passed": true,
+  "per_policy": {
+    "blue-0": {
+      "v1": {
+        "arena_leakage": 0.0,
+        "candidate_exact": 0.1796875,
+        "candidate_minus_sft": 0.0,
+        "examples": 256,
+        "gates": {
+          "adapter_arena_leakage_at_most_0_02": true,
+          "arena_leakage_not_increased": true,
+          "every_category_drop_within_0_05": true,
+          "overall_drop_within_0_02": true,
+          "passed": true
+        },
+        "sft_exact": 0.1796875
+      },
+      "v2": {
+        "arena_leakage": 0.0,
+        "candidate_exact": 0.5234375,
+        "candidate_minus_sft": 0.01171875,
+        "examples": 256,
+        "gates": {
+          "adapter_arena_leakage_at_most_0_02": true,
+          "arena_leakage_not_increased": true,
+          "every_category_drop_within_0_05": true,
+          "overall_drop_within_0_02": true,
+          "passed": true
+        },
+        "sft_exact": 0.51171875
+      }
+    },
+    "blue-1": {
+      "v1": {
+        "arena_leakage": 0.0,
+        "candidate_exact": 0.17578125,
+        "candidate_minus_sft": -0.00390625,
+        "examples": 256,
+        "gates": {
+          "adapter_arena_leakage_at_most_0_02": true,
+          "arena_leakage_not_increased": true,
+          "every_category_drop_within_0_05": true,
+          "overall_drop_within_0_02": true,
+          "passed": true
+        },
+        "sft_exact": 0.1796875
+      },
+      "v2": {
+        "arena_leakage": 0.0,
+        "candidate_exact": 0.51953125,
+        "candidate_minus_sft": 0.0078125,
+        "examples": 256,
+        "gates": {
+          "adapter_arena_leakage_at_most_0_02": true,
+          "arena_leakage_not_increased": true,
+          "every_category_drop_within_0_05": true,
+          "overall_drop_within_0_02": true,
+          "passed": true
+        },
+        "sft_exact": 0.51171875
+      }
+    },
+    "blue-2": {
+      "v1": {
+        "arena_leakage": 0.0,
+        "candidate_exact": 0.17578125,
+        "candidate_minus_sft": -0.00390625,
+        "examples": 256,
+        "gates": {
+          "adapter_arena_leakage_at_most_0_02": true,
+          "arena_leakage_not_increased": true,
+          "every_category_drop_within_0_05": true,
+          "overall_drop_within_0_02": true,
+          "passed": true
+        },
+        "sft_exact": 0.1796875
+      },
+      "v2": {
+        "arena_leakage": 0.0,
+        "candidate_exact": 0.515625,
+        "candidate_minus_sft": 0.00390625,
+        "examples": 256,
+        "gates": {
+          "adapter_arena_leakage_at_most_0_02": true,
+          "arena_leakage_not_increased": true,
+          "every_category_drop_within_0_05": true,
+          "overall_drop_within_0_02": true,
+          "passed": true
+        },
+        "sft_exact": 0.51171875
+      }
+    },
+    "blue-3": {
+      "v1": {
+        "arena_leakage": 0.0,
+        "candidate_exact": 0.1796875,
+        "candidate_minus_sft": 0.0,
+        "examples": 256,
+        "gates": {
+          "adapter_arena_leakage_at_most_0_02": true,
+          "arena_leakage_not_increased": true,
+          "every_category_drop_within_0_05": true,
+          "overall_drop_within_0_02": true,
+          "passed": true
+        },
+        "sft_exact": 0.1796875
+      },
+      "v2": {
+        "arena_leakage": 0.0,
+        "candidate_exact": 0.51953125,
+        "candidate_minus_sft": 0.0078125,
+        "examples": 256,
+        "gates": {
+          "adapter_arena_leakage_at_most_0_02": true,
+          "arena_leakage_not_increased": true,
+          "every_category_drop_within_0_05": true,
+          "overall_drop_within_0_02": true,
+          "passed": true
+        },
+        "sft_exact": 0.51171875
+      }
+    }
+  },
+  "selected_checkpoint": "shared-return-step3",
+  "version": "swarm-arena-step3-regression-summary-v1"
+}

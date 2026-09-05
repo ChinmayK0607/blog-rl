@@ -1,0 +1,70 @@
+output_dir = "outputs/swarm_arena/qwen3_4b_warmstart_v5"
+max_steps = 128
+
+[model]
+name = "Qwen/Qwen3-4B-Instruct-2507"
+attn = "flash_attention_2"
+impl = "auto"
+
+[model.ac]
+mode = "full"
+
+[model.lora]
+rank = 8
+alpha = 16
+dropout = 0.05
+target_modules = ["q_proj", "v_proj"]
+
+[renderer]
+name = "qwen3"
+enable_thinking = false
+
+[data]
+type = "sft"
+name = "experiments/swarm_arena/data/warmstart_v5"
+splits = ["train"]
+seq_len = 1536
+batch_size = 16
+micro_batch_size = 2
+pack_function = "cat"
+shuffle = true
+seed = 20260907
+
+[val]
+interval = 32
+eval_on_start = true
+
+[val.data]
+type = "sft"
+name = "experiments/swarm_arena/data/warmstart_v5"
+splits = ["validation"]
+seq_len = 1536
+batch_size = 16
+micro_batch_size = 2
+pack_function = "cat"
+shuffle = false
+
+[optim]
+lr = 0.00005
+weight_decay = 0.0
+max_norm = 1.0
+
+[scheduler]
+type = "cosine"
+warmup_steps = 8
+min_lr = 0.000005
+
+[ckpt]
+interval = 32
+weights_only = true
+
+[ckpt.weights]
+save_adapter_separately = true
+
+[wandb]
+project = "swarm-arena-sft"
+name = "qwen3-4b-warmstart-v5-canonical-replay-r8"
+
+[deployment]
+type = "single_node"
+num_gpus = 1

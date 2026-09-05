@@ -1,0 +1,55 @@
+max_concurrent_runs = 4
+# Deliberately omit trainer max_steps. Prime counts token-packing slices here,
+# not Swarm Arena policy updates; a finite value can stop midway through a
+# logical four-policy batch before any adapter is eligible to update. The
+# controller owns the policy-update horizon and the trainer is stopped after
+# the controller writes its completion marker.
+
+[model]
+name = "/workspace/models/qwen3-1.7b-70d244c"
+# Horizon-two Swarm trajectories are 799-975 tokens in the bound pilot. A
+# 1,024-token slice therefore admits every trajectory but cannot co-pack two.
+# This makes live trainer forwards match the per-sample parity certificate and
+# also avoids the unfused vocabulary-head OOM seen at 16,384 tokens.
+seq_len = 1024
+attn = "flash_attention_2"
+impl = "hf"
+fused_lm_head_token_chunk_size = "disabled"
+
+[model.lora]
+rank = 16
+alpha = 32
+dropout = 0.0
+target_modules = ["q_proj", "k_proj", "v_proj", "o_proj"]
+initial_adapter_path = "/workspace/artifacts/warmstart-1.7b-step320"
+initial_adapter_sha256 = "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b"
+
+[loss]
+type = "default"
+adv_tau = 1.0
+kl_tau = 0.001
+dppo_mask_low = 0.1
+dppo_mask_high = 0.1
+
+[optim]
+type = "adamw"
+lr = 0.000005
+max_norm = 1.0
+
+[weight_broadcast]
+type = "filesystem"
+save_sharded = false
+save_format = "safetensors"
+
+[rollout_parity_gate]
+max_mean_logprob_error = 0.005
+max_p99_logprob_error = 0.12
+max_probability_error = 0.1
+max_p99_probability_error = 0.05
+probability_tail_threshold = 0.05
+max_probability_tail_fraction = 0.005
+max_mean_mismatch_kl = 0.0005
+max_mismatch_kl = 0.08
+
+[log]
+level = "info"

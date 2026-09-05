@@ -1,0 +1,92 @@
+{
+  "version": "swarm-arena-focused-atomic-result-v1",
+  "run_id": "rl-v4-focused80-atomic-6c5eea73-l40-20260817",
+  "status": "prospectively_truncated_at_update_60_of_80",
+  "verdict": "exploratory_capability_signal_not_admitted_for_communication",
+  "source_commit": "6c5eea739e6d743957a6132dbb0022ea7eab4895",
+  "base_model": {
+    "repo": "Qwen/Qwen3-1.7B",
+    "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e"
+  },
+  "initial_adapter": {
+    "repo": "CK0607/Qwen3-1.7B-Swarm-Arena-SFT-v2-step320-noneligible",
+    "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde"
+  },
+  "immutable_artifact_sha256": {
+    "production_plan": "d67718f2685006916e43de32353f2877c3f7dff0bcbeed799454295a9a09fb7b",
+    "production_plan_audit": "797358d2837131086c80b1f16db5baeb5920823e1b10addea4c1e734ec8f3453",
+    "runtime_certificate": "6c9cde513beee986bf427e59f1e62f25096c5deafc0c286c320dac448b1e53be"
+  },
+  "evaluation": {
+    "tier": "frozen_development_pulse",
+    "rows_per_pulse": 192,
+    "independent_units_overall": 18,
+    "curve": [
+      {"update": 0, "overall_rl_minus_sft": -0.0096482181, "overall_ci95": [-0.0267058931, 0.0059232528], "rl_specific_communication_lift": 0.0184166631, "specificity": 0.0228985347},
+      {"update": 10, "overall_rl_minus_sft": -0.0358416883, "overall_ci95": [-0.0776693214, -0.0008622942], "rl_specific_communication_lift": 0.0191841078, "specificity": 0.0316926737},
+      {"update": 20, "overall_rl_minus_sft": -0.0341737878, "overall_ci95": [-0.0745848871, -0.0004269429], "rl_specific_communication_lift": -0.0162174258, "specificity": 0.0334380325},
+      {"update": 30, "overall_rl_minus_sft": 0.0059439694, "overall_ci95": [-0.0278236599, 0.0347323164], "rl_specific_communication_lift": 0.0023898547, "specificity": 0.0058127981},
+      {"update": 40, "overall_rl_minus_sft": 0.0226213273, "overall_ci95": [-0.0301375824, 0.0731271987], "rl_specific_communication_lift": -0.0054604917, "specificity": 0.0189612914},
+      {"update": 50, "overall_rl_minus_sft": 0.0252332416, "overall_ci95": [-0.0229264046, 0.0805023978], "rl_specific_communication_lift": -0.0306486449, "specificity": 0.0031630567},
+      {"update": 60, "overall_rl_minus_sft": 0.0196632274, "overall_ci95": [-0.0408447099, 0.0826660684], "rl_specific_communication_lift": -0.0452881375, "specificity": -0.0152728753}
+    ],
+    "update_60_tier_means": {
+      "legacy_rl_minus_sft": 0.0546894410,
+      "hard_rl_minus_sft": -0.0185405994,
+      "critical_handoff_rl_minus_sft": 0.0228408406,
+      "critical_normal_minus_dropped": -0.0047470691
+    },
+    "update_60_minus_update_0": {
+      "overall": 0.0293114455,
+      "legacy": 0.0811672735,
+      "hard": -0.0098775246,
+      "critical_handoff": 0.0166445875,
+      "rl_specific_communication_lift": -0.0637048006,
+      "specificity": -0.0381714100
+    },
+    "protocol_at_every_pulse": {
+      "action_protocol_rate": 1.0,
+      "broadcast_protocol_rate": 1.0,
+      "broadcast_grounded_rate": 1.0
+    },
+    "communication_claim_passed_at_any_pulse": false
+  },
+  "training_updates_40_through_59": {
+    "mean_scheduled_return": 0.03238595,
+    "groups_with_return_contrast": 64,
+    "groups_total": 80,
+    "nonzero_focused_advantage_slots": 255,
+    "policy_replica_slots_total": 1280
+  },
+  "selected_development_checkpoint": {
+    "update": 50,
+    "basis": "highest observed overall frozen-development mean through update 60; retrospective capability selection only",
+    "admission_status": "not_admitted",
+    "huggingface": "https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-focused-step50-development",
+    "revision": "049e95062903501a8a50efac09d1b2caab393364",
+    "adapter_sha256": {
+      "blue_0": "7487ebbbaea28a38f6832b1aaf6e72a25e8e270d2ddbd741e0e62ffdb6eae319",
+      "blue_1": "ab397fa48df26964d51c3736bd6ebedfeac671adc5a6e63db45784bdbf69aecc",
+      "blue_2": "c1f63261a60eb039569e66b08c6ad5c8e89db3c2597ce27a1ba1769ea55abb0f",
+      "blue_3": "f822706d0fd00ee80380e826baaf6d26f5e549dde09a0525e6002c26da59f61d"
+    }
+  },
+  "capped_endpoint": {
+    "update": 60,
+    "admission_status": "not_admitted",
+    "huggingface": "https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-focused-step60-truncated-development",
+    "revision": "a64eb9278f88cd1a31528be1460e22a7fd311945",
+    "adapter_sha256": {
+      "blue_0": "695b5b2d615219ccbae3ce8bee8fda6efdc72c05a42d9e37f113bd523734fc70",
+      "blue_1": "735907ecad97db6274b3fd8997dfff338a91ee4986d2275f5606a563e42c7a24",
+      "blue_2": "4447b6ce79d491db44397e7f3c4224e6a00f29bf9567bc3767e169f6c23bf628",
+      "blue_3": "04b6527dbfb4474f7759e3106693216aea4f3b4f05397cbd5b2fa5f1a04297ff"
+    }
+  },
+  "wandb": {
+    "trainer": "https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/220pn93o",
+    "controller": "https://wandb.ai/ChinmayK0604/swarm-arena-rl/runs/rl-v4-focused80-atomic-6c5eea73-l40-20260817-controller-v1"
+  },
+  "claim_boundary": "Return gains are task capability evidence. Communication requires paired message-intervention gains; neither establishes broad swarm intelligence.",
+  "storage": "Large checkpoints are public on Hugging Face; raw rollouts remained on the rented host and were not copied to the Mac."
+}

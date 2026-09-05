@@ -1,0 +1,54 @@
+output_dir = "outputs/swarm_arena/qwen3_4b_overfit"
+max_steps = 96
+
+[model]
+name = "Qwen/Qwen3-4B-Instruct-2507"
+attn = "flash_attention_2"
+impl = "auto"
+
+[model.ac]
+mode = "full"
+
+[model.lora]
+rank = 32
+alpha = 64
+dropout = 0.05
+
+[renderer]
+name = "qwen3"
+enable_thinking = false
+
+[data]
+type = "sft"
+name = "CK0607/swarm-arena-sft-v2"
+splits = ["overfit"]
+seq_len = 2048
+batch_size = 16
+micro_batch_size = 2
+pack_function = "cat"
+shuffle = true
+seed = 20260811
+
+[optim]
+lr = 0.0001
+weight_decay = 0.0
+max_norm = 1.0
+
+[scheduler]
+type = "cosine"
+warmup_steps = 4
+
+[ckpt]
+interval = 96
+weights_only = true
+
+[ckpt.weights]
+save_adapter_separately = true
+
+[wandb]
+project = "swarm-arena-sft"
+name = "qwen3-4b-overfit-gate"
+
+[deployment]
+type = "single_node"
+num_gpus = 1

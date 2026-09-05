@@ -1,0 +1,103 @@
+output_dir = "/workspace/runs/rl-v4-ablate-lr1e5-mix211-12e0c461"
+matmul_precision = "high"
+enable_router_replay = false
+dist_timeout_seconds = 600
+max_concurrent_runs = 4
+
+[model]
+name = "/workspace/models/qwen3-1.7b-70d244c"
+trust_remote_code = false
+seq_len = 2560
+attn = "flash_attention_2"
+fsdp_cpu_offload = false
+optim_cpu_offload = false
+reshard_after_forward = true
+dp_replicate = 1
+ep = 1
+ep_comm_backend = "torch"
+deepep_num_sms = 20
+cp = 1
+cp_style = "ring"
+impl = "hf"
+optimization_dtype = "float32"
+reduce_dtype = "float32"
+moe_use_grouped_mm = true
+fp8 = false
+freeze_moe_router = false
+fused_lm_head_token_chunk_size = "disabled"
+
+[model.lora]
+rank = 16
+alpha = 32.0
+dropout = 0.0
+use_grouped_mm = true
+target_modules = [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+]
+modules_to_save = []
+initial_adapter_path = "/workspace/artifacts/warmstart-1.7b-step320"
+initial_adapter_sha256 = "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b"
+
+[model.debug]
+random_init = false
+force_balanced_routing = false
+
+[tokenizer]
+name = "/workspace/models/qwen3-1.7b-70d244c"
+trust_remote_code = false
+
+[data]
+
+[loss]
+type = "default"
+dppo_mask_low = 0.1
+dppo_mask_high = 0.1
+adv_tau = 1.0
+kl_tau = 0.001
+
+[optim]
+lr = 1e-05
+weight_decay = 0.01
+max_norm = 1.0
+type = "adamw"
+betas1 = 0.9
+betas2 = 0.999
+
+[scheduler]
+type = "constant"
+
+[weight_broadcast]
+type = "filesystem"
+save_sharded = false
+save_format = "safetensors"
+
+[rollout_transport]
+type = "filesystem"
+
+[rollout_parity_gate]
+max_mean_logprob_error = 0.01
+max_p99_logprob_error = 0.15
+max_probability_error = 1.0
+max_p99_probability_error = 0.07
+probability_tail_threshold = 0.05
+max_probability_tail_fraction = 0.02
+max_mean_mismatch_kl = 0.001
+max_mismatch_kl = 1.0
+
+[log]
+level = "info"
+vf_level = "info"
+json_logging = false
+log_data = false
+interval = 10.0
+ranks_filter = [
+    0,
+]
+
+[gc]
+interval = 50
+
+[experimental]

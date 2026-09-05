@@ -1,0 +1,47 @@
+{
+  "artifact_revision": "6a660a3fabfebd3270753155a131d2148d463b82",
+  "artifact_url": "https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-step8-development",
+  "collapse_audit_passed": true,
+  "final_adapter_set_revision": "d60f358d32448f26f7cce7ecc6f9f53f212906303e0deeda779354a44129b156",
+  "frozen_final_opened": false,
+  "online_development": {
+    "base": {
+      "critical_normal_minus_dropped": 0.0846019,
+      "hard_candidate_minus_sft": 0.0306373,
+      "legacy_candidate_minus_sft": -0.0350985,
+      "matched_decoy_normal_minus_dropped": 0.0582974
+    },
+    "historical": {
+      "critical_normal_minus_dropped": 0.0903834,
+      "hard_candidate_minus_sft": -0.0280151,
+      "legacy_candidate_minus_sft": 0.0306667,
+      "matched_decoy_normal_minus_dropped": 0.0392617
+    },
+    "sft": {
+      "critical_normal_minus_dropped": 0.0315194,
+      "hard_candidate_minus_sft": 0.0193098,
+      "legacy_candidate_minus_sft": 0.0186933,
+      "matched_decoy_normal_minus_dropped": -0.00524915
+    }
+  },
+  "policy_adapter_sha256": {
+    "blue-0": "b2ee10045d6f988d1090c340980970280a698315f0a3122904193232dfd33df9",
+    "blue-1": "aa032a5efa286766d2e6b6b28b3e8d92068530f27c9409c1e975173390348914",
+    "blue-2": "9735e411e0b60d1afca260709dd92a0ec2cfbff73f7dd67a9259247054588731",
+    "blue-3": "a27efc4aaa15841a69728a89af1ddc0e869b710d97c19ffb482226cb2f05c343"
+  },
+  "policy_kl": {
+    "mean": 0.0004098996,
+    "p99": 0.0126057
+  },
+  "protocol_rates": {
+    "action_valid": 1.0,
+    "broadcast_grounded": 1.0,
+    "broadcast_valid": 1.0
+  },
+  "regression_gates_passed": true,
+  "selection_opened": false,
+  "source_commit": "1379f9c2c033de9da1cf477eaf844d68b5dcde86",
+  "updates": 8,
+  "verdict": "mechanically stable; promising communication sensitivity; capability mixed; information-specific cooperation not established"
+}

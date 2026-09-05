@@ -1,0 +1,220 @@
+{
+  "blue_model": "capability-sft-1.7b",
+  "conditions": {
+    "delayed:generated": {
+      "blue_mean_return": 4.195833333333334,
+      "blue_mean_return_95": [
+        1.8499999999999999,
+        6.754166666666667
+      ],
+      "blue_win_rate": 0.9166666666666666,
+      "draw_rate": 0,
+      "matches": 12,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.5,
+          "duplicate_target_turn_rate": 0.22916666666666666,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.666666666666668,
+          "duplicate_target_turn_rate": 0.3888888888888889,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "dropped:generated": {
+      "blue_mean_return": 4.1000000000000005,
+      "blue_mean_return_95": [
+        1.754166666666667,
+        6.616666666666667
+      ],
+      "blue_win_rate": 0.8333333333333334,
+      "draw_rate": 0,
+      "matches": 12,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.583333333333332,
+          "duplicate_target_turn_rate": 0.1597222222222222,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.666666666666668,
+          "duplicate_target_turn_rate": 0.375,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "generated:delayed": {
+      "blue_mean_return": -6.1375,
+      "blue_mean_return_95": [
+        -7.625000000000001,
+        -4.8625
+      ],
+      "blue_win_rate": 0,
+      "draw_rate": 0,
+      "matches": 12,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.916666666666668,
+          "duplicate_target_turn_rate": 0.21527777777777776,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.916666666666668,
+          "duplicate_target_turn_rate": 0.4930555555555556,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "generated:dropped": {
+      "blue_mean_return": -8.008333333333333,
+      "blue_mean_return_95": [
+        -9.754166666666666,
+        -6.329166666666666
+      ],
+      "blue_win_rate": 0,
+      "draw_rate": 0,
+      "matches": 12,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.916666666666668,
+          "duplicate_target_turn_rate": 0.25,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.75,
+          "duplicate_target_turn_rate": 0.3125,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "generated:generated": {
+      "blue_mean_return": -0.7875000000000003,
+      "blue_mean_return_95": [
+        -3.6562500000000004,
+        2.09375
+      ],
+      "blue_win_rate": 0.4583333333333333,
+      "draw_rate": 0,
+      "matches": 24,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.5,
+          "duplicate_target_turn_rate": 0.2881944444444444,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.5,
+          "duplicate_target_turn_rate": 0.4895833333333333,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "generated:sender_shuffled": {
+      "blue_mean_return": -6.758333333333334,
+      "blue_mean_return_95": [
+        -8.816666666666668,
+        -4.804166666666667
+      ],
+      "blue_win_rate": 0,
+      "draw_rate": 0,
+      "matches": 12,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.833333333333332,
+          "duplicate_target_turn_rate": 0.2777777777777778,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.5,
+          "duplicate_target_turn_rate": 0.5277777777777778,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "sender_shuffled:generated": {
+      "blue_mean_return": 6.033333333333333,
+      "blue_mean_return_95": [
+        3.3708333333333336,
+        8.783333333333333
+      ],
+      "blue_win_rate": 0.9166666666666666,
+      "draw_rate": 0,
+      "matches": 12,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.166666666666668,
+          "duplicate_target_turn_rate": 0.1736111111111111,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.666666666666668,
+          "duplicate_target_turn_rate": 0.3541666666666667,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    }
+  },
+  "crossplay_version": "arena-crossplay-v5-source-prompt-bound",
+  "interval_method": "seed-level nonparametric bootstrap, 20000 deterministic resamples",
+  "manifest_sha256": "04a9b305806a4e0f4e1e792e9a381c0dc1a9a7a31d845da9baf3b20981ea2df7",
+  "matches": 96,
+  "red_model": "/workspace/models/qwen3-1.7b-70d244c"
+}

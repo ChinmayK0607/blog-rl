@@ -1,0 +1,55 @@
+{
+  "analysis": {
+    "bootstrap_resamples": 20000,
+    "random_seed": 0,
+    "randomization_trials": 100000,
+    "unit": "seed after side averaging"
+  },
+  "blue_artifact_id": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "blue_history_window": 3,
+  "blue_model": "Qwen/Qwen3-4B-Instruct-2507",
+  "cases": [
+    [
+      1000003,
+      12,
+      4
+    ],
+    [
+      1000196,
+      13,
+      6
+    ],
+    [
+      1000389,
+      12,
+      4
+    ],
+    [
+      1000582,
+      13,
+      6
+    ]
+  ],
+  "conditions": [
+    [
+      "generated",
+      "generated"
+    ]
+  ],
+  "generation": {
+    "enable_thinking": false,
+    "max_tokens": 160,
+    "temperature": 0.0
+  },
+  "protocol_constraint": {
+    "enabled": true,
+    "version": "arena-structured-protocol-v1-dynamic-json-schema"
+  },
+  "red_artifact_id": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "red_history_window": 3,
+  "red_model": "Qwen/Qwen3-4B-Instruct-2507",
+  "sha256": "0888fac4166214745815982a3451fdbfc01747ec1c729226351b41784e502969",
+  "split": "development",
+  "swap_sides": false,
+  "version": "arena-crossplay-v4-dynamic-protocol"
+}

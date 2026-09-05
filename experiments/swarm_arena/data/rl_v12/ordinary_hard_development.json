@@ -1,0 +1,235 @@
+{
+  "case_count": 36,
+  "cases": [
+    {
+      "case_id": "ordinary-hard-000",
+      "horizon": 8,
+      "seed": 20500111,
+      "size": 16
+    },
+    {
+      "case_id": "ordinary-hard-001",
+      "horizon": 10,
+      "seed": 20500322,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-002",
+      "horizon": 12,
+      "seed": 20500533,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-003",
+      "horizon": 8,
+      "seed": 20500744,
+      "size": 22
+    },
+    {
+      "case_id": "ordinary-hard-004",
+      "horizon": 10,
+      "seed": 20500955,
+      "size": 16
+    },
+    {
+      "case_id": "ordinary-hard-005",
+      "horizon": 12,
+      "seed": 20501166,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-006",
+      "horizon": 8,
+      "seed": 20501377,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-007",
+      "horizon": 10,
+      "seed": 20501588,
+      "size": 22
+    },
+    {
+      "case_id": "ordinary-hard-008",
+      "horizon": 12,
+      "seed": 20501799,
+      "size": 16
+    },
+    {
+      "case_id": "ordinary-hard-009",
+      "horizon": 8,
+      "seed": 20502010,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-010",
+      "horizon": 10,
+      "seed": 20502221,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-011",
+      "horizon": 12,
+      "seed": 20502432,
+      "size": 22
+    },
+    {
+      "case_id": "ordinary-hard-012",
+      "horizon": 8,
+      "seed": 20502643,
+      "size": 16
+    },
+    {
+      "case_id": "ordinary-hard-013",
+      "horizon": 10,
+      "seed": 20502854,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-014",
+      "horizon": 12,
+      "seed": 20503065,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-015",
+      "horizon": 8,
+      "seed": 20503276,
+      "size": 22
+    },
+    {
+      "case_id": "ordinary-hard-016",
+      "horizon": 10,
+      "seed": 20503487,
+      "size": 16
+    },
+    {
+      "case_id": "ordinary-hard-017",
+      "horizon": 12,
+      "seed": 20503698,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-018",
+      "horizon": 8,
+      "seed": 20503909,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-019",
+      "horizon": 10,
+      "seed": 20504120,
+      "size": 22
+    },
+    {
+      "case_id": "ordinary-hard-020",
+      "horizon": 12,
+      "seed": 20504331,
+      "size": 16
+    },
+    {
+      "case_id": "ordinary-hard-021",
+      "horizon": 8,
+      "seed": 20504542,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-022",
+      "horizon": 10,
+      "seed": 20504753,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-023",
+      "horizon": 12,
+      "seed": 20504964,
+      "size": 22
+    },
+    {
+      "case_id": "ordinary-hard-024",
+      "horizon": 8,
+      "seed": 20505175,
+      "size": 16
+    },
+    {
+      "case_id": "ordinary-hard-025",
+      "horizon": 10,
+      "seed": 20505386,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-026",
+      "horizon": 12,
+      "seed": 20505597,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-027",
+      "horizon": 8,
+      "seed": 20505808,
+      "size": 22
+    },
+    {
+      "case_id": "ordinary-hard-028",
+      "horizon": 10,
+      "seed": 20506019,
+      "size": 16
+    },
+    {
+      "case_id": "ordinary-hard-029",
+      "horizon": 12,
+      "seed": 20506230,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-030",
+      "horizon": 8,
+      "seed": 20506441,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-031",
+      "horizon": 10,
+      "seed": 20506652,
+      "size": 22
+    },
+    {
+      "case_id": "ordinary-hard-032",
+      "horizon": 12,
+      "seed": 20506863,
+      "size": 16
+    },
+    {
+      "case_id": "ordinary-hard-033",
+      "horizon": 8,
+      "seed": 20507074,
+      "size": 18
+    },
+    {
+      "case_id": "ordinary-hard-034",
+      "horizon": 10,
+      "seed": 20507285,
+      "size": 20
+    },
+    {
+      "case_id": "ordinary-hard-035",
+      "horizon": 12,
+      "seed": 20507496,
+      "size": 22
+    }
+  ],
+  "horizons": [
+    8,
+    10,
+    12
+  ],
+  "seed_start": 20500111,
+  "sha256": "df4d1e652121f8a5965d08d0c4bad541cf32b22ce3fc2fda699059eedece0461",
+  "sizes": [
+    16,
+    18,
+    20,
+    22
+  ],
+  "version": "arena-rl-progress-eval-v4"
+}

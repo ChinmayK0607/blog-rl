@@ -1,0 +1,40 @@
+{
+  "certificate_scope": "exact best joint action against each frozen deterministic style",
+  "critical_minimum_advantage": {
+    "maximum": 0.2,
+    "mean": 0.14349214352234219,
+    "minimum": 0.11428571428571428,
+    "positive_rate": 1
+  },
+  "decoy_zero_advantage_rate": 1,
+  "manifest_sha256": "86634a4da47010427add06ae9e314962d38f17ed7404f9fed80a1c64f72cc766",
+  "matched_pair_invariants": {
+    "only_receiver_target_knowledge_changes_rate": 1,
+    "sender_observation_identical_rate": 1,
+    "structural_state_identical_rate": 1
+  },
+  "opponent_styles": [
+    "balanced",
+    "aggressive",
+    "defensive"
+  ],
+  "ordered_role_pairs": {
+    "blue-0->blue-1": 20,
+    "blue-0->blue-2": 20,
+    "blue-0->blue-3": 20,
+    "blue-1->blue-0": 20,
+    "blue-1->blue-2": 20,
+    "blue-1->blue-3": 20,
+    "blue-2->blue-0": 20,
+    "blue-2->blue-1": 20,
+    "blue-2->blue-3": 20,
+    "blue-3->blue-0": 20,
+    "blue-3->blue-1": 20,
+    "blue-3->blue-2": 20
+  },
+  "pair_count": 240,
+  "role_balance_range": [
+    20,
+    20
+  ]
+}

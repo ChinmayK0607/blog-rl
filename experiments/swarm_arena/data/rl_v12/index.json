@@ -1,0 +1,26 @@
+{
+  "handoff": {
+    "development": {
+      "manifest": "handoff_development.json",
+      "sha256": "da4e87aa4740f4d68a021f1616f23324ae937b2892c26bd29978bc10269b6bff"
+    },
+    "frozen_ood": {
+      "manifest": "handoff_frozen_ood.json",
+      "sha256": "6a6ad15bd7619e390587bff26b0b2ad1cf54d1065a53884e3616a98f7023c50c"
+    },
+    "train": {
+      "manifest": "handoff_train.json",
+      "sha256": "41c6caa00b7d2854c3667058feb52256dbeff67515c7976636c5636e38b5f364"
+    }
+  },
+  "ordinary": {
+    "development": {
+      "manifest": "ordinary_hard_development.json",
+      "sha256": "df4d1e652121f8a5965d08d0c4bad541cf32b22ce3fc2fda699059eedece0461"
+    },
+    "frozen_ood": {
+      "manifest": "ordinary_hard_frozen_ood.json",
+      "sha256": "ae6f86bcb6eb5c124d48edd848f8e316be2225db69ec2a8c1188928bd30d6640"
+    }
+  }
+}

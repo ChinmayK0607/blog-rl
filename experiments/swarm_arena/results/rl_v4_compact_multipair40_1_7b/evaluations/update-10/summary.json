@@ -1,0 +1,65 @@
+{
+  "by_pair": {
+    "7": {
+      "critical": {
+        "dropped_receiver_target_action_rate": 0.5,
+        "normal_minus_dropped_return": -0.018518518518518517,
+        "normal_minus_shuffled_return": -0.018518518518518517,
+        "normal_receiver_target_action_rate": 0.5,
+        "normal_return": 0.037037037037037035,
+        "normal_sender_target_fact_rate": 1.0
+      },
+      "protocol": {
+        "action_valid_rate": 1.0,
+        "broadcast_grounded_rate": 1.0,
+        "broadcast_valid_rate": 1.0
+      },
+      "specificity": {
+        "critical_minus_decoy_normal_dropped_lift": -0.1111111111111111
+      }
+    },
+    "9": {
+      "critical": {
+        "dropped_receiver_target_action_rate": 0.5,
+        "normal_minus_dropped_return": -1.3877787807814457e-17,
+        "normal_minus_shuffled_return": 0.0,
+        "normal_receiver_target_action_rate": 0.5,
+        "normal_return": -0.06666666666666668,
+        "normal_sender_target_fact_rate": 1.0
+      },
+      "protocol": {
+        "action_valid_rate": 1.0,
+        "broadcast_grounded_rate": 1.0,
+        "broadcast_valid_rate": 1.0
+      },
+      "specificity": {
+        "critical_minus_decoy_normal_dropped_lift": -0.03333333333333334
+      }
+    }
+  },
+  "critical": {
+    "dropped_receiver_target_action_rate": 0.5,
+    "normal_minus_dropped_return": -0.009259259259259266,
+    "normal_minus_shuffled_return": -0.009259259259259259,
+    "normal_receiver_target_action_rate": 0.5,
+    "normal_return": -0.014814814814814822,
+    "normal_sender_target_fact_rate": 1.0
+  },
+  "interpretation": "This measures training-pair message-conditioned learning only. Held-out development remains the generalization measure.",
+  "manifest_sha256": "529b678fae3815bc308ad0e23009f1ff6b5908c4e717a5a69bbed37e788d6fef",
+  "pair_indices": [
+    7,
+    9
+  ],
+  "protocol": {
+    "action_valid_rate": 1.0,
+    "broadcast_grounded_rate": 1.0,
+    "broadcast_valid_rate": 1.0
+  },
+  "rows": 48,
+  "specificity": {
+    "critical_minus_decoy_normal_dropped_lift": -0.07222222222222222
+  },
+  "version": "multipair-communication-learnability-eval-v2",
+  "wall_seconds": 95.57454538345337
+}

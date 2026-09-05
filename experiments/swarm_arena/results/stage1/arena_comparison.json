@@ -1,0 +1,73 @@
+{
+  "arena_version": "arena-core-v1",
+  "claim_gates": {
+    "coordination_improvement_supported": false,
+    "generated_beats_dropped_95_excludes_zero": false,
+    "generated_beats_shuffled_95_excludes_zero": false,
+    "lower_oracle_regret_95_excludes_zero": true
+  },
+  "comparison_protocol": "frozen-paired-arena-v1",
+  "eval_version": "arena-eval-v2",
+  "manifest_sha256": "b53bfc523043ec71cc69f851d0819511c5a9f0b4f09520898f30954bbe874b29",
+  "mechanism_checks": {
+    "generated_minus_dropped_reward": {
+      "cases": 60,
+      "direction": "positive supports useful generated communication",
+      "mean_difference": 0.38583333333333336,
+      "mean_difference_95": [
+        -0.005585514362392852,
+        0.7772521810290596
+      ],
+      "positive_case_rate": 0.23333333333333334,
+      "randomization_p_two_sided": 0.055449445505544946,
+      "zero_case_rate": 0.7
+    },
+    "generated_minus_shuffled_reward": {
+      "cases": 60,
+      "direction": "positive supports message-semantic sensitivity",
+      "mean_difference": 0.07583333333333332,
+      "mean_difference_95": [
+        -0.2069771000387498,
+        0.3586437667054164
+      ],
+      "positive_case_rate": 0.08333333333333333,
+      "randomization_p_two_sided": 0.6299837001629983,
+      "zero_case_rate": 0.7666666666666667
+    }
+  },
+  "num_cases": 60,
+  "primary_endpoint": {
+    "cases": 60,
+    "direction": "negative favors SFT",
+    "mean_difference": -1.0050000000000001,
+    "mean_difference_95": [
+      -1.6399532349877974,
+      -0.3700467650122028
+    ],
+    "name": "generated-condition oracle regret: SFT minus base",
+    "positive_case_rate": 0.45,
+    "randomization_p_two_sided": 0.002009979900200998,
+    "zero_case_rate": 0.016666666666666666
+  },
+  "protocol": {
+    "base_action_order_consistency_rate": 0.016666666666666666,
+    "base_message_strict_rate": 0.5125,
+    "sft_action_order_consistency_rate": 0.5166666666666667,
+    "sft_message_strict_rate": 1.0
+  },
+  "randomization_seed": 0,
+  "randomization_trials": 100000,
+  "supporting_endpoint": {
+    "cases": 60,
+    "direction": "positive favors SFT",
+    "mean_difference": 1.0050000000000001,
+    "mean_difference_95": [
+      0.3700467650122029,
+      1.6399532349877974
+    ],
+    "name": "generated-condition environment reward: SFT minus base",
+    "positive_case_rate": 0.5333333333333333,
+    "randomization_p_two_sided": 0.002009979900200998,
+    "zero_case_rate": 0.016666666666666666
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "bindings": {
+    "baseline": {
+      "adapter_sha256": "168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2",
+      "repo_id": "CK0607/Qwen3-4B-Swarm-Arena-SFT-v2",
+      "revision": "d1a55d5594c8b544121e546e14229268c8c26bae"
+    },
+    "base": {
+      "repo_id": "Qwen/Qwen3-4B-Instruct-2507",
+      "revision": "cdbee75f17c01a7cc42f958dc650907174af0554"
+    },
+    "candidate": {
+      "adapter_sha256": {
+        "blue-0": "4afed7f74424ea1956f5ce2838811d4f86f575827e5c03e4cfd52f9f826adf53",
+        "blue-1": "b1e4948e9821ed17751c3820a938530416e7dab51aaa3b578fe8cf2d8c1bf5d8",
+        "blue-2": "e784622127e9a6b93345fee877526d1996b66285dc68e04b71118153ef56b1da",
+        "blue-3": "e5c2ede182723ca7781399f820d67b9be80326380ae68959f98aff173a3bab7f"
+      },
+      "checkpoint": 40,
+      "policy_revision": "5f848f3f35efce6da41831163f0e34b9df6e425cf081bbc9e962a070ee909919",
+      "ready_sha256": "0ea95c6436d64c6e95af408ceed89485da10a754ac171be8790696c451a43f1e",
+      "run_id": "rl-v10-receiver-isolated4b60-d25505dc"
+    },
+    "files_sha256": {
+      "handoff_frozen_ood.json": "451d0f6997431cf1c73ee0878e8e2ce3638b46c1f4feac670ae3ff9d9bf912e2",
+      "ordinary_hard_frozen_ood.json": "157e7e9e4652e1d451616405ed79048afc826da198420615beb58f141d14525e"
+    },
+    "manifest_body_sha256": {
+      "handoff_frozen_ood.json": "be928d297d49954e4a29c1343e13df40580edb39a810d297d66b06b492402bc2",
+      "ordinary_hard_frozen_ood.json": "73f58e8fec965569ccb4e190e7c65ac1e3fe87f2806c8cbacac1af85e66efb6e"
+    },
+    "opponents": {
+      "base": "cdbee75f17c01a7cc42f958dc650907174af0554",
+      "historical_league": "d1a55d5594c8b544121e546e14229268c8c26bae",
+      "sft": "d1a55d5594c8b544121e546e14229268c8c26bae"
+    },
+    "public_artifact": {
+      "repo_id": "CK0607/swarm-arena-live-runs",
+      "repo_revision": "51b198e5a6ec14dbcc30214ba531a23295a7b576",
+      "step40_path": "runs/rl-v10-receiver-isolated4b60-d25505dc/checkpoints/step-40"
+    }
+  },
+  "claim_gates": {
+    "capability": "legacy and hard ordinary candidate-minus-SFT 95% intervals are positive",
+    "communication": "all standard intervention intervals are positive against every opponent and matched-decoy dropped interval includes zero",
+    "protocol": "action, broadcast, and grounding rates are 1.0; collapse audit passes speaking extreme 0.98, action/message concentration 0.95 after at least 20 samples, constrained KL mean 0.08 and p99 0.30",
+    "semantic": "candidate, RL-specific, critical-minus-decoy, and receiver-action target-swap intervals are positive; every opponent mean is positive; candidate eligibility is at least 0.8"
+  },
+  "clean_counts": {
+    "expected_rows": 4260,
+    "handoff_pairs": 22,
+    "legacy_independent_seeds": 23,
+    "legacy_option_order_cases": 69,
+    "ordinary_hard_cases": 22
+  },
+  "conditions": {
+    "baseline_critical": [
+      "normal",
+      "dropped",
+      "target_swapped"
+    ],
+    "candidate_critical": [
+      "normal",
+      "dropped",
+      "sender_shuffled",
+      "delayed",
+      "zero_budget",
+      "target_swapped"
+    ],
+    "candidate_decoy": [
+      "normal",
+      "dropped",
+      "target_swapped"
+    ],
+    "target_swap_scope": "receiver_only"
+  },
+  "prior_exposure": {
+    "artifact_revision": "be6722128f6ded06481830f4051904f4e74b38db",
+    "handoff_source_pair_indices": [
+      4,
+      17
+    ],
+    "legacy_seeds": [
+      3000003
+    ],
+    "ordinary_hard_case_ids": [
+      "ordinary-hard-003",
+      "ordinary-hard-018"
+    ],
+    "reason": "opened during the v8 small frozen exploratory screen; excluded from every confirmatory endpoint",
+    "selection_manifest_path": "runs/rl-v8-representative4b60-3c6b8f79-final-heldout-small-u36/SMALL_SUBSET_SELECTION.json"
+  },
+  "selection": {
+    "checkpoint": 40,
+    "policy": "selected once from the repeated v10 development trajectory before this lock",
+    "selection_source_commit": "3168b59db45bdfdb6ec3c9ece5c62a026e81b4bf"
+  },
+  "semantic_estimand": "intention-to-treat; do not retry or discard target-swap-ineligible held-out rows",
+  "sha256": "1a5bb75f165cbf320e9f9761064d2baa9d000533c537ad367e45a7518a9ffb32",
+  "status": "frozen_before_v10_clean_holdout",
+  "version": "swarm-v10-clean-holdout-lock-v1"
+}

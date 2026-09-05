@@ -1,0 +1,67 @@
+{
+  "action_kinds": {
+    "CAPTURE": 125,
+    "FORTIFY": 216,
+    "PROBE": 272,
+    "RECOVER": 189,
+    "SCAN": 32,
+    "TRANSFER": 34,
+    "WAIT": 32
+  },
+  "action_kinds_by_split": {
+    "test": {
+      "CAPTURE": 4,
+      "FORTIFY": 9,
+      "PROBE": 16,
+      "RECOVER": 5,
+      "SCAN": 4,
+      "TRANSFER": 4,
+      "WAIT": 4
+    },
+    "train": {
+      "CAPTURE": 112,
+      "FORTIFY": 194,
+      "PROBE": 247,
+      "RECOVER": 175,
+      "SCAN": 24,
+      "TRANSFER": 26,
+      "WAIT": 24
+    },
+    "validation": {
+      "CAPTURE": 9,
+      "FORTIFY": 13,
+      "PROBE": 9,
+      "RECOVER": 9,
+      "SCAN": 4,
+      "TRANSFER": 4,
+      "WAIT": 4
+    }
+  },
+  "action_positions": {
+    "0": 187,
+    "1": 179,
+    "2": 151,
+    "3": 142,
+    "4": 114,
+    "5": 75,
+    "6": 44,
+    "7": 6,
+    "8": 2
+  },
+  "broadcast_fact_counts": {
+    "0": 512,
+    "1": 770,
+    "2": 2176,
+    "3": 1150
+  },
+  "failures": [],
+  "num_examples": 5508,
+  "num_unique_seeds": 1632,
+  "phases": {
+    "ACT": 900,
+    "BROADCAST": 4608
+  },
+  "required_split_action_coverage": true,
+  "valid": true,
+  "verified_solver_seeds": 673
+}

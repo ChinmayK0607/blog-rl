@@ -1,11 +1,32 @@
+import hashlib
 from pathlib import Path
 from typing import Generator
 
 import pytest
 import tomli_w
+import torch
 import torch.distributed as dist
+from safetensors.torch import save_file
 
-from prime_rl.trainer.runs import MultiRunManager
+from prime_rl.configs.trainer import LoRAConfig
+from prime_rl.trainer.models.layers.lora import MultiLoRALinear
+from prime_rl.trainer.runs import (
+    MultiRunManager,
+    load_initial_adapter_state,
+    multi_run_optimizer_step_ready,
+)
+from prime_rl.trainer.weights import peft_adapter_state_dict
+
+
+def test_atomic_multi_run_update_waits_for_every_active_policy() -> None:
+    ready = [True, True, False, True]
+    used = [0, 1, 2, 3]
+
+    assert multi_run_optimizer_step_ready(ready, used, atomic=False)
+    assert not multi_run_optimizer_step_ready(ready, used, atomic=True)
+
+    ready[2] = True
+    assert multi_run_optimizer_step_ready(ready, used, atomic=True)
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -62,6 +83,137 @@ def test_initial_state(tmp_path: Path) -> None:
     assert len(multi_run_manager.id_2_idx) == 0
     assert len(multi_run_manager.unused_idxs) == 5
     assert multi_run_manager.run_dirs() == []
+
+
+def test_checksum_pinned_initial_adapter_populates_every_run(tmp_path: Path) -> None:
+    adapter_dir = tmp_path / "adapter"
+    adapter_dir.mkdir()
+    source = {
+        "base_model.model.proj.lora_A.weight": torch.arange(6, dtype=torch.float32).reshape(2, 3),
+        "base_model.model.proj.lora_B.weight": torch.arange(8, dtype=torch.float32).reshape(4, 2),
+    }
+    weights_path = adapter_dir / "adapter_model.safetensors"
+    save_file(source, weights_path)
+    digest = hashlib.sha256(weights_path.read_bytes()).hexdigest()
+    manager = MultiRunManager(
+        output_dir=tmp_path / "runs",
+        max_runs=2,
+        lora_config=LoRAConfig(
+            rank=2,
+            target_modules=["proj"],
+            initial_adapter_path=adapter_dir,
+            initial_adapter_sha256=digest,
+        ),
+    )
+    layer = MultiLoRALinear(torch.nn.Linear(3, 4, bias=False), rank=2, n_adapters=2, alpha=4)
+    manager.register_module("proj", layer)
+
+    manager.load_initial_adapter(0)
+    manager.load_initial_adapter(1)
+
+    for idx in (0, 1):
+        loaded = dict(manager.get_named_parameters_for_run(idx))
+        assert torch.equal(loaded["proj.lora_A.weight"], source["base_model.model.proj.lora_A.weight"])
+        assert torch.equal(loaded["proj.lora_B.weight"], source["base_model.model.proj.lora_B.weight"])
+
+    replacement_dir = tmp_path / "replacement"
+    replacement_dir.mkdir()
+    replacement = {name: value + 10 for name, value in source.items()}
+    replacement_path = replacement_dir / "adapter_model.safetensors"
+    save_file(replacement, replacement_path)
+    replacement_digest = hashlib.sha256(replacement_path.read_bytes()).hexdigest()
+    manager.load_adapter(0, replacement_dir, replacement_digest)
+
+    changed = dict(manager.get_named_parameters_for_run(0))
+    unchanged = dict(manager.get_named_parameters_for_run(1))
+    assert torch.equal(
+        changed["proj.lora_A.weight"], replacement["base_model.model.proj.lora_A.weight"]
+    )
+    assert torch.equal(
+        unchanged["proj.lora_A.weight"], source["base_model.model.proj.lora_A.weight"]
+    )
+
+
+def test_lora_config_can_disable_grouped_mm() -> None:
+    config = LoRAConfig(use_grouped_mm=False)
+
+    assert config.use_grouped_mm is False
+
+
+def test_per_run_initial_adapters_preserve_distinct_policy_warm_starts(tmp_path: Path) -> None:
+    paths = {}
+    digests = {}
+    sources = {}
+    for index, offset in enumerate((0, 10)):
+        run_id = f"run_blue_{index}"
+        adapter_dir = tmp_path / f"adapter-{index}"
+        adapter_dir.mkdir()
+        source = {
+            "base_model.model.proj.lora_A.weight": (
+                torch.arange(6, dtype=torch.float32).reshape(2, 3) + offset
+            ),
+            "base_model.model.proj.lora_B.weight": (
+                torch.arange(8, dtype=torch.float32).reshape(4, 2) + offset
+            ),
+        }
+        weights_path = adapter_dir / "adapter_model.safetensors"
+        save_file(source, weights_path)
+        paths[run_id] = adapter_dir
+        digests[run_id] = hashlib.sha256(weights_path.read_bytes()).hexdigest()
+        sources[run_id] = source
+
+    manager = MultiRunManager(
+        output_dir=tmp_path / "runs",
+        max_runs=2,
+        lora_config=LoRAConfig(
+            rank=2,
+            target_modules=["proj"],
+            initial_adapter_paths_by_run=paths,
+            initial_adapter_sha256_by_run=digests,
+        ),
+    )
+    layer = MultiLoRALinear(
+        torch.nn.Linear(3, 4, bias=False), rank=2, n_adapters=2, alpha=4
+    )
+    manager.register_module("proj", layer)
+    manager.load_initial_adapter(0, "run_blue_0")
+    manager.load_initial_adapter(1, "run_blue_1")
+
+    for index in (0, 1):
+        loaded = dict(manager.get_named_parameters_for_run(index))
+        source = sources[f"run_blue_{index}"]
+        assert torch.equal(
+            loaded["proj.lora_A.weight"],
+            source["base_model.model.proj.lora_A.weight"],
+        )
+
+
+def test_per_run_initial_adapter_maps_fail_closed() -> None:
+    with pytest.raises(ValueError, match="identical keys"):
+        LoRAConfig(
+            initial_adapter_paths_by_run={"run_blue_0": Path("/tmp/adapter")},
+            initial_adapter_sha256_by_run={},
+        )
+
+
+def test_peft_adapter_state_dict_prefixes_keys_and_rejects_mixed_input() -> None:
+    tensor = torch.ones(2, 3)
+    raw = {"model.layers.0.self_attn.q_proj.lora_A.weight": tensor}
+
+    converted = peft_adapter_state_dict(raw)
+
+    key = "base_model.model.model.layers.0.self_attn.q_proj.lora_A.weight"
+    assert list(converted) == [key]
+    assert converted[key] is tensor
+    with pytest.raises(ValueError, match="mixes PEFT-prefixed and unprefixed"):
+        peft_adapter_state_dict({**raw, **converted})
+
+
+def test_initial_adapter_rejects_checksum_mismatch(tmp_path: Path) -> None:
+    weights_path = tmp_path / "adapter_model.safetensors"
+    save_file({"proj.lora_A.weight": torch.zeros(2, 3)}, weights_path)
+    with pytest.raises(ValueError, match="checksum mismatch"):
+        load_initial_adapter_state(weights_path, "0" * 64)
 
 
 def test_detect_new_runs(tmp_path: Path) -> None:

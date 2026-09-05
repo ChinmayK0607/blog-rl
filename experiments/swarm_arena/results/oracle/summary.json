@@ -1,0 +1,125 @@
+{
+  "action_order_consistency_rate": 1,
+  "arena_version": "arena-core-v1",
+  "conditions": {
+    "dropped": {
+      "mean_environment_reward": 2.645,
+      "mean_environment_reward_95": [
+        2.02854372188706,
+        3.26145627811294
+      ],
+      "mean_oracle_regret": 0.0,
+      "mean_oracle_regret_95": [
+        0.0,
+        0.0
+      ],
+      "nonredundant_joint_action_rate": 1,
+      "optimal_outcome_rate": 1,
+      "optimal_outcome_wilson_95": [
+        0.9398260695220669,
+        0.9999999999999999
+      ],
+      "strict_action_rate": 1.0
+    },
+    "generated": {
+      "mean_environment_reward": 2.645,
+      "mean_environment_reward_95": [
+        2.02854372188706,
+        3.26145627811294
+      ],
+      "mean_oracle_regret": 0.0,
+      "mean_oracle_regret_95": [
+        0.0,
+        0.0
+      ],
+      "nonredundant_joint_action_rate": 1,
+      "optimal_outcome_rate": 1,
+      "optimal_outcome_wilson_95": [
+        0.9398260695220669,
+        0.9999999999999999
+      ],
+      "strict_action_rate": 1.0
+    },
+    "reference": {
+      "mean_environment_reward": 2.645,
+      "mean_environment_reward_95": [
+        2.02854372188706,
+        3.26145627811294
+      ],
+      "mean_oracle_regret": 0.0,
+      "mean_oracle_regret_95": [
+        0.0,
+        0.0
+      ],
+      "nonredundant_joint_action_rate": 1,
+      "optimal_outcome_rate": 1,
+      "optimal_outcome_wilson_95": [
+        0.9398260695220669,
+        0.9999999999999999
+      ],
+      "strict_action_rate": 1.0
+    },
+    "shuffled": {
+      "mean_environment_reward": 2.645,
+      "mean_environment_reward_95": [
+        2.02854372188706,
+        3.26145627811294
+      ],
+      "mean_oracle_regret": 0.0,
+      "mean_oracle_regret_95": [
+        0.0,
+        0.0
+      ],
+      "nonredundant_joint_action_rate": 1,
+      "optimal_outcome_rate": 1,
+      "optimal_outcome_wilson_95": [
+        0.9398260695220669,
+        0.9999999999999999
+      ],
+      "strict_action_rate": 1.0
+    }
+  },
+  "eval_version": "arena-eval-v2",
+  "generated_minus_dropped_reward": 0.0,
+  "generated_slices": {
+    "opponent_style": {
+      "aggressive": {
+        "cases": 20,
+        "mean_oracle_regret": 0.0,
+        "optimal_outcome_rate": 1
+      },
+      "balanced": {
+        "cases": 20,
+        "mean_oracle_regret": 0.0,
+        "optimal_outcome_rate": 1
+      },
+      "defensive": {
+        "cases": 20,
+        "mean_oracle_regret": 0.0,
+        "optimal_outcome_rate": 1
+      }
+    },
+    "topology_size": {
+      "12": {
+        "cases": 20,
+        "mean_oracle_regret": 0.0,
+        "optimal_outcome_rate": 1
+      },
+      "13": {
+        "cases": 20,
+        "mean_oracle_regret": 0.0,
+        "optimal_outcome_rate": 1
+      },
+      "14": {
+        "cases": 20,
+        "mean_oracle_regret": 0.0,
+        "optimal_outcome_rate": 1
+      }
+    }
+  },
+  "manifest_sha256": "b53bfc523043ec71cc69f851d0819511c5a9f0b4f09520898f30954bbe874b29",
+  "message_strict_rate": 1.0,
+  "model": "oracle",
+  "num_cases": 60,
+  "reference_message_headroom": 0.0
+}

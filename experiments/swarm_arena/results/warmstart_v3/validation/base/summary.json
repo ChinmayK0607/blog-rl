@@ -1,0 +1,33 @@
+{
+  "adapter": null,
+  "dataset": "data/warmstart_v3",
+  "exact": 0.15104166666666666,
+  "examples": 192,
+  "grounded": 0.875,
+  "groups": {
+    "ACT": {
+      "exact": 0.22916666666666666,
+      "examples": 48,
+      "grounded": 0.9375,
+      "legal": 0.9375,
+      "schema_valid": 0.9375
+    },
+    "BROADCAST": {
+      "exact": 0.020833333333333332,
+      "examples": 48,
+      "grounded": 0.5625,
+      "legal": 0.4375,
+      "schema_valid": 0.7708333333333334
+    },
+    "instruction_preservation": {
+      "exact": 0.17708333333333334,
+      "examples": 96,
+      "grounded": 1.0,
+      "legal": 1.0,
+      "schema_valid": 1.0
+    }
+  },
+  "legal": 0.84375,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "schema_valid": 0.9270833333333334
+}

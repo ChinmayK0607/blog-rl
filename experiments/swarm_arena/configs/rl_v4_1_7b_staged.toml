@@ -1,0 +1,68 @@
+# Prime counts token-packing slices internally; the controller owns the finite
+# 120-update horizon declared by staged_curriculum_v1.json.
+max_concurrent_runs = 4
+atomic_multi_run_updates = true
+
+[model]
+name = "/workspace/models/qwen3-1.7b-70d244c"
+seq_len = 2560
+attn = "flash_attention_2"
+impl = "hf"
+fused_lm_head_token_chunk_size = "disabled"
+
+[model.lora]
+rank = 16
+alpha = 32
+dropout = 0.0
+target_modules = ["q_proj", "k_proj", "v_proj", "o_proj"]
+initial_adapter_path = "/workspace/artifacts/warmstart-1.7b-step320"
+initial_adapter_sha256 = "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b"
+
+[loss]
+type = "default"
+adv_tau = 1.0
+kl_tau = 0.001
+dppo_mask_low = 0.1
+dppo_mask_high = 0.1
+
+[optim]
+type = "adamw"
+# A single uninterrupted run cannot safely change LR at curriculum boundaries.
+# 7.5e-6 lies between the stable-but-weak 5e-6 run and the fast 1e-5 ablation.
+lr = 0.0000075
+max_norm = 1.0
+
+[weight_broadcast]
+type = "filesystem"
+save_sharded = false
+save_format = "safetensors"
+
+[ckpt]
+interval = 10
+keep_last = 2
+keep_interval = 10
+weights_only = true
+
+[ckpt.weights]
+save_sharded = false
+save_format = "safetensors"
+save_adapter_separately = true
+
+[rollout_parity_gate]
+# Online aborts are limited to widespread distribution drift. Exact token-span,
+# legal-choice, adapter-identity, finite-value, and four-policy isolation checks
+# are enforced elsewhere. All omitted statistics remain logged diagnostics.
+max_mean_logprob_error = 0.05
+probability_tail_threshold = 0.05
+max_mean_mismatch_kl = 0.002
+
+[log]
+level = "info"
+interval = 10
+
+[wandb]
+project = "swarm-arena-rl"
+name = "qwen3-1.7b-staged-120-trainer"
+group = "qwen3-1.7b-staged-120"
+tags = ["1.7b", "lora", "marl", "staged-curriculum", "four-policy"]
+offline = true

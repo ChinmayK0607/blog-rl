@@ -1,0 +1,14 @@
+{
+  "policy_adapter_sha256": {
+    "blue-0": "4b50b6819ca3bea2634e1f4409b686e96bb180fe6f523689efc68adfa77a85fb",
+    "blue-1": "2124b5bb516799ab8ce22785bc47bf4d800a31bb82a24ec3ab5dce5bdec9ed0f",
+    "blue-2": "9108b0da279cba7613910b81991f8de5078b0398d00ec73301f9d8d32c9cbeac",
+    "blue-3": "c0dfb9b9ec44dda9eda89e45caa2cc8496a506d4ba562831b7565a8d066d04d1"
+  },
+  "policy_revision": "dfc7e695494698ab43bd13ee8c4446f793ae973eddfddee013be75353e23e79a",
+  "production_plan_sha256": "93ae311d15bf57a40d7d4a16298bdb8fe35e28997eb68726bcc69e251ef6d64a",
+  "ready_sha256": "640f17dba7003298900ae8712acfc13d16ff4780eb5bbcd0ecbf5c4fae074eef",
+  "run_id": "rl-v4-compact-multipair40-3ca20933-l40s-a",
+  "step": 40,
+  "version": "swarm-checkpoint-barrier-v1"
+}

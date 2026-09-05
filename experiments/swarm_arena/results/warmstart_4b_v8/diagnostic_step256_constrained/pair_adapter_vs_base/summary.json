@@ -1,0 +1,100 @@
+{
+  "blue_model": "v8-step256-44deb6b2",
+  "conditions": {
+    "dropped:generated": {
+      "blue_mean_return": 2.3500000000000005,
+      "blue_mean_return_95": [
+        -1.3125000000000002,
+        5.9
+      ],
+      "blue_win_rate": 0.75,
+      "draw_rate": 0,
+      "matches": 4,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31,
+          "duplicate_target_turn_rate": 0.3333333333333333,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.75,
+          "duplicate_target_turn_rate": 0.08333333333333333,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "generated:dropped": {
+      "blue_mean_return": -2.0250000000000004,
+      "blue_mean_return_95": [
+        -4.550000000000001,
+        0.6500000000000001
+      ],
+      "blue_win_rate": 0.25,
+      "draw_rate": 0,
+      "matches": 4,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.5,
+          "duplicate_target_turn_rate": 0.375,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.75,
+          "duplicate_target_turn_rate": 0.41666666666666663,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    },
+    "generated:generated": {
+      "blue_mean_return": 0.2687499999999999,
+      "blue_mean_return_95": [
+        -1.9500000000000004,
+        2.5749999999999997
+      ],
+      "blue_win_rate": 0.5,
+      "draw_rate": 0,
+      "matches": 8,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.875,
+          "duplicate_target_turn_rate": 0.4375,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.625,
+          "duplicate_target_turn_rate": 0.16666666666666666,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    }
+  },
+  "crossplay_version": "arena-crossplay-v4-dynamic-protocol",
+  "interval_method": "seed-level nonparametric bootstrap, 20000 deterministic resamples",
+  "manifest_sha256": "02b8172c29ca47075e510b2794764fe3757c98a449ad2c35d3034da3968b55d4",
+  "matches": 16,
+  "red_model": "Qwen/Qwen3-4B-Instruct-2507"
+}

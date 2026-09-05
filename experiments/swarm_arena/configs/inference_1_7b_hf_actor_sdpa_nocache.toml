@@ -1,0 +1,9 @@
+version = "arena-hf-choice-actor-v1"
+model = "/workspace/models/qwen3-1.7b-70d244c"
+attention = "sdpa"
+dtype = "bfloat16"
+device = "cuda"
+max_tokens = 128
+use_kv_cache = false
+lm_head = "bf16xbf16-to-fp32"
+sampling = "temperature-1-constrained-multinomial"

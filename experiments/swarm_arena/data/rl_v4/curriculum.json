@@ -1,0 +1,34 @@
+{
+  "message_reward": null,
+  "promotion": "development capability must not regress; critical normal-minus-dropped must be positive; matched-decoy normal-minus-dropped must remain null",
+  "reward": "terminal_control_delta_only",
+  "stages": [
+    {
+      "horizon": [
+        4,
+        5
+      ],
+      "mixture": {
+        "handoff_critical": 0.25,
+        "handoff_decoy": 0.25,
+        "ordinary_procedural": 0.5
+      },
+      "purpose": "learn game actions while exposing every ordered sender/receiver role",
+      "stage": 1
+    },
+    {
+      "horizon": [
+        6,
+        8
+      ],
+      "mixture": {
+        "handoff_critical": 0.15,
+        "handoff_decoy": 0.15,
+        "ordinary_procedural": 0.7
+      },
+      "purpose": "preserve general play while retaining causal handoff pressure",
+      "stage": 2
+    }
+  ],
+  "version": "arena-rl-v4-handoff-curriculum-v1"
+}

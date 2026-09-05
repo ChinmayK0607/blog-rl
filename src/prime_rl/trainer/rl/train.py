@@ -1,8 +1,11 @@
 import prime_rl._compat  # noqa: F401 — patch ring_flash_attn compat before import
 
 from contextlib import nullcontext
+from collections import defaultdict
+import json
+import os
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 # Import environment before any other imports
 # ruff: noqa: I001
@@ -28,12 +31,21 @@ from prime_rl.utils.cp import (
 from prime_rl.utils.logger import format_time, setup_logger
 from prime_rl.trainer.rl.loss import (
     compute_entropy,
+    compute_constrained_entropy,
     compute_loss,
     compute_importance_ratio_and_mismatch_kl,
+    rollout_parity_metrics,
     selective_log_softmax,
+    selective_constrained_log_softmax,
     setup_loss_fns,
     shift_tensor_left,
     shift_tensor_right,
+    validate_rollout_parity_metrics,
+)
+from prime_rl.trainer.rl.parity import (
+    load_rollout_parity_quarantine_counts,
+    rollout_parity_failures,
+    rollout_parity_quarantine_disposition,
 )
 from prime_rl.trainer.rl.token_export import setup_token_exporter
 from prime_rl.trainer.model import (
@@ -56,9 +68,15 @@ from prime_rl.trainer.utils import (
     setup_torch_distributed,
     print_benchmark,
     get_response_lengths,
+    flexible_all_gather,
 )
 from prime_rl.trainer.world import get_world
-from prime_rl.trainer.runs import setup_multi_run_manager, Progress, get_multi_run_manager
+from prime_rl.trainer.runs import (
+    Progress,
+    get_multi_run_manager,
+    multi_run_optimizer_step_ready,
+    setup_multi_run_manager,
+)
 from prime_rl.trainer.models.layers.lora import set_lora_num_tokens
 from prime_rl.utils.heartbeat import Heartbeat
 from prime_rl.utils.metrics_server import HealthServer, MetricsServer, RunStats
@@ -245,6 +263,28 @@ def train(config: TrainerConfig):
     gc_handler = GarbageCollection(config.gc.interval) if config.gc else None
 
     logger.info(f"Starting training loop (max_steps={config.max_steps or 'infinite'})")
+    # Multi-run batches can span several packing slices before a logical policy
+    # update is ready.  Keep parity samples for each isolated run until that
+    # run is ready to step: aggregate gates (mean, p99, and tail fraction) are
+    # defined over the complete logical batch, not an arbitrary packing slice.
+    # A failed gate still raises before optimizer.step(), so no rejected batch
+    # can update weights.
+    multi_run_parity: dict[int, dict[str, list[torch.Tensor]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+    parity_quarantines_by_window: dict[int, int] = defaultdict(int)
+    if config.rollout_parity_recovery is not None:
+        parity_quarantines_by_window.update(
+            load_rollout_parity_quarantine_counts(
+                config.output_dir / "audit" / "rollout_parity_quarantine.jsonl",
+                window_size=config.rollout_parity_recovery.window_size,
+            )
+        )
+        if max(parity_quarantines_by_window.values(), default=0) > (
+            config.rollout_parity_recovery.max_quarantined_updates_per_window
+        ):
+            raise RuntimeError("existing parity quarantine ledger exceeds configured limit")
+    optimizer_step_completed = False
     is_first_step = True
     maybe_record_function = nullcontext
     if config.trace_path:
@@ -252,6 +292,8 @@ def train(config: TrainerConfig):
         prof = profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True).__enter__()
         maybe_record_function = record_function
     while True:
+        completed_update_to_publish = optimizer_step_completed
+        optimizer_step_completed = False
         # Reset peak memory stats
         torch.cuda.reset_peak_memory_stats()
         if gc_handler is not None:
@@ -264,7 +306,7 @@ def train(config: TrainerConfig):
         #     uses the trainer's penultimate ckpt, so the trainer's last broadcast has no receiver
         #     (the inference NCCL group has been torn down). Filesystem broadcast still writes the
         #     final step so we can resume from the broadcast directory.
-        if weight_broadcast is None:
+        if weight_broadcast is None or not completed_update_to_publish:
             broadcast_weights_time = 0
         else:
             nccl_broadcast_unused = (
@@ -287,13 +329,16 @@ def train(config: TrainerConfig):
                     multi_run_manager.ready_to_update[idx] = False
 
         if config.max_concurrent_runs > 1:
-            # Multi-run: Save per-run checkpoints using each run's orchestrator config.
-            # Trainer-level ckpt config can be set by the combined rl entrypoint,
-            # but MultiCheckpointManager has a different save signature.
-            save_ckpt_start_time = time.perf_counter()
-            ckpt_manager.save(optimizer, scheduler)
-            save_ckpt_time = time.perf_counter() - save_ckpt_start_time
-            ckpt_manager.maybe_clean()
+            if not config.atomic_multi_run_updates or completed_update_to_publish:
+                # Multi-run: Save per-run checkpoints using each run's orchestrator config.
+                # Trainer-level ckpt config can be set by the combined rl entrypoint,
+                # but MultiCheckpointManager has a different save signature.
+                save_ckpt_start_time = time.perf_counter()
+                ckpt_manager.save(optimizer, scheduler)
+                save_ckpt_time = time.perf_counter() - save_ckpt_start_time
+                ckpt_manager.maybe_clean()
+            else:
+                save_ckpt_time = 0
         elif (
             ckpt_manager is not None
             and (config.ckpt and config.ckpt.interval)
@@ -430,6 +475,13 @@ def train(config: TrainerConfig):
                 set_lora_num_tokens(lora_num_tokens)
 
             temperatures = micro_batch["temperatures"].to("cuda")
+            allowed_token_ids = (
+                micro_batch["allowed_token_ids"].to("cuda")
+                if micro_batch["allowed_token_ids"] is not None
+                else None
+            )
+            if allowed_token_ids is not None and cp_enabled:
+                raise NotImplementedError("constrained token replay does not support context parallelism")
 
             # Shard temperatures for context parallelism if enabled
             if cp_enabled:
@@ -454,8 +506,25 @@ def train(config: TrainerConfig):
                 logits = out["logits"]
                 # Per-token temperature scaling: temperatures is [batch, seq], logits is [batch, seq, vocab]
                 scaled_logits = logits / temperatures.unsqueeze(-1)
-                out["logprobs"] = selective_log_softmax(scaled_logits, labels)
-                out["entropy"] = compute_entropy(scaled_logits)
+                if allowed_token_ids is None:
+                    out["logprobs"] = selective_log_softmax(scaled_logits, labels)
+                    out["entropy"] = compute_entropy(scaled_logits)
+                else:
+                    label_allowed = torch.cat(
+                        [
+                            allowed_token_ids[:, 1:, :],
+                            torch.full_like(allowed_token_ids[:, :1, :], -1),
+                        ],
+                        dim=1,
+                    )
+                    out["logprobs"] = selective_constrained_log_softmax(
+                        scaled_logits, labels, label_allowed
+                    )
+                    out["entropy"] = compute_constrained_entropy(scaled_logits, label_allowed)
+            elif allowed_token_ids is not None:
+                raise ValueError(
+                    "constrained token replay requires model.fused_lm_head_token_chunk_size='disabled'"
+                )
             # else: FusedOutputLinear was used - logprobs already computed with per-token temperatures
 
             if cp_enabled:
@@ -509,8 +578,32 @@ def train(config: TrainerConfig):
             if micro_batch["training_mode"] != "sft":
                 with torch.no_grad():
                     _, _, mismatch_kl = compute_importance_ratio_and_mismatch_kl(out["logprobs"], inference_logprobs)
+                    absolute_logprob_error = (out["logprobs"] - inference_logprobs).abs()
+                    probability_error = (
+                        out["logprobs"].exp() - inference_logprobs.exp()
+                    ).abs()
                 mismatch_kl = mismatch_kl[loss_mask].detach().to("cpu")
+                absolute_logprob_error = absolute_logprob_error[loss_mask].detach().to("cpu")
+                probability_error = probability_error[loss_mask].detach().to("cpu")
                 tensors["mismatch_kl/all"].append(mismatch_kl)
+                tensors["parity_abs_logprob_error/all"].append(absolute_logprob_error)
+                tensors["parity_probability_error/all"].append(probability_error)
+                if config.max_concurrent_runs > 1 and config.rollout_parity_gate is not None:
+                    active_run_idxs = (
+                        (micro_batch["lora_num_tokens"] > 0)
+                        .nonzero(as_tuple=False)
+                        .flatten()
+                        .tolist()
+                    )
+                    if len(active_run_idxs) != 1:
+                        raise ValueError(
+                            "multi-run parity requires each micro-batch to contain "
+                            "exactly one policy adapter"
+                        )
+                    parity = multi_run_parity[active_run_idxs[0]]
+                    parity["absolute_logprob_error"].append(absolute_logprob_error)
+                    parity["probability_error"].append(probability_error)
+                    parity["mismatch_kl"].append(mismatch_kl)
                 for env_name, indices in env_to_indices.items():
                     tensors[f"mismatch_kl/{env_name}"].append(mismatch_kl[indices])
 
@@ -536,34 +629,196 @@ def train(config: TrainerConfig):
                 micro_step_message += f" | Routing Conf. {tensors['routing_confidence'][-1].mean().item():.4f}"
             logger.debug(micro_step_message)
 
-        # compute_loss already divided by the global token count. Undo FSDP's per-rank averaging
-        # across dp_cp so the final gradient is the true per-token mean over the global batch.
-        for param in model.parameters():
-            if param.grad is not None:
-                param.grad.mul_(parallel_dims.fsdp_gradient_divide_factor)
+        optimizer_step_ready = multi_run_optimizer_step_ready(
+            multi_run_manager.ready_to_update,
+            multi_run_manager.used_idxs,
+            atomic=config.atomic_multi_run_updates,
+        )
+        parity_update_quarantined = False
+        if config.rollout_parity_gate is not None and optimizer_step_ready:
+            def gathered(values: list[torch.Tensor]) -> torch.Tensor:
+                local = (
+                    torch.cat(values, dim=0).to("cuda")
+                    if values
+                    else torch.empty(0, device="cuda")
+                )
+                return flexible_all_gather(local)
 
-        # Optionally, clip the gradients
+            if config.max_concurrent_runs == 1:
+                parity_inputs = (
+                    gathered(tensors["parity_abs_logprob_error/all"]),
+                    gathered(tensors["parity_probability_error/all"]),
+                    gathered(tensors["mismatch_kl/all"]),
+                )
+                ready_parity = [(None, parity_inputs)]
+            else:
+                ready_parity = [
+                    (
+                        run_idx,
+                        (
+                            gathered(multi_run_parity[run_idx]["absolute_logprob_error"]),
+                            gathered(multi_run_parity[run_idx]["probability_error"]),
+                            gathered(multi_run_parity[run_idx]["mismatch_kl"]),
+                        ),
+                    )
+                    for run_idx in multi_run_manager.ready_to_update_idxs
+                ]
+
+            parity_failures_by_run: dict[int | None, dict[str, tuple[float, float]]] = {}
+            parity_metrics_by_run: dict[int | None, dict[str, float]] = {}
+            for run_idx, parity_inputs in ready_parity:
+                parity_metrics = rollout_parity_metrics(
+                    *parity_inputs,
+                    probability_tail_threshold=(
+                        config.rollout_parity_gate.probability_tail_threshold
+                    ),
+                )
+                parity_metrics_by_run[run_idx] = parity_metrics
+                failures = rollout_parity_failures(
+                    parity_metrics, config.rollout_parity_gate
+                )
+                if failures:
+                    parity_failures_by_run[run_idx] = failures
+                    continue
+                run_label = "" if run_idx is None else f" for run {run_idx}"
+                logger.info(
+                    f"Rollout parity gate passed{run_label} before optimizer step: "
+                    + ", ".join(
+                        f"{name}={value:.6g}" for name, value in parity_metrics.items()
+                    )
+                )
+            if parity_failures_by_run:
+                recovery = config.rollout_parity_recovery
+                if recovery is None:
+                    first_failed_run = next(iter(parity_failures_by_run))
+                    validate_rollout_parity_metrics(
+                        parity_metrics_by_run[first_failed_run],
+                        config.rollout_parity_gate,
+                    )
+                    raise AssertionError("unreachable parity validation path")
+                logical_steps = {
+                    multi_run_manager.progress[idx].step
+                    for idx in multi_run_manager.ready_to_update_idxs
+                }
+                if len(logical_steps) != 1:
+                    raise RuntimeError(
+                        "cannot quarantine a non-atomic logical update with "
+                        f"policy steps {sorted(logical_steps)}"
+                    )
+                logical_update = logical_steps.pop()
+                if logical_update < 1:
+                    raise RuntimeError("parity quarantine requires a positive logical update")
+                window_index = (logical_update - 1) // recovery.window_size
+                window_index, next_window_count, quarantine_allowed = (
+                    rollout_parity_quarantine_disposition(
+                        logical_update=logical_update,
+                        prior_window_count=parity_quarantines_by_window[window_index],
+                        window_size=recovery.window_size,
+                        window_limit=recovery.max_quarantined_updates_per_window,
+                    )
+                )
+                audit_record = {
+                    "version": "prime-rl-parity-quarantine-v1",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "logical_update": logical_update,
+                    "window_index": window_index,
+                    "window_size": recovery.window_size,
+                    "window_quarantine_count": next_window_count,
+                    "window_quarantine_limit": (
+                        recovery.max_quarantined_updates_per_window
+                    ),
+                    "policy_metrics": {
+                        "all" if run_idx is None else str(run_idx): metrics
+                        for run_idx, metrics in parity_metrics_by_run.items()
+                    },
+                    "failed_runs": {
+                        "all" if run_idx is None else str(run_idx): {
+                            "metrics": parity_metrics_by_run[run_idx],
+                            "exceeded": {
+                                name: {"value": value, "threshold": threshold}
+                                for name, (value, threshold) in failures.items()
+                            },
+                        }
+                        for run_idx, failures in parity_failures_by_run.items()
+                    },
+                    "action": (
+                        "quarantine_logical_update"
+                        if quarantine_allowed
+                        else "abort_quarantine_limit_exceeded"
+                    ),
+                    "optimizer_step_applied": False,
+                    "replacement_batch_sampled": False,
+                }
+                if world.is_master:
+                    audit_path = config.output_dir / "audit" / "rollout_parity_quarantine.jsonl"
+                    audit_path.parent.mkdir(parents=True, exist_ok=True)
+                    with audit_path.open("a", encoding="utf-8") as handle:
+                        handle.write(json.dumps(audit_record, sort_keys=True) + "\n")
+                        handle.flush()
+                        os.fsync(handle.fileno())
+                if not quarantine_allowed:
+                    raise RuntimeError(
+                        "rollout/trainer numerical-parity quarantine limit exceeded: "
+                        f"window={window_index}, count={next_window_count}, "
+                        f"limit={recovery.max_quarantined_updates_per_window}"
+                    )
+                parity_quarantines_by_window[window_index] = next_window_count
+                parity_update_quarantined = True
+                logger.warning(
+                    f"Quarantining logical update {logical_update} after policy-local "
+                    "parity failure; no optimizer or scheduler step will run and no "
+                    "replacement batch will be sampled. Publishing unchanged weights "
+                    f"({next_window_count}/{recovery.max_quarantined_updates_per_window} "
+                    f"in window {window_index})."
+                )
+            for run_idx, _ in ready_parity:
+                if run_idx is not None:
+                    del multi_run_parity[run_idx]
+
         grad_norm: torch.Tensor | None = None
-        if config.optim.max_norm is not None:
-            grad_norm = clip_grad_norm_(
-                model.parameters(), max_norm=config.optim.max_norm, ep_enabled=parallel_dims.ep_enabled
+        if optimizer_step_ready and not parity_update_quarantined:
+            # compute_loss already divided by the global token count. Undo FSDP's
+            # per-rank averaging once, immediately before the complete update.
+            for param in model.parameters():
+                if param.grad is not None:
+                    param.grad.mul_(parallel_dims.fsdp_gradient_divide_factor)
+
+            if config.optim.max_norm is not None:
+                grad_norm = clip_grad_norm_(
+                    model.parameters(), max_norm=config.optim.max_norm, ep_enabled=parallel_dims.ep_enabled
+                )
+                if grad_norm.device.type == "cpu":
+                    grad_norm = grad_norm.to(torch.device("cuda"))
+
+            zero_grad_ratio = get_zero_gradient_ratio(model.parameters(), parallel_dims.dp_replicate)
+            optimizer.step()
+            optimizer.zero_grad()
+            scheduler.step()
+            optimizer_step_completed = True
+
+            if config.max_concurrent_runs == 1:
+                current_lr = optimizer.param_groups[0]["lr"]
+            else:
+                current_lr = optimizer.get_current_lr()
+        elif optimizer_step_ready:
+            # The complete predetermined batch failed the numerical-parity
+            # contract. Discard every gradient from the atomic four-policy
+            # update, keep optimizer/scheduler state unchanged, and publish the
+            # unchanged policy weights on the next loop so the controller can
+            # advance without favorable resampling.
+            optimizer.zero_grad()
+            zero_grad_ratio = get_zero_gradient_ratio(
+                model.parameters(), parallel_dims.dp_replicate
             )
-            if grad_norm.device.type == "cpu":
-                grad_norm = grad_norm.to(torch.device("cuda"))
-
-        zero_grad_ratio = get_zero_gradient_ratio(model.parameters(), parallel_dims.dp_replicate)
-
-        # Update the model parameters
-        optimizer.step()
-        optimizer.zero_grad()
-
-        # Update learning rate scheduler
-        scheduler.step()
-
-        if config.max_concurrent_runs == 1:
-            current_lr = optimizer.param_groups[0]["lr"]
+            current_lr = 0.0
+            optimizer_step_completed = True
         else:
-            current_lr = optimizer.get_current_lr()
+            zero_grad_ratio = get_zero_gradient_ratio(model.parameters(), parallel_dims.dp_replicate)
+            current_lr = 0.0
+            logger.info(
+                "Deferring atomic multi-run optimizer step until all active runs are ready: "
+                f"ready={multi_run_manager.ready_to_update_idxs}, used={multi_run_manager.used_idxs}"
+            )
         forward_backward_time = time.perf_counter() - forward_backward_start_time
 
         # Optionally, dump memory snapshot
@@ -610,6 +865,7 @@ def train(config: TrainerConfig):
         # Log optimizer metrics
         optim_metrics = {
             "optim/lr": current_lr,
+            "optim/parity_update_quarantined": float(parity_update_quarantined),
             "optim/zero_grad_ratio": zero_grad_ratio,
             "step": progress.step,
         }

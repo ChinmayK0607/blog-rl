@@ -1,0 +1,32 @@
+{
+  "manifest_sha256": "b53bfc523043ec71cc69f851d0819511c5a9f0b4f09520898f30954bbe874b29",
+  "num_cases": 60,
+  "policies": {
+    "centralized_oracle": {
+      "mean_oracle_regret": 0.0,
+      "mean_reward": 2.645,
+      "optimal_outcome_rate": 1
+    },
+    "independent_local": {
+      "mean_oracle_regret": 3.154166666666667,
+      "mean_reward": -0.5091666666666668,
+      "optimal_outcome_rate": 0
+    },
+    "random_legal": {
+      "mean_oracle_regret": 3.95328125,
+      "mean_reward": -1.30828125,
+      "optimal_outcome_rate": 0
+    },
+    "sequential_heuristic": {
+      "mean_oracle_regret": 3.0658333333333334,
+      "mean_reward": -0.4208333333333334,
+      "optimal_outcome_rate": 0
+    },
+    "wait": {
+      "mean_oracle_regret": 4.956666666666667,
+      "mean_reward": -2.311666666666667,
+      "optimal_outcome_rate": 0
+    }
+  },
+  "random_repeats_per_case": 32
+}

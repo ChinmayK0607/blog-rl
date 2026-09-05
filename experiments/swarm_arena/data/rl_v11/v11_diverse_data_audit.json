@@ -1,0 +1,376 @@
+{
+  "curriculum_sha256": "f0d6eb8b7fe6fd76fd6c24c184fc797de45b94107846e7e32fe719af2f45dabd",
+  "development": {
+    "horizons_per_role": {
+      "blue-0->blue-1": [
+        8,
+        12
+      ],
+      "blue-0->blue-2": [
+        10,
+        14
+      ],
+      "blue-0->blue-3": [
+        4,
+        12
+      ],
+      "blue-1->blue-0": [
+        5,
+        14
+      ],
+      "blue-1->blue-2": [
+        4,
+        6
+      ],
+      "blue-1->blue-3": [
+        5,
+        8
+      ],
+      "blue-2->blue-0": [
+        6,
+        10
+      ],
+      "blue-2->blue-1": [
+        8,
+        12
+      ],
+      "blue-2->blue-3": [
+        10,
+        14
+      ],
+      "blue-3->blue-0": [
+        4,
+        12
+      ],
+      "blue-3->blue-1": [
+        5,
+        14
+      ],
+      "blue-3->blue-2": [
+        4,
+        6
+      ]
+    },
+    "pair_count": 24,
+    "role_counts": {
+      "blue-0->blue-1": 2,
+      "blue-0->blue-2": 2,
+      "blue-0->blue-3": 2,
+      "blue-1->blue-0": 2,
+      "blue-1->blue-2": 2,
+      "blue-1->blue-3": 2,
+      "blue-2->blue-0": 2,
+      "blue-2->blue-1": 2,
+      "blue-2->blue-3": 2,
+      "blue-3->blue-0": 2,
+      "blue-3->blue-1": 2,
+      "blue-3->blue-2": 2
+    },
+    "sizes_per_role": {
+      "blue-0->blue-1": [
+        14,
+        18
+      ],
+      "blue-0->blue-2": [
+        16,
+        20
+      ],
+      "blue-0->blue-3": [
+        12,
+        18
+      ],
+      "blue-1->blue-0": [
+        14,
+        20
+      ],
+      "blue-1->blue-2": [
+        12,
+        16
+      ],
+      "blue-1->blue-3": [
+        14,
+        18
+      ],
+      "blue-2->blue-0": [
+        16,
+        20
+      ],
+      "blue-2->blue-1": [
+        12,
+        18
+      ],
+      "blue-2->blue-3": [
+        14,
+        20
+      ],
+      "blue-3->blue-0": [
+        12,
+        16
+      ],
+      "blue-3->blue-1": [
+        14,
+        18
+      ],
+      "blue-3->blue-2": [
+        16,
+        20
+      ]
+    },
+    "unique_world_state_hashes": 48
+  },
+  "frozen_manifest_sha256": "6a6ad15bd7619e390587bff26b0b2ad1cf54d1065a53884e3616a98f7023c50c",
+  "frozen_pair_count": 36,
+  "frozen_unopened": true,
+  "online_eval_pair_indices": [
+    96,
+    99,
+    104,
+    107
+  ],
+  "ordinary_development_sha256": "ca41177c862ee48055df8f2171ff28e1d324d8527a7e286f8e2d5e409c41ee76",
+  "ordinary_frozen_sha256": "ae6f86bcb6eb5c124d48edd848f8e316be2225db69ec2a8c1188928bd30d6640",
+  "receiver_policy_slot_counts": {
+    "blue-0": 135,
+    "blue-1": 135,
+    "blue-2": 135,
+    "blue-3": 135
+  },
+  "role_size_decorrelation_passed": true,
+  "schedule_group_counts": {
+    "critical": 540,
+    "ordinary": 180
+  },
+  "schedule_sha256": "1f4a518bae9551572b3c3ec81d322b06cb437163f20cfcc33b539cfdeac5a458",
+  "selection_eval_pair_indices": [
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107
+  ],
+  "split_state_hashes_disjoint": true,
+  "status": "passed",
+  "train_and_development_manifest_sha256": "41c6caa00b7d2854c3667058feb52256dbeff67515c7976636c5636e38b5f364",
+  "training": {
+    "horizons_per_role": {
+      "blue-0->blue-1": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-0->blue-2": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-0->blue-3": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-1->blue-0": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-1->blue-2": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-1->blue-3": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-2->blue-0": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-2->blue-1": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-2->blue-3": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-3->blue-0": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-3->blue-1": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "blue-3->blue-2": [
+        4,
+        5,
+        6,
+        8,
+        10,
+        12,
+        14
+      ]
+    },
+    "pair_count": 96,
+    "role_counts": {
+      "blue-0->blue-1": 8,
+      "blue-0->blue-2": 8,
+      "blue-0->blue-3": 8,
+      "blue-1->blue-0": 8,
+      "blue-1->blue-2": 8,
+      "blue-1->blue-3": 8,
+      "blue-2->blue-0": 8,
+      "blue-2->blue-1": 8,
+      "blue-2->blue-3": 8,
+      "blue-3->blue-0": 8,
+      "blue-3->blue-1": 8,
+      "blue-3->blue-2": 8
+    },
+    "sizes_per_role": {
+      "blue-0->blue-1": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-0->blue-2": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-0->blue-3": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-1->blue-0": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-1->blue-2": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-1->blue-3": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-2->blue-0": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-2->blue-1": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-2->blue-3": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-3->blue-0": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-3->blue-1": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "blue-3->blue-2": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ]
+    },
+    "unique_world_state_hashes": 192
+  },
+  "version": "arena-rl-v11-diverse-data-audit-v1"
+}

@@ -14,6 +14,7 @@ from prime_rl.trainer.runs import get_multi_run_manager
 from prime_rl.trainer.utils import maybe_clean
 from prime_rl.trainer.weights import (
     gather_weights_on_master,
+    peft_adapter_state_dict,
     save_state_dict,
 )
 from prime_rl.trainer.world import get_world
@@ -68,6 +69,8 @@ class FileSystemWeightBroadcast(WeightBroadcast):
             # TODO: Broadcast ready to update in sync, then we dont need to gather on not ready
             if self.world.is_master:
                 try:
+                    if adapter_only:
+                        state_dict = peft_adapter_state_dict(state_dict)
                     save_dir = get_step_path(
                         get_broadcast_dir(self.multi_run_manager.get_run_dir(idx)),
                         self.multi_run_manager.progress[idx].step,

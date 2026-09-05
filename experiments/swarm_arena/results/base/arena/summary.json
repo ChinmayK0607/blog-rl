@@ -1,0 +1,125 @@
+{
+  "action_order_consistency_rate": 0.016666666666666666,
+  "arena_version": "arena-core-v1",
+  "conditions": {
+    "dropped": {
+      "mean_environment_reward": 0.0008333333333332314,
+      "mean_environment_reward_95": [
+        -0.5469735659032718,
+        0.5486402325699383
+      ],
+      "mean_oracle_regret": 2.6441666666666666,
+      "mean_oracle_regret_95": [
+        1.9804088027568885,
+        3.307924530576445
+      ],
+      "nonredundant_joint_action_rate": 0.15,
+      "optimal_outcome_rate": 0.016666666666666666,
+      "optimal_outcome_wilson_95": [
+        0.002948083860873682,
+        0.08855338226779477
+      ],
+      "strict_action_rate": 0.9875
+    },
+    "generated": {
+      "mean_environment_reward": -0.5850000000000001,
+      "mean_environment_reward_95": [
+        -1.1602061724207768,
+        -0.009793827579223202
+      ],
+      "mean_oracle_regret": 3.23,
+      "mean_oracle_regret_95": [
+        2.4603566763430496,
+        3.9996433236569504
+      ],
+      "nonredundant_joint_action_rate": 0.31666666666666665,
+      "optimal_outcome_rate": 0.016666666666666666,
+      "optimal_outcome_wilson_95": [
+        0.002948083860873682,
+        0.08855338226779477
+      ],
+      "strict_action_rate": 0.9416666666666667
+    },
+    "reference": {
+      "mean_environment_reward": -0.5266666666666667,
+      "mean_environment_reward_95": [
+        -1.1575295292105796,
+        0.10419619587724605
+      ],
+      "mean_oracle_regret": 3.171666666666667,
+      "mean_oracle_regret_95": [
+        2.4082093189827374,
+        3.9351240143505963
+      ],
+      "nonredundant_joint_action_rate": 0.25,
+      "optimal_outcome_rate": 0.03333333333333333,
+      "optimal_outcome_wilson_95": [
+        0.009189126490150246,
+        0.11363987528925378
+      ],
+      "strict_action_rate": 0.9541666666666667
+    },
+    "shuffled": {
+      "mean_environment_reward": -0.3233333333333334,
+      "mean_environment_reward_95": [
+        -0.8729645306211284,
+        0.22629786395446155
+      ],
+      "mean_oracle_regret": 2.9683333333333333,
+      "mean_oracle_regret_95": [
+        2.262567379319133,
+        3.6740992873475333
+      ],
+      "nonredundant_joint_action_rate": 0.4666666666666667,
+      "optimal_outcome_rate": 0.016666666666666666,
+      "optimal_outcome_wilson_95": [
+        0.002948083860873682,
+        0.08855338226779477
+      ],
+      "strict_action_rate": 0.9083333333333333
+    }
+  },
+  "eval_version": "arena-eval-v2",
+  "generated_minus_dropped_reward": -0.5858333333333333,
+  "generated_slices": {
+    "opponent_style": {
+      "aggressive": {
+        "cases": 20,
+        "mean_oracle_regret": 3.9699999999999998,
+        "optimal_outcome_rate": 0
+      },
+      "balanced": {
+        "cases": 20,
+        "mean_oracle_regret": 3.8325,
+        "optimal_outcome_rate": 0
+      },
+      "defensive": {
+        "cases": 20,
+        "mean_oracle_regret": 1.8875,
+        "optimal_outcome_rate": 0.05
+      }
+    },
+    "topology_size": {
+      "12": {
+        "cases": 20,
+        "mean_oracle_regret": 3.07,
+        "optimal_outcome_rate": 0.05
+      },
+      "13": {
+        "cases": 20,
+        "mean_oracle_regret": 3.35,
+        "optimal_outcome_rate": 0
+      },
+      "14": {
+        "cases": 20,
+        "mean_oracle_regret": 3.27,
+        "optimal_outcome_rate": 0
+      }
+    }
+  },
+  "manifest_sha256": "b53bfc523043ec71cc69f851d0819511c5a9f0b4f09520898f30954bbe874b29",
+  "message_strict_rate": 0.5125,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "num_cases": 60,
+  "reference_message_headroom": 0.05833333333333335
+}

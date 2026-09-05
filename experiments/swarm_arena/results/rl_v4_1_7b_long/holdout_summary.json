@@ -1,0 +1,73 @@
+{
+  "candidate_normal_protocol": {
+    "action_protocol_rate": 1.0,
+    "broadcast_grounded_rate": 1.0,
+    "broadcast_protocol_rate": 1.0
+  },
+  "candidate_normal_return_by_opponent": {
+    "base": 0.0919542365569352,
+    "historical_league": 0.00639124882003442,
+    "sft": 0.04334392632743457
+  },
+  "critical_normal_minus_intervention": {
+    "delayed": {
+      "max": 0.1333333333333333,
+      "mean_difference": 0.04444444444444443,
+      "min": 0.0,
+      "paired_cells": 18,
+      "positive_rate": 0.3333333333333333
+    },
+    "dropped": {
+      "max": 0.1333333333333333,
+      "mean_difference": 0.04444444444444443,
+      "min": 0.0,
+      "paired_cells": 18,
+      "positive_rate": 0.3333333333333333
+    },
+    "sender_shuffled": {
+      "max": 0.1333333333333333,
+      "mean_difference": 0.04444444444444443,
+      "min": 0.0,
+      "paired_cells": 18,
+      "positive_rate": 0.3333333333333333
+    },
+    "zero_budget": {
+      "max": 0.1333333333333333,
+      "mean_difference": 0.04444444444444443,
+      "min": 0.0,
+      "paired_cells": 18,
+      "positive_rate": 0.3333333333333333
+    }
+  },
+  "critical_sft_normal_minus_dropped": {
+    "max": 0.1333333333333333,
+    "mean_difference": 0.04444444444444443,
+    "min": 0.0,
+    "paired_cells": 18,
+    "positive_rate": 0.3333333333333333
+  },
+  "decoy_candidate_normal_minus_dropped": {
+    "max": 0.0,
+    "mean_difference": -0.057971014492753624,
+    "min": -0.17391304347826086,
+    "paired_cells": 18,
+    "positive_rate": 0
+  },
+  "development_offsets": [
+    1,
+    2,
+    3
+  ],
+  "ordinary_candidate_minus_sft": {
+    "max": 0.41379310344827586,
+    "mean_difference": 0.003443790925050297,
+    "min": -0.34782608695652173,
+    "paired_cells": 18,
+    "positive_rate": 0.3333333333333333
+  },
+  "pulse_cases_reused": false,
+  "rows": 198,
+  "scope": "development-only checkpoint selection; frozen OOD remains unopened",
+  "selected_step": 20,
+  "version": "arena-final-eval-development-v2"
+}

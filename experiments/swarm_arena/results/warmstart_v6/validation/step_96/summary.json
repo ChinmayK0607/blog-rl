@@ -1,0 +1,33 @@
+{
+  "adapter": "outputs/swarm_arena/qwen3_4b_warmstart_v6/weights/step_96/lora_adapters",
+  "dataset": "experiments/swarm_arena/data/warmstart_v6",
+  "exact": 0.5,
+  "examples": 192,
+  "grounded": 0.9947916666666666,
+  "groups": {
+    "ACT": {
+      "exact": 0.625,
+      "examples": 48,
+      "grounded": 1.0,
+      "legal": 1.0,
+      "schema_valid": 1.0
+    },
+    "BROADCAST": {
+      "exact": 0.22916666666666666,
+      "examples": 48,
+      "grounded": 0.9791666666666666,
+      "legal": 0.9791666666666666,
+      "schema_valid": 1.0
+    },
+    "instruction_preservation": {
+      "exact": 0.5729166666666666,
+      "examples": 96,
+      "grounded": 1.0,
+      "legal": 1.0,
+      "schema_valid": 1.0
+    }
+  },
+  "legal": 0.9947916666666666,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "schema_valid": 1.0
+}

@@ -1,0 +1,35 @@
+{
+  "curriculum_schedule": "curriculum_schedule.json",
+  "splits": {
+    "development": {
+      "audit": "development_audit.json",
+      "manifest": "development.json",
+      "pair_count": 48,
+      "sha256": "265a978a4e281b7c9bfe8e3cfe68031e2b0e5d7ae2f5172b1226149586fb8efc",
+      "sizes": [
+        12,
+        13
+      ]
+    },
+    "frozen_ood": {
+      "audit": "frozen_ood_audit.json",
+      "manifest": "frozen_ood.json",
+      "pair_count": 72,
+      "sha256": "7c876814a2593696bea16d3cea754118a133c06b9bb93deec171960de2916b6e",
+      "sizes": [
+        14,
+        16
+      ]
+    },
+    "train": {
+      "audit": "train_audit.json",
+      "manifest": "train.json",
+      "pair_count": 240,
+      "sha256": "86634a4da47010427add06ae9e314962d38f17ed7404f9fed80a1c64f72cc766",
+      "sizes": [
+        12,
+        13
+      ]
+    }
+  }
+}

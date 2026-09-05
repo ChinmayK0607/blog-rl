@@ -1,0 +1,61 @@
+max_concurrent_runs = 4
+atomic_multi_run_updates = true
+
+[model]
+name = "/workspace/models/qwen3-4b-cdbee75f"
+seq_len = 2560
+attn = "flash_attention_2"
+impl = "hf"
+fused_lm_head_token_chunk_size = "disabled"
+
+[model.lora]
+rank = 32
+alpha = 64
+dropout = 0.0
+target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+initial_adapter_path = "/workspace/artifacts/qwen3-4b-sft-v2-d1a55d55"
+initial_adapter_sha256 = "168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2"
+
+[loss]
+type = "default"
+adv_tau = 1.0
+kl_tau = 0.001
+dppo_mask_low = 0.1
+dppo_mask_high = 0.1
+
+[optim]
+type = "adamw"
+lr = 0.000005
+max_norm = 1.0
+
+[weight_broadcast]
+type = "filesystem"
+save_sharded = false
+save_format = "safetensors"
+
+[ckpt]
+interval = 12
+keep_last = 2
+keep_interval = 12
+weights_only = true
+
+[ckpt.weights]
+save_sharded = false
+save_format = "safetensors"
+save_adapter_separately = true
+
+[rollout_parity_gate]
+max_mean_logprob_error = 0.25
+probability_tail_threshold = 0.05
+max_mean_mismatch_kl = 0.15
+
+[log]
+level = "info"
+interval = 10
+
+[wandb]
+project = "swarm-arena-rl"
+name = "qwen3-4b-representative-full-60-trainer"
+group = "qwen3-4b-representative-full-60"
+tags = ["4b", "lora", "marl", "paired-message-drop", "receiver", "full-prompt", "role-balanced", "horizon-curriculum", "four-policy"]
+offline = true

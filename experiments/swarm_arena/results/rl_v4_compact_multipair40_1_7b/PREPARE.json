@@ -1,0 +1,17 @@
+{
+  "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+  "checkpoint_interval": 10,
+  "output_dir": "/workspace/runs/rl-v4-compact-multipair40-3ca20933-l40s-a",
+  "policy_steps": 40,
+  "public_inputs": {
+    "adapter_repo": "CK0607/Qwen3-1.7B-Swarm-Arena-SFT-v2-step320-noneligible",
+    "adapter_revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+    "base_repo": "Qwen/Qwen3-1.7B",
+    "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "source_url": "https://github.com/ChinmayK0607/blog-rl/commit/3ca20933409f2e02f9dce60a3f295f10d15a0806"
+  },
+  "trainer_config": "/workspace/runs/rl-v4-compact-multipair40-3ca20933-l40s-a/trainer.toml",
+  "trainer_config_sha256": "183588447abe54223240b5b63b093fce3029e4455354c4837b20addb9dbad861",
+  "trainer_parity_gate_sha256": "390dfb746e8aca6370fac92aed2fcba7430f1a5d988d7025221ff41ba9905b88",
+  "version": "swarm-live-rl-prepare-v2"
+}

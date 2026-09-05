@@ -1,0 +1,1878 @@
+{
+  "credit_assignment": {
+    "critical": "receiver_ACT_absolute_factual_minus_receiver_only_target_swap",
+    "decoy": "receiver_ACT_absolute_target_swap_challenge_minus_factual",
+    "ordinary": "shared_terminal_return_leave_one_out"
+  },
+  "development_candidates": [
+    20,
+    40,
+    80,
+    120,
+    160
+  ],
+  "fail_fast_rule": "after updates 20 and 40, stop if neither ordinary retention nor decoy robustness improves while critical semantic return is non-positive",
+  "groups_per_update": 4,
+  "initializer": "four_distinct_public_v11_update180_policy_adapters",
+  "message_reward": null,
+  "online_eval_updates": [
+    0,
+    20,
+    40,
+    60,
+    80,
+    100,
+    120,
+    140,
+    160
+  ],
+  "principles": [
+    "continue four distinct V11 policies without merging or cloning one slot",
+    "use only verified terminal team return and no additive communication reward",
+    "retain factual-message critical handoffs while directly training misleading-message decoy actions",
+    "make every decoy challenge a matched subset of critical topology/world cases",
+    "front-load ordinary retention to repair the V11 legacy regression",
+    "rotate all four opponent families exactly once per update",
+    "stop at the first checkpoint that fails the predeclared repair trend twice",
+    "reuse the still-unopened V11 frozen final byte-for-byte"
+  ],
+  "reward": "verified_terminal_control_delta_only",
+  "runtime": {
+    "action_prompt_profile": "full",
+    "decoy_shared_return_baseline": "paired_receiver_target_swap_challenge",
+    "paired_contrast_centering": "none",
+    "require_receiver_isolation": true,
+    "shared_return_baseline": "paired_receiver_target_swap",
+    "shared_return_replicas": 4,
+    "target_swap_sender_retries": 8
+  },
+  "schedule": {
+    "ordinary_seed_base": 21000113,
+    "pair_offset": 0,
+    "shuffle_seed": 20260977
+  },
+  "selection_rule": "earliest candidate with positive semantic return, positive specificity, and both ordinary clustered lower bounds at least -0.02",
+  "stages": [
+    {
+      "handoff_cases": [
+        {
+          "pair_index": 0,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 4,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 8,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 9,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 0,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 4,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 8,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 9,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 1,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 5,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 6,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 10,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 1,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 5,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 6,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 10,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 2,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 3,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 7,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 11,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 2,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 3,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 7,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 11,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 12,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 12,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 24,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 28,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 32,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 33,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 24,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 28,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 32,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 33,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 25,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 29,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 30,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 34,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 25,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 29,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 30,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 34,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 26,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 27,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 31,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 35,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 26,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 27,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 31,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 35,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 36,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 40,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 44,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 45,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 36,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 40,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 44,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 45,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 37,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 41,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 42,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 46,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 37,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 41,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 42,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 46,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 38,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 39,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 43,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 47,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 38,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 39,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 43,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 47,
+          "world": "left_exposed"
+        }
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 1,
+      "name": "u180_repair_and_conflict_grounding",
+      "ordinary_horizons": [
+        4,
+        6,
+        8
+      ],
+      "ordinary_sizes": [
+        12,
+        14,
+        16
+      ],
+      "update_pattern": [
+        {
+          "critical": 1,
+          "decoy": 1,
+          "ordinary": 2
+        }
+      ],
+      "updates": 40
+    },
+    {
+      "handoff_cases": [
+        {
+          "pair_index": 0,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 4,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 8,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 9,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 0,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 4,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 8,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 9,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 1,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 5,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 6,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 10,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 1,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 5,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 6,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 10,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 2,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 3,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 7,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 11,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 2,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 3,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 7,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 11,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 12,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 12,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 24,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 28,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 32,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 33,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 24,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 28,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 32,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 33,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 25,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 29,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 30,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 34,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 25,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 29,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 30,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 34,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 26,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 27,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 31,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 35,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 26,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 27,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 31,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 35,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 36,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 40,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 44,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 45,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 36,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 40,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 44,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 45,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 37,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 41,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 42,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 46,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 37,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 41,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 42,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 46,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 38,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 39,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 43,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 47,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 38,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 39,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 43,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 47,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 48,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 52,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 56,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 57,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 48,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 52,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 56,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 57,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 49,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 53,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 54,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 58,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 49,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 53,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 54,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 58,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 50,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 51,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 55,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 59,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 50,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 51,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 55,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 59,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 60,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 64,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 68,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 69,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 60,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 64,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 68,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 69,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 61,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 65,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 66,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 70,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 61,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 65,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 66,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 70,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 62,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 63,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 67,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 71,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 62,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 63,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 67,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 71,
+          "world": "left_exposed"
+        }
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 2,
+      "name": "robust_two_turn_transfer",
+      "ordinary_horizons": [
+        6,
+        8,
+        10
+      ],
+      "ordinary_sizes": [
+        14,
+        16,
+        18
+      ],
+      "update_pattern": [
+        {
+          "critical": 2,
+          "decoy": 1,
+          "ordinary": 1
+        },
+        {
+          "critical": 1,
+          "decoy": 1,
+          "ordinary": 2
+        }
+      ],
+      "updates": 60
+    },
+    {
+      "handoff_cases": [
+        {
+          "pair_index": 0,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 4,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 8,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 9,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 1,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 5,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 6,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 10,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 1,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 5,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 6,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 10,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 2,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 3,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 7,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 11,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 2,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 3,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 7,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 11,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 12,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 12,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 16,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 20,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 21,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 13,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 17,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 18,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 22,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 14,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 15,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 19,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 23,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 24,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 28,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 32,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 33,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 24,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 28,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 32,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 33,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 25,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 29,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 30,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 34,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 25,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 29,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 30,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 34,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 26,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 27,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 31,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 35,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 26,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 27,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 31,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 35,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 36,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 40,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 44,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 45,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 36,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 40,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 44,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 45,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 37,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 41,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 42,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 46,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 37,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 41,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 42,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 46,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 38,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 39,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 43,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 47,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 38,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 39,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 43,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 47,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 48,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 52,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 56,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 57,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 48,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 52,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 56,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 57,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 49,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 53,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 54,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 58,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 49,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 53,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 54,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 58,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 50,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 51,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 55,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 59,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 50,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 51,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 55,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 59,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 60,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 64,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 68,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 69,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 60,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 64,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 68,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 69,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 61,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 65,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 66,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 70,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 61,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 65,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 66,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 70,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 62,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 63,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 67,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 71,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 62,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 63,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 67,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 71,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 72,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 76,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 80,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 81,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 72,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 76,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 80,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 81,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 73,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 77,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 78,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 82,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 73,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 77,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 78,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 82,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 74,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 75,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 79,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 83,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 74,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 75,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 79,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 83,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 84,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 88,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 92,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 93,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 84,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 88,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 92,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 93,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 85,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 89,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 90,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 94,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 85,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 89,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 90,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 94,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 86,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 87,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 91,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 95,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 86,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 87,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 91,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 95,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 0,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 4,
+          "world": "right_exposed"
+        },
+        {
+          "pair_index": 8,
+          "world": "left_exposed"
+        },
+        {
+          "pair_index": 9,
+          "world": "right_exposed"
+        }
+      ],
+      "handoff_focus_roles": [
+        "receiver"
+      ],
+      "handoff_remaining_turns": 4,
+      "name": "robust_four_turn_consolidation",
+      "ordinary_horizons": [
+        8,
+        10,
+        12
+      ],
+      "ordinary_sizes": [
+        16,
+        18,
+        20
+      ],
+      "update_pattern": [
+        {
+          "critical": 2,
+          "decoy": 1,
+          "ordinary": 1
+        },
+        {
+          "critical": 1,
+          "decoy": 1,
+          "ordinary": 2
+        }
+      ],
+      "updates": 60
+    }
+  ],
+  "total_updates": 160,
+  "version": "arena-rl-v12-counterfactual-robustness-v1"
+}

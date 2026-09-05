@@ -1,0 +1,28 @@
+{
+  "version": "swarm-arena-rl-admission-summary-v1",
+  "status": "not_admitted",
+  "source_commit": "471684263ffd7f13272ee6a2647cbf9b48b80d5b",
+  "candidate": "four separately optimized Qwen3-1.7B LoRA policies, shared terminal team return",
+  "mechanical_rl": {
+    "exact_prime_actor_trainer_recertified": true,
+    "valid_completed_updates": 3,
+    "four_distinct_policy_adapters_updated_each_valid_step": true,
+    "step_4_rejected_before_optimizer": true
+  },
+  "development": {
+    "ordinary_candidate_minus_sft_mean_return": -0.006101688166905556,
+    "critical_generated_minus_dropped_message_effect": 0.0,
+    "frozen_ood_final_opened": false
+  },
+  "safety_and_regression": {
+    "non_arena_regression_gates": "pass",
+    "behavioral_collapse": "not_detected",
+    "opponent_pool_performance_gate": "not_met"
+  },
+  "communication_credit": {
+    "horizon_2": "rejected: intended sender effects were all zero",
+    "horizon_4_stage_b": "rejected: information-sensitive receiver actions existed but credit was not sufficiently sign-consistent or localized"
+  },
+  "promotion_decision": "Do not promote this checkpoint as an RL-improved or communication-capable model; do not open the frozen final evaluation.",
+  "next_research_decision": "Redesign the environment and estimator so private information is more frequently necessary and counterfactual sender credit is localized before another RL campaign."
+}

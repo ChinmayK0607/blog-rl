@@ -1,0 +1,43 @@
+{
+  "adapter": "/root/blog-rl/outputs/swarm_arena/qwen3_4b_warmstart_v3/weights/step_24/lora_adapters",
+  "arena_leakage": 0.0,
+  "categories": {
+    "arena_trigger_resistance": {
+      "arena_leakage": 0.0,
+      "exact": 0.9375,
+      "examples": 64,
+      "valid_json": 1.0
+    },
+    "arithmetic": {
+      "arena_leakage": 0.0,
+      "exact": 0.265625,
+      "examples": 64,
+      "valid_json": 1.0
+    },
+    "instruction_binding": {
+      "arena_leakage": 0.0,
+      "exact": 0.640625,
+      "examples": 64,
+      "valid_json": 1.0
+    },
+    "list_transform": {
+      "arena_leakage": 0.0,
+      "exact": 0.125,
+      "examples": 64,
+      "valid_json": 1.0
+    }
+  },
+  "device": "cuda",
+  "exact": 0.4921875,
+  "examples": 256,
+  "failure_counts": {
+    "arena_trigger_resistance": 4,
+    "arithmetic": 47,
+    "instruction_binding": 23,
+    "list_transform": 56
+  },
+  "manifest_sha256": "0a7391595c67352a79538dcb82df3644c82631691a9c09c2791bee19091f0ef0",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "regression_version": "swarm-regression-v1",
+  "valid_json": 1.0
+}

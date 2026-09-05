@@ -1,0 +1,35 @@
+{
+  "centralized_minus_independent": {
+    "mean_terminal_return_difference": 0.5395833333333335,
+    "mean_terminal_return_difference_95": [
+      0.05886179534560243,
+      1.0203048713210645
+    ],
+    "positive_case_rate": 0.5
+  },
+  "episode_version": "arena-episode-v2",
+  "manifest_sha256": "1010d03f6403ccbec8a8eee6e23ad8cdd72c656ed71b21ee30d1dbc590fb5199",
+  "policies": {
+    "centralized": {
+      "cases": 72,
+      "mean_terminal_return": -0.8597222222222222,
+      "positive_return_rate": 0.3888888888888889,
+      "stdev_terminal_return": 4.95095408993317,
+      "zero_return_rate": 0
+    },
+    "independent": {
+      "cases": 72,
+      "mean_terminal_return": -1.3993055555555556,
+      "positive_return_rate": 0.3194444444444444,
+      "stdev_terminal_return": 4.693391316113103,
+      "zero_return_rate": 0
+    },
+    "wait": {
+      "cases": 72,
+      "mean_terminal_return": -15.504861111111111,
+      "positive_return_rate": 0,
+      "stdev_terminal_return": 5.155935726895245,
+      "zero_return_rate": 0
+    }
+  }
+}

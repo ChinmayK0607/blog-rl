@@ -1,0 +1,23 @@
+{
+  "version": "swarm-arena-parity-matrix-v1",
+  "selection_rule": "first_passing_variant_in_declared_order",
+  "variants": [
+    {
+      "id": "custom-fa2-baseline",
+      "trainer_config": "experiments/swarm_arena/configs/rl_1_7b_multirun.toml"
+    },
+    {
+      "id": "hf-fa2",
+      "trainer_config": "experiments/swarm_arena/configs/rl_1_7b_multirun_hf_fa2.toml"
+    },
+    {
+      "id": "hf-sdpa",
+      "trainer_config": "experiments/swarm_arena/configs/rl_1_7b_multirun_hf_sdpa.toml"
+    },
+    {
+      "id": "custom-eager",
+      "trainer_config": "experiments/swarm_arena/configs/rl_1_7b_multirun_custom_eager.toml"
+    }
+  ]
+}
+

@@ -1,0 +1,79 @@
+{
+  "credit_estimator_decision": {
+    "change": false,
+    "reason": "when focused actions varied, leave-one-out shared-return credit produced signed advantages; the failed groups had identical actions and returns, so the evidence points to scenario/sampling coverage rather than a broken critic"
+  },
+  "curriculum_decision": "use a disjoint pilot to select a stable frontier, discard pilot trajectories, permit zero-signal current-opponent probes without blocking otherwise learnable policy slots, and retain the existing ten-update adaptive selector",
+  "failure_mechanism": "four-replica case classification is noisy: previously variable scenarios can produce four identical sampled actions and flat returns on a later block",
+  "frozen_or_development_data_used": false,
+  "observed_frontier_retained_count": 4,
+  "observed_frontier_retention_rate": 0.5714285714285714,
+  "observed_frontier_retest_count": 7,
+  "observed_frontier_retests": [
+    {
+      "focused_agent": "blue-0",
+      "opponent_family": "base",
+      "pool_case_id": "observed:ordinary-screen-blue-0-00",
+      "retained_frontier": true,
+      "v14_1_classification": "frontier",
+      "v14_classification": "frontier"
+    },
+    {
+      "focused_agent": "blue-0",
+      "opponent_family": "sft",
+      "pool_case_id": "observed:ordinary-screen-blue-0-01",
+      "retained_frontier": true,
+      "v14_1_classification": "frontier",
+      "v14_classification": "frontier"
+    },
+    {
+      "focused_agent": "blue-0",
+      "opponent_family": "historical",
+      "pool_case_id": "observed:ordinary-screen-blue-0-02",
+      "retained_frontier": false,
+      "v14_1_classification": "mastered",
+      "v14_classification": "frontier"
+    },
+    {
+      "focused_agent": "blue-0",
+      "opponent_family": "current",
+      "pool_case_id": "observed:ordinary-screen-blue-0-15",
+      "retained_frontier": false,
+      "v14_1_classification": "stalled",
+      "v14_classification": "frontier"
+    },
+    {
+      "focused_agent": "blue-1",
+      "opponent_family": "base",
+      "pool_case_id": "observed:ordinary-screen-blue-1-00",
+      "retained_frontier": true,
+      "v14_1_classification": "frontier",
+      "v14_classification": "frontier"
+    },
+    {
+      "focused_agent": "blue-1",
+      "opponent_family": "sft",
+      "pool_case_id": "observed:ordinary-screen-blue-1-01",
+      "retained_frontier": true,
+      "v14_1_classification": "frontier",
+      "v14_classification": "frontier"
+    },
+    {
+      "focused_agent": "blue-1",
+      "opponent_family": "historical",
+      "pool_case_id": "observed:ordinary-screen-blue-1-02",
+      "retained_frontier": false,
+      "v14_1_classification": "stalled",
+      "v14_classification": "frontier"
+    }
+  ],
+  "optimizer_updates_used": 0,
+  "sha256": "299b01b07cba314af92b78a6e04fdd86719c8151d28f445a6d01c5d20ea3f96e",
+  "source_hashes": {
+    "v14_1_curriculum": "46d44967baee5b084f4752b40ff67b619ce572d8ce3497b104cbbcfe77fac41c",
+    "v14_1_partial": "3f3c1f5e6030d4d35daa7d182332e41cdf1bd7c0cb1c9bbaafa753a1354e29df",
+    "v14_1_pool": "6c747e4a90dc0bdf93c17412f226cdb2d79949917ce3d919036a308545fa4763",
+    "v14_assessment": "5e72fd994091608ef99518b646f8ddc6df5b44607e032c9068e845b519906884"
+  },
+  "version": "arena-rl-v14.2-stable-frontier-v1"
+}

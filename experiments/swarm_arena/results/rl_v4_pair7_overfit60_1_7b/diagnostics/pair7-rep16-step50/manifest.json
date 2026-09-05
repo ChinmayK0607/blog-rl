@@ -1,0 +1,30 @@
+{
+  "claim_boundary": "training-pair learnability, not held-out communication generalization",
+  "conditions": [
+    "normal",
+    "dropped",
+    "sender_shuffled"
+  ],
+  "focal_models": [
+    "blue-0",
+    "blue-1",
+    "blue-2",
+    "blue-3"
+  ],
+  "focal_revision": "33c79a4acc72d39b5467c2cae21888facf792e63aed1b54a28bdf17add8cc5b2",
+  "opponent_models": [
+    "sft-opponent",
+    "sft-opponent",
+    "sft-opponent",
+    "sft-opponent"
+  ],
+  "opponent_revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+  "pair_index": 7,
+  "remaining_turns": 2,
+  "repetitions": 16,
+  "sha256": "1ed18721aebebce8d027dc738832ff0656fa2accb13551bafe4eb434b63fae7c",
+  "source_commit": "2243447cc891e9432309fc79dfa99aed7a99038d",
+  "temperature": 0.4,
+  "training_manifest_sha256": "665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681",
+  "version": "pair7-communication-overfit-eval-v1"
+}

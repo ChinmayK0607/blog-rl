@@ -1,0 +1,78 @@
+{
+  "communication_effects": {
+    "generated_minus_delayed": {
+      "mean_return_difference": 1.2041666666666666,
+      "mean_return_difference_95": [
+        0.2208333333333327,
+        2.2833333333333323
+      ],
+      "paired_seeds": 12,
+      "positive_seed_rate": 0.5833333333333334,
+      "randomization_p_two_sided": 0.04736328125
+    },
+    "generated_minus_dropped": {
+      "mean_return_difference": 0.31666666666666704,
+      "mean_return_difference_95": [
+        -0.8791666666666659,
+        1.3541666666666665
+      ],
+      "paired_seeds": 12,
+      "positive_seed_rate": 0.6666666666666666,
+      "randomization_p_two_sided": 0.6162109375
+    },
+    "generated_minus_sender_shuffled": {
+      "mean_return_difference": -0.025000000000000206,
+      "mean_return_difference_95": [
+        -1.3625,
+        1.2999999999999996
+      ],
+      "paired_seeds": 12,
+      "positive_seed_rate": 0.5,
+      "randomization_p_two_sided": 0.97119140625
+    }
+  },
+  "complete_side_swapped_pairs": 48,
+  "conditions": {
+    "delayed:generated": {
+      "focal_mean_side_averaged_return": 5.166666666666667,
+      "focal_mean_side_averaged_return_95": [
+        3.629166666666667,
+        6.937500000000001
+      ],
+      "paired_seeds": 12,
+      "randomization_p_two_sided": 0.00048828125
+    },
+    "dropped:generated": {
+      "focal_mean_side_averaged_return": 6.054166666666667,
+      "focal_mean_side_averaged_return_95": [
+        4.50625,
+        7.641666666666667
+      ],
+      "paired_seeds": 12,
+      "randomization_p_two_sided": 0.00048828125
+    },
+    "generated:generated": {
+      "focal_mean_side_averaged_return": 6.370833333333334,
+      "focal_mean_side_averaged_return_95": [
+        4.789583333333334,
+        7.8916666666666675
+      ],
+      "paired_seeds": 12,
+      "randomization_p_two_sided": 0.00048828125
+    },
+    "sender_shuffled:generated": {
+      "focal_mean_side_averaged_return": 6.395833333333334,
+      "focal_mean_side_averaged_return_95": [
+        4.427083333333334,
+        8.495833333333334
+      ],
+      "paired_seeds": 12,
+      "randomization_p_two_sided": 0.00048828125
+    }
+  },
+  "crossplay_version": "arena-crossplay-v5-source-prompt-bound",
+  "focal_policy": "capability-sft-1.7b",
+  "interval_method": "paired seed-level nonparametric bootstrap, 20000 deterministic resamples",
+  "opponent_policy": "/workspace/models/qwen3-1.7b-70d244c",
+  "test_method": "paired two-sided sign randomization; exact through 16 seeds, otherwise 100000 trials"
+}

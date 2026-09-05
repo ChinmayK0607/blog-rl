@@ -1,0 +1,40 @@
+{
+  "blue_model": "Qwen/Qwen3-4B-Instruct-2507",
+  "conditions": {
+    "generated:generated": {
+      "blue_mean_return": 0.5625000000000002,
+      "blue_mean_return_95": [
+        -1.875,
+        3.0000000000000004
+      ],
+      "blue_win_rate": 0.5,
+      "draw_rate": 0,
+      "matches": 4,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.75,
+          "duplicate_target_turn_rate": 0.25,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31.75,
+          "duplicate_target_turn_rate": 0.08333333333333333,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    }
+  },
+  "crossplay_version": "arena-crossplay-v4-dynamic-protocol",
+  "interval_method": "seed-level nonparametric bootstrap, 20000 deterministic resamples",
+  "manifest_sha256": "0888fac4166214745815982a3451fdbfc01747ec1c729226351b41784e502969",
+  "matches": 4,
+  "red_model": "Qwen/Qwen3-4B-Instruct-2507"
+}

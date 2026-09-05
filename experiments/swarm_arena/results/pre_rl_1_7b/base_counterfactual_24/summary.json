@@ -1,0 +1,162 @@
+{
+  "cases": 24,
+  "input": "experiments/swarm_arena/results/pre_rl_1_7b/base_counterfactual_24/live_rl_diagnostic.json",
+  "kinds": {
+    "critical": {
+      "cases": 12,
+      "mean_absolute_agent_credit": 0.05044554196594045,
+      "mean_return": 0.027690713382127044,
+      "negative_agent_credits": 5,
+      "nonzero_credit_case_rate": 0.5833333333333334,
+      "off_role_nonzero_case_rate": 0.5,
+      "positive_agent_credits": 12,
+      "receiver_nonzero_rate": 0.25,
+      "sender_nonzero_rate": 0.4166666666666667
+    },
+    "decoy": {
+      "cases": 12,
+      "mean_absolute_agent_credit": 0.028411903554525258,
+      "mean_return": -0.044440201638968245,
+      "negative_agent_credits": 7,
+      "nonzero_credit_case_rate": 0.4166666666666667,
+      "off_role_nonzero_case_rate": 0.25,
+      "positive_agent_credits": 3,
+      "receiver_nonzero_rate": 0.08333333333333333,
+      "sender_nonzero_rate": 0.4166666666666667
+    }
+  },
+  "paired": [
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": 0.14285714285714285,
+        "blue-1": 0.14285714285714285,
+        "blue-2": 0.14285714285714285,
+        "blue-3": 0.0
+      },
+      "critical_return": 0.0,
+      "decoy_return": -0.14285714285714285,
+      "pair_index": 0
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": -0.125,
+        "blue-1": -0.25,
+        "blue-2": -0.125,
+        "blue-3": -0.125
+      },
+      "critical_return": 0.0,
+      "decoy_return": 0.125,
+      "pair_index": 1
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": -0.15384615384615385,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "critical_return": 0.0,
+      "decoy_return": -0.11538461538461536,
+      "pair_index": 2
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": 0.0,
+        "blue-1": 0.07142857142857142,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "critical_return": 0.0,
+      "decoy_return": 0.0,
+      "pair_index": 3
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "critical_return": 0.0,
+      "decoy_return": 0.0,
+      "pair_index": 4
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "critical_return": -0.0357142857142857,
+      "decoy_return": -0.0357142857142857,
+      "pair_index": 5
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "critical_return": 0.0,
+      "decoy_return": 0.0,
+      "pair_index": 6
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": 0.12903225806451613,
+        "blue-1": 0.12903225806451613,
+        "blue-2": 0.12903225806451613,
+        "blue-3": 0.0
+      },
+      "critical_return": 0.12903225806451613,
+      "decoy_return": -0.12903225806451615,
+      "pair_index": 7
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": -0.18181818181818182,
+        "blue-1": -0.18181818181818182,
+        "blue-2": 0.0,
+        "blue-3": 0.0
+      },
+      "critical_return": 0.0,
+      "decoy_return": 0.0,
+      "pair_index": 8
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": 0.0,
+        "blue-1": 0.125,
+        "blue-2": 0.125,
+        "blue-3": 0.25
+      },
+      "critical_return": 0.0625,
+      "decoy_return": 0.0,
+      "pair_index": 9
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": 0.0,
+        "blue-1": 0.0,
+        "blue-2": 0.0,
+        "blue-3": 0.13793103448275862
+      },
+      "critical_return": 0.0,
+      "decoy_return": 0.0,
+      "pair_index": 10
+    },
+    {
+      "critical_minus_decoy_advantage": {
+        "blue-0": 0.3529411764705882,
+        "blue-1": 0.2352941176470588,
+        "blue-2": 0.1764705882352941,
+        "blue-3": 0.3529411764705882
+      },
+      "critical_return": 0.1764705882352941,
+      "decoy_return": -0.23529411764705882,
+      "pair_index": 11
+    }
+  ]
+}

@@ -9,6 +9,7 @@ from jaxtyping import Bool, Float, Int, jaxtyped
 from torch import Tensor
 
 from prime_rl.configs.trainer import CustomLossConfig, DefaultLossConfig, LossConfig
+from prime_rl.trainer.rl.parity import rollout_parity_failures
 from prime_rl.utils.utils import import_object
 
 
@@ -47,6 +48,45 @@ def selective_log_softmax(
 ) -> Float[Tensor, "batch seq"]:
     logprobs = logits.log_softmax(dim=-1)
     return torch.gather(logprobs, dim=-1, index=index.unsqueeze(-1)).squeeze(-1)
+
+
+def selective_constrained_log_softmax(
+    logits: Tensor,
+    index: Tensor,
+    allowed_token_ids: Tensor,
+) -> Tensor:
+    """Selected-token log-probability after renormalizing over a legal token set."""
+    normal = selective_log_softmax(logits, index)
+    if allowed_token_ids.shape[-1] == 0:
+        return normal
+    valid = allowed_token_ids >= 0
+    constrained = valid.any(dim=-1)
+    safe_ids = allowed_token_ids.clamp_min(0)
+    legal_logits = torch.gather(logits, dim=-1, index=safe_ids)
+    legal_logits = legal_logits.masked_fill(~valid, float("-inf"))
+    selected = torch.gather(logits, dim=-1, index=index.unsqueeze(-1)).squeeze(-1)
+    restricted = selected - torch.logsumexp(legal_logits, dim=-1)
+    target_is_legal = ((safe_ids == index.unsqueeze(-1)) & valid).any(dim=-1)
+    if not torch.all(target_is_legal | ~constrained):
+        raise ValueError("selected token is absent from its constrained legal-token set")
+    return torch.where(constrained, restricted, normal)
+
+
+def compute_constrained_entropy(logits: Tensor, allowed_token_ids: Tensor) -> Tensor:
+    normal = compute_entropy(logits)
+    if allowed_token_ids.shape[-1] == 0:
+        return normal
+    valid = allowed_token_ids >= 0
+    constrained = valid.any(dim=-1)
+    safe_ids = allowed_token_ids.clamp_min(0)
+    legal_logits = torch.gather(logits, dim=-1, index=safe_ids)
+    legal_logits = legal_logits.masked_fill(~valid, float("-inf"))
+    log_normalizer = torch.logsumexp(legal_logits, dim=-1, keepdim=True)
+    log_probs = legal_logits - log_normalizer
+    probabilities = torch.where(valid, torch.exp(log_probs), 0.0)
+    safe_log_probs = torch.where(valid, log_probs, 0.0)
+    restricted = -(probabilities * safe_log_probs).sum(dim=-1)
+    return torch.where(constrained, restricted, normal)
 
 
 @jaxtyped(typechecker=typechecker)
@@ -113,6 +153,41 @@ def compute_importance_ratio_and_mismatch_kl(
     importance_ratio = torch.exp(log_importance_ratio)
     mismatch_kl = importance_ratio - log_importance_ratio - 1
     return log_importance_ratio, importance_ratio, mismatch_kl
+
+
+def rollout_parity_metrics(
+    absolute_logprob_errors: Tensor,
+    probability_errors: Tensor,
+    mismatch_kls: Tensor,
+    *,
+    probability_tail_threshold: float,
+) -> dict[str, float]:
+    """Summarize serving/trainer drift over the exact trainable token set."""
+    if not (absolute_logprob_errors.ndim == probability_errors.ndim == mismatch_kls.ndim == 1):
+        raise ValueError("rollout parity inputs must be one-dimensional")
+    if not (absolute_logprob_errors.numel() == probability_errors.numel() == mismatch_kls.numel()):
+        raise ValueError("rollout parity inputs must cover identical tokens")
+    if absolute_logprob_errors.numel() == 0:
+        raise ValueError("rollout parity requires trainable completion tokens")
+    if not all(torch.isfinite(values).all() for values in (absolute_logprob_errors, probability_errors, mismatch_kls)):
+        raise ValueError("rollout parity inputs contain non-finite values")
+    return {
+        "mean_logprob_error": absolute_logprob_errors.mean().item(),
+        "p99_logprob_error": torch.quantile(absolute_logprob_errors.float(), 0.99).item(),
+        "max_probability_error": probability_errors.max().item(),
+        "p99_probability_error": torch.quantile(probability_errors.float(), 0.99).item(),
+        "probability_tail_fraction": (probability_errors > probability_tail_threshold).float().mean().item(),
+        "mean_mismatch_kl": mismatch_kls.mean().item(),
+        "max_mismatch_kl": mismatch_kls.max().item(),
+    }
+
+
+def validate_rollout_parity_metrics(metrics: dict[str, float], config: Any) -> None:
+    """Reject a batch before its optimizer step when any certified gate fails."""
+    exceeded = rollout_parity_failures(metrics, config)
+    if exceeded:
+        detail = ", ".join(f"{name}={value:.8g}>{threshold:.8g}" for name, (value, threshold) in exceeded.items())
+        raise RuntimeError(f"rollout/trainer numerical-parity gate failed: {detail}")
 
 
 def default_loss_fn(inputs: LossInputs, loss_config: DefaultLossConfig) -> LossOutputs:
@@ -314,7 +389,6 @@ def surprisal_entropy_decay_loss_fn(
     is_masked = dppo_invalid_mask
     is_masked_high = positive_advantages & dppo_invalid_mask_high
     is_masked_low = negative_advantages & dppo_invalid_mask_low
-    drop_mask = loss_mask & is_masked
     keep_mask = loss_mask & ~is_masked
 
     surprisal = torch.clamp_min((-inference_logprobs).detach(), 0.0)
@@ -756,7 +830,11 @@ def compute_loss(
             loss_mask=mask,
         )
 
-        result = effective_loss_fn(inputs, step=step, max_steps=max_steps) if training_mode == "rl" else effective_loss_fn(inputs)
+        result = (
+            effective_loss_fn(inputs, step=step, max_steps=max_steps)
+            if training_mode == "rl"
+            else effective_loss_fn(inputs)
+        )
 
         total_loss = total_loss + result.loss
 

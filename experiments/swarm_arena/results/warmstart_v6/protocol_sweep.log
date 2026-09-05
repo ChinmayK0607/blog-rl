@@ -1,0 +1,144 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  10%|█         | 41/398 [00:00<00:01, 343.77it/s]Loading weights:  19%|█▉        | 76/398 [00:00<00:01, 269.03it/s]Loading weights:  29%|██▉       | 117/398 [00:00<00:00, 319.73it/s]Loading weights:  39%|███▉      | 155/398 [00:00<00:00, 337.51it/s]Loading weights:  59%|█████▉    | 235/398 [00:00<00:00, 486.51it/s]Loading weights:  74%|███████▍  | 294/398 [00:00<00:00, 517.64it/s]Loading weights:  88%|████████▊ | 351/398 [00:00<00:00, 531.42it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 473.93it/s]
+[transformers] The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+{
+  "adapter": "outputs/swarm_arena/qwen3_4b_warmstart_v6/weights/step_32/lora_adapters",
+  "dataset": "experiments/swarm_arena/data/warmstart_v6",
+  "exact": 0.3489583333333333,
+  "examples": 192,
+  "grounded": 0.9322916666666666,
+  "groups": {
+    "ACT": {
+      "exact": 0.3333333333333333,
+      "examples": 48,
+      "grounded": 1.0,
+      "legal": 1.0,
+      "schema_valid": 1.0
+    },
+    "BROADCAST": {
+      "exact": 0.10416666666666667,
+      "examples": 48,
+      "grounded": 0.75,
+      "legal": 0.6875,
+      "schema_valid": 1.0
+    },
+    "instruction_preservation": {
+      "exact": 0.4791666666666667,
+      "examples": 96,
+      "grounded": 0.9895833333333334,
+      "legal": 0.9895833333333334,
+      "schema_valid": 0.9895833333333334
+    }
+  },
+  "legal": 0.9166666666666666,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "schema_valid": 0.9947916666666666
+}
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  38%|███▊      | 152/398 [00:00<00:00, 1415.93it/s]Loading weights:  74%|███████▍  | 294/398 [00:00<00:00, 1270.05it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 1300.22it/s]
+[transformers] The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+{
+  "adapter": "outputs/swarm_arena/qwen3_4b_warmstart_v6/weights/step_64/lora_adapters",
+  "dataset": "experiments/swarm_arena/data/warmstart_v6",
+  "exact": 0.4010416666666667,
+  "examples": 192,
+  "grounded": 0.953125,
+  "groups": {
+    "ACT": {
+      "exact": 0.5,
+      "examples": 48,
+      "grounded": 1.0,
+      "legal": 1.0,
+      "schema_valid": 1.0
+    },
+    "BROADCAST": {
+      "exact": 0.1875,
+      "examples": 48,
+      "grounded": 0.9375,
+      "legal": 0.8541666666666666,
+      "schema_valid": 1.0
+    },
+    "instruction_preservation": {
+      "exact": 0.4583333333333333,
+      "examples": 96,
+      "grounded": 0.9375,
+      "legal": 0.9375,
+      "schema_valid": 0.9375
+    }
+  },
+  "legal": 0.9322916666666666,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "schema_valid": 0.96875
+}
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  32%|███▏      | 126/398 [00:00<00:00, 1225.74it/s]Loading weights:  63%|██████▎   | 249/398 [00:00<00:00, 1158.20it/s]Loading weights:  92%|█████████▏| 366/398 [00:00<00:00, 1064.93it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 1101.50it/s]
+[transformers] The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+{
+  "adapter": "outputs/swarm_arena/qwen3_4b_warmstart_v6/weights/step_96/lora_adapters",
+  "dataset": "experiments/swarm_arena/data/warmstart_v6",
+  "exact": 0.5,
+  "examples": 192,
+  "grounded": 0.9947916666666666,
+  "groups": {
+    "ACT": {
+      "exact": 0.625,
+      "examples": 48,
+      "grounded": 1.0,
+      "legal": 1.0,
+      "schema_valid": 1.0
+    },
+    "BROADCAST": {
+      "exact": 0.22916666666666666,
+      "examples": 48,
+      "grounded": 0.9791666666666666,
+      "legal": 0.9791666666666666,
+      "schema_valid": 1.0
+    },
+    "instruction_preservation": {
+      "exact": 0.5729166666666666,
+      "examples": 96,
+      "grounded": 1.0,
+      "legal": 1.0,
+      "schema_valid": 1.0
+    }
+  },
+  "legal": 0.9947916666666666,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "schema_valid": 1.0
+}
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:  33%|███▎      | 132/398 [00:00<00:00, 1316.57it/s]Loading weights:  66%|██████▋   | 264/398 [00:00<00:00, 1185.93it/s]Loading weights:  96%|█████████▋| 384/398 [00:00<00:00, 1170.91it/s]Loading weights: 100%|██████████| 398/398 [00:00<00:00, 1221.72it/s]
+[transformers] The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+{
+  "adapter": "outputs/swarm_arena/qwen3_4b_warmstart_v6/weights/step_128/lora_adapters",
+  "dataset": "experiments/swarm_arena/data/warmstart_v6",
+  "exact": 0.5104166666666666,
+  "examples": 192,
+  "grounded": 0.9947916666666666,
+  "groups": {
+    "ACT": {
+      "exact": 0.625,
+      "examples": 48,
+      "grounded": 1.0,
+      "legal": 1.0,
+      "schema_valid": 1.0
+    },
+    "BROADCAST": {
+      "exact": 0.25,
+      "examples": 48,
+      "grounded": 0.9791666666666666,
+      "legal": 0.9791666666666666,
+      "schema_valid": 1.0
+    },
+    "instruction_preservation": {
+      "exact": 0.5833333333333334,
+      "examples": 96,
+      "grounded": 1.0,
+      "legal": 1.0,
+      "schema_valid": 1.0
+    }
+  },
+  "legal": 0.9947916666666666,
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "schema_valid": 1.0
+}

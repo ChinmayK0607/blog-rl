@@ -1,8 +1,22 @@
 import pytest
 import torch
 
-from prime_rl.configs.trainer import CustomLossConfig, DefaultLossConfig
-from prime_rl.trainer.rl.loss import LossInputs, LossOutputs, compute_entropy, compute_loss, setup_loss_fns
+from prime_rl.configs.trainer import (
+    CustomLossConfig,
+    DefaultLossConfig,
+    RolloutParityGateConfig,
+)
+from prime_rl.trainer.rl.loss import (
+    LossInputs,
+    LossOutputs,
+    compute_constrained_entropy,
+    compute_entropy,
+    compute_loss,
+    rollout_parity_metrics,
+    selective_constrained_log_softmax,
+    setup_loss_fns,
+    validate_rollout_parity_metrics,
+)
 
 pytestmark = [pytest.mark.gpu]
 
@@ -51,6 +65,83 @@ def test_entropy_loss():
     shifted_logits = torch.randn(10, 10, 10, dtype=torch.float32).cuda()
     entropy = compute_entropy(shifted_logits)
     assert entropy.shape == (10, 10)
+
+
+def test_constrained_logprobs_and_entropy_renormalize_over_legal_tokens():
+    logits = torch.tensor([[[0.0, 1.0, 2.0, 7.0]]], device="cuda")
+    selected = torch.tensor([[2]], device="cuda")
+    allowed = torch.tensor([[[1, 2, -1]]], device="cuda")
+    logprob = selective_constrained_log_softmax(logits, selected, allowed)
+    expected = torch.tensor(2.0, device="cuda") - torch.logsumexp(torch.tensor([1.0, 2.0], device="cuda"), dim=0)
+    assert torch.allclose(logprob, expected.reshape(1, 1))
+    probabilities = torch.softmax(torch.tensor([1.0, 2.0], device="cuda"), dim=0)
+    expected_entropy = -(probabilities * probabilities.log()).sum()
+    entropy = compute_constrained_entropy(logits, allowed)
+    assert torch.allclose(entropy, expected_entropy.reshape(1, 1))
+
+
+def test_rollout_parity_gate_fails_before_an_out_of_envelope_update():
+    metrics = rollout_parity_metrics(
+        torch.tensor([0.001, 0.002, 0.003], device="cuda"),
+        torch.tensor([0.001, 0.002, 0.08], device="cuda"),
+        torch.tensor([0.0, 0.0, 0.01], device="cuda"),
+        probability_tail_threshold=0.05,
+    )
+    permissive = RolloutParityGateConfig(
+        max_p99_probability_error=0.1,
+        max_probability_tail_fraction=0.5,
+        max_mean_mismatch_kl=0.01,
+    )
+    validate_rollout_parity_metrics(metrics, permissive)
+    with pytest.raises(RuntimeError, match="numerical-parity gate failed"):
+        validate_rollout_parity_metrics(metrics, RolloutParityGateConfig())
+
+
+def test_rollout_parity_tail_fraction_is_a_logical_batch_statistic():
+    gate = RolloutParityGateConfig(
+        max_p99_probability_error=0.1,
+        max_probability_tail_fraction=0.005,
+        max_mean_mismatch_kl=0.01,
+    )
+    # One legitimate tail token in a short packing slice looks like 1/43 and
+    # fails.  Over the complete 300-token logical policy batch it is 1/300 and
+    # passes the unchanged certified 0.5% threshold.
+    probability_errors = torch.cat([torch.tensor([0.051], device="cuda"), torch.zeros(299, device="cuda")])
+    aggregate = rollout_parity_metrics(
+        torch.zeros_like(probability_errors),
+        probability_errors,
+        torch.zeros_like(probability_errors),
+        probability_tail_threshold=0.05,
+    )
+    validate_rollout_parity_metrics(aggregate, gate)
+
+    short_slice = rollout_parity_metrics(
+        torch.zeros(43, device="cuda"),
+        probability_errors[:43],
+        torch.zeros(43, device="cuda"),
+        probability_tail_threshold=0.05,
+    )
+    with pytest.raises(RuntimeError, match="probability_tail_fraction"):
+        validate_rollout_parity_metrics(short_slice, gate)
+
+
+def test_rollout_parity_gate_can_log_a_diagnostic_without_gating_on_it():
+    metrics = rollout_parity_metrics(
+        torch.tensor([0.01, 10.0], device="cuda"),
+        torch.tensor([0.01, 0.99], device="cuda"),
+        torch.tensor([0.0, 0.001], device="cuda"),
+        probability_tail_threshold=0.05,
+    )
+    gate = RolloutParityGateConfig(
+        max_mean_logprob_error=None,
+        max_p99_logprob_error=None,
+        max_probability_error=None,
+        max_p99_probability_error=None,
+        max_probability_tail_fraction=None,
+        max_mean_mismatch_kl=0.01,
+        max_mismatch_kl=None,
+    )
+    validate_rollout_parity_metrics(metrics, gate)
 
 
 def test_setup_loss_fns_with_custom_config():

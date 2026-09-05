@@ -1,0 +1,24 @@
+enable_lora = true
+max_loras = 8
+max_cpu_loras = 16
+max_lora_rank = 16
+gpu_memory_utilization = 0.82
+
+[model]
+name = "/workspace/models/qwen3-1.7b-70d244c"
+max_model_len = 4096
+enforce_eager = true
+
+[server]
+host = "127.0.0.1"
+port = 8000
+
+[log]
+level = "info"
+
+# Match the trainer's native RMSNorm path while retaining eager execution.
+# This is a predeclared numerical-parity variant; it is not a performance
+# optimization and must pass the unchanged frozen parity thresholds.
+[vllm_extra.ir_op_priority]
+rms_norm = ["native"]
+fused_add_rms_norm = ["native"]

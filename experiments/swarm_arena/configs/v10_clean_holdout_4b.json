@@ -1,0 +1,65 @@
+{
+  "base_urls": [
+    "http://127.0.0.1:8000/v1",
+    "http://127.0.0.1:8001/v1",
+    "http://127.0.0.1:8002/v1",
+    "http://127.0.0.1:8003/v1"
+  ],
+  "baseline": {
+    "adapter_sha256": "168c9f9cdd0537660b664e9863ec9e351faf5e84d85ffbc77e95501fe1d903d2",
+    "models": [
+      "sft-opponent",
+      "sft-opponent",
+      "sft-opponent",
+      "sft-opponent"
+    ],
+    "revision": "d1a55d5594c8b544121e546e14229268c8c26bae"
+  },
+  "candidate": {
+    "adapter_sha256": {
+      "blue-0": "4afed7f74424ea1956f5ce2838811d4f86f575827e5c03e4cfd52f9f826adf53",
+      "blue-1": "b1e4948e9821ed17751c3820a938530416e7dab51aaa3b578fe8cf2d8c1bf5d8",
+      "blue-2": "e784622127e9a6b93345fee877526d1996b66285dc68e04b71118153ef56b1da",
+      "blue-3": "e5c2ede182723ca7781399f820d67b9be80326380ae68959f98aff173a3bab7f"
+    },
+    "models": [
+      "v10-u40-blue-0",
+      "v10-u40-blue-1",
+      "v10-u40-blue-2",
+      "v10-u40-blue-3"
+    ],
+    "revision": "5f848f3f35efce6da41831163f0e34b9df6e425cf081bbc9e962a070ee909919"
+  },
+  "opponents": [
+    {
+      "id": "base",
+      "models": [
+        "/workspace/models/qwen3-4b-cdbee75f",
+        "/workspace/models/qwen3-4b-cdbee75f",
+        "/workspace/models/qwen3-4b-cdbee75f",
+        "/workspace/models/qwen3-4b-cdbee75f"
+      ],
+      "revision": "cdbee75f17c01a7cc42f958dc650907174af0554"
+    },
+    {
+      "id": "sft",
+      "models": [
+        "sft-opponent",
+        "sft-opponent",
+        "sft-opponent",
+        "sft-opponent"
+      ],
+      "revision": "d1a55d5594c8b544121e546e14229268c8c26bae"
+    },
+    {
+      "id": "historical_league",
+      "models": [
+        "historical-opponent",
+        "historical-opponent",
+        "historical-opponent",
+        "historical-opponent"
+      ],
+      "revision": "d1a55d5594c8b544121e546e14229268c8c26bae"
+    }
+  ]
+}

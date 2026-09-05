@@ -1,0 +1,559 @@
+[
+  {
+    "groups": [
+      {
+        "actual_return": 0.14285714285714285,
+        "advantages": {
+          "blue-0": 0.14285714285714285,
+          "blue-1": 0.14285714285714285,
+          "blue-2": 0.14285714285714285,
+          "blue-3": 0.14285714285714285
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-0:curriculum:3000003",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.14285714285714285,
+          "pair_index": 0,
+          "receiver": "blue-1",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-0",
+          "seed": 3000003,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "bc62554151aad2227e93b7f9e11c8ceaa777afcc9687e07397cbc7a1d416d41b",
+          "target": "V20"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": -0.14285714285714285,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": -0.14285714285714285
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-1:curriculum:3000003",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 0,
+          "receiver": "blue-1",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-0",
+          "seed": 3000003,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "d72bd714d60a6491de6941422d57589c9b59ffb3814c6609a5c1f4aa1e3cc4fa",
+          "target": "V20"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": -0.125,
+          "blue-2": 0.0,
+          "blue-3": -0.125
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-2:curriculum:3000004",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.125,
+          "pair_index": 1,
+          "receiver": "blue-2",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-1",
+          "seed": 3000004,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "949d322597aa6143126cf87af5320384c5936e02d40668584f87d7250d81f82a",
+          "target": "V57"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": -0.125
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-3:curriculum:3000004",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 1,
+          "receiver": "blue-2",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-1",
+          "seed": 3000004,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "0a69df660719b9862e9845a0afbbc68ded4973a0dda54d415e4e0ed0209ad450",
+          "target": "V57"
+        }
+      },
+      {
+        "actual_return": 0.038461538461538464,
+        "advantages": {
+          "blue-0": 0.038461538461538464,
+          "blue-1": 0.15384615384615383,
+          "blue-2": 0.038461538461538464,
+          "blue-3": 0.15384615384615383
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-4:curriculum:3000005",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.15384615384615385,
+          "pair_index": 2,
+          "receiver": "blue-3",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-2",
+          "seed": 3000005,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "2802cab1b3bff4a63ec9c47b04f3a580c007bb2e1902632a55bdd3446d717bda",
+          "target": "V23"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": -0.15384615384615385,
+          "blue-1": -0.15384615384615385,
+          "blue-2": -0.15384615384615385,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-5:curriculum:3000005",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 2,
+          "receiver": "blue-3",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-2",
+          "seed": 3000005,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "dbdcb8ac9f1bba0f883d1c45bc2502194807aab7a9291beb5b489896812b03f4",
+          "target": "V23"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": -0.14285714285714285
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-6:curriculum:3000006",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.14285714285714285,
+          "pair_index": 3,
+          "receiver": "blue-0",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-3",
+          "seed": 3000006,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "89882c6ac9ce3881955a397bcb4baf37c7d089c8d2c15d9b6772c9f9c70ae948",
+          "target": "V22"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": -0.14285714285714285,
+          "blue-1": 0.0,
+          "blue-2": -0.14285714285714285,
+          "blue-3": -0.14285714285714285
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-7:curriculum:3000006",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 3,
+          "receiver": "blue-0",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-3",
+          "seed": 3000006,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "61fa2e2cc59ad0bbd1f89f92913a48b49a05211d9b766a495f238b200813674b",
+          "target": "V22"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-8:curriculum:3000007",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.15384615384615385,
+          "pair_index": 4,
+          "receiver": "blue-2",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-4",
+          "seed": 3000007,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "e9118dc162e86290d5575fe825b69201a1748df2e0fc779f1526ca197365cd34",
+          "target": "V85"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": -0.15384615384615385,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-9:curriculum:3000007",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 4,
+          "receiver": "blue-2",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-4",
+          "seed": 3000007,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "15bbf36df45a7ed7004c101231c9a288f548137a0145e6f4c9e28dd538f8a4f2",
+          "target": "V85"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-10:curriculum:3000008",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.14285714285714285,
+          "pair_index": 5,
+          "receiver": "blue-3",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-5",
+          "seed": 3000008,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "35b9b7d8546f7e2fa96cce601bb4141e6409882b47c173648072d0450a2553de",
+          "target": "V17"
+        }
+      },
+      {
+        "actual_return": 0.14285714285714285,
+        "advantages": {
+          "blue-0": 0.14285714285714285,
+          "blue-1": 0.0,
+          "blue-2": 0.14285714285714285,
+          "blue-3": 0.14285714285714285
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-11:curriculum:3000008",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 5,
+          "receiver": "blue-3",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-5",
+          "seed": 3000008,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "b8c52ca8885926f8c4cf67ce94bdd60443105692775b1c9ef8afa3f807f79c27",
+          "target": "V17"
+        }
+      },
+      {
+        "actual_return": 0.12903225806451613,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.12903225806451613,
+          "blue-3": 0.12903225806451613
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-12:curriculum:3000009",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.12903225806451613,
+          "pair_index": 6,
+          "receiver": "blue-0",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-6",
+          "seed": 3000009,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "d014954d839a27c4dfa62a70c104b90df16e65e543cd59d179296630f1135d15",
+          "target": "V11"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-13:curriculum:3000009",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 6,
+          "receiver": "blue-0",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-6",
+          "seed": 3000009,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "ba3cec36c04595bcaa5d89005b76b7657b7170f2b64ff0bb0c0c4a4233fdb04b",
+          "target": "V11"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.12903225806451615,
+          "blue-1": 0.12903225806451615,
+          "blue-2": 0.12903225806451615,
+          "blue-3": 0.12903225806451615
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-14:curriculum:3000010",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.12903225806451615,
+          "pair_index": 7,
+          "receiver": "blue-1",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-7",
+          "seed": 3000010,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "8a5a9f95315593160208fa911c50f817700ed985b9f4c4bf4c40e8cb031b73a9",
+          "target": "V58"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.12903225806451615,
+          "blue-2": 0.12903225806451615,
+          "blue-3": 0.12903225806451615
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-15:curriculum:3000010",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 7,
+          "receiver": "blue-1",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-7",
+          "seed": 3000010,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "59dfc1b1eaea3fd876361016500e95c7a953121022fee08da2620d1811a9c16e",
+          "target": "V58"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": -0.18181818181818182,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-16:curriculum:3000011",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.18181818181818182,
+          "pair_index": 8,
+          "receiver": "blue-3",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-8",
+          "seed": 3000011,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "628281911c155105bcc61aa59e31b6b0ca34fe1238a7d6d28e574d9b4d61ec57",
+          "target": "V13"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-17:curriculum:3000011",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 8,
+          "receiver": "blue-3",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-8",
+          "seed": 3000011,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "e15cb5b3adbd24b25e8b7e716536adfeb8f04d1d3d20ac7924189e96e6abf67f",
+          "target": "V13"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": -0.125,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-18:curriculum:3000012",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.125,
+          "pair_index": 9,
+          "receiver": "blue-0",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-9",
+          "seed": 3000012,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "d67f846bf162c3843ad5c7ebce386cc45c243191e437fe9e2c8f06a957be6b24",
+          "target": "V62"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-19:curriculum:3000012",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 9,
+          "receiver": "blue-0",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-9",
+          "seed": 3000012,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "80165ade72d67632fdeca16fd48686d46c22705f24ff562da0493b3de3aca9ec",
+          "target": "V62"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": -0.13793103448275862,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-20:curriculum:3000013",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.13793103448275862,
+          "pair_index": 10,
+          "receiver": "blue-1",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-10",
+          "seed": 3000013,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "4ac12cb160778747390f417bda9d1e0dfb956b2d72d2d9cf34ab954209c2f5c6",
+          "target": "V67"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-21:curriculum:3000013",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 10,
+          "receiver": "blue-1",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-10",
+          "seed": 3000013,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "3f3ea5f30e53419ee52b3fc155ea1d2be94e13c497b8d1b9b5a670b13c48c78a",
+          "target": "V67"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-22:curriculum:3000014",
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.11764705882352941,
+          "pair_index": 11,
+          "receiver": "blue-2",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-11",
+          "seed": 3000014,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "3456c5dd0a6cf5fdf51b74560fbd7c919e9cf20de8616af44b5a725522c045ed",
+          "target": "V20"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": -0.11764705882352941,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "game_id": "paired-counterfactual-24-bbb8fcc9:step-0:group-23:curriculum:3000014",
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 11,
+          "receiver": "blue-2",
+          "sampling_namespace": "paired-counterfactual-24-bbb8fcc9:step-0:pair-11",
+          "seed": 3000014,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "f5e5c52a0427a8630b1f87cccc05f58a2ee20a82a31ec9dff8d770ad2e9e417f",
+          "target": "V20"
+        }
+      }
+    ],
+    "step": 0
+  }
+]

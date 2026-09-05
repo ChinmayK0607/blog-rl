@@ -1,0 +1,41 @@
+{
+  "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+  "branching_tokens": 149,
+  "changed_runs_after_single_policy_step": [
+    "run_blue_0"
+  ],
+  "completion_tokens": 1331,
+  "isolation_passed": true,
+  "max_absolute_logprob_error": 0.3003518581390381,
+  "max_importance_ratio_error": 0.3503338098526001,
+  "max_mismatch_kl": 0.04998195171356201,
+  "max_probability_error": 0.07321161031723022,
+  "mean_absolute_logprob_error": 0.0027896484825760126,
+  "mean_branching_absolute_logprob_error": 0.024066464975476265,
+  "mean_mismatch_kl": 0.00014443490363191813,
+  "optimizer_parameter_sets_disjoint": true,
+  "p95_absolute_logprob_error": 0.007201765663921833,
+  "p99_absolute_logprob_error": 0.0868152379989624,
+  "p99_branching_absolute_logprob_error": 0.18255724012851715,
+  "p99_probability_error": 0.02986922115087509,
+  "parity_passed": true,
+  "parity_thresholds": {
+    "max_mean_logprob_error": 0.005,
+    "max_mean_mismatch_kl": 0.0005,
+    "max_mismatch_kl": 0.08,
+    "max_p99_logprob_error": 0.12,
+    "max_p99_probability_error": 0.05,
+    "max_probability_error": 0.1,
+    "max_probability_tail_fraction": 0.005
+  },
+  "policy_slot_digests_before": {
+    "run_blue_0": "0dcb4e7b98548ae0b2fee85f8c28e634cee2085074a48b2bf2700f1dca4eae33",
+    "run_blue_1": "0dcb4e7b98548ae0b2fee85f8c28e634cee2085074a48b2bf2700f1dca4eae33",
+    "run_blue_2": "0dcb4e7b98548ae0b2fee85f8c28e634cee2085074a48b2bf2700f1dca4eae33",
+    "run_blue_3": "0dcb4e7b98548ae0b2fee85f8c28e634cee2085074a48b2bf2700f1dca4eae33"
+  },
+  "probability_error_over_0_05_fraction": 0.0015026296023279428,
+  "prompt_count": 32,
+  "serving_stack": "Prime-RL vLLM structured decoding",
+  "trainer_stack": "Prime-RL FSDP with four independent LoRA policy slots"
+}

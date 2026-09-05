@@ -1,0 +1,67 @@
+{
+  "design_binding_valid": true,
+  "handoff": {
+    "development": {
+      "all_critical_advantages_positive": true,
+      "all_decoy_advantages_zero": true,
+      "all_invariants_hold": true,
+      "body_hash_valid": true,
+      "pair_count": 48,
+      "reconstruction_valid": true,
+      "unique_seed_count": 48
+    },
+    "frozen_ood": {
+      "all_critical_advantages_positive": true,
+      "all_decoy_advantages_zero": true,
+      "all_invariants_hold": true,
+      "body_hash_valid": true,
+      "pair_count": 24,
+      "reconstruction_valid": true,
+      "unique_seed_count": 24
+    },
+    "train": {
+      "all_critical_advantages_positive": true,
+      "all_decoy_advantages_zero": true,
+      "all_invariants_hold": true,
+      "body_hash_valid": true,
+      "pair_count": 240,
+      "reconstruction_valid": true,
+      "unique_seed_count": 240
+    }
+  },
+  "ordinary": {
+    "development": {
+      "body_hash_valid": true,
+      "case_count": 24,
+      "horizons_match": true,
+      "sizes_match": true,
+      "unique_seed_count": 24
+    },
+    "frozen_ood": {
+      "body_hash_valid": true,
+      "case_count": 24,
+      "horizons_match": true,
+      "sizes_match": true,
+      "unique_seed_count": 24
+    }
+  },
+  "passed": true,
+  "seed_overlaps": {
+    "handoff_development_existing": [],
+    "handoff_development_handoff_frozen_ood": [],
+    "handoff_development_handoff_train": [],
+    "handoff_development_ordinary_development": [],
+    "handoff_development_ordinary_frozen_ood": [],
+    "handoff_frozen_ood_existing": [],
+    "handoff_frozen_ood_handoff_train": [],
+    "handoff_frozen_ood_ordinary_development": [],
+    "handoff_frozen_ood_ordinary_frozen_ood": [],
+    "handoff_train_existing": [],
+    "handoff_train_ordinary_development": [],
+    "handoff_train_ordinary_frozen_ood": [],
+    "ordinary_development_existing": [],
+    "ordinary_development_ordinary_frozen_ood": [],
+    "ordinary_frozen_ood_existing": []
+  },
+  "version": "arena-rl-v4-global-audit-v1"
+}

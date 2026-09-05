@@ -1,0 +1,887 @@
+{
+  "adapter_sha256": "2dc1694c35a414cef254273f6daf3a4ea1e611856c9d0c3d815eec60428f949b",
+  "branching_tokens": 3672,
+  "changed_runs_after_single_policy_step": [
+    "run_blue_0"
+  ],
+  "completion_tokens": 4305,
+  "isolation_passed": true,
+  "max_absolute_logprob_error": 0.4171457290649414,
+  "max_importance_ratio_error": 0.5176236629486084,
+  "max_mismatch_kl": 0.10047793388366699,
+  "max_probability_error": 0.14023804664611816,
+  "mean_absolute_logprob_error": 0.002640101360157132,
+  "mean_branching_absolute_logprob_error": 0.0030952170491218567,
+  "mean_mismatch_kl": 0.00018178779282607138,
+  "optimizer_parameter_sets_disjoint": true,
+  "p95_absolute_logprob_error": 0.006792726926505566,
+  "p99_absolute_logprob_error": 0.06942817568778992,
+  "p99_branching_absolute_logprob_error": 0.07720284163951874,
+  "p99_probability_error": 0.029991906136274338,
+  "parity_components": {
+    "max_mismatch_kl": false,
+    "max_probability_error": false,
+    "mean_absolute_logprob_error": true,
+    "mean_mismatch_kl": true,
+    "p99_absolute_logprob_error": true,
+    "p99_probability_error": true,
+    "probability_tail_fraction": true
+  },
+  "parity_passed": false,
+  "parity_thresholds": {
+    "max_mean_logprob_error": 0.005,
+    "max_mean_mismatch_kl": 0.0005,
+    "max_mismatch_kl": 0.08,
+    "max_p99_logprob_error": 0.12,
+    "max_p99_probability_error": 0.05,
+    "max_probability_error": 0.1,
+    "max_probability_tail_fraction": 0.005
+  },
+  "policy_slot_digests_before": {
+    "run_blue_0": "0dcb4e7b98548ae0b2fee85f8c28e634cee2085074a48b2bf2700f1dca4eae33",
+    "run_blue_1": "0dcb4e7b98548ae0b2fee85f8c28e634cee2085074a48b2bf2700f1dca4eae33",
+    "run_blue_2": "0dcb4e7b98548ae0b2fee85f8c28e634cee2085074a48b2bf2700f1dca4eae33",
+    "run_blue_3": "0dcb4e7b98548ae0b2fee85f8c28e634cee2085074a48b2bf2700f1dca4eae33"
+  },
+  "probability_error_over_0_05_fraction": 0.003948896657675505,
+  "sample_summaries": [
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0",
+      "max_absolute_logprob_error": 0.24723196029663086,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 79
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0",
+      "max_absolute_logprob_error": 0.006497055292129517,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 52
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0",
+      "max_absolute_logprob_error": 0.1593782901763916,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 44
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0",
+      "max_absolute_logprob_error": 0.133347749710083,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 45
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-1:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-1",
+      "max_absolute_logprob_error": 0.3291611671447754,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 74
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-1:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-1",
+      "max_absolute_logprob_error": 0.041679978370666504,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 52
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-1:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-1",
+      "max_absolute_logprob_error": 0.0694381594657898,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 46
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-1:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-1",
+      "max_absolute_logprob_error": 0.07595992088317871,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2",
+      "max_absolute_logprob_error": 0.3291611671447754,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2",
+      "max_absolute_logprob_error": 0.01741814613342285,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 52
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2",
+      "max_absolute_logprob_error": 0.10085058212280273,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 75
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2",
+      "max_absolute_logprob_error": 0.07045230269432068,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 47
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-3:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-3",
+      "max_absolute_logprob_error": 0.3291611671447754,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 73
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-3:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-3",
+      "max_absolute_logprob_error": 0.00445149838924408,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 52
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-3:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-3",
+      "max_absolute_logprob_error": 0.07719689607620239,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-3:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-3",
+      "max_absolute_logprob_error": 0.0231173038482666,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 75
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0",
+      "max_absolute_logprob_error": 0.16306185722351074,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 79
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0",
+      "max_absolute_logprob_error": 0.17036724090576172,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 85
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0",
+      "max_absolute_logprob_error": 0.07161855697631836,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 44
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0",
+      "max_absolute_logprob_error": 0.03234696388244629,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 45
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-1:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-1",
+      "max_absolute_logprob_error": 0.3291611671447754,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 74
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-1:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-1",
+      "max_absolute_logprob_error": 0.05173593759536743,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 55
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-1:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-1",
+      "max_absolute_logprob_error": 0.02501162886619568,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 46
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-1:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-1",
+      "max_absolute_logprob_error": 0.054904818534851074,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2",
+      "max_absolute_logprob_error": 0.3291611671447754,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2",
+      "max_absolute_logprob_error": 0.014465808868408203,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 55
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2",
+      "max_absolute_logprob_error": 0.012559860944747925,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 75
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2",
+      "max_absolute_logprob_error": 0.0702759325504303,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 47
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3",
+      "max_absolute_logprob_error": 0.3291611671447754,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 73
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3",
+      "max_absolute_logprob_error": 0.060731545090675354,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 55
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3",
+      "max_absolute_logprob_error": 0.07721740007400513,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3",
+      "max_absolute_logprob_error": 0.04606831073760986,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 75
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-0:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-0",
+      "max_absolute_logprob_error": 0.0990748405456543,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 48
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-0:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-0",
+      "max_absolute_logprob_error": 0.025474071502685547,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 73
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-0:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-0",
+      "max_absolute_logprob_error": 0.01879143714904785,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 52
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-0:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-0",
+      "max_absolute_logprob_error": 0.1033395528793335,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1",
+      "max_absolute_logprob_error": 0.18603920936584473,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1",
+      "max_absolute_logprob_error": 0.08992588520050049,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 73
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1",
+      "max_absolute_logprob_error": 0.060208529233932495,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 52
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1",
+      "max_absolute_logprob_error": 0.05615471303462982,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 75
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2",
+      "max_absolute_logprob_error": 0.18603920936584473,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2",
+      "max_absolute_logprob_error": 0.06206250190734863,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2",
+      "max_absolute_logprob_error": 0.12323260307312012,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 52
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2",
+      "max_absolute_logprob_error": 0.031630754470825195,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 77
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-3:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-3",
+      "max_absolute_logprob_error": 0.09771978855133057,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 79
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-3:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-3",
+      "max_absolute_logprob_error": 0.08992588520050049,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 73
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-3:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-3",
+      "max_absolute_logprob_error": 0.4171457290649414,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 52
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-3:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-3",
+      "max_absolute_logprob_error": 0.031630754470825195,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 75
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-0:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-0",
+      "max_absolute_logprob_error": 0.042202264070510864,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 48
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-0:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-0",
+      "max_absolute_logprob_error": 0.08992588520050049,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 73
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-0:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-0",
+      "max_absolute_logprob_error": 0.11163830757141113,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 85
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-0:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-0",
+      "max_absolute_logprob_error": 0.1033395528793335,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-1:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-1",
+      "max_absolute_logprob_error": 0.1064155101776123,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-1:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-1",
+      "max_absolute_logprob_error": 0.025474071502685547,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 73
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-1:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-1",
+      "max_absolute_logprob_error": 0.013524055480957031,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 85
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-1:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-1",
+      "max_absolute_logprob_error": 0.03215430676937103,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 75
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-2:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-2",
+      "max_absolute_logprob_error": 0.2619929313659668,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-2:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-2",
+      "max_absolute_logprob_error": 0.06206250190734863,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 76
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-2:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-2",
+      "max_absolute_logprob_error": 0.09026312828063965,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 58
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-2:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-2",
+      "max_absolute_logprob_error": 0.0970466136932373,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 77
+    },
+    {
+      "agent_id": "blue-0",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-3:actual:blue-0:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-3",
+      "max_absolute_logprob_error": 0.06650185585021973,
+      "phase": "BROADCAST",
+      "policy_slot": 0,
+      "tokens": 79
+    },
+    {
+      "agent_id": "blue-1",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-3:actual:blue-1:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-3",
+      "max_absolute_logprob_error": 0.025474071502685547,
+      "phase": "BROADCAST",
+      "policy_slot": 1,
+      "tokens": 73
+    },
+    {
+      "agent_id": "blue-2",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-3:actual:blue-2:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-3",
+      "max_absolute_logprob_error": 0.046994924545288086,
+      "phase": "BROADCAST",
+      "policy_slot": 2,
+      "tokens": 85
+    },
+    {
+      "agent_id": "blue-3",
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-3:actual:blue-3:1:BROADCAST",
+      "game_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-3",
+      "max_absolute_logprob_error": 0.031630754470825195,
+      "phase": "BROADCAST",
+      "policy_slot": 3,
+      "tokens": 75
+    }
+  ],
+  "top_probability_error_tokens": [
+    {
+      "absolute_logprob_error": 0.24723196029663086,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.03324413299560547,
+      "policy_slot": 0,
+      "probability_error": 0.14023804664611816,
+      "rollout_logprob": -0.6931471824645996,
+      "token_id": 1866,
+      "token_offset": 35,
+      "trainer_logprob": -0.44591522216796875
+    },
+    {
+      "absolute_logprob_error": 0.3291611671447754,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-1:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.04868817329406738,
+      "policy_slot": 0,
+      "probability_error": 0.14023646712303162,
+      "rollout_logprob": -0.6931471824645996,
+      "token_id": 3849,
+      "token_offset": 35,
+      "trainer_logprob": -1.022308349609375
+    },
+    {
+      "absolute_logprob_error": 0.3291611671447754,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.04868817329406738,
+      "policy_slot": 0,
+      "probability_error": 0.14023646712303162,
+      "rollout_logprob": -0.6931471824645996,
+      "token_id": 3849,
+      "token_offset": 35,
+      "trainer_logprob": -1.022308349609375
+    },
+    {
+      "absolute_logprob_error": 0.3291611671447754,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-3:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.04868817329406738,
+      "policy_slot": 0,
+      "probability_error": 0.14023646712303162,
+      "rollout_logprob": -0.6931471824645996,
+      "token_id": 3849,
+      "token_offset": 35,
+      "trainer_logprob": -1.022308349609375
+    },
+    {
+      "absolute_logprob_error": 0.3291611671447754,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-1:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.04868817329406738,
+      "policy_slot": 0,
+      "probability_error": 0.14023646712303162,
+      "rollout_logprob": -0.6931471824645996,
+      "token_id": 3849,
+      "token_offset": 35,
+      "trainer_logprob": -1.022308349609375
+    },
+    {
+      "absolute_logprob_error": 0.3291611671447754,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.04868817329406738,
+      "policy_slot": 0,
+      "probability_error": 0.14023646712303162,
+      "rollout_logprob": -0.6931471824645996,
+      "token_id": 3849,
+      "token_offset": 35,
+      "trainer_logprob": -1.022308349609375
+    },
+    {
+      "absolute_logprob_error": 0.3291611671447754,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.04868817329406738,
+      "policy_slot": 0,
+      "probability_error": 0.14023646712303162,
+      "rollout_logprob": -0.6931471824645996,
+      "token_id": 3849,
+      "token_offset": 35,
+      "trainer_logprob": -1.022308349609375
+    },
+    {
+      "absolute_logprob_error": 0.13614621758460999,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.009703278541564941,
+      "policy_slot": 0,
+      "probability_error": 0.09905779361724854,
+      "rollout_logprob": -0.38687101006507874,
+      "token_id": 3849,
+      "token_offset": 37,
+      "trainer_logprob": -0.25072479248046875
+    },
+    {
+      "absolute_logprob_error": 0.2619929313659668,
+      "agent_id": "blue-0",
+      "allowed_token_count": 3,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-2:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.0315093994140625,
+      "policy_slot": 0,
+      "probability_error": 0.09388363361358643,
+      "rollout_logprob": -0.8981232643127441,
+      "token_id": 788,
+      "token_offset": 67,
+      "trainer_logprob": -1.160116195678711
+    },
+    {
+      "absolute_logprob_error": 0.10760807991027832,
+      "agent_id": "blue-0",
+      "allowed_token_count": 3,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-0:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.006003141403198242,
+      "policy_slot": 0,
+      "probability_error": 0.08576685190200806,
+      "rollout_logprob": -0.28115010261535645,
+      "token_id": 22317,
+      "token_offset": 67,
+      "trainer_logprob": -0.17354202270507812
+    },
+    {
+      "absolute_logprob_error": 0.13002419471740723,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.00883173942565918,
+      "policy_slot": 0,
+      "probability_error": 0.07806152105331421,
+      "rollout_logprob": -0.575939416885376,
+      "token_id": 1866,
+      "token_offset": 35,
+      "trainer_logprob": -0.44591522216796875
+    },
+    {
+      "absolute_logprob_error": 0.09771978855133057,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.004933953285217285,
+      "policy_slot": 0,
+      "probability_error": 0.07245147228240967,
+      "rollout_logprob": -0.3484445810317993,
+      "token_id": 3849,
+      "token_offset": 37,
+      "trainer_logprob": -0.25072479248046875
+    },
+    {
+      "absolute_logprob_error": 0.09771978855133057,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-3:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.004933953285217285,
+      "policy_slot": 0,
+      "probability_error": 0.07245147228240967,
+      "rollout_logprob": -0.3484445810317993,
+      "token_id": 3849,
+      "token_offset": 37,
+      "trainer_logprob": -0.25072479248046875
+    },
+    {
+      "absolute_logprob_error": 0.18603920936584473,
+      "agent_id": "blue-0",
+      "allowed_token_count": 3,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-1:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.016280174255371094,
+      "policy_slot": 0,
+      "probability_error": 0.06409090757369995,
+      "rollout_logprob": -0.9740769863128662,
+      "token_id": 788,
+      "token_offset": 67,
+      "trainer_logprob": -1.160116195678711
+    },
+    {
+      "absolute_logprob_error": 0.18603920936584473,
+      "agent_id": "blue-0",
+      "allowed_token_count": 3,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-2:curriculum:4000009:replica-2:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.016280174255371094,
+      "policy_slot": 0,
+      "probability_error": 0.06409090757369995,
+      "rollout_logprob": -0.9740769863128662,
+      "token_id": 788,
+      "token_offset": 67,
+      "trainer_logprob": -1.160116195678711
+    },
+    {
+      "absolute_logprob_error": 0.07838702201843262,
+      "agent_id": "blue-0",
+      "allowed_token_count": 3,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-0:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.003154158592224121,
+      "policy_slot": 0,
+      "probability_error": 0.06338196992874146,
+      "rollout_logprob": -0.25192904472351074,
+      "token_id": 22317,
+      "token_offset": 67,
+      "trainer_logprob": -0.17354202270507812
+    },
+    {
+      "absolute_logprob_error": 0.060731545090675354,
+      "agent_id": "blue-1",
+      "allowed_token_count": 6,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-3:actual:blue-1:1:BROADCAST",
+      "mismatch_kl": 0.0018074512481689453,
+      "policy_slot": 1,
+      "probability_error": 0.05019861459732056,
+      "rollout_logprob": -0.16026340425014496,
+      "token_id": 31400,
+      "token_offset": 46,
+      "trainer_logprob": -0.2209949493408203
+    },
+    {
+      "absolute_logprob_error": 0.06253695487976074,
+      "agent_id": "blue-0",
+      "allowed_token_count": 8,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-3:curriculum:4000009:replica-1:actual:blue-0:1:BROADCAST",
+      "mismatch_kl": 0.0019968748092651367,
+      "policy_slot": 0,
+      "probability_error": 0.04717797040939331,
+      "rollout_logprob": -0.3132617473602295,
+      "token_id": 3849,
+      "token_offset": 37,
+      "trainer_logprob": -0.25072479248046875
+    },
+    {
+      "absolute_logprob_error": 0.07045230269432068,
+      "agent_id": "blue-3",
+      "allowed_token_count": 6,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-0:curriculum:4000008:replica-2:actual:blue-3:1:BROADCAST",
+      "mismatch_kl": 0.002424478530883789,
+      "policy_slot": 3,
+      "probability_error": 0.046133995056152344,
+      "rollout_logprob": -0.38836613297462463,
+      "token_id": 92,
+      "token_offset": 32,
+      "trainer_logprob": -0.4588184356689453
+    },
+    {
+      "absolute_logprob_error": 0.0702759325504303,
+      "agent_id": "blue-3",
+      "allowed_token_count": 6,
+      "decision_id": "shared-return-mask-audit-broad4-5e0e87ed:step-0:group-1:curriculum:4000008:replica-2:actual:blue-3:1:BROADCAST",
+      "mismatch_kl": 0.002412557601928711,
+      "policy_slot": 3,
+      "probability_error": 0.046014368534088135,
+      "rollout_logprob": -0.388542503118515,
+      "token_id": 92,
+      "token_offset": 32,
+      "trainer_logprob": -0.4588184356689453
+    }
+  ]
+}

@@ -25,12 +25,25 @@ from prime_rl.trainer.lora import (
 from prime_rl.utils.logger import get_logger
 
 PYTORCH_WRAPPER_PREFIXES = ["_fsdp_wrapped_module.", "_orig_module.", "_checkpoint_wrapped_module."]
+PEFT_ADAPTER_PREFIX = "base_model.model."
 
 
 def _strip_pytorch_wrapper_prefix(key: str) -> str:
     for prefix in PYTORCH_WRAPPER_PREFIXES:
         key = key.replace(prefix, "")
     return key
+
+
+def peft_adapter_state_dict(state_dict: dict[str, Tensor]) -> dict[str, Tensor]:
+    """Return a PEFT-loadable adapter state dict without changing tensor values."""
+    if not state_dict:
+        raise ValueError("adapter state dict is empty")
+    prefixed = [key.startswith(PEFT_ADAPTER_PREFIX) for key in state_dict]
+    if any(prefixed) and not all(prefixed):
+        raise ValueError("adapter state dict mixes PEFT-prefixed and unprefixed keys")
+    if all(prefixed):
+        return state_dict
+    return {f"{PEFT_ADAPTER_PREFIX}{key}": value for key, value in state_dict.items()}
 
 
 def get_max_layer_num(state_dict: dict[str, Tensor], layer_prefix: str = "model.layers.") -> int:

@@ -34,6 +34,62 @@ Default cadence: **1 hour** (researcher can override). At each check-in:
 **Notes**: anything unusual (errors, restarts, hangs). Omit if nothing notable.
 ```
 
+For topology profiling, use only the controller's durable `timing` fields and
+trainer performance counters; never choose a GPU split from rewards,
+advantages, or gate outcomes. V14.5's frozen operational summary uses exactly
+the first three timed updates and writes `audit/runtime_profile.json`. A profile
+may recommend a different split for a future freshly certified run, but must
+not reconfigure the topology of the run in progress.
+
+Do not run the repository pytest suite as a health check while `torchrun` is
+live. Its repository-level zombie-cleanup fixture uses `pkill -f torchrun` and
+will terminate unrelated training or rollout jobs owned by the same user.
+
+For paid Swarm Arena runs, keep the compact off-node mirror live from update 0,
+not just at checkpoint boundaries. The mirror should write progress atomically,
+upload only an explicit safe allowlist, and anonymously download and hash-check
+every complete adapter checkpoint. Do not include credentials, logs, W&B files,
+or unresolved configs in a public upload beyond an explicitly reviewed contract
+allowlist. Mirror immutable compact snapshots periodically during update-zero
+evaluation, not only after optimizer progress; hash-check the downloaded snapshot.
+Retain initializer-comparison and served-identity evidence separately from SFT
+comparison metrics. Raw generations remain outside the compact public allowlist.
+
+Compare evaluation row throughput to the **remaining** controller-barrier time
+and whole-run TTL, including later fresh games and final synchronization. A
+healthy pulse worker does not imply the controller is still alive. Confirm each
+core process separately and inspect its durable terminal marker. A scientific
+gate rejection, incomplete evaluation, and orchestration timeout are different
+outcomes and must remain distinct in the research record.
+
+For a paid Swarm Arena run, a missing controller session plus unchanged durable
+progress for two watcher intervals is actionable downtime, even when trainer
+and inference processes remain resident and no CUDA fault appears. Preserve the
+traceback and progress hashes immediately, classify whether the failure occurred
+before or after an atomic optimizer update, and execute the already authorized
+recovery path. A watcher that only increments an error count while GPUs remain
+allocated is not a recovery system.
+
+When a run prospectively permits bounded numerical-parity quarantine, monitor
+and mirror `audit/rollout_parity_quarantine.jsonl`. Verify that every record says
+`optimizer_step_applied=false` and `replacement_batch_sampled=false`, and report
+scheduled logical slots separately from optimizer-applied updates. One allowed
+quarantine publishes unchanged weights; it is not training progress. A second
+failure in the same frozen stage is a scientific stop, not a recovery target.
+
+### Evaluation completion and summary recovery
+
+Treat durable row generation and summary aggregation as separate milestones.
+Before restarting an evaluator after a summary error, verify the expected row
+count, newline completeness, evaluation IDs, and raw/compact row agreement. A
+completed row set must not be regenerated merely because aggregation failed.
+
+For Swarm Arena zero-message-budget interventions,
+`broadcast_protocol_rate` and `broadcast_grounded_rate` are intentionally
+undefined (`null`): there was no broadcast opportunity to score. Aggregate
+protocol metrics over defined rows and report defined/undefined denominators.
+Never coerce these nulls to zero, which would create a false protocol failure.
+
 ### Restarting a run
 
 **Never restart unless the researcher explicitly asked.** Confirm the exact restart command and the conditions that warrant one.
@@ -46,6 +102,12 @@ tmux send-keys -t "$SESSION:Launcher" 'your command here' Enter
 ```
 
 After a restart, verify all processes are back up and progress resumed before the next check-in.
+
+After a terminal stage-gate rejection or verified completion, first verify the
+compact mirror/checkpoint hashes and final W&B sync, then perform the authorized
+exact-instance teardown immediately. Do not leave a paid pod idle until the next
+heartbeat. Silence never supplies destructive authorization: if teardown was not
+authorized in the active run contract, request it explicitly.
 
 ---
 

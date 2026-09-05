@@ -1,0 +1,187 @@
+[
+  {
+    "groups": [
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-0:curriculum:10000019",
+        "replicas": [
+          {
+            "advantage": 0.12903225806451613,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-0:curriculum:10000019:replica-0",
+            "return": 0.12903225806451613
+          },
+          {
+            "advantage": -0.04301075268817204,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-0:curriculum:10000019:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.04301075268817204,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-0:curriculum:10000019:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.04301075268817204,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-0:curriculum:10000019:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V43",
+          "candidate_targets": [
+            "V43",
+            "V49"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.06451612903225806,
+          "pair_index": 0,
+          "receiver": "blue-1",
+          "sampling_namespace": "swarm-v4-signal-handoff-7af9d102:step-0:pair-0",
+          "seed": 10000019,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "b98e7ab126893e2e533863bdf7f7eb7f3cc50a8923d0d3d3e23064f39ea447b4",
+          "target": "V43",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-1:curriculum:10000019",
+        "replicas": [
+          {
+            "advantage": 0.12903225806451613,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-1:curriculum:10000019:replica-0",
+            "return": 0.12903225806451613
+          },
+          {
+            "advantage": -0.04301075268817204,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-1:curriculum:10000019:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.04301075268817204,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-1:curriculum:10000019:replica-2",
+            "return": 0.0
+          },
+          {
+            "advantage": -0.04301075268817204,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-1:curriculum:10000019:replica-3",
+            "return": 0.0
+          }
+        ],
+        "scenario": {
+          "active_target": "V43",
+          "candidate_targets": [
+            "V43",
+            "V49"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 0,
+          "receiver": "blue-1",
+          "sampling_namespace": "swarm-v4-signal-handoff-7af9d102:step-0:pair-0",
+          "seed": 10000019,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "f6f23e3d4852a5eab028fc4ca3644f6c559333e742504fd545259c49cd4d538e",
+          "target": "V43",
+          "world": "left_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-2:curriculum:10000020",
+        "replicas": [
+          {
+            "advantage": 0.01960784313725491,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-2:curriculum:10000020:replica-0",
+            "return": 0.058823529411764705
+          },
+          {
+            "advantage": -0.0588235294117647,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-2:curriculum:10000020:replica-1",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.01960784313725491,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-2:curriculum:10000020:replica-2",
+            "return": 0.058823529411764705
+          },
+          {
+            "advantage": 0.01960784313725491,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-2:curriculum:10000020:replica-3",
+            "return": 0.058823529411764705
+          }
+        ],
+        "scenario": {
+          "active_target": "V76",
+          "candidate_targets": [
+            "V58",
+            "V76"
+          ],
+          "kind": "critical",
+          "minimum_certified_advantage": 0.05882352941176471,
+          "pair_index": 1,
+          "receiver": "blue-2",
+          "sampling_namespace": "swarm-v4-signal-handoff-7af9d102:step-0:pair-1",
+          "seed": 10000020,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "5cb5cc354f05c3acf26b14dd0e4aa18a872f91a1644d994d8877d7121b989b8b",
+          "target": "V76",
+          "world": "right_exposed"
+        }
+      },
+      {
+        "credit_estimator": "shared_return",
+        "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-3:curriculum:10000020",
+        "replicas": [
+          {
+            "advantage": -0.0784313725490196,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-3:curriculum:10000020:replica-0",
+            "return": 0.0
+          },
+          {
+            "advantage": 0.15686274509803919,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-3:curriculum:10000020:replica-1",
+            "return": 0.1764705882352941
+          },
+          {
+            "advantage": 0.07843137254901963,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-3:curriculum:10000020:replica-2",
+            "return": 0.11764705882352942
+          },
+          {
+            "advantage": -0.1568627450980392,
+            "game_id": "swarm-v4-signal-handoff-7af9d102:step-0:group-3:curriculum:10000020:replica-3",
+            "return": -0.058823529411764705
+          }
+        ],
+        "scenario": {
+          "active_target": "V76",
+          "candidate_targets": [
+            "V58",
+            "V76"
+          ],
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 1,
+          "receiver": "blue-2",
+          "sampling_namespace": "swarm-v4-signal-handoff-7af9d102:step-0:pair-1",
+          "seed": 10000020,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "train",
+          "state_sha256": "50ac07a770146f765abfea64c3b45d5927b200664afc401bb0e78db97a21b9dd",
+          "target": "V76",
+          "world": "right_exposed"
+        }
+      }
+    ],
+    "step": 0
+  }
+]

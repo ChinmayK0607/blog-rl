@@ -1,0 +1,21 @@
+{
+  "observed_at_utc": "2026-09-05T03:58:36Z",
+  "run_id": "rl-v14-7-a6000-parity-stable4b40-66cdcda2",
+  "source_commit": "66cdcda26a798cbc01a333c8a3fc860d5b404d18",
+  "status": "operational_abort",
+  "reason": "step-zero controller barrier timeout (7200 seconds)",
+  "durable_optimizer_updates": 0,
+  "evaluation_rows": 177,
+  "evaluation_rows_required": 192,
+  "measurement_scope": "partial SFT harness check; not the V13 initializer baseline",
+  "pod_id": "f9db5851-a264-48e5-a579-a71960cadb77",
+  "provider_absence_verified": true,
+  "provider_last_spend_usd": 4.12,
+  "estimated_final_cost_usd": 4.13,
+  "final_invoice_verified": false,
+  "hf_revision": "2229b69039f26cfd7ecd138d98ecb12a617aa9a5",
+  "hf_and_wandb_hash_verified_files": 17,
+  "local_archive_sha256": "643a94235179894ddcc49835ff36832580276c0d9f7795b0ec087710276b8e6d",
+  "scientific_verdict": "interrupted_before_testing_the_hypothesis",
+  "next_decision": "Validate prospective evaluator/operational fixes and a feasible measured budget before rental."
+}

@@ -1,0 +1,7103 @@
+{
+  "episode": {
+    "config": {
+      "communication_cost": 0.05,
+      "invalid_action_cost": 1.0,
+      "invalid_broadcast_cost": 0.5,
+      "max_facts_per_message": 2,
+      "message_budget_per_agent": 0,
+      "resource_regen_period": 2
+    },
+    "episode_version": "arena-episode-v2",
+    "horizon": 2,
+    "seed": 0,
+    "size": 10
+  },
+  "initial": {
+    "observations": {
+      "blue-0": {
+        "adjacent_teammates": [],
+        "episode_version": "arena-episode-v2",
+        "known_nodes": [
+          {
+            "critical": true,
+            "node": "V43",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V72",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V75",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        ],
+        "last_local_events": [],
+        "message_budget_remaining": 0,
+        "remaining_turns": 2,
+        "self": {
+          "id": "blue-0",
+          "position": "V75",
+          "resource": 1,
+          "team": "BLUE"
+        },
+        "turn": 0,
+        "unknown_neighbors": []
+      },
+      "blue-1": {
+        "adjacent_teammates": [
+          {
+            "id": "blue-2",
+            "position": "V48",
+            "resource": 3
+          }
+        ],
+        "episode_version": "arena-episode-v2",
+        "known_nodes": [
+          {
+            "critical": false,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V71",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 2
+          }
+        ],
+        "last_local_events": [],
+        "message_budget_remaining": 0,
+        "remaining_turns": 2,
+        "self": {
+          "id": "blue-1",
+          "position": "V71",
+          "resource": 3,
+          "team": "BLUE"
+        },
+        "turn": 0,
+        "unknown_neighbors": [
+          "V55",
+          "V63"
+        ]
+      },
+      "blue-2": {
+        "adjacent_teammates": [
+          {
+            "id": "blue-1",
+            "position": "V71",
+            "resource": 3
+          },
+          {
+            "id": "blue-3",
+            "position": "V61",
+            "resource": 2
+          }
+        ],
+        "episode_version": "arena-episode-v2",
+        "known_nodes": [
+          {
+            "critical": false,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V61",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V71",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 2
+          }
+        ],
+        "last_local_events": [],
+        "message_budget_remaining": 0,
+        "remaining_turns": 2,
+        "self": {
+          "id": "blue-2",
+          "position": "V48",
+          "resource": 3,
+          "team": "BLUE"
+        },
+        "turn": 0,
+        "unknown_neighbors": [
+          "V55"
+        ]
+      },
+      "blue-3": {
+        "adjacent_teammates": [
+          {
+            "id": "blue-2",
+            "position": "V48",
+            "resource": 3
+          }
+        ],
+        "episode_version": "arena-episode-v2",
+        "known_nodes": [
+          {
+            "critical": false,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V61",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V72",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 1
+          }
+        ],
+        "last_local_events": [],
+        "message_budget_remaining": 0,
+        "remaining_turns": 2,
+        "self": {
+          "id": "blue-3",
+          "position": "V61",
+          "resource": 2,
+          "team": "BLUE"
+        },
+        "turn": 0,
+        "unknown_neighbors": []
+      },
+      "red-0": {
+        "adjacent_teammates": [
+          {
+            "id": "red-1",
+            "position": "V63",
+            "resource": 1
+          },
+          {
+            "id": "red-2",
+            "position": "V55",
+            "resource": 1
+          }
+        ],
+        "episode_version": "arena-episode-v2",
+        "known_nodes": [
+          {
+            "critical": true,
+            "node": "V43",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          },
+          {
+            "critical": true,
+            "node": "V59",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 3
+          }
+        ],
+        "last_local_events": [],
+        "message_budget_remaining": 0,
+        "remaining_turns": 2,
+        "self": {
+          "id": "red-0",
+          "position": "V59",
+          "resource": 3,
+          "team": "RED"
+        },
+        "turn": 0,
+        "unknown_neighbors": [
+          "V55",
+          "V63"
+        ]
+      },
+      "red-1": {
+        "adjacent_teammates": [
+          {
+            "id": "red-0",
+            "position": "V59",
+            "resource": 3
+          }
+        ],
+        "episode_version": "arena-episode-v2",
+        "known_nodes": [
+          {
+            "critical": false,
+            "node": "V15",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V63",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V71",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 2
+          }
+        ],
+        "last_local_events": [],
+        "message_budget_remaining": 0,
+        "remaining_turns": 2,
+        "self": {
+          "id": "red-1",
+          "position": "V63",
+          "resource": 1,
+          "team": "RED"
+        },
+        "turn": 0,
+        "unknown_neighbors": [
+          "V59"
+        ]
+      },
+      "red-2": {
+        "adjacent_teammates": [
+          {
+            "id": "red-0",
+            "position": "V59",
+            "resource": 3
+          }
+        ],
+        "episode_version": "arena-episode-v2",
+        "known_nodes": [
+          {
+            "critical": false,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          {
+            "critical": false,
+            "node": "V55",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 1
+          }
+        ],
+        "last_local_events": [],
+        "message_budget_remaining": 0,
+        "remaining_turns": 2,
+        "self": {
+          "id": "red-2",
+          "position": "V55",
+          "resource": 1,
+          "team": "RED"
+        },
+        "turn": 0,
+        "unknown_neighbors": [
+          "V59",
+          "V71"
+        ]
+      },
+      "red-3": {
+        "adjacent_teammates": [],
+        "episode_version": "arena-episode-v2",
+        "known_nodes": [
+          {
+            "critical": false,
+            "node": "V72",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 1
+          },
+          {
+            "critical": false,
+            "node": "V75",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        ],
+        "last_local_events": [],
+        "message_budget_remaining": 0,
+        "remaining_turns": 2,
+        "self": {
+          "id": "red-3",
+          "position": "V72",
+          "resource": 1,
+          "team": "RED"
+        },
+        "turn": 0,
+        "unknown_neighbors": [
+          "V61"
+        ]
+      }
+    },
+    "state": {
+      "agents": {
+        "blue-0": {
+          "id": "blue-0",
+          "position": "V75",
+          "resource": 1,
+          "team": "BLUE"
+        },
+        "blue-1": {
+          "id": "blue-1",
+          "position": "V71",
+          "resource": 3,
+          "team": "BLUE"
+        },
+        "blue-2": {
+          "id": "blue-2",
+          "position": "V48",
+          "resource": 3,
+          "team": "BLUE"
+        },
+        "blue-3": {
+          "id": "blue-3",
+          "position": "V61",
+          "resource": 2,
+          "team": "BLUE"
+        },
+        "red-0": {
+          "id": "red-0",
+          "position": "V59",
+          "resource": 3,
+          "team": "RED"
+        },
+        "red-1": {
+          "id": "red-1",
+          "position": "V63",
+          "resource": 1,
+          "team": "RED"
+        },
+        "red-2": {
+          "id": "red-2",
+          "position": "V55",
+          "resource": 1,
+          "team": "RED"
+        },
+        "red-3": {
+          "id": "red-3",
+          "position": "V72",
+          "resource": 1,
+          "team": "RED"
+        }
+      },
+      "knowledge": {
+        "blue-0": {
+          "V43": {
+            "critical": true,
+            "node": "V43",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          },
+          "V72": {
+            "critical": false,
+            "node": "V72",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 1
+          },
+          "V75": {
+            "critical": false,
+            "node": "V75",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        },
+        "blue-1": {
+          "V48": {
+            "critical": false,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          "V71": {
+            "critical": false,
+            "node": "V71",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 2
+          }
+        },
+        "blue-2": {
+          "V48": {
+            "critical": false,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          "V61": {
+            "critical": false,
+            "node": "V61",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          "V71": {
+            "critical": false,
+            "node": "V71",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 2
+          }
+        },
+        "blue-3": {
+          "V48": {
+            "critical": false,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          "V61": {
+            "critical": false,
+            "node": "V61",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          },
+          "V72": {
+            "critical": false,
+            "node": "V72",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 1
+          }
+        },
+        "red-0": {
+          "V43": {
+            "critical": true,
+            "node": "V43",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 3
+          },
+          "V59": {
+            "critical": true,
+            "node": "V59",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 3
+          }
+        },
+        "red-1": {
+          "V15": {
+            "critical": false,
+            "node": "V15",
+            "observed_turn": 0,
+            "owner": "NEUTRAL",
+            "status": "SECURE",
+            "value": 1
+          },
+          "V63": {
+            "critical": false,
+            "node": "V63",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "EXPOSED",
+            "value": 1
+          },
+          "V71": {
+            "critical": false,
+            "node": "V71",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "SECURE",
+            "value": 2
+          }
+        },
+        "red-2": {
+          "V48": {
+            "critical": false,
+            "node": "V48",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 3
+          },
+          "V55": {
+            "critical": false,
+            "node": "V55",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 1
+          }
+        },
+        "red-3": {
+          "V72": {
+            "critical": false,
+            "node": "V72",
+            "observed_turn": 0,
+            "owner": "RED",
+            "status": "SECURE",
+            "value": 1
+          },
+          "V75": {
+            "critical": false,
+            "node": "V75",
+            "observed_turn": 0,
+            "owner": "BLUE",
+            "status": "FORTIFIED",
+            "value": 1
+          }
+        }
+      },
+      "nodes": {
+        "V15": {
+          "compromised": false,
+          "critical": false,
+          "exposed": false,
+          "fortification": 0,
+          "id": "V15",
+          "neighbors": [
+            "V43",
+            "V63"
+          ],
+          "owner": "NEUTRAL",
+          "value": 1
+        },
+        "V43": {
+          "compromised": false,
+          "critical": true,
+          "exposed": false,
+          "fortification": 0,
+          "id": "V43",
+          "neighbors": [
+            "V15",
+            "V59",
+            "V75"
+          ],
+          "owner": "NEUTRAL",
+          "value": 3
+        },
+        "V48": {
+          "compromised": false,
+          "critical": false,
+          "exposed": false,
+          "fortification": 1,
+          "id": "V48",
+          "neighbors": [
+            "V55",
+            "V61",
+            "V71"
+          ],
+          "owner": "BLUE",
+          "value": 3
+        },
+        "V55": {
+          "compromised": false,
+          "critical": false,
+          "exposed": false,
+          "fortification": 0,
+          "id": "V55",
+          "neighbors": [
+            "V48",
+            "V59",
+            "V71"
+          ],
+          "owner": "RED",
+          "value": 1
+        },
+        "V59": {
+          "compromised": false,
+          "critical": true,
+          "exposed": false,
+          "fortification": 0,
+          "id": "V59",
+          "neighbors": [
+            "V43",
+            "V55",
+            "V63"
+          ],
+          "owner": "RED",
+          "value": 3
+        },
+        "V61": {
+          "compromised": false,
+          "critical": false,
+          "exposed": false,
+          "fortification": 1,
+          "id": "V61",
+          "neighbors": [
+            "V48",
+            "V72"
+          ],
+          "owner": "BLUE",
+          "value": 1
+        },
+        "V63": {
+          "compromised": false,
+          "critical": false,
+          "exposed": true,
+          "fortification": 0,
+          "id": "V63",
+          "neighbors": [
+            "V15",
+            "V59",
+            "V71"
+          ],
+          "owner": "RED",
+          "value": 1
+        },
+        "V71": {
+          "compromised": false,
+          "critical": false,
+          "exposed": false,
+          "fortification": 0,
+          "id": "V71",
+          "neighbors": [
+            "V48",
+            "V55",
+            "V63"
+          ],
+          "owner": "BLUE",
+          "value": 2
+        },
+        "V72": {
+          "compromised": false,
+          "critical": false,
+          "exposed": false,
+          "fortification": 0,
+          "id": "V72",
+          "neighbors": [
+            "V61",
+            "V75"
+          ],
+          "owner": "RED",
+          "value": 1
+        },
+        "V75": {
+          "compromised": false,
+          "critical": false,
+          "exposed": false,
+          "fortification": 1,
+          "id": "V75",
+          "neighbors": [
+            "V43",
+            "V72"
+          ],
+          "owner": "BLUE",
+          "value": 1
+        }
+      },
+      "turn": 0
+    },
+    "team_value": {
+      "BLUE": 0.2500000000000002,
+      "RED": -0.2500000000000002
+    }
+  },
+  "optimality": {
+    "definition": "Exact centralized BLUE best response over every legal joint-action trajectory against state-dependent deterministic balanced RED. With message budget zero, EMPTY_BROADCAST is the only non-penalized broadcast.",
+    "explored": {
+      "first_turn_blue_joint_actions": 500,
+      "reachable_second_turn_blue_joint_actions": 218852,
+      "total_blue_joint_actions": 219352
+    },
+    "limitation": "This is not minimax, Nash equilibrium, communication-policy optimality at a positive budget, or an observation-respecting decentralized-policy certificate. RED is fixed, and the BLUE planner reads the full GameState while selecting individually legal actions.",
+    "optimal_trajectory_count": 1,
+    "terminal_blue_return": 7.6000000000000005,
+    "tie_break": "fewest non-WAIT actions, then lexicographic Action tuple",
+    "unique_optimum": true
+  },
+  "outcome": {
+    "communication_spend": {
+      "BLUE": 0,
+      "RED": 0
+    },
+    "final_team_value": {
+      "BLUE": 7.8500000000000005,
+      "RED": -7.8500000000000005
+    },
+    "invalid_actions": {
+      "BLUE": 0,
+      "RED": 0
+    },
+    "invalid_broadcasts": {
+      "BLUE": 0,
+      "RED": 0
+    },
+    "reason": "time_limit",
+    "terminal_return": {
+      "BLUE": 7.6000000000000005,
+      "RED": -7.6000000000000005
+    },
+    "turns_played": 2
+  },
+  "role_analysis": {
+    "actual_model": "gpt-5.6-sol",
+    "independent_roles": [
+      "blue-0",
+      "blue-1",
+      "blue-2",
+      "blue-3",
+      "red-0",
+      "red-1",
+      "red-2",
+      "red-3"
+    ],
+    "method": "Eight fresh role contexts were run in waves. Each received only that agent's current private observation, legal actions, empty teammate inbox, and its own prior private role history.",
+    "note": "Role proposals are comparisons only; they are not called optimal or executed by the certificate.",
+    "reasoning_effort": "medium",
+    "requested_model": "gpt-5.6-luna",
+    "requested_model_available": false
+  },
+  "schema_version": "swarm-arena-full-match-certificate-v1",
+  "sha256": "cad28735b4a74385d9e71b960ef0917559b4b9fcec77169aa19b3978e9739d8b",
+  "turns": [
+    {
+      "act": {
+        "blue": {
+          "blue-0": {
+            "target": "V43",
+            "type": "CAPTURE"
+          },
+          "blue-1": {
+            "target": "V63",
+            "type": "SCAN"
+          },
+          "blue-2": {
+            "target": "V55",
+            "type": "SCAN"
+          },
+          "blue-3": {
+            "target": "V72",
+            "type": "PROBE"
+          }
+        },
+        "executed": {
+          "blue-0": {
+            "target": "V43",
+            "type": "CAPTURE"
+          },
+          "blue-1": {
+            "target": "V63",
+            "type": "SCAN"
+          },
+          "blue-2": {
+            "target": "V55",
+            "type": "SCAN"
+          },
+          "blue-3": {
+            "target": "V72",
+            "type": "PROBE"
+          },
+          "red-0": {
+            "target": "V43",
+            "type": "PROBE"
+          },
+          "red-1": {
+            "target": "V71",
+            "type": "PROBE"
+          },
+          "red-2": {
+            "target": "V48",
+            "type": "PROBE"
+          },
+          "red-3": {
+            "target": "V75",
+            "type": "PROBE"
+          }
+        },
+        "legal_actions": {
+          "blue-0": [
+            {
+              "id": "A0",
+              "target": "V43",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V72",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A2",
+              "target": "V43",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V72",
+              "type": "PROBE"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ],
+          "blue-1": [
+            {
+              "id": "A0",
+              "target": "V71",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A1",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "id": "A2",
+              "target": "V63",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A3",
+              "target": "blue-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ],
+          "blue-2": [
+            {
+              "id": "A0",
+              "target": "V71",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A1",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A2",
+              "target": "blue-1",
+              "type": "TRANSFER"
+            },
+            {
+              "amount": 1,
+              "id": "A3",
+              "target": "blue-3",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ],
+          "blue-3": [
+            {
+              "id": "A0",
+              "target": "V72",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V72",
+              "type": "PROBE"
+            },
+            {
+              "amount": 1,
+              "id": "A2",
+              "target": "blue-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A3",
+              "type": "WAIT"
+            }
+          ],
+          "red-0": [
+            {
+              "id": "A0",
+              "target": "V43",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V59",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V43",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "id": "A4",
+              "target": "V63",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "red-1",
+              "type": "TRANSFER"
+            },
+            {
+              "amount": 1,
+              "id": "A6",
+              "target": "red-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A7",
+              "type": "WAIT"
+            }
+          ],
+          "red-1": [
+            {
+              "id": "A0",
+              "target": "V15",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V71",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A2",
+              "target": "V63",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A3",
+              "target": "V15",
+              "type": "PROBE"
+            },
+            {
+              "id": "A4",
+              "target": "V71",
+              "type": "PROBE"
+            },
+            {
+              "id": "A5",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A6",
+              "target": "red-0",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A7",
+              "type": "WAIT"
+            }
+          ],
+          "red-2": [
+            {
+              "id": "A0",
+              "target": "V48",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V55",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V48",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "id": "A4",
+              "target": "V71",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "red-0",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A6",
+              "type": "WAIT"
+            }
+          ],
+          "red-3": [
+            {
+              "id": "A0",
+              "target": "V75",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V72",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V75",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V61",
+              "type": "SCAN"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ]
+        },
+        "observations": {
+          "blue-0": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 0,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "blue-0",
+              "position": "V75",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "turn": 0,
+            "unknown_neighbors": []
+          },
+          "blue-1": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 2
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "blue-1",
+              "position": "V71",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V55",
+              "V63"
+            ]
+          },
+          "blue-2": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-1",
+                "position": "V71",
+                "resource": 3
+              },
+              {
+                "id": "blue-3",
+                "position": "V61",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 2
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V55"
+            ]
+          },
+          "blue-3": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "blue-3",
+              "position": "V61",
+              "resource": 2,
+              "team": "BLUE"
+            },
+            "turn": 0,
+            "unknown_neighbors": []
+          },
+          "red-0": {
+            "adjacent_teammates": [
+              {
+                "id": "red-1",
+                "position": "V63",
+                "resource": 1
+              },
+              {
+                "id": "red-2",
+                "position": "V55",
+                "resource": 1
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 0,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 3,
+              "team": "RED"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V55",
+              "V63"
+            ]
+          },
+          "red-1": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 0,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 2
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 1,
+              "team": "RED"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V59"
+            ]
+          },
+          "red-2": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 1,
+              "team": "RED"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V59",
+              "V71"
+            ]
+          },
+          "red-3": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 1,
+              "team": "RED"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V61"
+            ]
+          }
+        },
+        "red": {
+          "red-0": {
+            "target": "V43",
+            "type": "PROBE"
+          },
+          "red-1": {
+            "target": "V71",
+            "type": "PROBE"
+          },
+          "red-2": {
+            "target": "V48",
+            "type": "PROBE"
+          },
+          "red-3": {
+            "target": "V75",
+            "type": "PROBE"
+          }
+        },
+        "role_proposals": {
+          "blue-0": {
+            "action": {
+              "target": "V43",
+              "type": "CAPTURE"
+            },
+            "action_id": "A0",
+            "matches_executed": true,
+            "private_rationale": "Capturing adjacent neutral critical node V43 targets the highest observed value with the available resource."
+          },
+          "blue-1": {
+            "action": {
+              "target": "V71",
+              "type": "FORTIFY"
+            },
+            "action_id": "A0",
+            "matches_executed": false,
+            "private_rationale": "Fortifying V71 strengthens blue-1's secure position using an available legal action."
+          },
+          "blue-2": {
+            "action": {
+              "target": "V55",
+              "type": "SCAN"
+            },
+            "action_id": "A1",
+            "matches_executed": true,
+            "private_rationale": "Scanning V55 reveals information about the only unknown neighboring node."
+          },
+          "blue-3": {
+            "action": {
+              "target": "V72",
+              "type": "CAPTURE"
+            },
+            "action_id": "A0",
+            "matches_executed": false,
+            "private_rationale": "Capturing the adjacent red secure node uses the available resource advantage."
+          },
+          "red-0": {
+            "action": {
+              "target": "V43",
+              "type": "CAPTURE"
+            },
+            "action_id": "A0",
+            "matches_executed": false,
+            "private_rationale": "Capturing the known neutral critical node V43 directly contests its value using my available resources."
+          },
+          "red-1": {
+            "action": {
+              "target": "V63",
+              "type": "FORTIFY"
+            },
+            "action_id": "A2",
+            "matches_executed": false,
+            "private_rationale": "Fortifying my exposed red node is the safest locally supported use of my single resource."
+          },
+          "red-2": {
+            "action": {
+              "target": "V48",
+              "type": "PROBE"
+            },
+            "action_id": "A2",
+            "matches_executed": true,
+            "private_rationale": "Probing the adjacent fortified enemy reveals useful information without risking a likely unfavorable capture."
+          },
+          "red-3": {
+            "action": {
+              "target": "V75",
+              "type": "CAPTURE"
+            },
+            "action_id": "A0",
+            "matches_executed": false,
+            "private_rationale": "Capturing the adjacent enemy node offers the strongest immediate gain with only two turns remaining."
+          }
+        }
+      },
+      "broadcast": {
+        "accepted": {
+          "blue-0": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-1": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-2": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-3": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-0": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-1": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-2": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-3": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          }
+        },
+        "delivered": {
+          "blue-0": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-1": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-2": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-3": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-0": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-1": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-2": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-3": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          }
+        },
+        "errors": {
+          "blue-0": [],
+          "blue-1": [],
+          "blue-2": [],
+          "blue-3": [],
+          "red-0": [],
+          "red-1": [],
+          "red-2": [],
+          "red-3": []
+        },
+        "inboxes": {
+          "blue-0": [],
+          "blue-1": [],
+          "blue-2": [],
+          "blue-3": [],
+          "red-0": [],
+          "red-1": [],
+          "red-2": [],
+          "red-3": []
+        },
+        "message_units": {
+          "blue-0": 0,
+          "blue-1": 0,
+          "blue-2": 0,
+          "blue-3": 0,
+          "red-0": 0,
+          "red-1": 0,
+          "red-2": 0,
+          "red-3": 0
+        },
+        "policy": "empty_broadcast",
+        "remaining_budget": {
+          "blue-0": 0,
+          "blue-1": 0,
+          "blue-2": 0,
+          "blue-3": 0,
+          "red-0": 0,
+          "red-1": 0,
+          "red-2": 0,
+          "red-3": 0
+        },
+        "role_proposals": {
+          "blue-0": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "With resource 1 and no message budget, blue-0 can capture adjacent neutral critical node V43 without broadcasting."
+          },
+          "blue-1": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "Fortifying V71 uses an available action to strengthen blue-1's secure position while preserving the no-broadcast constraint."
+          },
+          "blue-2": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "With no message budget, I cannot broadcast information about the unknown neighbor V55."
+          },
+          "blue-3": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "No broadcast is possible because the message budget is zero."
+          },
+          "red-0": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "I cannot send a non-empty broadcast because the message budget is zero."
+          },
+          "red-1": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "With no message budget, I keep the broadcast empty while preserving my sole resource for the action phase."
+          },
+          "red-2": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "With no message budget, I will preserve my resource and assess the best legal move privately."
+          },
+          "red-3": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "No broadcast is legal with a zero message budget."
+          }
+        },
+        "shared_fact_updates": {
+          "blue-0": 0,
+          "blue-1": 0,
+          "blue-2": 0,
+          "blue-3": 0,
+          "red-0": 0,
+          "red-1": 0,
+          "red-2": 0,
+          "red-3": 0
+        }
+      },
+      "index": 0,
+      "post": {
+        "communication_spend": {
+          "BLUE": 0,
+          "RED": 0
+        },
+        "invalid_actions": {
+          "BLUE": 0,
+          "RED": 0
+        },
+        "invalid_broadcasts": {
+          "BLUE": 0,
+          "RED": 0
+        },
+        "observations": {
+          "blue-0": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "red-0",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V43"
+              },
+              {
+                "actor": "red-3",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V75"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V43"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-0",
+              "position": "V43",
+              "resource": 0,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V15",
+              "V59"
+            ]
+          },
+          "blue-1": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V63"
+              },
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-1",
+              "position": "V71",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V55"
+            ]
+          },
+          "blue-2": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-1",
+                "position": "V71",
+                "resource": 3
+              },
+              {
+                "id": "blue-3",
+                "position": "V61",
+                "resource": 1
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": []
+          },
+          "blue-3": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "blue-3",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V72"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-3",
+              "position": "V61",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": []
+          },
+          "red-0": {
+            "adjacent_teammates": [
+              {
+                "id": "red-1",
+                "position": "V63",
+                "resource": 0
+              },
+              {
+                "id": "red-2",
+                "position": "V55",
+                "resource": 0
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V63"
+              },
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-0",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V43"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V43"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 2,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V55",
+              "V63"
+            ]
+          },
+          "red-1": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 1,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V63"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 0,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V59"
+            ]
+          },
+          "red-2": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 0,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V59",
+              "V71"
+            ]
+          },
+          "red-3": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-3",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V72"
+              },
+              {
+                "actor": "red-3",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V75"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 0,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V61"
+            ]
+          }
+        },
+        "rewards": {
+          "BLUE": 0.0,
+          "RED": 0.0
+        },
+        "state": {
+          "agents": {
+            "blue-0": {
+              "id": "blue-0",
+              "position": "V43",
+              "resource": 0,
+              "team": "BLUE"
+            },
+            "blue-1": {
+              "id": "blue-1",
+              "position": "V71",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "blue-2": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "blue-3": {
+              "id": "blue-3",
+              "position": "V61",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "red-0": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 2,
+              "team": "RED"
+            },
+            "red-1": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 0,
+              "team": "RED"
+            },
+            "red-2": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 0,
+              "team": "RED"
+            },
+            "red-3": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 0,
+              "team": "RED"
+            }
+          },
+          "knowledge": {
+            "blue-0": {
+              "V43": {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V75": {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            },
+            "blue-1": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V63": {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            },
+            "blue-2": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V55": {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V61": {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            },
+            "blue-3": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V61": {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              }
+            },
+            "red-0": {
+              "V43": {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V59": {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            },
+            "red-1": {
+              "V15": {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 1,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V63": {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            },
+            "red-2": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V55": {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            },
+            "red-3": {
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              "V75": {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            }
+          },
+          "nodes": {
+            "V15": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V15",
+              "neighbors": [
+                "V43",
+                "V63"
+              ],
+              "owner": "NEUTRAL",
+              "value": 1
+            },
+            "V43": {
+              "compromised": false,
+              "critical": true,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V43",
+              "neighbors": [
+                "V15",
+                "V59",
+                "V75"
+              ],
+              "owner": "BLUE",
+              "value": 3
+            },
+            "V48": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V48",
+              "neighbors": [
+                "V55",
+                "V61",
+                "V71"
+              ],
+              "owner": "BLUE",
+              "value": 3
+            },
+            "V55": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V55",
+              "neighbors": [
+                "V48",
+                "V59",
+                "V71"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V59": {
+              "compromised": false,
+              "critical": true,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V59",
+              "neighbors": [
+                "V43",
+                "V55",
+                "V63"
+              ],
+              "owner": "RED",
+              "value": 3
+            },
+            "V61": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 1,
+              "id": "V61",
+              "neighbors": [
+                "V48",
+                "V72"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            },
+            "V63": {
+              "compromised": false,
+              "critical": false,
+              "exposed": true,
+              "fortification": 0,
+              "id": "V63",
+              "neighbors": [
+                "V15",
+                "V59",
+                "V71"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V71": {
+              "compromised": false,
+              "critical": false,
+              "exposed": true,
+              "fortification": 0,
+              "id": "V71",
+              "neighbors": [
+                "V48",
+                "V55",
+                "V63"
+              ],
+              "owner": "BLUE",
+              "value": 2
+            },
+            "V72": {
+              "compromised": false,
+              "critical": false,
+              "exposed": true,
+              "fortification": 0,
+              "id": "V72",
+              "neighbors": [
+                "V61",
+                "V75"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V75": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V75",
+              "neighbors": [
+                "V43",
+                "V72"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            }
+          },
+          "turn": 1
+        },
+        "team_value": {
+          "BLUE": 4.45,
+          "RED": -4.45
+        },
+        "terminated": false,
+        "truncated": false
+      },
+      "pre": {
+        "legal_actions": {
+          "blue-0": [
+            {
+              "id": "A0",
+              "target": "V43",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V72",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A2",
+              "target": "V43",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V72",
+              "type": "PROBE"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ],
+          "blue-1": [
+            {
+              "id": "A0",
+              "target": "V71",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A1",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "id": "A2",
+              "target": "V63",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A3",
+              "target": "blue-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ],
+          "blue-2": [
+            {
+              "id": "A0",
+              "target": "V71",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A1",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A2",
+              "target": "blue-1",
+              "type": "TRANSFER"
+            },
+            {
+              "amount": 1,
+              "id": "A3",
+              "target": "blue-3",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ],
+          "blue-3": [
+            {
+              "id": "A0",
+              "target": "V72",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V72",
+              "type": "PROBE"
+            },
+            {
+              "amount": 1,
+              "id": "A2",
+              "target": "blue-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A3",
+              "type": "WAIT"
+            }
+          ],
+          "red-0": [
+            {
+              "id": "A0",
+              "target": "V43",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V59",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V43",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "id": "A4",
+              "target": "V63",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "red-1",
+              "type": "TRANSFER"
+            },
+            {
+              "amount": 1,
+              "id": "A6",
+              "target": "red-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A7",
+              "type": "WAIT"
+            }
+          ],
+          "red-1": [
+            {
+              "id": "A0",
+              "target": "V15",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V71",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A2",
+              "target": "V63",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A3",
+              "target": "V15",
+              "type": "PROBE"
+            },
+            {
+              "id": "A4",
+              "target": "V71",
+              "type": "PROBE"
+            },
+            {
+              "id": "A5",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A6",
+              "target": "red-0",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A7",
+              "type": "WAIT"
+            }
+          ],
+          "red-2": [
+            {
+              "id": "A0",
+              "target": "V48",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V55",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V48",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "id": "A4",
+              "target": "V71",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "red-0",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A6",
+              "type": "WAIT"
+            }
+          ],
+          "red-3": [
+            {
+              "id": "A0",
+              "target": "V75",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V72",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V75",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V61",
+              "type": "SCAN"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ]
+        },
+        "observations": {
+          "blue-0": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 0,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "blue-0",
+              "position": "V75",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "turn": 0,
+            "unknown_neighbors": []
+          },
+          "blue-1": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 2
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "blue-1",
+              "position": "V71",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V55",
+              "V63"
+            ]
+          },
+          "blue-2": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-1",
+                "position": "V71",
+                "resource": 3
+              },
+              {
+                "id": "blue-3",
+                "position": "V61",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 2
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V55"
+            ]
+          },
+          "blue-3": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "blue-3",
+              "position": "V61",
+              "resource": 2,
+              "team": "BLUE"
+            },
+            "turn": 0,
+            "unknown_neighbors": []
+          },
+          "red-0": {
+            "adjacent_teammates": [
+              {
+                "id": "red-1",
+                "position": "V63",
+                "resource": 1
+              },
+              {
+                "id": "red-2",
+                "position": "V55",
+                "resource": 1
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 0,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 3,
+              "team": "RED"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V55",
+              "V63"
+            ]
+          },
+          "red-1": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 0,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 2
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 1,
+              "team": "RED"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V59"
+            ]
+          },
+          "red-2": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 1,
+              "team": "RED"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V59",
+              "V71"
+            ]
+          },
+          "red-3": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              }
+            ],
+            "last_local_events": [],
+            "message_budget_remaining": 0,
+            "remaining_turns": 2,
+            "self": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 1,
+              "team": "RED"
+            },
+            "turn": 0,
+            "unknown_neighbors": [
+              "V61"
+            ]
+          }
+        },
+        "state": {
+          "agents": {
+            "blue-0": {
+              "id": "blue-0",
+              "position": "V75",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "blue-1": {
+              "id": "blue-1",
+              "position": "V71",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "blue-2": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "blue-3": {
+              "id": "blue-3",
+              "position": "V61",
+              "resource": 2,
+              "team": "BLUE"
+            },
+            "red-0": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 3,
+              "team": "RED"
+            },
+            "red-1": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 1,
+              "team": "RED"
+            },
+            "red-2": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 1,
+              "team": "RED"
+            },
+            "red-3": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 1,
+              "team": "RED"
+            }
+          },
+          "knowledge": {
+            "blue-0": {
+              "V43": {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 0,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V75": {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              }
+            },
+            "blue-1": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 2
+              }
+            },
+            "blue-2": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              "V61": {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 2
+              }
+            },
+            "blue-3": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              "V61": {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            },
+            "red-0": {
+              "V43": {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 0,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V59": {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            },
+            "red-1": {
+              "V15": {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 0,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V63": {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 2
+              }
+            },
+            "red-2": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 3
+              },
+              "V55": {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            },
+            "red-3": {
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V75": {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 0,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              }
+            }
+          },
+          "nodes": {
+            "V15": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V15",
+              "neighbors": [
+                "V43",
+                "V63"
+              ],
+              "owner": "NEUTRAL",
+              "value": 1
+            },
+            "V43": {
+              "compromised": false,
+              "critical": true,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V43",
+              "neighbors": [
+                "V15",
+                "V59",
+                "V75"
+              ],
+              "owner": "NEUTRAL",
+              "value": 3
+            },
+            "V48": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 1,
+              "id": "V48",
+              "neighbors": [
+                "V55",
+                "V61",
+                "V71"
+              ],
+              "owner": "BLUE",
+              "value": 3
+            },
+            "V55": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V55",
+              "neighbors": [
+                "V48",
+                "V59",
+                "V71"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V59": {
+              "compromised": false,
+              "critical": true,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V59",
+              "neighbors": [
+                "V43",
+                "V55",
+                "V63"
+              ],
+              "owner": "RED",
+              "value": 3
+            },
+            "V61": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 1,
+              "id": "V61",
+              "neighbors": [
+                "V48",
+                "V72"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            },
+            "V63": {
+              "compromised": false,
+              "critical": false,
+              "exposed": true,
+              "fortification": 0,
+              "id": "V63",
+              "neighbors": [
+                "V15",
+                "V59",
+                "V71"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V71": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V71",
+              "neighbors": [
+                "V48",
+                "V55",
+                "V63"
+              ],
+              "owner": "BLUE",
+              "value": 2
+            },
+            "V72": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V72",
+              "neighbors": [
+                "V61",
+                "V75"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V75": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 1,
+              "id": "V75",
+              "neighbors": [
+                "V43",
+                "V72"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            }
+          },
+          "turn": 0
+        }
+      },
+      "resolution": {
+        "duplicate_targets": {
+          "BLUE": [],
+          "RED": []
+        },
+        "events": [
+          {
+            "actor": "blue-1",
+            "detail": "",
+            "kind": "SCAN",
+            "success": true,
+            "target": "V63"
+          },
+          {
+            "actor": "blue-2",
+            "detail": "",
+            "kind": "SCAN",
+            "success": true,
+            "target": "V55"
+          },
+          {
+            "actor": "red-0",
+            "detail": "exposed",
+            "kind": "PROBE",
+            "success": true,
+            "target": "V43"
+          },
+          {
+            "actor": "red-2",
+            "detail": "fortification_reduced",
+            "kind": "PROBE",
+            "success": true,
+            "target": "V48"
+          },
+          {
+            "actor": "red-1",
+            "detail": "exposed",
+            "kind": "PROBE",
+            "success": true,
+            "target": "V71"
+          },
+          {
+            "actor": "blue-3",
+            "detail": "exposed",
+            "kind": "PROBE",
+            "success": true,
+            "target": "V72"
+          },
+          {
+            "actor": "red-3",
+            "detail": "fortification_reduced",
+            "kind": "PROBE",
+            "success": true,
+            "target": "V75"
+          },
+          {
+            "actor": "blue-0",
+            "detail": "",
+            "kind": "CAPTURE",
+            "success": true,
+            "target": "V43"
+          }
+        ]
+      }
+    },
+    {
+      "act": {
+        "blue": {
+          "blue-0": {
+            "target": "V59",
+            "type": "SCAN"
+          },
+          "blue-1": {
+            "target": "V63",
+            "type": "CAPTURE"
+          },
+          "blue-2": {
+            "target": "V71",
+            "type": "FORTIFY"
+          },
+          "blue-3": {
+            "target": "V72",
+            "type": "CAPTURE"
+          }
+        },
+        "executed": {
+          "blue-0": {
+            "target": "V59",
+            "type": "SCAN"
+          },
+          "blue-1": {
+            "target": "V63",
+            "type": "CAPTURE"
+          },
+          "blue-2": {
+            "target": "V71",
+            "type": "FORTIFY"
+          },
+          "blue-3": {
+            "target": "V72",
+            "type": "CAPTURE"
+          },
+          "red-0": {
+            "amount": 1,
+            "target": "red-2",
+            "type": "TRANSFER"
+          },
+          "red-1": {
+            "target": "V59",
+            "type": "SCAN"
+          },
+          "red-2": {
+            "target": "V71",
+            "type": "SCAN"
+          },
+          "red-3": {
+            "target": "V61",
+            "type": "SCAN"
+          }
+        },
+        "legal_actions": {
+          "blue-0": [
+            {
+              "id": "A0",
+              "target": "V15",
+              "type": "SCAN"
+            },
+            {
+              "id": "A1",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "id": "A2",
+              "type": "WAIT"
+            }
+          ],
+          "blue-1": [
+            {
+              "id": "A0",
+              "target": "V63",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V48",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V71",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A3",
+              "target": "V63",
+              "type": "PROBE"
+            },
+            {
+              "id": "A4",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "blue-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A6",
+              "type": "WAIT"
+            }
+          ],
+          "blue-2": [
+            {
+              "id": "A0",
+              "target": "V55",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V48",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V71",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A3",
+              "target": "V55",
+              "type": "PROBE"
+            },
+            {
+              "amount": 1,
+              "id": "A4",
+              "target": "blue-1",
+              "type": "TRANSFER"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "blue-3",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A6",
+              "type": "WAIT"
+            }
+          ],
+          "blue-3": [
+            {
+              "id": "A0",
+              "target": "V72",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V48",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V72",
+              "type": "PROBE"
+            },
+            {
+              "amount": 1,
+              "id": "A3",
+              "target": "blue-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ],
+          "red-0": [
+            {
+              "id": "A0",
+              "target": "V43",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V59",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V43",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "id": "A4",
+              "target": "V63",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "red-1",
+              "type": "TRANSFER"
+            },
+            {
+              "amount": 1,
+              "id": "A6",
+              "target": "red-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A7",
+              "type": "WAIT"
+            }
+          ],
+          "red-1": [
+            {
+              "id": "A0",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "id": "A1",
+              "type": "WAIT"
+            }
+          ],
+          "red-2": [
+            {
+              "id": "A0",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "id": "A1",
+              "target": "V71",
+              "type": "SCAN"
+            },
+            {
+              "id": "A2",
+              "type": "WAIT"
+            }
+          ],
+          "red-3": [
+            {
+              "id": "A0",
+              "target": "V61",
+              "type": "SCAN"
+            },
+            {
+              "id": "A1",
+              "type": "WAIT"
+            }
+          ]
+        },
+        "observations": {
+          "blue-0": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "red-0",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V43"
+              },
+              {
+                "actor": "red-3",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V75"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V43"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-0",
+              "position": "V43",
+              "resource": 0,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V15",
+              "V59"
+            ]
+          },
+          "blue-1": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V63"
+              },
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-1",
+              "position": "V71",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V55"
+            ]
+          },
+          "blue-2": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-1",
+                "position": "V71",
+                "resource": 3
+              },
+              {
+                "id": "blue-3",
+                "position": "V61",
+                "resource": 1
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": []
+          },
+          "blue-3": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "blue-3",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V72"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-3",
+              "position": "V61",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": []
+          },
+          "red-0": {
+            "adjacent_teammates": [
+              {
+                "id": "red-1",
+                "position": "V63",
+                "resource": 0
+              },
+              {
+                "id": "red-2",
+                "position": "V55",
+                "resource": 0
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V63"
+              },
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-0",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V43"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V43"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 2,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V55",
+              "V63"
+            ]
+          },
+          "red-1": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 1,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V63"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 0,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V59"
+            ]
+          },
+          "red-2": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 0,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V59",
+              "V71"
+            ]
+          },
+          "red-3": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "inbox": [],
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-3",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V72"
+              },
+              {
+                "actor": "red-3",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V75"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 0,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V61"
+            ]
+          }
+        },
+        "red": {
+          "red-0": {
+            "amount": 1,
+            "target": "red-2",
+            "type": "TRANSFER"
+          },
+          "red-1": {
+            "target": "V59",
+            "type": "SCAN"
+          },
+          "red-2": {
+            "target": "V71",
+            "type": "SCAN"
+          },
+          "red-3": {
+            "target": "V61",
+            "type": "SCAN"
+          }
+        },
+        "role_proposals": {
+          "blue-0": {
+            "action": {
+              "target": "V15",
+              "type": "SCAN"
+            },
+            "action_id": "A0",
+            "matches_executed": false,
+            "private_rationale": "Scanning unknown neighbor V15 gathers local information while blue-0 has no resource for capture actions."
+          },
+          "blue-1": {
+            "action": {
+              "target": "V63",
+              "type": "CAPTURE"
+            },
+            "action_id": "A0",
+            "matches_executed": true,
+            "private_rationale": "Capturing the exposed red node V63 is a legal action with one turn remaining."
+          },
+          "blue-2": {
+            "action": {
+              "target": "V55",
+              "type": "CAPTURE"
+            },
+            "action_id": "A0",
+            "matches_executed": false,
+            "private_rationale": "Capturing the adjacent secure RED node V55 can convert its value for BLUE on the final turn."
+          },
+          "blue-3": {
+            "action": {
+              "target": "V72",
+              "type": "CAPTURE"
+            },
+            "action_id": "A0",
+            "matches_executed": true,
+            "private_rationale": "The final turn is best used capturing the exposed red node with the available resource."
+          },
+          "red-0": {
+            "action": {
+              "target": "V43",
+              "type": "CAPTURE"
+            },
+            "action_id": "A0",
+            "matches_executed": false,
+            "private_rationale": "With one turn remaining and two resources, I will attempt to capture the adjacent blue-held critical node V43."
+          },
+          "red-1": {
+            "action": {
+              "target": "V59",
+              "type": "SCAN"
+            },
+            "action_id": "A0",
+            "matches_executed": true,
+            "private_rationale": "Scanning the unknown neighboring node provides more local information than waiting on the final turn."
+          },
+          "red-2": {
+            "action": {
+              "target": "V71",
+              "type": "SCAN"
+            },
+            "action_id": "A1",
+            "matches_executed": true,
+            "private_rationale": "Scanning V71 is more informative because V59 is already known to contain a teammate and V71 was just exposed by red-1."
+          },
+          "red-3": {
+            "action": {
+              "target": "V61",
+              "type": "SCAN"
+            },
+            "action_id": "A0",
+            "matches_executed": true,
+            "private_rationale": "Scanning the unknown neighbor is the only action that can produce useful information on the final turn."
+          }
+        }
+      },
+      "broadcast": {
+        "accepted": {
+          "blue-0": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-1": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-2": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-3": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-0": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-1": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-2": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-3": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          }
+        },
+        "delivered": {
+          "blue-0": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-1": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-2": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "blue-3": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-0": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-1": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-2": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          },
+          "red-3": {
+            "facts": [],
+            "intent": null,
+            "request_resource": 0
+          }
+        },
+        "errors": {
+          "blue-0": [],
+          "blue-1": [],
+          "blue-2": [],
+          "blue-3": [],
+          "red-0": [],
+          "red-1": [],
+          "red-2": [],
+          "red-3": []
+        },
+        "inboxes": {
+          "blue-0": [],
+          "blue-1": [],
+          "blue-2": [],
+          "blue-3": [],
+          "red-0": [],
+          "red-1": [],
+          "red-2": [],
+          "red-3": []
+        },
+        "message_units": {
+          "blue-0": 0,
+          "blue-1": 0,
+          "blue-2": 0,
+          "blue-3": 0,
+          "red-0": 0,
+          "red-1": 0,
+          "red-2": 0,
+          "red-3": 0
+        },
+        "policy": "empty_broadcast",
+        "remaining_budget": {
+          "blue-0": 0,
+          "blue-1": 0,
+          "blue-2": 0,
+          "blue-3": 0,
+          "red-0": 0,
+          "red-1": 0,
+          "red-2": 0,
+          "red-3": 0
+        },
+        "role_proposals": {
+          "blue-0": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "With zero message budget, blue-0 cannot broadcast information or intent."
+          },
+          "blue-1": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "With no message budget, blue-1 cannot broadcast the observed exposed red node V63."
+          },
+          "blue-2": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "The zero message budget prevents broadcasting the observed RED node V55 or threatened BLUE nodes."
+          },
+          "blue-3": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "No broadcast is possible because the remaining message budget is zero."
+          },
+          "red-0": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "I cannot send a non-empty broadcast because the message budget is zero."
+          },
+          "red-1": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "With zero message budget, I cannot send a non-empty broadcast despite observing V71 exposed."
+          },
+          "red-2": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "With no message budget or resources, I cannot communicate and will choose the most informative legal action privately."
+          },
+          "red-3": {
+            "broadcast": {
+              "facts": [],
+              "intent": null,
+              "request_resource": 0
+            },
+            "private_rationale": "No broadcast is legal because the message budget remains zero."
+          }
+        },
+        "shared_fact_updates": {
+          "blue-0": 0,
+          "blue-1": 0,
+          "blue-2": 0,
+          "blue-3": 0,
+          "red-0": 0,
+          "red-1": 0,
+          "red-2": 0,
+          "red-3": 0
+        }
+      },
+      "index": 1,
+      "post": {
+        "communication_spend": {
+          "BLUE": 0,
+          "RED": 0
+        },
+        "invalid_actions": {
+          "BLUE": 0,
+          "RED": 0
+        },
+        "invalid_broadcasts": {
+          "BLUE": 0,
+          "RED": 0
+        },
+        "observations": {
+          "blue-0": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              },
+              {
+                "actor": "red-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 0,
+            "self": {
+              "id": "blue-0",
+              "position": "V43",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "turn": 2,
+            "unknown_neighbors": [
+              "V15"
+            ]
+          },
+          "blue-1": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "FORTIFY",
+                "success": true,
+                "target": "V71"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              },
+              {
+                "actor": "red-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              },
+              {
+                "actor": "red-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V71"
+              },
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V63"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 0,
+            "self": {
+              "id": "blue-1",
+              "position": "V63",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 2,
+            "unknown_neighbors": [
+              "V15",
+              "V59"
+            ]
+          },
+          "blue-2": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "FORTIFY",
+                "success": true,
+                "target": "V71"
+              },
+              {
+                "actor": "red-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V71"
+              },
+              {
+                "actor": "red-3",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V61"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 0,
+            "self": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 2,
+            "unknown_neighbors": []
+          },
+          "blue-3": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "red-3",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V61"
+              },
+              {
+                "actor": "blue-3",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V72"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 0,
+            "self": {
+              "id": "blue-3",
+              "position": "V72",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "turn": 2,
+            "unknown_neighbors": [
+              "V75"
+            ]
+          },
+          "red-0": {
+            "adjacent_teammates": [
+              {
+                "id": "red-1",
+                "position": "V63",
+                "resource": 1
+              },
+              {
+                "id": "red-2",
+                "position": "V55",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "red-0",
+                "detail": "",
+                "kind": "TRANSFER",
+                "success": true,
+                "target": "red-2"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              },
+              {
+                "actor": "red-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              },
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V63"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 0,
+            "self": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 2,
+              "team": "RED"
+            },
+            "turn": 2,
+            "unknown_neighbors": [
+              "V55",
+              "V63"
+            ]
+          },
+          "red-1": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 2,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "FORTIFY",
+                "success": true,
+                "target": "V71"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              },
+              {
+                "actor": "red-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              },
+              {
+                "actor": "red-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V71"
+              },
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V63"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 0,
+            "self": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 1,
+              "team": "RED"
+            },
+            "turn": 2,
+            "unknown_neighbors": []
+          },
+          "red-2": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "FORTIFY",
+                "success": true,
+                "target": "V71"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              },
+              {
+                "actor": "red-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V59"
+              },
+              {
+                "actor": "red-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 0,
+            "self": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 2,
+              "team": "RED"
+            },
+            "turn": 2,
+            "unknown_neighbors": [
+              "V59"
+            ]
+          },
+          "red-3": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "red-3",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V61"
+              },
+              {
+                "actor": "blue-3",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V72"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 0,
+            "self": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 1,
+              "team": "RED"
+            },
+            "turn": 2,
+            "unknown_neighbors": []
+          }
+        },
+        "rewards": {
+          "BLUE": 7.6000000000000005,
+          "RED": -7.6000000000000005
+        },
+        "state": {
+          "agents": {
+            "blue-0": {
+              "id": "blue-0",
+              "position": "V43",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "blue-1": {
+              "id": "blue-1",
+              "position": "V63",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "blue-2": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "blue-3": {
+              "id": "blue-3",
+              "position": "V72",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "red-0": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 2,
+              "team": "RED"
+            },
+            "red-1": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 1,
+              "team": "RED"
+            },
+            "red-2": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 2,
+              "team": "RED"
+            },
+            "red-3": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 1,
+              "team": "RED"
+            }
+          },
+          "knowledge": {
+            "blue-0": {
+              "V43": {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V59": {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V75": {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            },
+            "blue-1": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V63": {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 2
+              }
+            },
+            "blue-2": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V55": {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V61": {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 2
+              }
+            },
+            "blue-3": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V61": {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            },
+            "red-0": {
+              "V43": {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V59": {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            },
+            "red-1": {
+              "V15": {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 2,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V59": {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V63": {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 2
+              }
+            },
+            "red-2": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V55": {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 2,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 2
+              }
+            },
+            "red-3": {
+              "V61": {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V75": {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 2,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            }
+          },
+          "nodes": {
+            "V15": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V15",
+              "neighbors": [
+                "V43",
+                "V63"
+              ],
+              "owner": "NEUTRAL",
+              "value": 1
+            },
+            "V43": {
+              "compromised": false,
+              "critical": true,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V43",
+              "neighbors": [
+                "V15",
+                "V59",
+                "V75"
+              ],
+              "owner": "BLUE",
+              "value": 3
+            },
+            "V48": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V48",
+              "neighbors": [
+                "V55",
+                "V61",
+                "V71"
+              ],
+              "owner": "BLUE",
+              "value": 3
+            },
+            "V55": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V55",
+              "neighbors": [
+                "V48",
+                "V59",
+                "V71"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V59": {
+              "compromised": false,
+              "critical": true,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V59",
+              "neighbors": [
+                "V43",
+                "V55",
+                "V63"
+              ],
+              "owner": "RED",
+              "value": 3
+            },
+            "V61": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 1,
+              "id": "V61",
+              "neighbors": [
+                "V48",
+                "V72"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            },
+            "V63": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V63",
+              "neighbors": [
+                "V15",
+                "V59",
+                "V71"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            },
+            "V71": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 1,
+              "id": "V71",
+              "neighbors": [
+                "V48",
+                "V55",
+                "V63"
+              ],
+              "owner": "BLUE",
+              "value": 2
+            },
+            "V72": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V72",
+              "neighbors": [
+                "V61",
+                "V75"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            },
+            "V75": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V75",
+              "neighbors": [
+                "V43",
+                "V72"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            }
+          },
+          "turn": 2
+        },
+        "team_value": {
+          "BLUE": 7.8500000000000005,
+          "RED": -7.8500000000000005
+        },
+        "terminated": false,
+        "truncated": true
+      },
+      "pre": {
+        "legal_actions": {
+          "blue-0": [
+            {
+              "id": "A0",
+              "target": "V15",
+              "type": "SCAN"
+            },
+            {
+              "id": "A1",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "id": "A2",
+              "type": "WAIT"
+            }
+          ],
+          "blue-1": [
+            {
+              "id": "A0",
+              "target": "V63",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V48",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V71",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A3",
+              "target": "V63",
+              "type": "PROBE"
+            },
+            {
+              "id": "A4",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "blue-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A6",
+              "type": "WAIT"
+            }
+          ],
+          "blue-2": [
+            {
+              "id": "A0",
+              "target": "V55",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V48",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V71",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A3",
+              "target": "V55",
+              "type": "PROBE"
+            },
+            {
+              "amount": 1,
+              "id": "A4",
+              "target": "blue-1",
+              "type": "TRANSFER"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "blue-3",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A6",
+              "type": "WAIT"
+            }
+          ],
+          "blue-3": [
+            {
+              "id": "A0",
+              "target": "V72",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V48",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V72",
+              "type": "PROBE"
+            },
+            {
+              "amount": 1,
+              "id": "A3",
+              "target": "blue-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A4",
+              "type": "WAIT"
+            }
+          ],
+          "red-0": [
+            {
+              "id": "A0",
+              "target": "V43",
+              "type": "CAPTURE"
+            },
+            {
+              "id": "A1",
+              "target": "V59",
+              "type": "FORTIFY"
+            },
+            {
+              "id": "A2",
+              "target": "V43",
+              "type": "PROBE"
+            },
+            {
+              "id": "A3",
+              "target": "V55",
+              "type": "SCAN"
+            },
+            {
+              "id": "A4",
+              "target": "V63",
+              "type": "SCAN"
+            },
+            {
+              "amount": 1,
+              "id": "A5",
+              "target": "red-1",
+              "type": "TRANSFER"
+            },
+            {
+              "amount": 1,
+              "id": "A6",
+              "target": "red-2",
+              "type": "TRANSFER"
+            },
+            {
+              "id": "A7",
+              "type": "WAIT"
+            }
+          ],
+          "red-1": [
+            {
+              "id": "A0",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "id": "A1",
+              "type": "WAIT"
+            }
+          ],
+          "red-2": [
+            {
+              "id": "A0",
+              "target": "V59",
+              "type": "SCAN"
+            },
+            {
+              "id": "A1",
+              "target": "V71",
+              "type": "SCAN"
+            },
+            {
+              "id": "A2",
+              "type": "WAIT"
+            }
+          ],
+          "red-3": [
+            {
+              "id": "A0",
+              "target": "V61",
+              "type": "SCAN"
+            },
+            {
+              "id": "A1",
+              "type": "WAIT"
+            }
+          ]
+        },
+        "observations": {
+          "blue-0": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "red-0",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V43"
+              },
+              {
+                "actor": "red-3",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V75"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V43"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-0",
+              "position": "V43",
+              "resource": 0,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V15",
+              "V59"
+            ]
+          },
+          "blue-1": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V63"
+              },
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-1",
+              "position": "V71",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V55"
+            ]
+          },
+          "blue-2": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-1",
+                "position": "V71",
+                "resource": 3
+              },
+              {
+                "id": "blue-3",
+                "position": "V61",
+                "resource": 1
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": []
+          },
+          "blue-3": {
+            "adjacent_teammates": [
+              {
+                "id": "blue-2",
+                "position": "V48",
+                "resource": 3
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "blue-3",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V72"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "blue-3",
+              "position": "V61",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "turn": 1,
+            "unknown_neighbors": []
+          },
+          "red-0": {
+            "adjacent_teammates": [
+              {
+                "id": "red-1",
+                "position": "V63",
+                "resource": 0
+              },
+              {
+                "id": "red-2",
+                "position": "V55",
+                "resource": 0
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V63"
+              },
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-0",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V43"
+              },
+              {
+                "actor": "blue-0",
+                "detail": "",
+                "kind": "CAPTURE",
+                "success": true,
+                "target": "V43"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 2,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V55",
+              "V63"
+            ]
+          },
+          "red-1": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 1,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-1",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V63"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 0,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V59"
+            ]
+          },
+          "red-2": {
+            "adjacent_teammates": [
+              {
+                "id": "red-0",
+                "position": "V59",
+                "resource": 2
+              }
+            ],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-2",
+                "detail": "",
+                "kind": "SCAN",
+                "success": true,
+                "target": "V55"
+              },
+              {
+                "actor": "red-2",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V48"
+              },
+              {
+                "actor": "red-1",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V71"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 0,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V59",
+              "V71"
+            ]
+          },
+          "red-3": {
+            "adjacent_teammates": [],
+            "episode_version": "arena-episode-v2",
+            "known_nodes": [
+              {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            ],
+            "last_local_events": [
+              {
+                "actor": "blue-3",
+                "detail": "exposed",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V72"
+              },
+              {
+                "actor": "red-3",
+                "detail": "fortification_reduced",
+                "kind": "PROBE",
+                "success": true,
+                "target": "V75"
+              }
+            ],
+            "message_budget_remaining": 0,
+            "remaining_turns": 1,
+            "self": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 0,
+              "team": "RED"
+            },
+            "turn": 1,
+            "unknown_neighbors": [
+              "V61"
+            ]
+          }
+        },
+        "state": {
+          "agents": {
+            "blue-0": {
+              "id": "blue-0",
+              "position": "V43",
+              "resource": 0,
+              "team": "BLUE"
+            },
+            "blue-1": {
+              "id": "blue-1",
+              "position": "V71",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "blue-2": {
+              "id": "blue-2",
+              "position": "V48",
+              "resource": 3,
+              "team": "BLUE"
+            },
+            "blue-3": {
+              "id": "blue-3",
+              "position": "V61",
+              "resource": 1,
+              "team": "BLUE"
+            },
+            "red-0": {
+              "id": "red-0",
+              "position": "V59",
+              "resource": 2,
+              "team": "RED"
+            },
+            "red-1": {
+              "id": "red-1",
+              "position": "V63",
+              "resource": 0,
+              "team": "RED"
+            },
+            "red-2": {
+              "id": "red-2",
+              "position": "V55",
+              "resource": 0,
+              "team": "RED"
+            },
+            "red-3": {
+              "id": "red-3",
+              "position": "V72",
+              "resource": 0,
+              "team": "RED"
+            }
+          },
+          "knowledge": {
+            "blue-0": {
+              "V43": {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 0,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V75": {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            },
+            "blue-1": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V63": {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            },
+            "blue-2": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V55": {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V61": {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            },
+            "blue-3": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V61": {
+                "critical": false,
+                "node": "V61",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "FORTIFIED",
+                "value": 1
+              },
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              }
+            },
+            "red-0": {
+              "V43": {
+                "critical": true,
+                "node": "V43",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V59": {
+                "critical": true,
+                "node": "V59",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 3
+              }
+            },
+            "red-1": {
+              "V15": {
+                "critical": false,
+                "node": "V15",
+                "observed_turn": 1,
+                "owner": "NEUTRAL",
+                "status": "SECURE",
+                "value": 1
+              },
+              "V63": {
+                "critical": false,
+                "node": "V63",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              "V71": {
+                "critical": false,
+                "node": "V71",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "EXPOSED",
+                "value": 2
+              }
+            },
+            "red-2": {
+              "V48": {
+                "critical": false,
+                "node": "V48",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 3
+              },
+              "V55": {
+                "critical": false,
+                "node": "V55",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "SECURE",
+                "value": 1
+              }
+            },
+            "red-3": {
+              "V72": {
+                "critical": false,
+                "node": "V72",
+                "observed_turn": 1,
+                "owner": "RED",
+                "status": "EXPOSED",
+                "value": 1
+              },
+              "V75": {
+                "critical": false,
+                "node": "V75",
+                "observed_turn": 1,
+                "owner": "BLUE",
+                "status": "SECURE",
+                "value": 1
+              }
+            }
+          },
+          "nodes": {
+            "V15": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V15",
+              "neighbors": [
+                "V43",
+                "V63"
+              ],
+              "owner": "NEUTRAL",
+              "value": 1
+            },
+            "V43": {
+              "compromised": false,
+              "critical": true,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V43",
+              "neighbors": [
+                "V15",
+                "V59",
+                "V75"
+              ],
+              "owner": "BLUE",
+              "value": 3
+            },
+            "V48": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V48",
+              "neighbors": [
+                "V55",
+                "V61",
+                "V71"
+              ],
+              "owner": "BLUE",
+              "value": 3
+            },
+            "V55": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V55",
+              "neighbors": [
+                "V48",
+                "V59",
+                "V71"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V59": {
+              "compromised": false,
+              "critical": true,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V59",
+              "neighbors": [
+                "V43",
+                "V55",
+                "V63"
+              ],
+              "owner": "RED",
+              "value": 3
+            },
+            "V61": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 1,
+              "id": "V61",
+              "neighbors": [
+                "V48",
+                "V72"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            },
+            "V63": {
+              "compromised": false,
+              "critical": false,
+              "exposed": true,
+              "fortification": 0,
+              "id": "V63",
+              "neighbors": [
+                "V15",
+                "V59",
+                "V71"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V71": {
+              "compromised": false,
+              "critical": false,
+              "exposed": true,
+              "fortification": 0,
+              "id": "V71",
+              "neighbors": [
+                "V48",
+                "V55",
+                "V63"
+              ],
+              "owner": "BLUE",
+              "value": 2
+            },
+            "V72": {
+              "compromised": false,
+              "critical": false,
+              "exposed": true,
+              "fortification": 0,
+              "id": "V72",
+              "neighbors": [
+                "V61",
+                "V75"
+              ],
+              "owner": "RED",
+              "value": 1
+            },
+            "V75": {
+              "compromised": false,
+              "critical": false,
+              "exposed": false,
+              "fortification": 0,
+              "id": "V75",
+              "neighbors": [
+                "V43",
+                "V72"
+              ],
+              "owner": "BLUE",
+              "value": 1
+            }
+          },
+          "turn": 1
+        }
+      },
+      "resolution": {
+        "duplicate_targets": {
+          "BLUE": [],
+          "RED": []
+        },
+        "events": [
+          {
+            "actor": "red-0",
+            "detail": "",
+            "kind": "TRANSFER",
+            "success": true,
+            "target": "red-2"
+          },
+          {
+            "actor": "blue-2",
+            "detail": "",
+            "kind": "FORTIFY",
+            "success": true,
+            "target": "V71"
+          },
+          {
+            "actor": "blue-0",
+            "detail": "",
+            "kind": "SCAN",
+            "success": true,
+            "target": "V59"
+          },
+          {
+            "actor": "red-1",
+            "detail": "",
+            "kind": "SCAN",
+            "success": true,
+            "target": "V59"
+          },
+          {
+            "actor": "red-2",
+            "detail": "",
+            "kind": "SCAN",
+            "success": true,
+            "target": "V71"
+          },
+          {
+            "actor": "red-3",
+            "detail": "",
+            "kind": "SCAN",
+            "success": true,
+            "target": "V61"
+          },
+          {
+            "actor": "blue-1",
+            "detail": "",
+            "kind": "CAPTURE",
+            "success": true,
+            "target": "V63"
+          },
+          {
+            "actor": "blue-3",
+            "detail": "",
+            "kind": "CAPTURE",
+            "success": true,
+            "target": "V72"
+          }
+        ]
+      }
+    }
+  ]
+}

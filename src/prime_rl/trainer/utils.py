@@ -403,6 +403,8 @@ def filter_rl_trainer_tensor_stats_for_wandb(metrics: dict[str, float | int]) ->
         "masked_advantage_positive/",
         "masked_advantage_negative/",
         "mismatch_kl/",
+        "parity_abs_logprob_error/",
+        "parity_probability_error/",
         "masked_mismatch_kl/",
         "unmasked_mismatch_kl/",
     )

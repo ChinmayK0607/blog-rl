@@ -1,0 +1,160 @@
+{
+  "action_order_consistency_rate": 0.5166666666666667,
+  "arena_version": "arena-core-v1",
+  "communication_effects": {
+    "generated_minus_dropped": {
+      "left": "generated",
+      "mean_reward_difference": 0.38583333333333336,
+      "mean_reward_difference_95": [
+        -0.005585514362392852,
+        0.7772521810290596
+      ],
+      "positive_case_rate": 0.23333333333333334,
+      "right": "dropped",
+      "zero_case_rate": 0.7
+    },
+    "generated_minus_shuffled": {
+      "left": "generated",
+      "mean_reward_difference": 0.07583333333333332,
+      "mean_reward_difference_95": [
+        -0.2069771000387498,
+        0.3586437667054164
+      ],
+      "positive_case_rate": 0.08333333333333333,
+      "right": "shuffled",
+      "zero_case_rate": 0.7666666666666667
+    },
+    "reference_minus_generated": {
+      "left": "reference",
+      "mean_reward_difference": -0.10749999999999996,
+      "mean_reward_difference_95": [
+        -0.24471235820048365,
+        0.029712358200483735
+      ],
+      "positive_case_rate": 0.1,
+      "right": "generated",
+      "zero_case_rate": 0.7833333333333333
+    }
+  },
+  "conditions": {
+    "dropped": {
+      "mean_environment_reward": 0.034166666666666574,
+      "mean_environment_reward_95": [
+        -0.5688288528783273,
+        0.6371621862116604
+      ],
+      "mean_oracle_regret": 2.6108333333333333,
+      "mean_oracle_regret_95": [
+        2.04665745601657,
+        3.1750092106500967
+      ],
+      "nonredundant_joint_action_rate": 0.18333333333333332,
+      "optimal_outcome_rate": 0,
+      "optimal_outcome_wilson_95": [
+        -6.938893903907228e-18,
+        0.06017393047793289
+      ],
+      "strict_action_rate": 1.0
+    },
+    "generated": {
+      "mean_environment_reward": 0.41999999999999993,
+      "mean_environment_reward_95": [
+        -0.10282513134517712,
+        0.942825131345177
+      ],
+      "mean_oracle_regret": 2.225,
+      "mean_oracle_regret_95": [
+        1.7496847314468282,
+        2.700315268553172
+      ],
+      "nonredundant_joint_action_rate": 0.23333333333333334,
+      "optimal_outcome_rate": 0.03333333333333333,
+      "optimal_outcome_wilson_95": [
+        0.009189126490150246,
+        0.11363987528925378
+      ],
+      "strict_action_rate": 1.0
+    },
+    "reference": {
+      "mean_environment_reward": 0.3125,
+      "mean_environment_reward_95": [
+        -0.1837259409414998,
+        0.8087259409414997
+      ],
+      "mean_oracle_regret": 2.3325,
+      "mean_oracle_regret_95": [
+        1.8598501748316854,
+        2.8051498251683147
+      ],
+      "nonredundant_joint_action_rate": 0.2,
+      "optimal_outcome_rate": 0.016666666666666666,
+      "optimal_outcome_wilson_95": [
+        0.002948083860873682,
+        0.08855338226779477
+      ],
+      "strict_action_rate": 1.0
+    },
+    "shuffled": {
+      "mean_environment_reward": 0.3441666666666666,
+      "mean_environment_reward_95": [
+        -0.23119886409831325,
+        0.9195321974316465
+      ],
+      "mean_oracle_regret": 2.3008333333333333,
+      "mean_oracle_regret_95": [
+        1.8101168975782727,
+        2.7915497690883937
+      ],
+      "nonredundant_joint_action_rate": 0.25,
+      "optimal_outcome_rate": 0.016666666666666666,
+      "optimal_outcome_wilson_95": [
+        0.002948083860873682,
+        0.08855338226779477
+      ],
+      "strict_action_rate": 1.0
+    }
+  },
+  "eval_version": "arena-eval-v2",
+  "generated_minus_dropped_reward": 0.38583333333333336,
+  "generated_slices": {
+    "opponent_style": {
+      "aggressive": {
+        "cases": 20,
+        "mean_oracle_regret": 2.7899999999999996,
+        "optimal_outcome_rate": 0
+      },
+      "balanced": {
+        "cases": 20,
+        "mean_oracle_regret": 2.2150000000000003,
+        "optimal_outcome_rate": 0.1
+      },
+      "defensive": {
+        "cases": 20,
+        "mean_oracle_regret": 1.67,
+        "optimal_outcome_rate": 0
+      }
+    },
+    "topology_size": {
+      "12": {
+        "cases": 20,
+        "mean_oracle_regret": 1.9449999999999998,
+        "optimal_outcome_rate": 0
+      },
+      "13": {
+        "cases": 20,
+        "mean_oracle_regret": 2.39,
+        "optimal_outcome_rate": 0.05
+      },
+      "14": {
+        "cases": 20,
+        "mean_oracle_regret": 2.34,
+        "optimal_outcome_rate": 0.05
+      }
+    }
+  },
+  "manifest_sha256": "b53bfc523043ec71cc69f851d0819511c5a9f0b4f09520898f30954bbe874b29",
+  "message_strict_rate": 1.0,
+  "model": "outputs/swarm_arena/qwen3_4b_stage1_run2/weights/step_240/lora_adapters",
+  "num_cases": 60,
+  "reference_message_headroom": -0.10749999999999996
+}

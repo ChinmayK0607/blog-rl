@@ -1,0 +1,57 @@
+{
+  "base_urls": [
+    "http://127.0.0.1:8001/v1",
+    "http://127.0.0.1:8002/v1",
+    "http://127.0.0.1:8003/v1"
+  ],
+  "baseline": {
+    "models": [
+      "sft-opponent",
+      "sft-opponent",
+      "sft-opponent",
+      "sft-opponent"
+    ],
+    "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde"
+  },
+  "candidate": {
+    "models": [
+      "sft-opponent",
+      "sft-opponent",
+      "sft-opponent",
+      "sft-opponent"
+    ],
+    "revision": "bae31d5a16ced8994055b6040c132b68218c411602dd022d1e2add3d99a252bc"
+  },
+  "opponents": [
+    {
+      "id": "base",
+      "models": [
+        "/workspace/models/qwen3-1.7b-70d244c",
+        "/workspace/models/qwen3-1.7b-70d244c",
+        "/workspace/models/qwen3-1.7b-70d244c",
+        "/workspace/models/qwen3-1.7b-70d244c"
+      ],
+      "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e"
+    },
+    {
+      "id": "sft",
+      "models": [
+        "sft-opponent",
+        "sft-opponent",
+        "sft-opponent",
+        "sft-opponent"
+      ],
+      "revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde"
+    },
+    {
+      "id": "historical_league",
+      "models": [
+        "historical-opponent",
+        "historical-opponent",
+        "historical-opponent",
+        "historical-opponent"
+      ],
+      "revision": "ad51ef261f3e7b7b2d3c6433106bd667ba1da81c"
+    }
+  ]
+}

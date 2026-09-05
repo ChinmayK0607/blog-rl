@@ -1,0 +1,67 @@
+{
+  "baseline_rows_file_sha256": "c7e4268f54e8153d12e4ca080c1a7d079ea62f5716ad0d13875633b5223c3d36",
+  "conditions": [
+    "generated",
+    "dropped"
+  ],
+  "model": "sft",
+  "remaining_turns": 1,
+  "repetitions": 4,
+  "scope": "training split only; development, selection, and frozen OOD tiers unopened",
+  "selected_cases": [
+    {
+      "pair_index": 1,
+      "world": "left_exposed"
+    },
+    {
+      "pair_index": 2,
+      "world": "left_exposed"
+    },
+    {
+      "pair_index": 5,
+      "world": "right_exposed"
+    },
+    {
+      "pair_index": 6,
+      "world": "right_exposed"
+    },
+    {
+      "pair_index": 7,
+      "world": "left_exposed"
+    },
+    {
+      "pair_index": 7,
+      "world": "right_exposed"
+    },
+    {
+      "pair_index": 8,
+      "world": "left_exposed"
+    },
+    {
+      "pair_index": 9,
+      "world": "left_exposed"
+    },
+    {
+      "pair_index": 9,
+      "world": "right_exposed"
+    },
+    {
+      "pair_index": 10,
+      "world": "left_exposed"
+    },
+    {
+      "pair_index": 10,
+      "world": "right_exposed"
+    },
+    {
+      "pair_index": 11,
+      "world": "right_exposed"
+    }
+  ],
+  "selection_analysis_file_sha256": "874dec87823fc4ac899c671e767a8563935bb8f9925a87cb9022b32f37240129",
+  "sha256": "2482131e933bd3d6d3de803805e1829b39669501a31f04d70d46da6c1b56b662",
+  "source_commit": "13526728135526a0b020fd02f46f4baa3b8dc9e5",
+  "temperature": 0.7,
+  "training_manifest_sha256": "665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681",
+  "version": "arena-terminal-proximal-screen-v1"
+}

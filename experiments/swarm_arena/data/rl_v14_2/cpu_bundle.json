@@ -1,0 +1,64 @@
+{
+  "artifact_file_sha256": {
+    "audit": "eaa1768f93ee66655052f191cdf0017668e6b2c08c770911448446bc127a8e5f",
+    "curriculum": "55822681b5abb690d50779fe3faa74dd6329e717a7f8f4761c6257d89a0c1010",
+    "diagnosis": "19a87603462fd7ecc8656cc74ec24f9273a085bd3c288e37e529158f3df43bc8",
+    "pilot_manifest": "37f60e818a339f3066b57068318e020ce1a943a6d13eef870c8ae1a2cc2827b2",
+    "source_pool": "6c747e4a90dc0bdf93c17412f226cdb2d79949917ce3d919036a308545fa4763",
+    "stage_gates": "bec569b4521e231b9c7a8f55e82f6e46734914516b8dfc6fe8889d711b26d03e"
+  },
+  "code_file_sha256": {
+    "experiments/swarm_arena/scripts/assess_v14_2_stable_frontier_screen.py": "ea8f23d35903a2537a9f85e7a47d752690678d00c92350b585513e55c3495ce4",
+    "experiments/swarm_arena/scripts/build_v14_2_stable_frontier.py": "ae3ca1d51e1a306fb5ec2d5c99b0ed12d5b725cae3878aebd77c9bee1f8dcb09",
+    "experiments/swarm_arena/scripts/finalize_v14_2_stable_frontier.py": "41c1ddf9bd9d85c449ba5c96183c0323ac91afd5bcab7a54adf0bae541d6524e",
+    "experiments/swarm_arena/scripts/freeze_v14_2_cpu_bundle.py": "cf03893cfc66c2973c90cbc85f0596bf2f9afbb61c602fc0142e9fd159c89314",
+    "experiments/swarm_arena/scripts/summarize_v14_1_partial_screen.py": "dd9857a78cd5adb4a2f737ff66e6b1aaa6eb46cba308a3e6411d3cefcb710c87"
+  },
+  "fail_closed_transition": "optimizer update 1 is prohibited until the pilot passes, the exact assessment and pilot-bound curriculum are durably mirrored, and the production plan is rebuilt from that curriculum",
+  "frozen_data_opened": false,
+  "gpu_budget": {
+    "assumed_hourly_usd": 1.52,
+    "auto_stop": "at failed stage gate, hard budget, or completed final artifact sync",
+    "maximum_usd": 15.0,
+    "maximum_wall_hours": 9.0,
+    "never_rent_before_cpu_and_zero_update_preflight_pass": true,
+    "target_hardware": "4xL40S"
+  },
+  "initializer": {
+    "claim_boundary": "continuation warm start, not a communication-claim pass",
+    "policy_adapter_sha256": {
+      "blue-0": "24ccd2920d79e65c24bc47bd1e9c1318fb8ca6b582a6651273ab2a53749e2d53",
+      "blue-1": "deeb19976f8941a90a9b4dd1f72114e2926d28024d7b68bbe5c5834636f0ae7a",
+      "blue-2": "1612d158354327cd732aaad5e1978a28252af0cef91355aac201e48cd545da44",
+      "blue-3": "016402a737c9b9cf897f9e38879308b1f085d6871360cc1e464a21367a98637a"
+    },
+    "policy_revision": "9eec6d60cae1b11179f9b421b7bdd23ad456b3da912cb9d13a901f1337992228",
+    "run": "rl-v13-role-adaptive4b80-21d756d1",
+    "step": 80
+  },
+  "optimizer_updates_authorized": 0,
+  "pilot": {
+    "cases": 24,
+    "current_probe_is_blocking": false,
+    "curriculum_template_sha256": "3e3d1829eb3172e9159cf14676480c14f6a2a6242573ef9a3990cfc2e6021e13",
+    "diagnosis_sha256": "299b01b07cba314af92b78a6e04fdd86719c8151d28f445a6d01c5d20ea3f96e",
+    "games": 96,
+    "screen_manifest_sha256": "f15d42ce9d80ca071271e1436fb63645a584c7cc7b74c6164992d004ad3c3c0f",
+    "source_ordinary_pool_sha256": "521fb25bdd04d45524124bb8bea3f1aec1958b141ee01730f1ecfc6e51103d28",
+    "stage_gate_sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2",
+    "trajectories_used_for_optimization": false
+  },
+  "required_preflight": [
+    "exact source commit is published and anonymously verified",
+    "HF write credential and W&B-only credential availability are verified before renting",
+    "runtime certificate and parity pass on the exact serving stack",
+    "24-case / 96-game stable-frontier pilot completes without retries or optimizer work",
+    "committed assessor passes the aggregate non-current gates while treating current probes as diagnostic",
+    "committed finalizer binds the exact pilot assessment to a 24-case ordinary pool and fresh sampling namespaces",
+    "HF compact mirror, watcher, recovery, spend, and exact-pod teardown are armed before GPU setup"
+  ],
+  "sha256": "0054e16d82ee62a80c4a1b8f521488cf9bc55a2d84e96aa6db1b7a4764861118",
+  "status": "cpu_frozen_source_publication_and_gpu_pilot_pending",
+  "stop_contract": "pilot rejection, stage-gate rejection, hard budget, or verified completion requires evidence sync and immediate exact-instance teardown",
+  "version": "arena-rl-v14.2-cpu-bundle-v1"
+}

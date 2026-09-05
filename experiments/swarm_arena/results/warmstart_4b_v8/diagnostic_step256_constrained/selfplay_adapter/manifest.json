@@ -1,0 +1,55 @@
+{
+  "analysis": {
+    "bootstrap_resamples": 20000,
+    "random_seed": 0,
+    "randomization_trials": 100000,
+    "unit": "seed after side averaging"
+  },
+  "blue_artifact_id": "44deb6b2e18cb22ee9be49d59e36dce2beb530ebdb161560e6130108a2ce4bdc",
+  "blue_history_window": 3,
+  "blue_model": "v8-step256-44deb6b2",
+  "cases": [
+    [
+      1000003,
+      12,
+      4
+    ],
+    [
+      1000196,
+      13,
+      6
+    ],
+    [
+      1000389,
+      12,
+      4
+    ],
+    [
+      1000582,
+      13,
+      6
+    ]
+  ],
+  "conditions": [
+    [
+      "generated",
+      "generated"
+    ]
+  ],
+  "generation": {
+    "enable_thinking": false,
+    "max_tokens": 160,
+    "temperature": 0.0
+  },
+  "protocol_constraint": {
+    "enabled": true,
+    "version": "arena-structured-protocol-v1-dynamic-json-schema"
+  },
+  "red_artifact_id": "44deb6b2e18cb22ee9be49d59e36dce2beb530ebdb161560e6130108a2ce4bdc",
+  "red_history_window": 3,
+  "red_model": "v8-step256-44deb6b2",
+  "sha256": "c9840c5c14d4d162dd7d6b2e78a5d7583e0092d2b3de87082efd3275a85e3356",
+  "split": "development",
+  "swap_sides": false,
+  "version": "arena-crossplay-v4-dynamic-protocol"
+}

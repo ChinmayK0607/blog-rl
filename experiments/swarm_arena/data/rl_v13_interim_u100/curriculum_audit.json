@@ -1,0 +1,36 @@
+{
+  "decoys_are_matched_critical_subset": true,
+  "frozen_data_used": false,
+  "group_counts": {
+    "critical": 100,
+    "decoy": 80,
+    "ordinary": 140
+  },
+  "launch_ready": false,
+  "ordinary_seeds_unique": true,
+  "receiver_counts": {
+    "critical": {
+      "blue-0": 37,
+      "blue-1": 19,
+      "blue-2": 19,
+      "blue-3": 25
+    },
+    "decoy": {
+      "blue-0": 32,
+      "blue-1": 14,
+      "blue-2": 14,
+      "blue-3": 20
+    }
+  },
+  "remaining_blockers": [
+    "refresh gap selection from complete V12 progress",
+    "bind formally selected V12 initializer",
+    "run training-only ordinary pass@4 signal screen"
+  ],
+  "schedule_sha256": "2bcb94e6d585c0d57563677865fd711600a781503f6716d2800bd048e1e9da4f",
+  "selection_file_sha256": "1355bba167d82fc974663b2e56f4fe54004142299be7b6edca777974aea532f0",
+  "selection_sha256": "c1e539f99c48be2d7a40ef844dedfe113e2647dfea90b62ae95ca10688e24b12",
+  "status": "interim_passed_refresh_required_at_v12_completion",
+  "train_manifest_file_sha256": "12eae0b2752fd7c33c151d3b68c1f4a5f6e1960e18c0558aa5e4833c61cccbc2",
+  "version": "arena-rl-v13-curriculum-audit-v1"
+}

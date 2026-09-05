@@ -1,0 +1,61 @@
+{
+  "checkpoints": [
+    {
+      "checkpoint_step": 8,
+      "critical_normal_minus_dropped": -0.01388888888888889,
+      "decoy_normal_minus_dropped": 0.0,
+      "information_specific_delta": -0.01388888888888889,
+      "ordinary_candidate_minus_sft": -0.059523809523809514,
+      "protocol": {
+        "action_protocol_rate": 1.0,
+        "broadcast_grounded_rate": 1.0,
+        "broadcast_protocol_rate": 1.0
+      },
+      "rows": 66,
+      "same_lineage": false
+    },
+    {
+      "checkpoint_step": 18,
+      "critical_normal_minus_dropped": 0.0,
+      "decoy_normal_minus_dropped": 0.0,
+      "information_specific_delta": 0.0,
+      "ordinary_candidate_minus_sft": -0.05357142857142857,
+      "protocol": {
+        "action_protocol_rate": 1.0,
+        "broadcast_grounded_rate": 1.0,
+        "broadcast_protocol_rate": 1.0
+      },
+      "rows": 66,
+      "same_lineage": true
+    },
+    {
+      "checkpoint_step": 20,
+      "critical_normal_minus_dropped": -0.01388888888888889,
+      "decoy_normal_minus_dropped": -0.01388888888888889,
+      "information_specific_delta": 0.0,
+      "ordinary_candidate_minus_sft": 0.10714285714285712,
+      "protocol": {
+        "action_protocol_rate": 1.0,
+        "broadcast_grounded_rate": 1.0,
+        "broadcast_protocol_rate": 1.0
+      },
+      "rows": 66,
+      "same_lineage": true
+    },
+    {
+      "checkpoint_step": 30,
+      "critical_normal_minus_dropped": 0.0,
+      "decoy_normal_minus_dropped": 0.0,
+      "information_specific_delta": 0.0,
+      "ordinary_candidate_minus_sft": 0.04761904761904761,
+      "protocol": {
+        "action_protocol_rate": 1.0,
+        "broadcast_grounded_rate": 1.0,
+        "broadcast_protocol_rate": 1.0
+      },
+      "rows": 66,
+      "same_lineage": true
+    }
+  ],
+  "scope": "development pulse; step 8 is an independent earlier run, steps 18/20/30 share the fresh lineage"
+}

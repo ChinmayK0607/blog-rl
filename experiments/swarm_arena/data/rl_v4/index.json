@@ -1,0 +1,74 @@
+{
+  "handoff": {
+    "development": {
+      "audit": "handoff_development_audit.json",
+      "horizons": [
+        6,
+        8
+      ],
+      "manifest": "handoff_development.json",
+      "pair_count": 48,
+      "sha256": "1c70c8ff8253535853e8684c1d2c01a76e9b36dd34d68f3f695e12fa617fc031",
+      "sizes": [
+        14,
+        16
+      ]
+    },
+    "frozen_ood": {
+      "audit": "handoff_frozen_ood_audit.json",
+      "horizons": [
+        8,
+        10
+      ],
+      "manifest": "handoff_frozen_ood.json",
+      "pair_count": 24,
+      "sha256": "be928d297d49954e4a29c1343e13df40580edb39a810d297d66b06b492402bc2",
+      "sizes": [
+        18,
+        20
+      ]
+    },
+    "train": {
+      "audit": "handoff_train_audit.json",
+      "horizons": [
+        4,
+        5
+      ],
+      "manifest": "handoff_train.json",
+      "pair_count": 240,
+      "sha256": "665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681",
+      "sizes": [
+        12,
+        13
+      ]
+    }
+  },
+  "ordinary": {
+    "development": {
+      "case_count": 24,
+      "horizons": [
+        8,
+        10
+      ],
+      "manifest": "ordinary_hard_development.json",
+      "sha256": "0e60c12e10c322ee081d666aa02d6237cd65e6e8992e19722b225a4c35b3bf4a",
+      "sizes": [
+        16,
+        18
+      ]
+    },
+    "frozen_ood": {
+      "case_count": 24,
+      "horizons": [
+        8,
+        10
+      ],
+      "manifest": "ordinary_hard_frozen_ood.json",
+      "sha256": "73f58e8fec965569ccb4e190e7c65ac1e3fe87f2806c8cbacac1af85e66efb6e",
+      "sizes": [
+        18,
+        20
+      ]
+    }
+  }
+}

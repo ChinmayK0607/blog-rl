@@ -1,0 +1,3603 @@
+{
+  "action_prompt_profile": "full",
+  "all_receiver_policy_slots_covered": true,
+  "curriculum": "experiments/swarm_arena/data/rl_v11/staged_curriculum_v11_4b_diverse_receiver_180.json",
+  "curriculum_sha256": "99f3efa8bad862d661a1ae9c9fae84336473d700768afb4866465577c0bc0864",
+  "focused_receiver_samples": 2160,
+  "group_counts": {
+    "critical": 540,
+    "ordinary": 180
+  },
+  "groups_per_update": 4,
+  "handoff_manifest_sha256": "12eae0b2752fd7c33c151d3b68c1f4a5f6e1960e18c0558aa5e4833c61cccbc2",
+  "handoff_remaining_turns": [
+    1,
+    2,
+    4
+  ],
+  "interpretation": "This certifies task construction, role/world balance, private-world indistinguishability, unchanged legal actions, and terminal-reward opportunity. When receiver isolation is required, it additionally exhausts every legal same-team joint action under all three opponent audit styles and requires a strict one-turn factual-target advantage. A non-zero sampled policy advantage remains model-dependent and must pass the first-update diagnostic before a long GPU run.",
+  "message_reward": null,
+  "ordinary_preservation_samples": 720,
+  "pairs": [
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06060606060606061,
+      "pair_index": 0,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 72,
+        "maximum_advantage": 0.12121212121212122,
+        "minimum_advantage": 0.12121212121212122,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V14",
+        "right_exposed": "V29"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06060606060606061,
+      "pair_index": 1,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.12121212121212122,
+        "minimum_advantage": 0.12121212121212122,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V44",
+        "right_exposed": "V83"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05714285714285715,
+      "pair_index": 2,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 144,
+        "maximum_advantage": 0.1142857142857143,
+        "minimum_advantage": 0.1142857142857143,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V67",
+        "right_exposed": "V91"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05263157894736842,
+      "pair_index": 3,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.10526315789473684,
+        "minimum_advantage": 0.10526315789473684,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V36",
+        "right_exposed": "V51"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.043478260869565216,
+      "pair_index": 4,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.08695652173913043,
+        "minimum_advantage": 0.08695652173913043,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V11",
+        "right_exposed": "V92"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06666666666666667,
+      "pair_index": 5,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 96,
+        "maximum_advantage": 0.13333333333333333,
+        "minimum_advantage": 0.13333333333333333,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V17",
+        "right_exposed": "V45"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05714285714285714,
+      "pair_index": 6,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.11428571428571428,
+        "minimum_advantage": 0.11428571428571428,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V56",
+        "right_exposed": "V85"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05555555555555555,
+      "pair_index": 7,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.1111111111111111,
+        "minimum_advantage": 0.1111111111111111,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V26",
+        "right_exposed": "V63"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.044444444444444446,
+      "pair_index": 8,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 72,
+        "maximum_advantage": 0.08888888888888889,
+        "minimum_advantage": 0.08888888888888889,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V31",
+        "right_exposed": "V47"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.043478260869565216,
+      "pair_index": 9,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.08695652173913043,
+        "minimum_advantage": 0.08695652173913043,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V11",
+        "right_exposed": "V97"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06451612903225806,
+      "pair_index": 10,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 96,
+        "maximum_advantage": 0.12903225806451613,
+        "minimum_advantage": 0.12903225806451613,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V10",
+        "right_exposed": "V79"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05,
+      "pair_index": 11,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.1,
+        "minimum_advantage": 0.1,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V21",
+        "right_exposed": "V63"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.04878048780487806,
+      "pair_index": 12,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.09756097560975611,
+        "minimum_advantage": 0.09756097560975611,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V25",
+        "right_exposed": "V66"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.047619047619047616,
+      "pair_index": 13,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.09523809523809523,
+        "minimum_advantage": 0.09523809523809523,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V34",
+        "right_exposed": "V48"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.04081632653061224,
+      "pair_index": 14,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.08163265306122448,
+        "minimum_advantage": 0.08163265306122448,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V16",
+        "right_exposed": "V59"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.07407407407407407,
+      "pair_index": 15,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.14814814814814814,
+        "minimum_advantage": 0.14814814814814814,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V29",
+        "right_exposed": "V63"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.057142857142857134,
+      "pair_index": 16,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.11428571428571427,
+        "minimum_advantage": 0.11428571428571427,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V59",
+        "right_exposed": "V74"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05555555555555555,
+      "pair_index": 17,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 72,
+        "maximum_advantage": 0.1111111111111111,
+        "minimum_advantage": 0.1111111111111111,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V31",
+        "right_exposed": "V32"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05128205128205128,
+      "pair_index": 18,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 96,
+        "maximum_advantage": 0.10256410256410256,
+        "minimum_advantage": 0.10256410256410256,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V14",
+        "right_exposed": "V66"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.046511627906976744,
+      "pair_index": 19,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.09302325581395349,
+        "minimum_advantage": 0.09302325581395349,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V50",
+        "right_exposed": "V94"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06896551724137931,
+      "pair_index": 20,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.13793103448275862,
+        "minimum_advantage": 0.13793103448275862,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V36",
+        "right_exposed": "V67"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06060606060606061,
+      "pair_index": 21,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.12121212121212122,
+        "minimum_advantage": 0.12121212121212122,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V36",
+        "right_exposed": "V77"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05405405405405406,
+      "pair_index": 22,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.10810810810810811,
+        "minimum_advantage": 0.10810810810810811,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V14",
+        "right_exposed": "V46"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.045454545454545456,
+      "pair_index": 23,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.09090909090909091,
+        "minimum_advantage": 0.09090909090909091,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V42",
+        "right_exposed": "V56"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.044444444444444446,
+      "pair_index": 24,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.08888888888888889,
+        "minimum_advantage": 0.08888888888888889,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V59",
+        "right_exposed": "V91"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.07407407407407407,
+      "pair_index": 25,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 72,
+        "maximum_advantage": 0.14814814814814814,
+        "minimum_advantage": 0.14814814814814814,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V42",
+        "right_exposed": "V52"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06060606060606061,
+      "pair_index": 26,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.12121212121212122,
+        "minimum_advantage": 0.12121212121212122,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V42",
+        "right_exposed": "V81"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06451612903225806,
+      "pair_index": 27,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.12903225806451613,
+        "minimum_advantage": 0.12903225806451613,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V22",
+        "right_exposed": "V91"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.04878048780487805,
+      "pair_index": 28,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.0975609756097561,
+        "minimum_advantage": 0.0975609756097561,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V34",
+        "right_exposed": "V72"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.046511627906976744,
+      "pair_index": 29,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.09302325581395349,
+        "minimum_advantage": 0.09302325581395349,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V24",
+        "right_exposed": "V47"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06451612903225806,
+      "pair_index": 30,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 96,
+        "maximum_advantage": 0.12903225806451613,
+        "minimum_advantage": 0.12903225806451613,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V20",
+        "right_exposed": "V25"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.0625,
+      "pair_index": 31,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.125,
+        "minimum_advantage": 0.125,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V47",
+        "right_exposed": "V85"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.0625,
+      "pair_index": 32,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.125,
+        "minimum_advantage": 0.125,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V31",
+        "right_exposed": "V60"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05555555555555555,
+      "pair_index": 33,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.1111111111111111,
+        "minimum_advantage": 0.1111111111111111,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V24",
+        "right_exposed": "V75"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.043478260869565216,
+      "pair_index": 34,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.08695652173913043,
+        "minimum_advantage": 0.08695652173913043,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V25",
+        "right_exposed": "V86"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06060606060606061,
+      "pair_index": 35,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.12121212121212122,
+        "minimum_advantage": 0.12121212121212122,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V61",
+        "right_exposed": "V67"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05555555555555555,
+      "pair_index": 36,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.1111111111111111,
+        "minimum_advantage": 0.1111111111111111,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V42",
+        "right_exposed": "V96"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.058823529411764705,
+      "pair_index": 37,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.11764705882352941,
+        "minimum_advantage": 0.11764705882352941,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V56",
+        "right_exposed": "V79"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.043478260869565216,
+      "pair_index": 38,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.08695652173913043,
+        "minimum_advantage": 0.08695652173913043,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V20",
+        "right_exposed": "V82"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.04878048780487805,
+      "pair_index": 39,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.0975609756097561,
+        "minimum_advantage": 0.0975609756097561,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V23",
+        "right_exposed": "V45"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05555555555555556,
+      "pair_index": 40,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 72,
+        "maximum_advantage": 0.11111111111111112,
+        "minimum_advantage": 0.11111111111111112,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V65",
+        "right_exposed": "V76"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06060606060606061,
+      "pair_index": 41,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.12121212121212122,
+        "minimum_advantage": 0.12121212121212122,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V18",
+        "right_exposed": "V98"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.058823529411764705,
+      "pair_index": 42,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.11764705882352941,
+        "minimum_advantage": 0.11764705882352941,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V46",
+        "right_exposed": "V64"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.04878048780487805,
+      "pair_index": 43,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.0975609756097561,
+        "minimum_advantage": 0.0975609756097561,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V21",
+        "right_exposed": "V40"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.04081632653061224,
+      "pair_index": 44,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.08163265306122448,
+        "minimum_advantage": 0.08163265306122448,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V28",
+        "right_exposed": "V51"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06060606060606061,
+      "pair_index": 45,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 30,
+        "maximum_advantage": 0.12121212121212122,
+        "minimum_advantage": 0.12121212121212122,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V73",
+        "right_exposed": "V91"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05714285714285714,
+      "pair_index": 46,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.11428571428571428,
+        "minimum_advantage": 0.11428571428571428,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V56",
+        "right_exposed": "V82"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05555555555555556,
+      "pair_index": 47,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.11111111111111112,
+        "minimum_advantage": 0.11111111111111112,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V80",
+        "right_exposed": "V92"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.045454545454545456,
+      "pair_index": 48,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.09090909090909091,
+        "minimum_advantage": 0.09090909090909091,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V66",
+        "right_exposed": "V95"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.04,
+      "pair_index": 49,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.08,
+        "minimum_advantage": 0.08,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V52",
+        "right_exposed": "V78"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06896551724137931,
+      "pair_index": 50,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.13793103448275862,
+        "minimum_advantage": 0.13793103448275862,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V49",
+        "right_exposed": "V61"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.0625,
+      "pair_index": 51,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.125,
+        "minimum_advantage": 0.125,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V29",
+        "right_exposed": "V74"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.049999999999999996,
+      "pair_index": 52,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 72,
+        "maximum_advantage": 0.09999999999999999,
+        "minimum_advantage": 0.09999999999999999,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V30",
+        "right_exposed": "V51"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05405405405405406,
+      "pair_index": 53,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.10810810810810811,
+        "minimum_advantage": 0.10810810810810811,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V61",
+        "right_exposed": "V66"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.043478260869565216,
+      "pair_index": 54,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 30,
+        "maximum_advantage": 0.08695652173913043,
+        "minimum_advantage": 0.08695652173913043,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V21",
+        "right_exposed": "V30"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06896551724137931,
+      "pair_index": 55,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 96,
+        "maximum_advantage": 0.13793103448275862,
+        "minimum_advantage": 0.13793103448275862,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V49",
+        "right_exposed": "V91"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05263157894736842,
+      "pair_index": 56,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.10526315789473684,
+        "minimum_advantage": 0.10526315789473684,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V21",
+        "right_exposed": "V40"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06666666666666667,
+      "pair_index": 57,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.13333333333333333,
+        "minimum_advantage": 0.13333333333333333,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V28",
+        "right_exposed": "V73"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.04,
+      "pair_index": 58,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.08,
+        "minimum_advantage": 0.08,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V60",
+        "right_exposed": "V77"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.047619047619047616,
+      "pair_index": 59,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.09523809523809523,
+        "minimum_advantage": 0.09523809523809523,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V54",
+        "right_exposed": "V63"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06451612903225806,
+      "pair_index": 60,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.12903225806451613,
+        "minimum_advantage": 0.12903225806451613,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V21",
+        "right_exposed": "V94"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05405405405405406,
+      "pair_index": 61,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.10810810810810811,
+        "minimum_advantage": 0.10810810810810811,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V71",
+        "right_exposed": "V94"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05714285714285715,
+      "pair_index": 62,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 96,
+        "maximum_advantage": 0.1142857142857143,
+        "minimum_advantage": 0.1142857142857143,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V54",
+        "right_exposed": "V93"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.047619047619047616,
+      "pair_index": 63,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.09523809523809523,
+        "minimum_advantage": 0.09523809523809523,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V39",
+        "right_exposed": "V44"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.04081632653061225,
+      "pair_index": 64,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.0816326530612245,
+        "minimum_advantage": 0.0816326530612245,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V66",
+        "right_exposed": "V99"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06666666666666667,
+      "pair_index": 65,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.13333333333333333,
+        "minimum_advantage": 0.13333333333333333,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V12",
+        "right_exposed": "V21"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05882352941176471,
+      "pair_index": 66,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.11764705882352942,
+        "minimum_advantage": 0.11764705882352942,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V40",
+        "right_exposed": "V71"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05405405405405406,
+      "pair_index": 67,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.10810810810810811,
+        "minimum_advantage": 0.10810810810810811,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V21",
+        "right_exposed": "V29"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.047619047619047616,
+      "pair_index": 68,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.09523809523809523,
+        "minimum_advantage": 0.09523809523809523,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V29",
+        "right_exposed": "V89"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.0425531914893617,
+      "pair_index": 69,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.0851063829787234,
+        "minimum_advantage": 0.0851063829787234,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V28",
+        "right_exposed": "V61"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06666666666666667,
+      "pair_index": 70,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.13333333333333333,
+        "minimum_advantage": 0.13333333333333333,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V43",
+        "right_exposed": "V81"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.058823529411764705,
+      "pair_index": 71,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.11764705882352941,
+        "minimum_advantage": 0.11764705882352941,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V35",
+        "right_exposed": "V72"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.049999999999999996,
+      "pair_index": 72,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 72,
+        "maximum_advantage": 0.09999999999999999,
+        "minimum_advantage": 0.09999999999999999,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V89",
+        "right_exposed": "V98"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.046511627906976744,
+      "pair_index": 73,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.09302325581395349,
+        "minimum_advantage": 0.09302325581395349,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V54",
+        "right_exposed": "V96"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.041666666666666664,
+      "pair_index": 74,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 96,
+        "maximum_advantage": 0.08333333333333333,
+        "minimum_advantage": 0.08333333333333333,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V19",
+        "right_exposed": "V37"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06451612903225806,
+      "pair_index": 75,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.12903225806451613,
+        "minimum_advantage": 0.12903225806451613,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V10",
+        "right_exposed": "V29"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05555555555555555,
+      "pair_index": 76,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.1111111111111111,
+        "minimum_advantage": 0.1111111111111111,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V93",
+        "right_exposed": "V95"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.049999999999999996,
+      "pair_index": 77,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.09999999999999999,
+        "minimum_advantage": 0.09999999999999999,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V27",
+        "right_exposed": "V33"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.043478260869565216,
+      "pair_index": 78,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.08695652173913043,
+        "minimum_advantage": 0.08695652173913043,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V61",
+        "right_exposed": "V66"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.043478260869565216,
+      "pair_index": 79,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.08695652173913043,
+        "minimum_advantage": 0.08695652173913043,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V32",
+        "right_exposed": "V79"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06451612903225806,
+      "pair_index": 80,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.12903225806451613,
+        "minimum_advantage": 0.12903225806451613,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V42",
+        "right_exposed": "V64"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06666666666666667,
+      "pair_index": 81,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.13333333333333333,
+        "minimum_advantage": 0.13333333333333333,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V20",
+        "right_exposed": "V66"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.046511627906976744,
+      "pair_index": 82,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.09302325581395349,
+        "minimum_advantage": 0.09302325581395349,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V27",
+        "right_exposed": "V33"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.045454545454545456,
+      "pair_index": 83,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.09090909090909091,
+        "minimum_advantage": 0.09090909090909091,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V40",
+        "right_exposed": "V92"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.044444444444444446,
+      "pair_index": 84,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 30,
+        "maximum_advantage": 0.08888888888888889,
+        "minimum_advantage": 0.08888888888888889,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V15",
+        "right_exposed": "V51"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06666666666666667,
+      "pair_index": 85,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.13333333333333333,
+        "minimum_advantage": 0.13333333333333333,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V20",
+        "right_exposed": "V58"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06060606060606061,
+      "pair_index": 86,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 24,
+        "maximum_advantage": 0.12121212121212122,
+        "minimum_advantage": 0.12121212121212122,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-0",
+      "world_targets": {
+        "left_exposed": "V71",
+        "right_exposed": "V90"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05263157894736842,
+      "pair_index": 87,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.10526315789473684,
+        "minimum_advantage": 0.10526315789473684,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V27",
+        "right_exposed": "V68"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.046511627906976744,
+      "pair_index": 88,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.09302325581395349,
+        "minimum_advantage": 0.09302325581395349,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V23",
+        "right_exposed": "V76"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.046511627906976744,
+      "pair_index": 89,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 48,
+        "maximum_advantage": 0.09302325581395349,
+        "minimum_advantage": 0.09302325581395349,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-1",
+      "world_targets": {
+        "left_exposed": "V72",
+        "right_exposed": "V89"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05555555555555555,
+      "pair_index": 90,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.1111111111111111,
+        "minimum_advantage": 0.1111111111111111,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V55",
+        "right_exposed": "V79"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.06451612903225806,
+      "pair_index": 91,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.12903225806451613,
+        "minimum_advantage": 0.12903225806451613,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V53",
+        "right_exposed": "V85"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.05263157894736842,
+      "pair_index": 92,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-3",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 36,
+        "maximum_advantage": 0.10526315789473684,
+        "minimum_advantage": 0.10526315789473684,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-2",
+      "world_targets": {
+        "left_exposed": "V62",
+        "right_exposed": "V63"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.047619047619047616,
+      "pair_index": 93,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-0",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.09523809523809523,
+        "minimum_advantage": 0.09523809523809523,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V31",
+        "right_exposed": "V32"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.043478260869565216,
+      "pair_index": 94,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-1",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 18,
+        "maximum_advantage": 0.08695652173913043,
+        "minimum_advantage": 0.08695652173913043,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V31",
+        "right_exposed": "V64"
+      }
+    },
+    {
+      "decoy_maximum_certified_advantage": 0.0,
+      "legal_actions_match": true,
+      "message_does_not_unlock_action": true,
+      "minimum_certified_terminal_advantage": 0.0625,
+      "pair_index": 95,
+      "private_worlds_indistinguishable": true,
+      "receiver": "blue-2",
+      "receiver_isolated_one_turn_separation": {
+        "all_strictly_positive": true,
+        "joint_action_evaluations": 120,
+        "maximum_advantage": 0.125,
+        "minimum_advantage": 0.125,
+        "opponent_styles": [
+          "aggressive",
+          "balanced",
+          "defensive"
+        ],
+        "worlds": [
+          "left_exposed",
+          "right_exposed"
+        ]
+      },
+      "sender": "blue-3",
+      "world_targets": {
+        "left_exposed": "V83",
+        "right_exposed": "V98"
+      }
+    }
+  ],
+  "receiver_isolation_required": true,
+  "receiver_policy_slot_counts": {
+    "blue-0": 135,
+    "blue-1": 135,
+    "blue-2": 135,
+    "blue-3": 135
+  },
+  "reward_contract": "verified_terminal_control_delta_only",
+  "role_balance_max_difference": 1,
+  "role_balance_passed": true,
+  "selected_cases": [
+    [
+      0,
+      "left_exposed"
+    ],
+    [
+      0,
+      "right_exposed"
+    ],
+    [
+      1,
+      "left_exposed"
+    ],
+    [
+      1,
+      "right_exposed"
+    ],
+    [
+      2,
+      "left_exposed"
+    ],
+    [
+      2,
+      "right_exposed"
+    ],
+    [
+      3,
+      "left_exposed"
+    ],
+    [
+      3,
+      "right_exposed"
+    ],
+    [
+      4,
+      "left_exposed"
+    ],
+    [
+      4,
+      "right_exposed"
+    ],
+    [
+      5,
+      "left_exposed"
+    ],
+    [
+      5,
+      "right_exposed"
+    ],
+    [
+      6,
+      "left_exposed"
+    ],
+    [
+      6,
+      "right_exposed"
+    ],
+    [
+      7,
+      "left_exposed"
+    ],
+    [
+      7,
+      "right_exposed"
+    ],
+    [
+      8,
+      "left_exposed"
+    ],
+    [
+      8,
+      "right_exposed"
+    ],
+    [
+      9,
+      "left_exposed"
+    ],
+    [
+      9,
+      "right_exposed"
+    ],
+    [
+      10,
+      "left_exposed"
+    ],
+    [
+      10,
+      "right_exposed"
+    ],
+    [
+      11,
+      "left_exposed"
+    ],
+    [
+      11,
+      "right_exposed"
+    ],
+    [
+      12,
+      "left_exposed"
+    ],
+    [
+      12,
+      "right_exposed"
+    ],
+    [
+      13,
+      "left_exposed"
+    ],
+    [
+      13,
+      "right_exposed"
+    ],
+    [
+      14,
+      "left_exposed"
+    ],
+    [
+      14,
+      "right_exposed"
+    ],
+    [
+      15,
+      "left_exposed"
+    ],
+    [
+      15,
+      "right_exposed"
+    ],
+    [
+      16,
+      "left_exposed"
+    ],
+    [
+      16,
+      "right_exposed"
+    ],
+    [
+      17,
+      "left_exposed"
+    ],
+    [
+      17,
+      "right_exposed"
+    ],
+    [
+      18,
+      "left_exposed"
+    ],
+    [
+      18,
+      "right_exposed"
+    ],
+    [
+      19,
+      "left_exposed"
+    ],
+    [
+      19,
+      "right_exposed"
+    ],
+    [
+      20,
+      "left_exposed"
+    ],
+    [
+      20,
+      "right_exposed"
+    ],
+    [
+      21,
+      "left_exposed"
+    ],
+    [
+      21,
+      "right_exposed"
+    ],
+    [
+      22,
+      "left_exposed"
+    ],
+    [
+      22,
+      "right_exposed"
+    ],
+    [
+      23,
+      "left_exposed"
+    ],
+    [
+      23,
+      "right_exposed"
+    ],
+    [
+      24,
+      "left_exposed"
+    ],
+    [
+      24,
+      "right_exposed"
+    ],
+    [
+      25,
+      "left_exposed"
+    ],
+    [
+      25,
+      "right_exposed"
+    ],
+    [
+      26,
+      "left_exposed"
+    ],
+    [
+      26,
+      "right_exposed"
+    ],
+    [
+      27,
+      "left_exposed"
+    ],
+    [
+      27,
+      "right_exposed"
+    ],
+    [
+      28,
+      "left_exposed"
+    ],
+    [
+      28,
+      "right_exposed"
+    ],
+    [
+      29,
+      "left_exposed"
+    ],
+    [
+      29,
+      "right_exposed"
+    ],
+    [
+      30,
+      "left_exposed"
+    ],
+    [
+      30,
+      "right_exposed"
+    ],
+    [
+      31,
+      "left_exposed"
+    ],
+    [
+      31,
+      "right_exposed"
+    ],
+    [
+      32,
+      "left_exposed"
+    ],
+    [
+      32,
+      "right_exposed"
+    ],
+    [
+      33,
+      "left_exposed"
+    ],
+    [
+      33,
+      "right_exposed"
+    ],
+    [
+      34,
+      "left_exposed"
+    ],
+    [
+      34,
+      "right_exposed"
+    ],
+    [
+      35,
+      "left_exposed"
+    ],
+    [
+      35,
+      "right_exposed"
+    ],
+    [
+      36,
+      "left_exposed"
+    ],
+    [
+      36,
+      "right_exposed"
+    ],
+    [
+      37,
+      "left_exposed"
+    ],
+    [
+      37,
+      "right_exposed"
+    ],
+    [
+      38,
+      "left_exposed"
+    ],
+    [
+      38,
+      "right_exposed"
+    ],
+    [
+      39,
+      "left_exposed"
+    ],
+    [
+      39,
+      "right_exposed"
+    ],
+    [
+      40,
+      "left_exposed"
+    ],
+    [
+      40,
+      "right_exposed"
+    ],
+    [
+      41,
+      "left_exposed"
+    ],
+    [
+      41,
+      "right_exposed"
+    ],
+    [
+      42,
+      "left_exposed"
+    ],
+    [
+      42,
+      "right_exposed"
+    ],
+    [
+      43,
+      "left_exposed"
+    ],
+    [
+      43,
+      "right_exposed"
+    ],
+    [
+      44,
+      "left_exposed"
+    ],
+    [
+      44,
+      "right_exposed"
+    ],
+    [
+      45,
+      "left_exposed"
+    ],
+    [
+      45,
+      "right_exposed"
+    ],
+    [
+      46,
+      "left_exposed"
+    ],
+    [
+      46,
+      "right_exposed"
+    ],
+    [
+      47,
+      "left_exposed"
+    ],
+    [
+      47,
+      "right_exposed"
+    ],
+    [
+      48,
+      "left_exposed"
+    ],
+    [
+      48,
+      "right_exposed"
+    ],
+    [
+      49,
+      "left_exposed"
+    ],
+    [
+      49,
+      "right_exposed"
+    ],
+    [
+      50,
+      "left_exposed"
+    ],
+    [
+      50,
+      "right_exposed"
+    ],
+    [
+      51,
+      "left_exposed"
+    ],
+    [
+      51,
+      "right_exposed"
+    ],
+    [
+      52,
+      "left_exposed"
+    ],
+    [
+      52,
+      "right_exposed"
+    ],
+    [
+      53,
+      "left_exposed"
+    ],
+    [
+      53,
+      "right_exposed"
+    ],
+    [
+      54,
+      "left_exposed"
+    ],
+    [
+      54,
+      "right_exposed"
+    ],
+    [
+      55,
+      "left_exposed"
+    ],
+    [
+      55,
+      "right_exposed"
+    ],
+    [
+      56,
+      "left_exposed"
+    ],
+    [
+      56,
+      "right_exposed"
+    ],
+    [
+      57,
+      "left_exposed"
+    ],
+    [
+      57,
+      "right_exposed"
+    ],
+    [
+      58,
+      "left_exposed"
+    ],
+    [
+      58,
+      "right_exposed"
+    ],
+    [
+      59,
+      "left_exposed"
+    ],
+    [
+      59,
+      "right_exposed"
+    ],
+    [
+      60,
+      "left_exposed"
+    ],
+    [
+      60,
+      "right_exposed"
+    ],
+    [
+      61,
+      "left_exposed"
+    ],
+    [
+      61,
+      "right_exposed"
+    ],
+    [
+      62,
+      "left_exposed"
+    ],
+    [
+      62,
+      "right_exposed"
+    ],
+    [
+      63,
+      "left_exposed"
+    ],
+    [
+      63,
+      "right_exposed"
+    ],
+    [
+      64,
+      "left_exposed"
+    ],
+    [
+      64,
+      "right_exposed"
+    ],
+    [
+      65,
+      "left_exposed"
+    ],
+    [
+      65,
+      "right_exposed"
+    ],
+    [
+      66,
+      "left_exposed"
+    ],
+    [
+      66,
+      "right_exposed"
+    ],
+    [
+      67,
+      "left_exposed"
+    ],
+    [
+      67,
+      "right_exposed"
+    ],
+    [
+      68,
+      "left_exposed"
+    ],
+    [
+      68,
+      "right_exposed"
+    ],
+    [
+      69,
+      "left_exposed"
+    ],
+    [
+      69,
+      "right_exposed"
+    ],
+    [
+      70,
+      "left_exposed"
+    ],
+    [
+      70,
+      "right_exposed"
+    ],
+    [
+      71,
+      "left_exposed"
+    ],
+    [
+      71,
+      "right_exposed"
+    ],
+    [
+      72,
+      "left_exposed"
+    ],
+    [
+      72,
+      "right_exposed"
+    ],
+    [
+      73,
+      "left_exposed"
+    ],
+    [
+      73,
+      "right_exposed"
+    ],
+    [
+      74,
+      "left_exposed"
+    ],
+    [
+      74,
+      "right_exposed"
+    ],
+    [
+      75,
+      "left_exposed"
+    ],
+    [
+      75,
+      "right_exposed"
+    ],
+    [
+      76,
+      "left_exposed"
+    ],
+    [
+      76,
+      "right_exposed"
+    ],
+    [
+      77,
+      "left_exposed"
+    ],
+    [
+      77,
+      "right_exposed"
+    ],
+    [
+      78,
+      "left_exposed"
+    ],
+    [
+      78,
+      "right_exposed"
+    ],
+    [
+      79,
+      "left_exposed"
+    ],
+    [
+      79,
+      "right_exposed"
+    ],
+    [
+      80,
+      "left_exposed"
+    ],
+    [
+      80,
+      "right_exposed"
+    ],
+    [
+      81,
+      "left_exposed"
+    ],
+    [
+      81,
+      "right_exposed"
+    ],
+    [
+      82,
+      "left_exposed"
+    ],
+    [
+      82,
+      "right_exposed"
+    ],
+    [
+      83,
+      "left_exposed"
+    ],
+    [
+      83,
+      "right_exposed"
+    ],
+    [
+      84,
+      "left_exposed"
+    ],
+    [
+      84,
+      "right_exposed"
+    ],
+    [
+      85,
+      "left_exposed"
+    ],
+    [
+      85,
+      "right_exposed"
+    ],
+    [
+      86,
+      "left_exposed"
+    ],
+    [
+      86,
+      "right_exposed"
+    ],
+    [
+      87,
+      "left_exposed"
+    ],
+    [
+      87,
+      "right_exposed"
+    ],
+    [
+      88,
+      "left_exposed"
+    ],
+    [
+      88,
+      "right_exposed"
+    ],
+    [
+      89,
+      "left_exposed"
+    ],
+    [
+      89,
+      "right_exposed"
+    ],
+    [
+      90,
+      "left_exposed"
+    ],
+    [
+      90,
+      "right_exposed"
+    ],
+    [
+      91,
+      "left_exposed"
+    ],
+    [
+      91,
+      "right_exposed"
+    ],
+    [
+      92,
+      "left_exposed"
+    ],
+    [
+      92,
+      "right_exposed"
+    ],
+    [
+      93,
+      "left_exposed"
+    ],
+    [
+      93,
+      "right_exposed"
+    ],
+    [
+      94,
+      "left_exposed"
+    ],
+    [
+      94,
+      "right_exposed"
+    ],
+    [
+      95,
+      "left_exposed"
+    ],
+    [
+      95,
+      "right_exposed"
+    ]
+  ],
+  "sender_policy_slot_counts": {
+    "blue-0": 135,
+    "blue-1": 135,
+    "blue-2": 135,
+    "blue-3": 135
+  },
+  "shared_return_baseline": "paired_receiver_target_swap",
+  "shared_return_replicas": 4,
+  "status": "passed",
+  "updates": 180,
+  "version": "swarm-communication-learnability-plan-audit-v3",
+  "world_balance_passed": true,
+  "world_counts": {
+    "left_exposed": 270,
+    "right_exposed": 270
+  }
+}

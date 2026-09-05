@@ -1,0 +1,607 @@
+[
+  {
+    "groups": [
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": -0.13793103448275862,
+          "blue-3": -0.13793103448275862
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-0:curriculum:4000022",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.13793103448275862,
+          "pair_index": 12,
+          "receiver": "blue-1",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-12",
+          "seed": 4000022,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "6393051c63c9276f169ee20aafa1cbfb1e5a7d4773f873e80cdaba9d67914b60",
+          "target": "V13"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-1:curriculum:4000022",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 12,
+          "receiver": "blue-1",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-12",
+          "seed": 4000022,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "0dd0cb2336204e0512b54500e5aac5016998aff9ac9068096b880e3ef398fd88",
+          "target": "V13"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-2:curriculum:4000023",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.14285714285714285,
+          "pair_index": 13,
+          "receiver": "blue-2",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-13",
+          "seed": 4000023,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "ff720643b3e90669b4344102c60b7bfdf00268d88f6a4495bbbc51a4859f24db",
+          "target": "V31"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-3:curriculum:4000023",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 13,
+          "receiver": "blue-2",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-13",
+          "seed": 4000023,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "a30156989c928c4bd9baab163a79dc45a59034b3014cacdd21e23fa4c96e7623",
+          "target": "V31"
+        }
+      },
+      {
+        "actual_return": 0.13793103448275862,
+        "advantages": {
+          "blue-0": 0.13793103448275862,
+          "blue-1": 0.13793103448275862,
+          "blue-2": 0.13793103448275862,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-4:curriculum:4000024",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.13793103448275862,
+          "pair_index": 14,
+          "receiver": "blue-3",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-14",
+          "seed": 4000024,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "b8caaf63236ba3ab37c9d0f9bef9086ad31decb520a5372147e68b646a7b4654",
+          "target": "V43"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": -0.13793103448275862,
+          "blue-2": -0.13793103448275862,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-5:curriculum:4000024",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 14,
+          "receiver": "blue-3",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-14",
+          "seed": 4000024,
+          "sender": "blue-0",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "d6240b0d551c76ba79267408d9ed2315c859de5b1efcef058f261448339fc783",
+          "target": "V43"
+        }
+      },
+      {
+        "actual_return": 0.06666666666666667,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.13333333333333333,
+          "blue-2": 0.13333333333333333,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-6:curriculum:4000025",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.13333333333333336,
+          "pair_index": 15,
+          "receiver": "blue-0",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-15",
+          "seed": 4000025,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "03779eaeae4a0cda0b5d3c9facce58026aa650afd2a41849fd15860518518890",
+          "target": "V29"
+        }
+      },
+      {
+        "actual_return": -0.06666666666666667,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-7:curriculum:4000025",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 15,
+          "receiver": "blue-0",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-15",
+          "seed": 4000025,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "d3cb1d6a96210f3cde635ac6d94f5a35320f1d25b2c95b764e22ac4ce4bff407",
+          "target": "V29"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": -0.14814814814814814,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": -0.14814814814814814
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-8:curriculum:4000026",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.14814814814814814,
+          "pair_index": 16,
+          "receiver": "blue-2",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-16",
+          "seed": 4000026,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "1713a93d0949db203c77cf3173a8a536249216b5df52222f8243fe8a66e7454b",
+          "target": "V72"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-9:curriculum:4000026",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 16,
+          "receiver": "blue-2",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-16",
+          "seed": 4000026,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "cc0910ca8cff4d7dd34e00d475d0d8512b1fdc9ef61da864a669c2c563a30681",
+          "target": "V72"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-10:curriculum:4000027",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.15384615384615385,
+          "pair_index": 17,
+          "receiver": "blue-3",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-17",
+          "seed": 4000027,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "be5896d53e5a0a8340ecf8fac0204834cfda2d165bc03df1d0d36c45ff440aad",
+          "target": "V91"
+        }
+      },
+      {
+        "actual_return": 0.07692307692307693,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.15384615384615385,
+          "blue-2": 0.15384615384615385,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-11:curriculum:4000027",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 17,
+          "receiver": "blue-3",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-17",
+          "seed": 4000027,
+          "sender": "blue-1",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "51235caa04e0ac0c098689c299cbbd0ec630859dbde6674c161b5b7c8b7a9fac",
+          "target": "V91"
+        }
+      },
+      {
+        "actual_return": 0.16,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.16,
+          "blue-2": 0.16,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-12:curriculum:4000028",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.15999999999999998,
+          "pair_index": 18,
+          "receiver": "blue-0",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-18",
+          "seed": 4000028,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "9cd3c75730e24943f2d6909549d0f2aedd1c3f83313eb0afad220a9b912ab7ac",
+          "target": "V66"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": -0.16
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-13:curriculum:4000028",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 18,
+          "receiver": "blue-0",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-18",
+          "seed": 4000028,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "37964b23d58b97309fdf62819bfa43be0c325f27e82010191f81c8d18202b72e",
+          "target": "V66"
+        }
+      },
+      {
+        "actual_return": 0.14285714285714285,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.14285714285714285,
+          "blue-3": 0.14285714285714285
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-14:curriculum:4000029",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.14285714285714285,
+          "pair_index": 19,
+          "receiver": "blue-1",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-19",
+          "seed": 4000029,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "9008b64f5dcedfb6b386ad3d45b5139cf2a1de986fd4926fb6b4d243997e2a2f",
+          "target": "V12"
+        }
+      },
+      {
+        "actual_return": 0.14285714285714285,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.14285714285714285
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-15:curriculum:4000029",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 19,
+          "receiver": "blue-1",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-19",
+          "seed": 4000029,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "caf5bc525b5615d6367e9b1e888b4fc8c6b96e29a4284c8293962179e3f78719",
+          "target": "V12"
+        }
+      },
+      {
+        "actual_return": 0.14285714285714285,
+        "advantages": {
+          "blue-0": 0.14285714285714285,
+          "blue-1": 0.14285714285714285,
+          "blue-2": 0.14285714285714285,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-16:curriculum:4000031",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.14285714285714285,
+          "pair_index": 20,
+          "receiver": "blue-3",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-20",
+          "seed": 4000031,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "8972c2d51d2c775d93498cab3d68809fdeaeba13ad01881a87b3478ff9f1313a",
+          "target": "V29"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.14285714285714285,
+          "blue-1": 0.14285714285714285,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-17:curriculum:4000031",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 20,
+          "receiver": "blue-3",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-20",
+          "seed": 4000031,
+          "sender": "blue-2",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "59d42d836f58643ccabaa85ae3058dd78d6b9ee1907af114ba23b45873578e46",
+          "target": "V29"
+        }
+      },
+      {
+        "actual_return": 0.11538461538461536,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.15384615384615383
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-18:curriculum:4000032",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.15384615384615385,
+          "pair_index": 21,
+          "receiver": "blue-0",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-21",
+          "seed": 4000032,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "ed79dce18c351357cd67b881b8e2618cb8d76cce5eab5169e3ad009850117d5c",
+          "target": "V20"
+        }
+      },
+      {
+        "actual_return": -0.038461538461538464,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": -0.15384615384615383,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-19:curriculum:4000032",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 21,
+          "receiver": "blue-0",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-21",
+          "seed": 4000032,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "f48d4e177f95c37c1afa8360bf2d4c036991e9fe1b42b3a4d978ca83b27fbf18",
+          "target": "V20"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-20:curriculum:4000033",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.14285714285714285,
+          "pair_index": 22,
+          "receiver": "blue-1",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-22",
+          "seed": 4000033,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "3fe4b1482b8095b88b5bb8617f764b47808fd7eaa0687b74d8e686b8891a507d",
+          "target": "V29"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-21:curriculum:4000033",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 22,
+          "receiver": "blue-1",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-22",
+          "seed": 4000033,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "e82535f78e8eaacebe5fcb729ae40830c4dc7afb44062da2f634cd3eedc53299",
+          "target": "V29"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.12903225806451613,
+          "blue-1": 0.12903225806451613,
+          "blue-2": 0.0,
+          "blue-3": 0.12903225806451613
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-22:curriculum:4000034",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "critical",
+          "minimum_certified_advantage": 0.12903225806451613,
+          "pair_index": 23,
+          "receiver": "blue-2",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-23",
+          "seed": 4000034,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "d2931f30a31bb2f1d8a922e753af66a749f7db664850c34b773854b2ca933510",
+          "target": "V17"
+        }
+      },
+      {
+        "actual_return": 0.0,
+        "advantages": {
+          "blue-0": 0.0,
+          "blue-1": 0.0,
+          "blue-2": 0.0,
+          "blue-3": 0.0
+        },
+        "credit_estimator": "message_drop",
+        "game_id": "actionable-message-credit-stage-b-f54e72b4:step-0:group-23:curriculum:4000034",
+        "intervention_turn": 1,
+        "scenario": {
+          "kind": "decoy",
+          "minimum_certified_advantage": 0.0,
+          "pair_index": 23,
+          "receiver": "blue-2",
+          "sampling_namespace": "actionable-message-credit-stage-b-f54e72b4:step-0:pair-23",
+          "seed": 4000034,
+          "sender": "blue-3",
+          "source": "curriculum",
+          "split": "development",
+          "state_sha256": "43680b21112adfb844eb32ee751c512cee1f52b2de99d6df4a1685d7e9aa3b97",
+          "target": "V17"
+        }
+      }
+    ],
+    "step": 0
+  }
+]

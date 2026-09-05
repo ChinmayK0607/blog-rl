@@ -1,0 +1,35 @@
+{
+  "classification_counts": {
+    "frontier": 8,
+    "mastered": 6,
+    "stalled": 10,
+    "unseen": 104
+  },
+  "credit_estimator_changed": false,
+  "curriculum_sha256": "197e50e9253798f75a83d29e306c321618c7b9633d3b86b4133e54bb0bb8e0e5",
+  "fresh_training_sampling_required": true,
+  "frozen_or_development_data_used": false,
+  "optimizer_updates_authorized_after_runtime_preflight": 40,
+  "ordinary_case_pool_sha256": "4d39e513aeb5a83b1cd836f3ea1a6e591fa8a312ffa868131aed429016b44999",
+  "ordinary_cases": 128,
+  "pilot_assessment_sha256": "ba8abe53e1d973600f6c9c9c1690354cb9009d122586883e265fc98857bc3087",
+  "pilot_manifest_sha256": "f15d42ce9d80ca071271e1436fb63645a584c7cc7b74c6164992d004ad3c3c0f",
+  "pilot_trajectories_used_for_optimization": false,
+  "policy_modes": {
+    "blue-0": "expand",
+    "blue-1": "consolidate",
+    "blue-2": "consolidate",
+    "blue-3": "discover"
+  },
+  "policy_opponent_cells": 16,
+  "sha256": "ecffdd096e0e0aa2caec524931e3070bcc3c869b16e8f2370cffb96bf812abcd",
+  "source_hashes": {
+    "curriculum_template": "55822681b5abb690d50779fe3faa74dd6329e717a7f8f4761c6257d89a0c1010",
+    "pilot_assessment": "c5af46e4af3c96b64a60be5b9048e1467426cbfdf0e2ae19046ea8272146c4bd",
+    "pilot_manifest": "37f60e818a339f3066b57068318e020ce1a943a6d13eef870c8ae1a2cc2827b2",
+    "source_pool": "6c747e4a90dc0bdf93c17412f226cdb2d79949917ce3d919036a308545fa4763"
+  },
+  "stage_gates_changed": false,
+  "status": "policy_routed_cpu_bound_runtime_freeze_pending",
+  "version": "arena-rl-v14.3-policy-routing-finalizer-v1"
+}

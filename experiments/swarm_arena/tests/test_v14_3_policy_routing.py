@@ -1,0 +1,191 @@
+from __future__ import annotations
+
+import copy
+import json
+from collections import Counter
+from pathlib import Path
+
+from experiments.swarm_arena.scripts.finalize_v14_3_policy_routing import (
+    canonical_sha256,
+    finalize,
+)
+from experiments.swarm_arena.scripts.freeze_v14_3_cpu_bundle import load_hashed
+from experiments.swarm_arena.swarm_ctf_eval.adaptive_curriculum import (
+    select_ordinary_stage_cases,
+)
+from experiments.swarm_arena.swarm_ctf_eval.rl_production import (
+    AdaptiveCurriculumConfig,
+    OpponentSnapshot,
+    OrdinaryCase,
+    ScenarioAssignment,
+)
+
+ROOT = Path(__file__).parents[1]
+V14_4_PARENT_SHA256 = (
+    "ef4c9c614856edbf23b525724e3cc9524a8fe749e6e7e5fc2e6f4e6dd887aef3"
+)
+
+
+def _json(path: Path) -> dict[str, object]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _inputs() -> tuple[dict[str, object], ...]:
+    return (
+        _json(ROOT / "data" / "rl_v14_2" / "pilot_screen_manifest.json"),
+        _json(ROOT / "results" / "rl_v14_2_zero_update_rejection" / "ASSESSMENT.json"),
+        _json(ROOT / "data" / "rl_v14_1" / "ordinary_case_pool.json"),
+        _json(ROOT / "data" / "rl_v14_2" / "curriculum.json"),
+    )
+
+
+def test_failed_pilot_becomes_policy_routes_without_reusing_trajectories() -> None:
+    manifest, assessment, source_pool, curriculum = _inputs()
+    artifacts = finalize(
+        manifest,
+        assessment,
+        source_pool,
+        curriculum,
+        source_hashes={"test": "a" * 64},
+    )
+    pool = artifacts["ordinary_case_pool.json"]
+    routed = artifacts["curriculum.json"]
+    audit = artifacts["finalization_audit.json"]
+
+    assert audit["policy_modes"] == {
+        "blue-0": "expand",
+        "blue-1": "consolidate",
+        "blue-2": "consolidate",
+        "blue-3": "discover",
+    }
+    assert pool["case_count"] == 128
+    assert len(pool["cell_counts"]) == 16
+    assert pool["classification_counts"] == {
+        "frontier": 8,
+        "mastered": 6,
+        "stalled": 10,
+        "unseen": 104,
+    }
+    assert routed["ordinary_policy_routing"]["fresh_rollouts_only"] is True
+    assert audit["pilot_trajectories_used_for_optimization"] is False
+    assert audit["stage_gates_changed"] is False
+
+
+def test_policy_router_consolidates_expands_and_discovers_independently() -> None:
+    modes = (
+        "blue-0:expand",
+        "blue-1:consolidate",
+        "blue-2:consolidate",
+        "blue-3:discover",
+    )
+    config = AdaptiveCurriculumConfig(
+        mastered_anchor_fraction=0.0,
+        stalled_anchor_fraction=0.0,
+        policy_modes=modes,
+        expand_frontier_fraction=0.5,
+        discovery_frontier_fraction=0.25,
+    )
+    schedule = tuple(
+        ScenarioAssignment(
+            ordinal=ordinal,
+            kind="ordinary",
+            pair_index=None,
+            ordinary_seed=1000 + ordinal,
+            stage="next",
+            ordinary_size=16,
+            ordinary_horizon=8,
+        )
+        for ordinal in range(16)
+    )
+    opponents = tuple(
+        OpponentSnapshot(
+            opponent_id=f"base-{ordinal}",
+            family="base",
+            model_name="base",
+            revision="b" * 64,
+            adapter_sha256=None,
+            update_index=0,
+        )
+        for ordinal in range(16)
+    )
+    pool = []
+    for policy in range(4):
+        categories = (
+            ("frontier", "unseen") if policy < 3 else ("unseen", "stalled")
+        )
+        for category in categories:
+            for index in range(4):
+                pool.append(
+                    OrdinaryCase(
+                        case_id=f"blue-{policy}-{category}-{index}",
+                        focused_agent=f"blue-{policy}",
+                        opponent_family="base",
+                        seed=2000 + policy * 100 + index,
+                        size=16,
+                        horizon=8,
+                        initial_classification=category,
+                        provenance="test",
+                        source_case_id="test-source",
+                    )
+                )
+
+    selected, selection = select_ordinary_stage_cases(
+        schedule,
+        stage_name="next",
+        opponent_schedule=opponents,
+        pool=tuple(pool),
+        analysis={"sha256": "c" * 64, "ordinary_cases": {}},
+        config=config,
+        selection_namespace="policy-routing-test",
+    )
+    categories = Counter(
+        (case.focused_agent, case.initial_classification)
+        for case in selected.values()
+    )
+
+    assert categories[("blue-0", "frontier")] == 2
+    assert categories[("blue-0", "unseen")] == 2
+    assert categories[("blue-1", "frontier")] == 4
+    assert categories[("blue-2", "frontier")] == 4
+    assert categories[("blue-3", "unseen")] == 4
+    assert selection["policy_modes"] == dict(value.split(":") for value in modes)
+
+
+def test_policy_routing_still_rejects_protocol_failure() -> None:
+    manifest, assessment, source_pool, curriculum = _inputs()
+    invalid = copy.deepcopy(assessment)
+    invalid["protocol_admission_rate"] = 0.99
+    invalid["sha256"] = canonical_sha256(
+        {key: value for key, value in invalid.items() if key != "sha256"}
+    )
+
+    try:
+        finalize(
+            manifest,
+            invalid,
+            source_pool,
+            curriculum,
+            source_hashes={},
+        )
+    except ValueError as error:
+        assert "protocol admission" in str(error)
+    else:
+        raise AssertionError("policy routing bypassed protocol admission")
+
+
+def test_historical_cpu_bundle_remains_hash_valid() -> None:
+    bundle = load_hashed(ROOT / "data" / "rl_v14_3" / "cpu_bundle.json")
+    assert bundle["sha256"] == (
+        "2741872a8a4d9f632752c56a7f0c58537155812679427ea5c355d5806401ea32"
+    )
+
+
+def test_v14_4_cpu_bundle_remains_a_valid_frozen_parent() -> None:
+    # Historical bundles bind the source tree at their original commit.  Later
+    # execution repairs must validate the immutable artifact itself rather than
+    # pretending current mutable launcher files can reproduce the old commit.
+    data = ROOT / "data"
+    bundle = load_hashed(data / "rl_v14_4" / "cpu_bundle.json")
+    assert bundle["version"] == "arena-rl-v14.4-parity-recovery-v1"
+    assert bundle["sha256"] == V14_4_PARENT_SHA256
+    assert bundle["frozen_data_opened"] is False

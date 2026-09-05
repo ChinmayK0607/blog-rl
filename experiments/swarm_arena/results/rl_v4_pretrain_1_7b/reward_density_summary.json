@@ -1,0 +1,85 @@
+{
+  "families": {
+    "critical": {
+      "groups": 6,
+      "maximum_return": 0.1875,
+      "mean_absolute_advantage": 0.05978694413031858,
+      "mean_return": 0.013583311637351802,
+      "minimum_return": -0.13333333333333333,
+      "negative_advantages": 14,
+      "nonzero_advantage_rate": 1.0,
+      "positive_advantages": 10,
+      "replicas": 24,
+      "return_stdev": 0.06723806562684564,
+      "return_variance_group_rate": 1.0,
+      "zero_advantages": 0
+    },
+    "decoy": {
+      "groups": 6,
+      "maximum_return": 0.1764705882352941,
+      "mean_absolute_advantage": 0.05954298080424741,
+      "mean_return": 0.034821995452628755,
+      "minimum_return": -0.058823529411764705,
+      "negative_advantages": 12,
+      "nonzero_advantage_rate": 0.8333333333333334,
+      "positive_advantages": 8,
+      "replicas": 24,
+      "return_stdev": 0.06096503144039727,
+      "return_variance_group_rate": 0.8333333333333334,
+      "zero_advantages": 4
+    },
+    "ordinary": {
+      "groups": 12,
+      "maximum_return": 0.6206896551724137,
+      "mean_absolute_advantage": 0.1488890079974472,
+      "mean_return": 0.028019455275013355,
+      "minimum_return": -0.3,
+      "negative_advantages": 24,
+      "nonzero_advantage_rate": 1.0,
+      "positive_advantages": 24,
+      "replicas": 48,
+      "return_stdev": 0.18524670615063726,
+      "return_variance_group_rate": 1.0,
+      "zero_advantages": 0
+    }
+  },
+  "inputs": [
+    {
+      "groups": 8,
+      "sha256": "8ad97cb2e1bdee00ff5874f2bea831dd455f3d4a5c52970f77f0990f349c16ea"
+    },
+    {
+      "groups": 4,
+      "sha256": "b7fb1847cbd54e9da2fd11ad4120750283905e3e2acee4c98e21681dee040001"
+    },
+    {
+      "groups": 8,
+      "sha256": "ed873d5f3f0ce1fc89ee55fb58aa885eda8e0bfd1d5cde76b2f3f7b3d5e3c9c7"
+    },
+    {
+      "groups": 4,
+      "sha256": "f1230508f389303d9a68cde1e27bfbd4e10e3d58335c81191da6a0131f114394"
+    }
+  ],
+  "overall": {
+    "groups": 24,
+    "maximum_return": 0.6206896551724137,
+    "mean_absolute_advantage": 0.1042769852323651,
+    "mean_return": 0.026111054410001815,
+    "minimum_return": -0.3,
+    "negative_advantages": 50,
+    "nonzero_advantage_rate": 0.9583333333333334,
+    "positive_advantages": 42,
+    "replicas": 96,
+    "return_stdev": 0.138843874214564,
+    "return_variance_group_rate": 0.9583333333333334,
+    "zero_advantages": 4
+  },
+  "paired_handoff": {
+    "complete_pairs": 6,
+    "critical_minus_decoy_mean_return": -0.02123868381527695,
+    "replica_differences": 24
+  },
+  "scope": "rollout reward/advantage-density diagnostic only; no optimizer update and no claim of learned communication",
+  "version": "arena-shared-return-rollout-summary-v2-content-addressed"
+}

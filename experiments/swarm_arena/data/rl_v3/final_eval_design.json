@@ -1,0 +1,114 @@
+{
+  "bootstrap": {
+    "interval": 0.95,
+    "seed": 0,
+    "trials": 20000
+  },
+  "claim_gates": {
+    "capability": "RL-minus-SFT ordinary OOD 95% interval is positive",
+    "communication": "all four critical intervention intervals are positive, their means are positive against every opponent, both side swaps are complete, and the matched-decoy normal-minus-dropped interval includes zero",
+    "regression": "both frozen non-arena suites pass their existing gates",
+    "specialization": "identity-minus-adapter-shuffle 95% interval is positive"
+  },
+  "frozen_sources": {
+    "certified_critical_decoy_v3": {
+      "file_sha256": "c9671699ec1d60dc58bd6976003d872da4f820888f17089c9c25cd6bb243fee9",
+      "manifest_body_sha256": "7c876814a2593696bea16d3cea754118a133c06b9bb93deec171960de2916b6e",
+      "pairs": 72
+    },
+    "non_arena_regression": {
+      "selection_gate": "no_overall_drop_gt_0.02_and_no_category_drop_gt_0.05",
+      "suites": [
+        "swarm-regression-v1",
+        "swarm-regression-v2"
+      ]
+    },
+    "ordinary_episode_v2": {
+      "cases": 72,
+      "manifest_sha256": "1010d03f6403ccbec8a8eee6e23ad8cdd72c656ed71b21ee30d1dbc590fb5199"
+    }
+  },
+  "headline_matrix": {
+    "action_only_control": {
+      "cases": 72,
+      "conditions": [
+        "normal"
+      ],
+      "opponents": 3,
+      "policy_variants": [
+        "action_only_rl"
+      ],
+      "required_games": 432,
+      "sides": 2
+    },
+    "critical_communication": {
+      "cases": 72,
+      "conditions": [
+        "normal",
+        "dropped",
+        "sender_shuffled",
+        "delayed",
+        "zero_budget"
+      ],
+      "opponents": 3,
+      "policy_variants": [
+        "candidate_rl"
+      ],
+      "required_games": 2160,
+      "sides": 2
+    },
+    "matched_decoy": {
+      "cases": 72,
+      "conditions": [
+        "normal",
+        "dropped"
+      ],
+      "opponents": 3,
+      "policy_variants": [
+        "candidate_rl"
+      ],
+      "required_games": 864,
+      "sides": 2
+    },
+    "ordinary_capability": {
+      "cases": 72,
+      "conditions": [
+        "normal"
+      ],
+      "opponents": 3,
+      "policy_variants": [
+        "candidate_rl",
+        "sft_init"
+      ],
+      "required_games": 864,
+      "sides": 2
+    }
+  },
+  "independent_unit": "case_id/game seed",
+  "mechanism_matrix": {
+    "adapter_assignments": "identity plus all 23 perm-<0123> non-identity permutations",
+    "fixed_case_subset": 12,
+    "note": "Mechanism rows are secondary and never enter headline capability confidence intervals.",
+    "option_orders": [
+      "canonical",
+      "permuted-1",
+      "permuted-2",
+      "permuted-3"
+    ],
+    "role_label_assignments": "identity plus all 23 perm-<0123> non-identity permutations",
+    "selection": "first case for each ordered sender/receiver identity"
+  },
+  "runtime_bindings": {
+    "action_only_rl": "required control trained on the same games with communication disabled",
+    "candidate_rl": "required immutable model plus four adapter revisions",
+    "opponent_artifact_ids": "must be filled before launching; aliases are rejected",
+    "opponent_slots": [
+      "base",
+      "sft",
+      "historical_league"
+    ],
+    "sft_init": "required immutable warm-start model plus four initial adapters"
+  },
+  "status": "frozen_before_rl",
+  "version": "arena-final-eval-v3"
+}

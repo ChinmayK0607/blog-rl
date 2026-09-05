@@ -1,0 +1,40 @@
+{
+  "blue_model": "diagnostic-candidate-step320-2dc1694c",
+  "conditions": {
+    "generated:generated": {
+      "blue_mean_return": 4.3625,
+      "blue_mean_return_95": [
+        -1.7750000000000008,
+        10.0875
+      ],
+      "blue_win_rate": 0.75,
+      "draw_rate": 0,
+      "matches": 4,
+      "metrics": {
+        "BLUE": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 30.75,
+          "duplicate_target_turn_rate": 0.2708333333333333,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        },
+        "RED": {
+          "action_protocol_rate": 1.0,
+          "broadcast_grounded_rate": 1.0,
+          "broadcast_protocol_rate": 1.0,
+          "communication_spend": 31,
+          "duplicate_target_turn_rate": 0.25,
+          "invalid_actions": 0,
+          "invalid_broadcasts": 0
+        }
+      }
+    }
+  },
+  "crossplay_version": "arena-crossplay-v4-dynamic-protocol",
+  "interval_method": "seed-level nonparametric bootstrap, 20000 deterministic resamples",
+  "manifest_sha256": "8652e64f9381d8746fe2ad09b4462f31959cce9682c4f2aa8bb27ef3b6c4d803",
+  "matches": 4,
+  "red_model": "diagnostic-candidate-step320-2dc1694c"
+}

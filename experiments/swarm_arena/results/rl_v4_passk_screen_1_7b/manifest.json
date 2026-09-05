@@ -1,0 +1,31 @@
+{
+  "conditions": [
+    "generated",
+    "dropped",
+    "reference"
+  ],
+  "control_k": 4,
+  "generated_k": 8,
+  "model": "sft",
+  "pair_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "scope": "training split only; frozen development and OOD evaluation unopened",
+  "sha256": "d5d9646b98de89f44c34db49213e120abfd12b710e9e9a8d737909a8afc7b9f7",
+  "source_commit": "69fe74ff5ca6954310dd22848de77ba5293cb538",
+  "success": "certified active target owned by focal team at terminal state",
+  "temperature": 0.7,
+  "training_manifest_sha256": "665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681",
+  "version": "arena-training-passk-screen-v1"
+}

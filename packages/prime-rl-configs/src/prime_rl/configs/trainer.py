@@ -86,6 +86,9 @@ class LoRAConfig(BaseConfig):
     dropout: float = Field(0.0, ge=0, le=1)
     """LoRA dropout rate."""
 
+    use_grouped_mm: bool = True
+    """Use grouped GEMMs for multi-adapter LoRA. Disable to match standard PEFT matmul numerics."""
+
     target_modules: list[str] = [
         "q_proj",
         "k_proj",
@@ -102,6 +105,36 @@ class LoRAConfig(BaseConfig):
 
     modules_to_save: list[str] = []
     """Module names or regex patterns to keep fully trainable (not freeze). Same matching rules as ``target_modules``."""
+
+    initial_adapter_path: Path | None = None
+    """Local PEFT safetensors file or adapter directory used to initialize every run."""
+
+    initial_adapter_sha256: str | None = Field(None, pattern=r"^[0-9a-f]{64}$")
+    """Required SHA-256 digest of the initial adapter safetensors file."""
+
+    initial_adapter_paths_by_run: dict[str, Path] = Field(default_factory=dict)
+    """Optional per-run PEFT adapters for distinct multi-policy warm starts."""
+
+    initial_adapter_sha256_by_run: dict[str, str] = Field(default_factory=dict)
+    """SHA-256 digests paired one-to-one with ``initial_adapter_paths_by_run``."""
+
+    @model_validator(mode="after")
+    def validate_initial_adapter(self):
+        if (self.initial_adapter_path is None) != (self.initial_adapter_sha256 is None):
+            raise ValueError("initial_adapter_path and initial_adapter_sha256 must be set together")
+        if set(self.initial_adapter_paths_by_run) != set(self.initial_adapter_sha256_by_run):
+            raise ValueError("per-run initial adapter paths and checksums must have identical keys")
+        if any(
+            not run_id.startswith("run_") or "/" in run_id or run_id in {"run_", "run_.."}
+            for run_id in self.initial_adapter_paths_by_run
+        ):
+            raise ValueError("per-run initial adapters require fixed run_* identifiers")
+        if any(
+            len(value) != 64 or any(character not in "0123456789abcdef" for character in value)
+            for value in self.initial_adapter_sha256_by_run.values()
+        ):
+            raise ValueError("per-run initial adapter checksums must be lowercase SHA-256")
+        return self
 
 
 class DebugModelConfig(BaseConfig):
@@ -499,6 +532,47 @@ class TrainerExperimentalConfig(BaseConfig):
     """Opt-in per-token JSONL export for rollout debugging. When enabled, writes token ids and aligned trainer metrics after each forward pass."""
 
 
+class RolloutParityGateConfig(BaseConfig):
+    """Fail before an optimizer step when enabled rollout/trainer bounds diverge.
+
+    A ``None`` threshold records the corresponding diagnostic without making it
+    an online abort condition.  This lets production runs gate only robust
+    aggregate quantities while retaining the full metric surface for audit.
+    """
+
+    max_mean_logprob_error: float | None = Field(None, ge=0)
+    max_p99_logprob_error: float | None = Field(None, ge=0)
+    max_probability_error: float | None = Field(None, ge=0)
+    max_p99_probability_error: float | None = Field(None, ge=0)
+    probability_tail_threshold: float = Field(0.05, ge=0)
+    max_probability_tail_fraction: float | None = Field(None, ge=0, le=1)
+    max_mean_mismatch_kl: float | None = Field(0.0005, ge=0)
+    max_mismatch_kl: float | None = Field(None, ge=0)
+
+
+class RolloutParityRecoveryConfig(BaseConfig):
+    """Bounded handling for a complete logical batch that fails parity.
+
+    The default trainer behavior remains fail-closed.  When this optional
+    configuration is present, one or more *pre-scheduled* logical updates may
+    be quarantined without applying gradients or resampling replacement data.
+    The unchanged policy weights are published so every policy advances
+    atomically and the rejected evidence remains part of the run record.
+    """
+
+    action: Literal["quarantine_logical_update"] = "quarantine_logical_update"
+    window_size: int = Field(10, ge=1)
+    max_quarantined_updates_per_window: int = Field(1, ge=1)
+
+    @model_validator(mode="after")
+    def validate_quarantine_limit(self):
+        if self.max_quarantined_updates_per_window > self.window_size:
+            raise ValueError(
+                "parity quarantine limit cannot exceed its logical-update window"
+            )
+        return self
+
+
 class TrainerConfig(BaseConfig):
     model: ModelConfig = ModelConfig()
 
@@ -521,6 +595,12 @@ class TrainerConfig(BaseConfig):
 
     rollout_transport: TransportConfig = FileSystemTransportConfig()
     """Transport used to ship rollouts from orchestrator to trainer."""
+
+    rollout_parity_gate: RolloutParityGateConfig | None = None
+    """Optional fail-closed numerical gate evaluated before gradients are applied."""
+
+    rollout_parity_recovery: RolloutParityRecoveryConfig | None = None
+    """Optional bounded no-resampling quarantine for failed logical batches."""
 
     log: TrainerLogConfig = TrainerLogConfig()
 
@@ -561,6 +641,11 @@ class TrainerConfig(BaseConfig):
 
     max_concurrent_runs: int = Field(1, ge=1)
     """Maximum number of concurrent runs to allow. If 1, only one run may run at a time."""
+
+    atomic_multi_run_updates: bool = False
+    """Wait for every active run to pass its complete-batch gates before any
+    multi-run optimizer is stepped. This prevents a later policy failure from
+    leaving an externally visible partial joint-policy update."""
 
     experimental: TrainerExperimentalConfig = TrainerExperimentalConfig()
 

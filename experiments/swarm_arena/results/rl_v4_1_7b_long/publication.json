@@ -1,0 +1,13 @@
+{
+  "policy_adapter_sha256": {
+    "blue-0": "4e25a6c8db13f8d7d477df887c4c2c30086f1d590a4da6ee7f4dc3620ea12ebf",
+    "blue-1": "18ce7da61ac416c909482c063b19bf3085bc2aaa872530371e63698a0da4e59b",
+    "blue-2": "37092538f1442bf8ea2d862a5d5f38a67d1a8ab681e5ccde30dbaf58f3d94433",
+    "blue-3": "280d9b13b3fae9819fe5f153fb5036eafcc6dbae8292c7fd5e56719f835b4890"
+  },
+  "private": false,
+  "repo": "https://huggingface.co/CK0607/Qwen3-1.7B-Swarm-Arena-RL-v4-long-development",
+  "revision": "1af877668ee3cdd8dd5ccd4734ce620bbe5e2aa0",
+  "selected_step": 20,
+  "verified_files": 17
+}

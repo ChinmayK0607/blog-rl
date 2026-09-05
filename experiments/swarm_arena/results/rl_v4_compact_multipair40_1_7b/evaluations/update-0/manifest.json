@@ -1,0 +1,33 @@
+{
+  "claim_boundary": "training-pair learnability, not held-out communication generalization",
+  "conditions": [
+    "normal",
+    "dropped",
+    "sender_shuffled"
+  ],
+  "focal_models": [
+    "sft-opponent",
+    "sft-opponent",
+    "sft-opponent",
+    "sft-opponent"
+  ],
+  "focal_revision": "bae31d5a16ced8994055b6040c132b68218c411602dd022d1e2add3d99a252bc",
+  "opponent_models": [
+    "sft-opponent",
+    "sft-opponent",
+    "sft-opponent",
+    "sft-opponent"
+  ],
+  "opponent_revision": "534522a8f3ff3489b1dd8318dc8e533e51264cde",
+  "pair_indices": [
+    7,
+    9
+  ],
+  "remaining_turns": 2,
+  "repetitions": 2,
+  "sha256": "71f52eea4a4c924d1f8282fde33e0f545bb1ae3aca5a0cc61a1650f72da81013",
+  "source_commit": "3ca20933409f2e02f9dce60a3f295f10d15a0806",
+  "temperature": 0.4,
+  "training_manifest_sha256": "665408b25a62eb276e70be1ca2716472c0c53abe3cbcc0c1a4f84d4a10ef9681",
+  "version": "multipair-communication-learnability-eval-v2"
+}

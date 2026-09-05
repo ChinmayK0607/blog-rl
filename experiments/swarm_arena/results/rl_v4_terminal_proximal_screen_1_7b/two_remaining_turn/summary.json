@@ -1,0 +1,280 @@
+{
+  "decision": {
+    "adopt_for_receiver_curriculum": true,
+    "protocol_valid": true,
+    "receiver_action_contrast_sufficient": true,
+    "reward_contrast_sufficient": true,
+    "terminal_capture_specificity_improved": true,
+    "terminal_specificity_improved": true,
+    "terminal_specificity_positive": true
+  },
+  "games": 192,
+  "independent_pair_clusters": 9,
+  "manifest_sha256": "349d52562ca12e27d5c03fab6fa3b6c9a3b7e9b2bcb6b4bd71709a39e896c2b1",
+  "old_horizon": {
+    "critical_receiver_target_action": {
+      "bootstrap_95": [
+        -0.4583333333333333,
+        -0.06944444444444445
+      ],
+      "mean": -0.2361111111111111
+    },
+    "critical_target_captured": {
+      "bootstrap_95": [
+        -0.1527777777777778,
+        0.06944444444444445
+      ],
+      "mean": -0.041666666666666664
+    },
+    "critical_target_captured_turn_zero": {
+      "bootstrap_95": [
+        0.0,
+        0.06944444444444445
+      ],
+      "mean": 0.027777777777777776
+    },
+    "critical_terminal_return": {
+      "bootstrap_95": [
+        -0.013706126609352411,
+        0.042223825557158895
+      ],
+      "mean": 0.012348682778790306
+    },
+    "decoy_receiver_target_action": {
+      "bootstrap_95": [
+        -0.1527777777777778,
+        0.06944444444444445
+      ],
+      "mean": -0.041666666666666664
+    },
+    "decoy_target_captured": {
+      "bootstrap_95": [
+        0.027777777777777776,
+        0.2638888888888889
+      ],
+      "mean": 0.1388888888888889
+    },
+    "decoy_target_captured_turn_zero": {
+      "bootstrap_95": [
+        0.0,
+        0.06944444444444445
+      ],
+      "mean": 0.027777777777777776
+    },
+    "decoy_terminal_return": {
+      "bootstrap_95": [
+        0.005337581808170043,
+        0.06864316995035949
+      ],
+      "mean": 0.03433660614769617
+    },
+    "specificity_receiver_target_action": {
+      "bootstrap_95": [
+        -0.375,
+        -0.041666666666666664
+      ],
+      "mean": -0.19444444444444445
+    },
+    "specificity_target_captured": {
+      "bootstrap_95": [
+        -0.3611111111111111,
+        -0.041666666666666664
+      ],
+      "mean": -0.18055555555555555
+    },
+    "specificity_target_captured_turn_zero": {
+      "bootstrap_95": [
+        -0.041666666666666664,
+        0.041666666666666664
+      ],
+      "mean": 0.0
+    },
+    "specificity_terminal_return": {
+      "bootstrap_95": [
+        -0.05512209735275306,
+        0.01705831240935605
+      ],
+      "mean": -0.021987923368905867
+    }
+  },
+  "reward_density": {
+    "critical_generated_nonzero_return_cell_rate": 0.9166666666666666,
+    "critical_generated_receiver_action_contrast_rate": 0.8333333333333334,
+    "critical_generated_return_contrast_rate": 0.8333333333333334
+  },
+  "selected_worlds": 12,
+  "terminal_proximal": {
+    "critical_receiver_target_action": {
+      "bootstrap_95": [
+        -0.4583333333333333,
+        -0.05555555555555555
+      ],
+      "mean": -0.2222222222222222
+    },
+    "critical_target_captured": {
+      "bootstrap_95": [
+        0.0,
+        0.06944444444444445
+      ],
+      "mean": 0.027777777777777776
+    },
+    "critical_target_captured_turn_zero": {
+      "bootstrap_95": [
+        0.0,
+        0.06944444444444445
+      ],
+      "mean": 0.027777777777777776
+    },
+    "critical_terminal_return": {
+      "bootstrap_95": [
+        0.003703703703703704,
+        0.032080059857837635
+      ],
+      "mean": 0.016507669285447064
+    },
+    "decoy_receiver_target_action": {
+      "bootstrap_95": [
+        -0.09722222222222222,
+        0.06944444444444445
+      ],
+      "mean": -0.013888888888888888
+    },
+    "decoy_target_captured": {
+      "bootstrap_95": [
+        -0.027777777777777776,
+        0.09722222222222222
+      ],
+      "mean": 0.027777777777777776
+    },
+    "decoy_target_captured_turn_zero": {
+      "bootstrap_95": [
+        -0.027777777777777776,
+        0.09722222222222222
+      ],
+      "mean": 0.027777777777777776
+    },
+    "decoy_terminal_return": {
+      "bootstrap_95": [
+        -0.014174851081871954,
+        0.022293114776774908
+      ],
+      "mean": 0.004382471059679577
+    },
+    "specificity_receiver_target_action": {
+      "bootstrap_95": [
+        -0.4444444444444444,
+        -0.041666666666666664
+      ],
+      "mean": -0.20833333333333334
+    },
+    "specificity_target_captured": {
+      "bootstrap_95": [
+        -0.041666666666666664,
+        0.041666666666666664
+      ],
+      "mean": 0.0
+    },
+    "specificity_target_captured_turn_zero": {
+      "bootstrap_95": [
+        -0.041666666666666664,
+        0.041666666666666664
+      ],
+      "mean": 0.0
+    },
+    "specificity_terminal_return": {
+      "bootstrap_95": [
+        -0.004100529100529101,
+        0.029617932843739297
+      ],
+      "mean": 0.012125198225767485
+    }
+  },
+  "terminal_proximal_minus_old": {
+    "critical_receiver_target_action": {
+      "bootstrap_95": [
+        -0.041666666666666664,
+        0.08333333333333333
+      ],
+      "mean": 0.013888888888888888
+    },
+    "critical_target_captured": {
+      "bootstrap_95": [
+        -0.041666666666666664,
+        0.18055555555555555
+      ],
+      "mean": 0.06944444444444445
+    },
+    "critical_target_captured_turn_zero": {
+      "bootstrap_95": [
+        0.0,
+        0.0
+      ],
+      "mean": 0.0
+    },
+    "critical_terminal_return": {
+      "bootstrap_95": [
+        -0.03144078144078144,
+        0.03465056780468967
+      ],
+      "mean": 0.004158986506656757
+    },
+    "decoy_receiver_target_action": {
+      "bootstrap_95": [
+        -0.06944444444444445,
+        0.125
+      ],
+      "mean": 0.027777777777777776
+    },
+    "decoy_target_captured": {
+      "bootstrap_95": [
+        -0.25,
+        0.027777777777777776
+      ],
+      "mean": -0.1111111111111111
+    },
+    "decoy_target_captured_turn_zero": {
+      "bootstrap_95": [
+        -0.06944444444444445,
+        0.05555555555555555
+      ],
+      "mean": 0.0
+    },
+    "decoy_terminal_return": {
+      "bootstrap_95": [
+        -0.056404760231452196,
+        -0.00570542325760542
+      ],
+      "mean": -0.0299541350880166
+    },
+    "specificity_receiver_target_action": {
+      "bootstrap_95": [
+        -0.1111111111111111,
+        0.08333333333333333
+      ],
+      "mean": -0.013888888888888888
+    },
+    "specificity_target_captured": {
+      "bootstrap_95": [
+        0.027777777777777776,
+        0.3611111111111111
+      ],
+      "mean": 0.18055555555555555
+    },
+    "specificity_target_captured_turn_zero": {
+      "bootstrap_95": [
+        -0.05555555555555555,
+        0.06944444444444445
+      ],
+      "mean": 0.0
+    },
+    "specificity_terminal_return": {
+      "bootstrap_95": [
+        -0.016961336505928536,
+        0.07902481242139686
+      ],
+      "mean": 0.034113121594673355
+    }
+  },
+  "version": "arena-terminal-proximal-screen-v1",
+  "wall_seconds": 501.32961535453796
+}
