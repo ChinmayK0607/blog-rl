@@ -1,0 +1,50 @@
+[
+  {
+    "bias": -2.7755575615628914e-17,
+    "centering": "none",
+    "exact_objective_logit_gradient": 0.21000000000000002,
+    "expected_implemented_score_update": 0.21,
+    "factual_probability": 0.7,
+    "fixed_counterfactual_probability": 0.4,
+    "production_estimator_changed": false,
+    "scope": "counterexample to automatic unbiased-baseline claims; not a diagnosis of the full multi-turn estimator",
+    "shared_randomness": false,
+    "version": "paired-credit-enumerable-audit-v1"
+  },
+  {
+    "bias": 0.0,
+    "centering": "replica_mean",
+    "exact_objective_logit_gradient": 0.21000000000000002,
+    "expected_implemented_score_update": 0.21000000000000002,
+    "factual_probability": 0.7,
+    "fixed_counterfactual_probability": 0.4,
+    "production_estimator_changed": false,
+    "scope": "counterexample to automatic unbiased-baseline claims; not a diagnosis of the full multi-turn estimator",
+    "shared_randomness": false,
+    "version": "paired-credit-enumerable-audit-v1"
+  },
+  {
+    "bias": -0.12000000000000004,
+    "centering": "none",
+    "exact_objective_logit_gradient": 0.21000000000000002,
+    "expected_implemented_score_update": 0.08999999999999998,
+    "factual_probability": 0.7,
+    "fixed_counterfactual_probability": 0.4,
+    "production_estimator_changed": false,
+    "scope": "counterexample to automatic unbiased-baseline claims; not a diagnosis of the full multi-turn estimator",
+    "shared_randomness": true,
+    "version": "paired-credit-enumerable-audit-v1"
+  },
+  {
+    "bias": -0.12000000000000002,
+    "centering": "replica_mean",
+    "exact_objective_logit_gradient": 0.21000000000000002,
+    "expected_implemented_score_update": 0.09,
+    "factual_probability": 0.7,
+    "fixed_counterfactual_probability": 0.4,
+    "production_estimator_changed": false,
+    "scope": "counterexample to automatic unbiased-baseline claims; not a diagnosis of the full multi-turn estimator",
+    "shared_randomness": true,
+    "version": "paired-credit-enumerable-audit-v1"
+  }
+]

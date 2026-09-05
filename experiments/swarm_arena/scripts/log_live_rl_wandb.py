@@ -281,6 +281,7 @@ def main() -> None:
     assert run is not None
     logged_steps: set[int] = set()
     logged_evals: set[Path] = set()
+    logged_comparisons: set[Path] = set()
     while True:
         if args.progress.is_file():
             records = _read_json_retry(args.progress)
@@ -298,6 +299,10 @@ def main() -> None:
                 update = int(summary_path.parent.name.removeprefix("update-"))
                 run.log(summarize_evaluation(_read_json_retry(summary_path)), step=update)
                 logged_evals.add(summary_path)
+            for comparison_path in sorted(args.eval_root.glob("update-*/initializer_comparison.json")):
+                if comparison_path not in logged_comparisons:
+                    run.summary[f"initializer_comparison/{comparison_path.parent.name}"] = _read_json_retry(comparison_path)
+                    logged_comparisons.add(comparison_path)
         if args.once or watcher_complete(
             logged_steps,
             expected_updates=args.expected_updates,
@@ -314,6 +319,8 @@ def main() -> None:
             raise ValueError(f"compact artifact must be an existing file: {path}")
         artifact.add_file(str(path), name=f"inputs/{path.name}")
     if args.eval_root is not None:
+        for comparison_path in sorted(args.eval_root.glob("update-*/initializer_comparison.json")):
+            artifact.add_file(str(comparison_path), name=f"eval/{comparison_path.parent.name}-initializer-comparison.json")
         for summary_path in sorted(args.eval_root.glob("update-*/summary.json")):
             artifact.add_file(
                 str(summary_path),

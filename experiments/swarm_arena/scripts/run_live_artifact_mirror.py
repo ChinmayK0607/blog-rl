@@ -5,6 +5,8 @@ import hashlib
 import io
 import json
 import os
+import shutil
+import tempfile
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -63,6 +65,8 @@ def compact_files(run_dir: Path, extra_artifacts: tuple[Path, ...] = ()) -> dict
     candidates = (
         "PREPARE.json",
         "PREFLIGHT.json",
+        "BUDGET_PREFLIGHT.json",
+        "ABORTED.json",
         "live_rl_progress.json",
         "STATUS.md",
         "WATCHER_LATEST_STATUS.md",
@@ -82,8 +86,11 @@ def compact_files(run_dir: Path, extra_artifacts: tuple[Path, ...] = ()) -> dict
         if artifact.is_file():
             files[f"launch/{artifact.name}"] = artifact
     for path in sorted((run_dir / "evaluations").glob("update-*/*")):
-        if path.is_file() and path.name in {"manifest.json", "rows.jsonl", "summary.json"}:
+        if path.is_file() and path.name in {"manifest.json", "rows.jsonl", "summary.json", "initializer_comparison.json"}:
             files[f"evaluations/{path.parent.name}/{path.name}"] = path
+    for pattern in ("update-*-config.json", "update-*-config-served-identity.json"):
+        for path in sorted((run_dir / "evaluations").glob(pattern)):
+            files[f"evaluations/{path.name}"] = path
     return files
 
 
@@ -92,6 +99,7 @@ class MirrorState:
     mirrored_steps: tuple[int, ...] = ()
     last_progress_step: int = -1
     deadline_finalized: bool = False
+    last_compact_unix: float = 0.0
 
     @classmethod
     def load(cls, path: Path) -> "MirrorState":
@@ -104,6 +112,7 @@ class MirrorState:
             mirrored_steps=tuple(int(step) for step in payload.get("mirrored_steps", [])),
             last_progress_step=int(payload.get("last_progress_step", -1)),
             deadline_finalized=bool(payload.get("deadline_finalized", False)),
+            last_compact_unix=float(payload.get("last_compact_unix", 0)),
         )
 
     def write(self, path: Path) -> None:
@@ -114,6 +123,7 @@ class MirrorState:
                 "mirrored_steps": list(self.mirrored_steps),
                 "last_progress_step": self.last_progress_step,
                 "deadline_finalized": self.deadline_finalized,
+                "last_compact_unix": self.last_compact_unix,
             },
         )
 
@@ -214,15 +224,29 @@ class LiveMirror:
             "reason": reason,
             "mirrored_unix": int(time.time()),
         }
-        return self._commit(
-            compact_files(self.run_dir, self.extra_artifacts),
-            message=f"Mirror {self.run_id} progress at step {step} ({reason})",
-            extra={
-                "live/MIRROR.json": (
-                    json.dumps(manifest, indent=2, sort_keys=True) + "\n"
-                ).encode()
-            },
-        )
+        with tempfile.TemporaryDirectory(prefix="swarm-compact-mirror-") as temporary:
+            files = {}
+            for name, source in compact_files(self.run_dir, self.extra_artifacts).items():
+                target = Path(temporary) / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if source.suffix == ".jsonl":
+                    data = source.read_bytes()
+                    target.write_bytes(data[: data.rfind(b"\n") + 1])
+                else:
+                    shutil.copyfile(source, target)
+                files[name] = target
+            manifest["files_sha256"] = {name: sha256_file(path) for name, path in files.items()}
+            revision = self._commit(
+                files,
+                message=f"Mirror {self.run_id} progress at step {step} ({reason})",
+                extra={"live/MIRROR.json": (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode()},
+            )
+            for name, expected in manifest["files_sha256"].items():
+                downloaded = Path(hf_hub_download(repo_id=self.repo_id, repo_type="model",
+                                  filename=f"{self.prefix}/{name}", revision=revision, token=False))
+                if sha256_file(downloaded) != expected:
+                    raise RuntimeError(f"public compact verification failed: {name}")
+            return revision
 
     def upload_checkpoint(self, step: int, ready: dict[str, Any]) -> str:
         files = checkpoint_files(self.run_dir, step, ready)
@@ -327,12 +351,15 @@ def main() -> None:
                 and step != state.last_progress_step
                 and (step == 0 or step % args.compact_interval_steps == 0)
             )
-            if compact_due or (deadline_due and not state.deadline_finalized):
+            periodic_due = time.time() - state.last_compact_unix >= 300
+            compact_uploaded = compact_due or periodic_due or (deadline_due and not state.deadline_finalized)
+            if compact_uploaded:
                 mirror.upload_compact(step, reason="deadline" if deadline_due else "progress")
             state = MirrorState(
                 mirrored_steps=tuple(sorted(mirrored)),
                 last_progress_step=step if compact_due else state.last_progress_step,
                 deadline_finalized=state.deadline_finalized or deadline_due,
+                last_compact_unix=time.time() if compact_uploaded else state.last_compact_unix,
             )
             state.write(state_path)
             status = {

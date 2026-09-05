@@ -3,9 +3,13 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+from scripts.audit_paired_credit_toy import audit as audit_paired_credit
 from scripts.log_live_rl_wandb import (
     summarize_evaluation,
     summarize_logical_update,
@@ -45,6 +49,13 @@ from scripts.run_v10_clean_holdout import (
     _validate_bindings,
 )
 from scripts.run_v10_holdout_mirror import _snapshot_rows, _write_raw_shard
+from swarm_ctf_eval.evaluation_contract import (
+    initializer_improvement,
+    pulse_config,
+    required_independent_units,
+    staged_evaluation_budget,
+    verify_served_adapters,
+)
 from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
 from swarm_ctf_eval.semantic_holdout import summarize_semantic_holdout
 
@@ -71,8 +82,8 @@ def test_tier_plans_keep_final_large_and_development_small() -> None:
     assert [model.name for model in distributed] == ["same-adapter"] * 4
 
 
-def test_step_zero_pulse_uses_one_alias_for_exact_harness_control() -> None:
-    assert _candidate_models(0, "sft-opponent") == ["sft-opponent"] * 4
+def test_step_zero_pulse_measures_actual_initializer_not_sft_harness() -> None:
+    assert _candidate_models(0, "sft-opponent") == [f"blue-{i}" for i in range(4)]
     assert _candidate_models(10, "sft-opponent") == [
         "blue-0",
         "blue-1",
@@ -81,6 +92,122 @@ def test_step_zero_pulse_uses_one_alias_for_exact_harness_control() -> None:
     ]
     with pytest.raises(ValueError, match="cannot be negative"):
         _candidate_models(-1, "sft-opponent")
+
+
+def test_pulse_identity_checks_sft_revision_and_every_served_weight(tmp_path: Path) -> None:
+    hashes = {}
+    registry = {"data": []}
+    for alias in [f"blue-{i}" for i in range(4)] + ["sft-opponent", "history"]:
+        root = tmp_path / alias
+        root.mkdir()
+        data = alias.encode()
+        (root / "adapter_model.safetensors").write_bytes(data)
+        hashes[alias] = hashlib.sha256(data).hexdigest()
+        registry["data"].append({"id": alias, "root": str(root)})
+    snapshots = {
+        family: SimpleNamespace(revision=revision, model_name=alias, adapter_sha256=hashes.get(alias))
+        for family, revision, alias in (("base", "base-rev", "base"), ("sft", "sft-rev", "sft-opponent"), ("historical", "old-rev", "history"))
+    }
+    ready = {"step": 0, "policy_revision": "v13-rev", "policy_adapter_sha256": {f"blue-{i}": hashes[f"blue-{i}"] for i in range(4)}}
+    config = pulse_config(base_urls=["http://localhost:8001"], ready=ready, snapshots=snapshots, baseline_revision="sft-rev")
+    assert config["purpose"] == "actual_initializer"
+    assert config["candidate"]["revision"] == "v13-rev"
+    assert config["candidate"]["models"] == [f"blue-{i}" for i in range(4)]
+    assert config["baseline"]["revision"] == "sft-rev"
+    assert len(verify_served_adapters(config, {"http://localhost:8001/v1": registry})["http://localhost:8001/v1"]) == 6
+    with pytest.raises(ValueError, match="SFT baseline revision"):
+        pulse_config(base_urls=[], ready=ready, snapshots=snapshots, baseline_revision="v13-rev")
+    with pytest.raises(ValueError, match="every configured server"):
+        verify_served_adapters(config, {})
+    (tmp_path / "blue-3/adapter_model.safetensors").write_bytes(b"wrong-policy")
+    with pytest.raises(ValueError, match="served adapter hash mismatch"):
+        verify_served_adapters(config, {"http://localhost:8001/v1": registry})
+
+
+def test_initializer_comparison_uses_paired_bundles_and_rejects_missing_cells() -> None:
+    initial = [
+        {"suite": "handoff_critical", "case_id": f"case-{i}", "independent_id": f"bundle-{i}",
+         "opponent_id": "sft", "opponent_revision": "sft-rev", "side": side,
+         "condition": condition, "policy_variant": "candidate_rl", "terminal_return": 0.2}
+        for i in range(6) for side in ("BLUE", "RED") for condition in ("normal", "dropped")
+    ]
+    current = [{**row, "terminal_return": row["terminal_return"] + (0.1 if row["condition"] == "normal" else 0)} for row in initial]
+    result = initializer_improvement(current, initial)
+    endpoint = result["return_changes"]["handoff_critical/normal"]
+    assert endpoint["independent_units"] == 6
+    assert endpoint["mean_difference"] == pytest.approx(0.1)
+    assert result["communication_effect_changes"]["handoff_critical/normal_minus_dropped"]["mean_difference"] == pytest.approx(0.1)
+    with pytest.raises(ValueError, match="exactly matched"):
+        initializer_improvement(current[:-1], initial)
+    with pytest.raises(ValueError, match="duplicate"):
+        initializer_improvement(current + [current[0]], initial)
+
+
+def test_budget_rejects_observed_a6000_schedule_and_derives_shared_timeouts() -> None:
+    report = staged_evaluation_budget(updates=40, interval=10, games_per_minute=1.3,
+                                      update_seconds=60, available_seconds=9 * 3600)
+    assert report["fresh_games"] == 672
+    assert report["fits"] is False
+    assert report["checkpoint_barrier_timeout_seconds"] > 7200
+    assert report["pulse_wait_timeout_seconds"] >= report["checkpoint_barrier_timeout_seconds"]
+    feasible = staged_evaluation_budget(updates=40, interval=10, games_per_minute=4,
+                                        update_seconds=60, available_seconds=9 * 3600)
+    assert feasible["fits"] is True
+    with pytest.raises(ValueError, match="finite"):
+        staged_evaluation_budget(updates=40, interval=10, games_per_minute=float("nan"), update_seconds=60, available_seconds=100)
+    assert required_independent_units(bundle_sd=0.1, worthwhile_effect=0.02) == 197
+
+
+def test_enumerable_credit_audit_distinguishes_shared_rng_from_independent_baseline() -> None:
+    for centering in ("none", "replica_mean"):
+        independent = audit_paired_credit(coupled=False, centering=centering)
+        shared = audit_paired_credit(coupled=True, centering=centering)
+        assert independent["expected_implemented_score_update"] == pytest.approx(0.21)
+        assert independent["bias"] == pytest.approx(0.0)
+        assert shared["expected_implemented_score_update"] == pytest.approx(0.09)
+        assert shared["bias"] == pytest.approx(-0.12)
+
+
+def test_semantic_probe_is_separate_from_frozen_stage_pulse() -> None:
+    assert TIER_PLANS["pulse"].critical_conditions == ("normal", "dropped")
+    assert TIER_PLANS["semantic_pulse"].critical_conditions == ("normal", "dropped", "target_swapped")
+    assert TIER_PLANS["semantic_pulse"].handoff_pairs == 6
+
+
+def test_terminal_wrapper_preserves_failure_even_with_no_training_progress(tmp_path: Path) -> None:
+    child = tmp_path / "fail.py"
+    child.write_text("raise SystemExit(3)\n")
+    script = Path(__file__).parents[1] / "scripts/supervise_staged_role.py"
+    result = subprocess.run([sys.executable, str(script), "--run-dir", str(tmp_path), "--role", "controller", "--", str(child)], check=False)
+    assert result.returncode == 3
+    record = json.loads((tmp_path / "ABORTED.json").read_text())
+    assert record["status"] == "operational_abort"
+    assert record["role"] == "controller"
+    assert not (tmp_path / "REJECTED.json").exists()
+
+
+def test_budget_cli_refuses_infeasible_profile_before_launch(tmp_path: Path) -> None:
+    config = tmp_path / "config.toml"
+    config.write_text("# synthetic fixture, not a measured production configuration\n")
+    digest = hashlib.sha256(config.read_bytes()).hexdigest()
+    profile = tmp_path / "profile.json"
+    profile.write_text(json.dumps({
+        "version": "staged-operational-profile-v1", "inference_config_sha256": digest,
+        "trainer_config_sha256": digest, "topology": "0/1,2,3", "gpu_model": "fixture",
+        "game_concurrency": 1, "evidence": ["synthetic regression fixture only"],
+        "games_per_minute": 1.3, "update_seconds": 60, "remaining_setup_seconds": 0,
+        "checkpoint_seconds": 600, "safety_factor": 1.25,
+    }))
+    output = tmp_path / "admission.json"
+    script = Path(__file__).parents[1] / "scripts/preflight_staged_budget.py"
+    result = subprocess.run([sys.executable, str(script), "--profile", str(profile),
+                             "--expected-updates", "40", "--interval", "10", "--available-seconds", "32400",
+                             "--inference-config", str(config), "--trainer-config", str(config),
+                             "--topology", "0/1,2,3", "--gpu-model", "fixture", "--output", str(output)],
+                            capture_output=True, text=True, check=False)
+    assert result.returncode != 0
+    assert "schedule exceeds" in result.stderr
+    assert json.loads(output.read_text())["fits"] is False
 
 
 def test_step_zero_control_requires_identical_four_model_rosters() -> None:

@@ -49,7 +49,18 @@ For paid Swarm Arena runs, keep the compact off-node mirror live from update 0,
 not just at checkpoint boundaries. The mirror should write progress atomically,
 upload only an explicit safe allowlist, and anonymously download and hash-check
 every complete adapter checkpoint. Do not include credentials, logs, W&B files,
-or unresolved configs in a public upload.
+or unresolved configs in a public upload beyond an explicitly reviewed contract
+allowlist. Mirror immutable compact snapshots periodically during update-zero
+evaluation, not only after optimizer progress; hash-check the downloaded snapshot.
+Retain initializer-comparison and served-identity evidence separately from SFT
+comparison metrics. Raw generations remain outside the compact public allowlist.
+
+Compare evaluation row throughput to the **remaining** controller-barrier time
+and whole-run TTL, including later fresh games and final synchronization. A
+healthy pulse worker does not imply the controller is still alive. Confirm each
+core process separately and inspect its durable terminal marker. A scientific
+gate rejection, incomplete evaluation, and orchestration timeout are different
+outcomes and must remain distinct in the research record.
 
 For a paid Swarm Arena run, a missing controller session plus unchanged durable
 progress for two watcher intervals is actionable downtime, even when trainer

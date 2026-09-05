@@ -1,14 +1,33 @@
 # Swarm Arena research log
 
-Last updated: 2026-08-31
+Last updated: 2026-09-05
 Branch: `exp/swarm-arena-4b`  
-Current completed run: V13 role-adaptive consolidation, 80/80 durable updates;
-public checkpoints 20/40/60/80 and compact per-update progress are mirrored to
-`CK0607/swarm-arena-live-runs`.
-Status: V13 improved ordinary and overall gameplay capability, but its final
-communication, specificity, and RL-specific intervals cross zero. This is
-useful development evidence, not an admitted or held-out communication result.
-V14's CPU-only grounded follow-through design is complete; no GPU is active.
+Latest verified operational snapshot: [CURRENT_STATUS.md](CURRENT_STATUS.md),
+generated from the compact terminal record at 2026-09-05 03:58:36 UTC. The resumed
+V14.7 pod was deleted after an operational evaluation timeout: zero optimizer
+updates, 177 partial SFT-harness rows, approximately $4.13 for that attempt.
+No new GPU has been rented for the prospective measurement/reliability repairs.
+These code changes are not certified by the historical V14.7 CPU bundle.
+
+Latest completed training remains V13 (80 updates): useful gameplay development
+evidence, but communication, specificity, and RL-specific intervals cross zero.
+See [the prospective repair plan](reports/measurement_repair_plan.md) for what
+is implemented versus still required before a new admitted run.
+
+## Decision index
+
+| Experiment | Changed variable / hypothesis | Optimizer progress | Scientific evidence | Operational result / next decision |
+|---|---|---|---|---|
+| V10 | Learned semantic message use | Completed; details below | Normal-minus-content-swap return +0.0321, positive interval; improvement over SFT and decoy specificity inconclusive | Strongest semantic result so far; isolate additional RL contribution |
+| V13 | Role-adaptive consolidation | 80 updates | Overall gameplay +0.05914, CI [0.01512, 0.10722]; RL-specific communication +0.00031, CI [-0.05824, 0.05676] | Gameplay gain, communication claim not established |
+| V14.3 | Policy-routed follow-through | 7 updates | No first behavioral gate reached | Numerical-parity stop; curriculum hypothesis untested |
+| V14.4 | Parity repair | 2 updates | No first behavioral gate reached | Numerical-parity stop; not a negative curriculum result |
+| V14.5 | One stage-local parity quarantine | 2 updates applied / 4 slots attempted | No first behavioral gate reached | Second parity failure aborted; $5.36 provider cost; pod deleted |
+| V14.7 resumed | Strict serving on 4×A6000 | 0 updates | Incomplete SFT harness only; no initializer or learning result | Two-hour barrier timeout; ~$4.13; pod deleted; repair identity and budget admission |
+
+Costs omitted from this compact index are not asserted to be zero; detailed
+chronological entries remain authoritative. `claim not established`, `evidence
+of no worthwhile effect`, and `interrupted before testing` are distinct verdicts.
 
 This is the durable chronological record for the Swarm Arena project. It records
 the hypothesis, design decisions, data, training, evaluations, failures,
@@ -7139,6 +7158,142 @@ no more critical-specific than decoy-specific. Therefore:
   exact ID/configuration/rate if it remains available. Exact-host admission
   gates still block evaluation and optimization on failure.
 - Instance decommissioned: not applicable; no V14.7 instance exists.
+
+### 2026-09-05 — resumed V14.7 A6000 run: operational step-zero timeout
+
+- Status: stopped; operational abort, not a scientific gate rejection. Zero
+  durable optimizer updates and no step-zero continuation. No gates, topology,
+  historical rows, or numerical configuration were changed.
+- Exact pod: `f9db5851-a264-48e5-a579-a71960cadb77` (`noble-orbit-69`),
+  `64.247.196.146:40300`, four RTX A6000 48 GB, $1.68/hour; created
+  `2026-09-05T01:31:03.797716Z`. Source:
+  `66cdcda26a798cbc01a333c8a3fc860d5b404d18`.
+- CPU bundle body SHA:
+  `b3dafe8339cc68180707f772e39b3ed6e72d9690530d49034ebfac831f819fa7`;
+  file SHA `656d894721fd8aa9fb70df0fc7bebeadf8009bdc8a241d21714860be05946264`.
+  Runtime certificate canonical SHA:
+  `d5568475e4237372925cd45eeb25c5e2303843d4ada135cd974d45da2e201d10`;
+  production plan canonical SHA:
+  `fcd0e2960fbec1ba5db657b15ed129f944636b8c9631ba15f9f54913e0961cfb`.
+- Admission passed: frozen environment, artifact identities, distinct policies,
+  128 predetermined concurrent runtime parity samples, pooled and policy-local
+  numerical gates, hardware/serving, HF and W&B preflights. Pooled mismatch KL
+  was `0.00004323557368479669`. A pre-optimizer mirror basename collision was
+  preserved; relaunch used a byte-identical, uniquely named plan alias.
+- Failure: controller raised `TimeoutError: checkpoint evaluation barrier timed
+  out at step 0`. The launcher sets its checkpoint barrier to 7200 seconds,
+  whereas the pulse worker's wait timeout is 10800 seconds. At the 03:53 UTC
+  monitoring check, the controller was absent and 176/192 rows existed. Workers
+  were stopped; 177 durable partial rows were preserved. No favorable resampling
+  or post-hoc timeout extension/relaunch was attempted.
+- Measurement limitation verified during the read-only research review: both
+  step-zero arms route to `sft-opponent`, actually registered to SFT revision
+  `d1a55d5594c8b544121e546e14229268c8c26bae`, while both revision metadata fields
+  incorrectly name V13 policy revision
+  `9eec6d60cae1b11179f9b421b7bdd23ad456b3da912cb9d13a901f1337992228`.
+  The four blue aliases contain distinct V13 update-80 policies. These partial
+  rows are an SFT harness evaluation, not a measured V13 initializer baseline
+  and not evidence of new learning. Historical rows were not relabeled.
+- Evidence: 17 terminal evidence files were uploaded to HF revision
+  `2229b69039f26cfd7ecd138d98ecb12a617aa9a5` in
+  `CK0607/swarm-arena-live-runs/runs/rl-v14-7-a6000-parity-stable4b40-66cdcda2`,
+  then anonymously downloaded and SHA-256 verified. W&B artifact
+  `ChinmayK0604/swarm-arena-rl/rl-v14-7-a6000-parity-stable4b40-66cdcda2-terminal-timeout-evidence:v0`
+  was downloaded and all 17 files SHA-256 verified. The controller run's terminal
+  summary records the operational abort, zero updates, and provenance limitation.
+- Local recovery archive (raw evaluation evidence retained locally, not newly
+  exported publicly): `/private/tmp/v14_7_f9db5851_terminal_backup.tar.gz`, SHA
+  `643a94235179894ddcc49835ff36832580276c0d9f7795b0ec087710276b8e6d`,
+  matching the remote archive. The supervisor secret key was excluded.
+- Decommission: all four GPUs verified at 0% utilization, 1 MiB allocated, and
+  no compute processes. Exact pod ID/IP re-resolved immediately before deleting
+  only this pod. `lium rm` confirmed removal; subsequent `lium ps --format json`
+  returned `[]`. Absence confirmed by 03:58:36 UTC; monitor automation deleted.
+- Cost for this resumed pod only: last provider observation $4.12 immediately
+  before deletion; elapsed-time estimate through absence confirmation ~$4.13
+  (about 2 h 28 min, 9.83 allocated GPU-hours). This is not a final invoice and
+  excludes prior attempts. No second pod was rented.
+- Next action before another run: correct and validate initializer evaluation
+  identity separately from the SFT harness null; bind operational timeout and
+  total evaluation budget to measured hardware throughput. The frozen schedule
+  needs 192 fresh games at zero plus 120 per later pulse (672 total); at roughly
+  1.3 games/minute, evaluation alone takes ~8.6 hours before setup/training.
+  Do not treat this operational failure as evidence against the curriculum.
+
+### 2026-09-05 — research-review observations and prospective measurement repairs
+
+- User authorized implementation of the review recommendations. This is a CPU
+  engineering/research-audit change, not a new paid training result. Existing
+  stage gates, reward, curriculum, trainable dtypes, optimizer/scheduler, parity
+  thresholds, quarantine semantics and frozen held-out artifacts remain intact.
+- Attribution: V10's content-swap effect was +0.0320811 with CI
+  [0.0157342, 0.0506818], but RL-minus-SFT semantic lift +0.0194063 had CI
+  [-0.0003998, 0.0386262], and critical-minus-decoy specificity +0.0131639 had
+  CI [-0.0022569, 0.0290604]. This supports useful message use, not a resolved
+  claim about the incremental benefit of RL. V13's gameplay gain likewise did
+  not establish RL-specific communication learning. V14.3–V14.5 numerical stops
+  occurred before the first behavioral gate, so they did not test the curriculum.
+- Implemented evaluator repair: every staged pulse, including zero, addresses
+  the four actual blue policy aliases. SFT reference labels come from the bound
+  SFT snapshot; a supplied warm-start revision cannot masquerade as SFT.
+  Every server's registered adapter roots are hashed against the ready/frozen
+  identities. This verifies registry/artifact correspondence, not independent
+  GPU tensor contents; exact-host numerical certification remains mandatory.
+  Mismatching historical configurations/manifests cannot be resumed as corrected
+  evidence. Cached SFT rows require matching model and evaluation identities.
+- Added paired checkpoint-minus-actual-initializer reports, with bundle-level
+  confidence intervals and separate absolute branch returns. They are additional
+  development diagnostics, not replacements for the frozen SFT-based gates.
+  HF/W&B preserve these comparison/identity artifacts. Raw evaluation records
+  are fsynced before compact rows; periodic compact mirroring now also runs
+  before the first optimizer update and hash-verifies stable snapshots.
+- Added a separate `semantic_pulse` development tier (264 rows, six independent
+  handoff bundles), with receiver-only target swaps, matched decoys, ITT
+  eligibility, and absolute normal/swapped returns. The old 192-row pulse and
+  its gate definitions are unchanged. This new probe is not wired into the old
+  staged gate contract; it needs a prospective schedule/budget/gate binding.
+- Evidence size: six bundles are six independent units, not 192 tests. Added a
+  bundle-level normal-approximation sample-size helper. Illustratively, SD 0.10
+  and worthwhile effect 0.02 at two-sided alpha 0.05 / power 0.8 require 197
+  bundles. This is planning math, not an estimate from unopened held-out data
+  or a powered claim. Replication and a fixed prospective sample count are needed.
+- Controlled ablation design: first-action-only versus multi-turn receiver ACT
+  credit, identical warm starts, fixed curriculum/opponents/budget and paired
+  training seeds. Sender behavior must use an immutable separate policy route;
+  a zero broadcast loss mask on a shared adapter does not freeze it. That route
+  and its post-update checks remain future implementation/admission work.
+- Exact estimator audit now invokes the production
+  `paired_terminal_contrast_advantages` on an enumerable two-replica Bernoulli
+  example (factual probability 0.7, fixed counterfactual probability 0.4).
+  Independent baseline randomness yields gradient 0.21, matching the exact
+  objective derivative. Shared randomness yields 0.09 (bias -0.12), with either
+  no centering or replica-mean centering. This disproves automatic unbiasedness
+  of shared-randomness subtraction in general; it does not yet diagnose the
+  full shared-parameter/multi-turn estimator. Production loss is unchanged.
+  Reproducible results: `reports/paired_credit_toy_audit.json`.
+- Operational repair: mandatory measured profile binds trainer/inference hashes,
+  topology and GPU model. Account for all 672 fresh games, training, checkpoint
+  overhead, setup remainder and final-sync reserve. Reject infeasible schedules
+  before trainer startup; derive controller/pulse timeouts from the same report.
+  At 1.3 games/minute, the nine-hour full schedule fails admission. Faster game
+  concurrency is not assumed or enabled. Controller/pulse exits now write durable
+  terminal markers even if the trainer remains resident.
+- Updated launch/monitor skills to retain these safeguards. Added generated,
+  timestamped current status and the decision index; chronological evidence is
+  preserved. Full prospective design and remaining launch blockers are in
+  `reports/measurement_repair_plan.md`. No new node rented, no training launched,
+  and no final held-out data opened in this repair turn.
+- Validation: 56 focused evaluator, stage-gate and production tests passed,
+  including wrong served weights/revisions, missing paired cells, the infeasible
+  A6000 budget and a real child-process failure producing a terminal marker.
+  Ruff, shell syntax and `git diff --check` passed. No historical data/config or
+  trainer implementation diff. Toy-audit artifact SHA-256:
+  `5e2e22f7fb0c768b258f1c5b49a897fd76a3969d3daee59e165840118b636b3f`;
+  terminal-status source-record SHA-256:
+  `96a1c402f8438914234c0058249d12b540d5025c5945535235e42f2706adfff9`;
+  unchanged stage-gate file SHA-256:
+  `bec569b4521e231b9c7a8f55e82f6e46734914516b8dfc6fe8889d711b26d03e`.
+  These are CPU regression checks, not a fresh exact-host runtime certificate.
 
 ## Future entry template
 

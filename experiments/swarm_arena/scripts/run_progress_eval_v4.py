@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,6 +12,7 @@ from typing import Any, Literal
 from scripts.run_final_eval_development import _prepare_output, _roster, _served_model
 from swarm_ctf_eval.arena_eval import ArenaModel
 from swarm_ctf_eval.crossplay_eval import FROZEN_CROSSPLAY_CASES, development_cases
+from swarm_ctf_eval.evaluation_contract import branch_return_summary
 from swarm_ctf_eval.final_eval_runner import FinalEvalIdentity, evaluate_final_case
 from swarm_ctf_eval.handoff_curriculum import reconstruct_manifest_scenario
 from swarm_ctf_eval.progress_eval_v4 import (
@@ -21,7 +23,7 @@ from swarm_ctf_eval.progress_eval_v4 import (
 from swarm_ctf_eval.progress_eval_v5 import summarize_rl_specific_progress_eval
 from swarm_ctf_eval.semantic_holdout import summarize_semantic_holdout
 
-Tier = Literal["pulse", "online", "selection", "frozen"]
+Tier = Literal["pulse", "semantic_pulse", "online", "selection", "frozen"]
 
 
 @dataclass(frozen=True)
@@ -37,6 +39,10 @@ class TierPlan:
 
 
 TIER_PLANS = {
+    "semantic_pulse": TierPlan(
+        "semantic_pulse", 6, 6, 6, "monitor", ("canonical",),
+        ("normal", "dropped", "target_swapped"), ("BLUE", "RED"),
+    ),
     "pulse": TierPlan(
         "pulse",
         6,
@@ -104,6 +110,7 @@ def _import_cached_baseline(
     opponent_ids: set[str],
     sides: set[str],
     expected_rows: int,
+    critical_conditions: tuple[str, ...] = ("normal", "dropped"),
 ) -> int:
     """Copy immutable SFT rows/raw records into a later checkpoint artifact."""
     source_raw_path = baseline_rows_path.with_name("raw.jsonl")
@@ -127,7 +134,7 @@ def _import_cached_baseline(
         condition = str(row.get("condition"))
         allowed = (
             suite in {"ordinary_legacy", "ordinary_hard"} and case_id in ordinary_case_ids and condition == "normal"
-        ) or (suite == "handoff_critical" and case_id in critical_case_ids and condition in {"normal", "dropped"})
+        ) or (suite == "handoff_critical" and case_id in critical_case_ids and condition in critical_conditions)
         if not allowed:
             continue
         if row.get("policy_revision") != baseline_revision:
@@ -146,8 +153,12 @@ def _import_cached_baseline(
             continue
         with raw_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(raw_record, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
         with rows_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(row, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
         completed.add(evaluation_id)
     return len(selected)
 
@@ -333,6 +344,8 @@ def main() -> None:
     tier: Tier = args.tier
     plan = TIER_PLANS[tier]
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    if "target_swapped" in plan.critical_conditions and not args.rl_specific_communication:
+        parser.error("semantic evaluation requires --rl-specific-communication")
     design = json.loads((args.data_dir / "progress_eval_design.json").read_text(encoding="utf-8"))
     _validate_frozen_confirmation(tier, design, args.frozen_confirmation)
     split = "frozen_ood" if tier == "frozen" else "development"
@@ -401,10 +414,18 @@ def main() -> None:
     rows_path = args.output_dir / "rows.jsonl"
     raw_path = args.output_dir / "raw.jsonl"
     if args.baseline_rows is not None:
+        cached_manifest = _load_manifest(args.baseline_rows.with_name("manifest.json"))
+        for field in ("baseline", "opponents"):
+            if cached_manifest["config"][field] != config[field]:
+                raise ValueError(f"cached baseline {field} identity mismatch")
+        for field in ("design_sha256", "hard_manifest_sha256", "handoff_manifest_sha256", "generation",
+                      "critical_conditions", "decoy_conditions", "sides", "rl_specific_communication"):
+            if cached_manifest[field] != manifest[field]:
+                raise ValueError(f"cached baseline evaluation setting mismatch: {field}")
         critical_case_ids = {row[0] for row in handoffs if row[2] == "handoff_critical"}
         expected_baseline_rows = (
             len(ordinary) * len(opponents) * len(plan.sides)
-            + len(critical_case_ids) * len(opponents) * len(plan.sides) * 2
+            + len(critical_case_ids) * len(opponents) * len(plan.sides) * len(plan.critical_conditions)
         )
         _import_cached_baseline(
             baseline_rows_path=args.baseline_rows,
@@ -417,6 +438,7 @@ def main() -> None:
             opponent_ids=set(opponents),
             sides=set(plan.sides),
             expected_rows=expected_baseline_rows,
+            critical_conditions=plan.critical_conditions,
         )
 
     def run_one(
@@ -522,8 +544,12 @@ def main() -> None:
         row["raw_sha256"] = _digest(raw_record)
         with raw_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(raw_record, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
         with rows_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(row, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
         completed.add(evaluation_id)
         print(json.dumps({"completed": evaluation_id, "return": row["terminal_return"]}))
 
@@ -623,6 +649,8 @@ def main() -> None:
         if not args.rl_specific_communication:
             raise ValueError("semantic selection/frozen evaluation requires --rl-specific-communication")
         summary["semantic"] = summarize_semantic_holdout(rows)
+        summary["semantic"]["absolute_branch_returns"] = branch_return_summary(rows)
+        summary["semantic"]["primary_contrast"] = "normal_minus_receiver_only_target_swapped"
     summary["tier"] = tier
     summary["scope"] = (
         "frozen final; run once" if tier == "frozen" else f"{tier} development evaluation; not a final research claim"

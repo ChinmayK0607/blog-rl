@@ -7,8 +7,10 @@ import os
 import subprocess
 import sys
 import time
+import urllib.request
 from pathlib import Path
 
+from swarm_ctf_eval.evaluation_contract import initializer_improvement, pulse_config, verify_served_adapters
 from swarm_ctf_eval.progress_eval_v5 import PROGRESS_EVAL_V5_VERSION
 from swarm_ctf_eval.rl_production import load_production_plan
 from swarm_ctf_eval.stage_gate import evaluate_stage_gate, file_sha256, load_stage_gates
@@ -52,22 +54,10 @@ def _wait_ready(path: Path, timeout: float) -> dict:
 
 
 def _candidate_models(step: int, sft_model: str) -> list[str]:
-    """Use one registered alias for the exact step-zero harness control.
-
-    The four trainable aliases contain byte-identical SFT adapters at step zero,
-    but vLLM may execute a four-alias LoRA batch through a different floating-
-    point path than a one-alias batch.  Greedy choices near a tie can therefore
-    differ even though no optimizer step occurred.  The step-zero pulse is an
-    evaluator-invariance control, not a test of alias-kernel equivalence, so it
-    must route both arms through the same registered SFT alias.  Fresh runtime
-    parity and the controller's adapter checksum checks cover the trainable
-    aliases separately.  Every post-zero pulse evaluates the four real policy
-    aliases.
-    """
+    """Measure actual policies at every step, including distinct warm starts."""
+    del sft_model
     if step < 0:
         raise ValueError("pulse step cannot be negative")
-    if step == 0:
-        return [sft_model] * 4
     return [f"blue-{index}" for index in range(4)]
 
 
@@ -88,6 +78,36 @@ def _validate_step_zero_control_config(config: dict) -> None:
         raise ValueError("step-zero candidate roster must contain four models")
     if candidate != baseline:
         raise ValueError("step-zero candidate and baseline rosters must be identical")
+    if config["candidate"].get("revision") != config["baseline"].get("revision"):
+        raise ValueError("SFT harness revision labels must be identical")
+
+
+def _bind_pulse(config_path: Path, config: dict, output_dir: Path, *, completed: bool = False) -> None:
+    if config_path.is_file():
+        if json.loads(config_path.read_text()) != config:
+            raise ValueError("existing pulse configuration differs; use a new run identity")
+    else:
+        if output_dir.exists():
+            raise ValueError("pulse output exists without an identity configuration")
+        _atomic_json(config_path, config)
+    manifest_path = output_dir / "manifest.json"
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text())
+        if manifest.get("config_sha256") != _digest(config) or manifest.get("config") != config:
+            raise ValueError("saved evaluation manifest differs from the bound pulse identity")
+    evidence_path = config_path.with_name(config_path.stem + "-served-identity.json")
+    if completed:
+        if not evidence_path.is_file() or json.loads(evidence_path.read_text())["config_sha256"] != _digest(config):
+            raise ValueError("completed pulse lacks served identity evidence")
+        return  # Serving aliases can already point at a later checkpoint.
+    registries = {}
+    for url in config["base_urls"]:
+        with urllib.request.urlopen(url + "/models", timeout=30) as response:
+            registries[url] = json.load(response)
+    evidence = {"config_sha256": _digest(config), "servers": verify_served_adapters(config, registries)}
+    if evidence_path.exists() and json.loads(evidence_path.read_text()) != evidence:
+        raise ValueError("served identity changed within a checkpoint evaluation")
+    _atomic_json(evidence_path, evidence)
 
 
 def _target_swap_scope_args(shared_return_baseline: str) -> list[str]:
@@ -212,7 +232,7 @@ def main() -> None:
     parser.add_argument("--eval-root", type=Path, required=True)
     parser.add_argument("--data-dir", type=Path, required=True)
     parser.add_argument("--base-url", action="append", required=True)
-    parser.add_argument("--baseline-revision", required=True)
+    parser.add_argument("--baseline-revision", help="SFT revision; defaults to the bound SFT snapshot, never the warm start")
     parser.add_argument("--expected-updates", type=int, default=120)
     parser.add_argument("--interval", type=int, default=10)
     parser.add_argument("--wait-timeout", type=float, default=7200.0)
@@ -280,39 +300,13 @@ def main() -> None:
             )
         output_dir = args.eval_root / f"update-{step}"
         summary_path = output_dir / "summary.json"
+        config = pulse_config(
+            base_urls=args.base_url, ready=ready, snapshots=by_family,
+            baseline_revision=args.baseline_revision or by_family["sft"].revision,
+        )
+        config_path = args.eval_root / f"update-{step}-config.json"
+        _bind_pulse(config_path, config, output_dir, completed=continue_path.exists())
         if not summary_path.is_file():
-            config = {
-                "base_urls": [value.rstrip("/") + "/v1" for value in args.base_url],
-                "candidate": {
-                    "revision": ready["policy_revision"],
-                    "models": _candidate_models(step, by_family["sft"].model_name),
-                },
-                "baseline": {
-                    "revision": args.baseline_revision,
-                    "models": [by_family["sft"].model_name] * 4,
-                },
-                "opponents": [
-                    {
-                        "id": "base",
-                        "revision": by_family["base"].revision,
-                        "models": [by_family["base"].model_name] * 4,
-                    },
-                    {
-                        "id": "sft",
-                        "revision": by_family["sft"].revision,
-                        "models": [by_family["sft"].model_name] * 4,
-                    },
-                    {
-                        "id": "historical_league",
-                        "revision": by_family["historical"].revision,
-                        "models": [by_family["historical"].model_name] * 4,
-                    },
-                ],
-            }
-            if step == 0:
-                _validate_step_zero_control_config(config)
-            config_path = args.eval_root / f"update-{step}-config.json"
-            _atomic_json(config_path, config)
             if args.evaluation_mode in {"pair7", "multipair"}:
                 command = [
                     sys.executable,
@@ -388,6 +382,23 @@ def main() -> None:
             )
         else:
             summary = _validate_summary(summary_path, step=step)
+            initial_config = json.loads((args.eval_root / "update-0-config.json").read_text())
+            if initial_config.get("purpose") != "actual_initializer":
+                raise ValueError("step-zero rows are not a measured initializer baseline")
+            initial_rows_path = args.eval_root / "update-0" / "rows.jsonl"
+            current_rows_path = output_dir / "rows.jsonl"
+            comparison = initializer_improvement(
+                [json.loads(line) for line in current_rows_path.read_text().splitlines() if line],
+                [json.loads(line) for line in initial_rows_path.read_text().splitlines() if line],
+            )
+            comparison["initializer_rows_sha256"] = _sha256_file(initial_rows_path)
+            comparison["checkpoint_rows_sha256"] = _sha256_file(current_rows_path)
+            comparison["initializer_identity"] = initial_config["candidate"]
+            comparison["checkpoint_identity"] = config["candidate"]
+            comparison_path = output_dir / "initializer_comparison.json"
+            if comparison_path.exists() and json.loads(comparison_path.read_text()) != comparison:
+                raise ValueError("existing initializer comparison does not reproduce")
+            _atomic_json(comparison_path, comparison)
         if stage_gates is not None and step:
             gate = evaluate_stage_gate(
                 stage_gates,

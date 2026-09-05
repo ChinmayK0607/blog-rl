@@ -250,8 +250,14 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   must write an immutable `STAGE_GATE.json` and may write the continuation only
   when every predeclared requirement passes. On failure, preserve a rejection
   record and stop before the next optimizer update; do not weaken a threshold
-  or silently continue. Step-zero SFT-vs-SFT invariance must pass before the
-  first optimizer update. Keep trainer W&B offline and sync it after completion
+  or silently continue. Measure the actual four-policy initializer at step zero;
+  an SFT-vs-SFT harness null is a separate check, not a warm-start baseline.
+  Bind the SFT reference revision to the immutable SFT opponent snapshot, not
+  `SWARM_INITIAL_POLICY_REVISION`. Verify registered adapter roots and weight
+  hashes for every candidate/reference alias on every server before each pulse.
+  Require a new evaluation identity when repairing mislabeled historical rows.
+  Report checkpoint-minus-initializer effects separately from gains over SFT.
+  Keep trainer W&B offline and sync it after completion
   so a logging outage cannot kill the optimizer.
   A training-only adaptive curriculum may change future handoff case identities
   only when the production plan binds the selector version, thresholds,
@@ -289,6 +295,28 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   exact provider instance ID and decommission it immediately unless the user
   explicitly asked to keep it. Never leave a completed model-resident node
   billing merely because teardown was not repeated in the scientific plan.
+- Staged Swarm launches require `SWARM_OPERATIONAL_PROFILE`, a
+  `staged-operational-profile-v1` JSON file with `inference_config_sha256`,
+  `trainer_config_sha256`, `gpu_model`, `topology` (e.g. `0/1,2,3`),
+  `game_concurrency: 1`, `games_per_minute`, `update_seconds`,
+  `remaining_setup_seconds`, `checkpoint_seconds` (at least 600),
+  `safety_factor` (at least 1), and source `evidence` references. Use measured
+  operational telemetry, never rewards/gate outcomes or guessed peak throughput.
+  Run `preflight_staged_budget.py --available-seconds` before rental; the
+  launcher repeats it against the real deadline before starting the trainer.
+  The 40-update full schedule costs 192 + 4×120 = 672 fresh games, plus training,
+  checkpoint overhead and final-sync reserve. Do not omit cached-versus-fresh
+  accounting or quietly reduce stage gates to make a budget fit. The derived
+  report supplies both controller barrier and pulse wait timeouts; never hardcode
+  a shorter controller timeout than the measured evaluation requires.
+  A faster concurrent evaluation path needs its own measured/recertified profile
+  before admission. This launcher currently admits only sequential full pulses.
+- Wrap staged controller and pulse processes with `supervise_staged_role.py`.
+  A nonzero process exit must leave a durable `ABORTED.json` or `REJECTED.json`
+  for the exact-pod terminal supervisor, even if the trainer remains resident.
+  Do not automatically restart a controller from zero or treat operational
+  timeout as a scientific rejection. Preserve artifacts and follow the active
+  contract's recovery/teardown rule.
 
 ## `sft` — SFT training
 
