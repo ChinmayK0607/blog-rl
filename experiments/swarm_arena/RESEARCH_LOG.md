@@ -7312,6 +7312,36 @@ no more critical-specific than decoy-specific. Therefore:
   user's extended-time authorization superseded that prospective approach.
 - CPU checks cover explicit extended-time authorization, continued rejection
   of the same schedule under nine hours, and unchanged scientific identities.
+- Published source: `d96327e6f9d3af82b172d17a9b872061ba09b1da`.
+  CPU bundle body `8d785e047c20d345a93e8b5f576422031b0440283284f2e3d7d7f66e7d91588c`;
+  file `e2381bd96c7b4bc7e0daedf3e499ed95ed1f9977a1151c3a4b2ef0411479834c`.
+  Independently fetched public bundle and verified all 14 bound code files.
+  All 60 focused CPU tests passed.
+- Re-resolved and rented node `f6cc535c-0f79-4e24-924b-c6f5747bbc28`:
+  4×A6000, 48 GB each, 300 advertised ports, $1.68/hour. New pod
+  `ff53fe0d-c0e1-40d2-a97e-863556012c3a` (`eager-matrix-f1`),
+  IP `64.247.196.146`, SSH 40300. Created 2026-09-05T06:10:41.766299Z;
+  provider removal 2026-09-06T12:10:28.014766Z. Actual inventory verified as
+  four NVIDIA RTX A6000, 49140 MiB each, driver 580.126.09. No second pod.
+- HF identity/write token validated before rental; HF token and W&B-only
+  credentials privately installed on this exact pod. Exact-pod terminal,
+  idle/budget/deadline, watcher and no-auto-restart recovery guards installed
+  before GPU-heavy work. Monitor `monitor-v14-8-a6000-training` active.
+- Fresh runtime certification passed: 128 samples, four concurrent requests
+  per server, all four policy-local gates and pooled mean mismatch KL
+  0.0000321111 against the unchanged 0.002 mean gate. Certificate body
+  `bf9557cb366e8792c9514ea845d744c8fc32062357e65ebb3f29e5dc670e6656`;
+  production plan body `125e9c45b58309974afc4a509b00291dba20dce27e9a0d9220e2ab0d602ef25e`.
+- Hardware/serving/plan and HF/W&B preflights passed. HF compact preflight
+  revisions `fd8516bc243b51d46408dc3b608938a58d4b7b12` and
+  `b4a8896395ea09e8c8a93b1b547b1947188e4dc7` hash-verified by the mirror.
+  The stack launched at 2026-09-05T06:24:13Z with controller, trainer,
+  three inference servers, pulses, rescore, W&B and compact mirror sessions.
+  No optimizer update is claimed before the initializer evaluation passes.
+- Launch budget admitted 93069 seconds required against 107210 seconds left;
+  shared checkpoint-barrier timeout 11677 seconds. Training timing remains
+  explicitly labeled unmeasured reservation. Provider reported $0.40 spent at
+  06:25 UTC; this is accrued cost, not final cost or an invoice.
 
 ## Future entry template
 

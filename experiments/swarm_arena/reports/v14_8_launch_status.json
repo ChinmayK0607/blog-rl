@@ -1,0 +1,19 @@
+{
+  "observed_at_utc": "2026-09-05T06:25:06Z",
+  "run_id": "rl-v14-8-a6000-parity-stable4b40-d96327e6",
+  "source_commit": "d96327e6f9d3af82b172d17a9b872061ba09b1da",
+  "status": "launched_waiting_for_initializer_evaluation",
+  "reason": "runtime parity, hardware/plan and private mirror preflights passed; stack running",
+  "durable_optimizer_updates": 0,
+  "evaluation_rows": 0,
+  "evaluation_rows_required": 192,
+  "measurement_scope": "fresh actual four-policy initializer versus correctly identified SFT reference",
+  "scientific_verdict": "in_progress_no_new_learning_claim",
+  "pod_id": "ff53fe0d-c0e1-40d2-a97e-863556012c3a",
+  "provider_absence_verified": false,
+  "provider_last_spend_usd": 0.40,
+  "cost_description": "Active pod: $0.40 accrued at observation, $1.68/hour, maximum 30-hour rental $50.40. Not a final invoice.",
+  "hf_revision": "b4a8896395ea09e8c8a93b1b547b1947188e4dc7",
+  "hf_and_wandb_hash_verified_files": 0,
+  "next_decision": "Complete unchanged 192-row initializer evaluation, then automatically enter training through frozen gates 10/20/30/40. Runtime supervision and ten-minute monitor are active."
+}
