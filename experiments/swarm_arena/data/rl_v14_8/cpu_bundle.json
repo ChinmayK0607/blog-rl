@@ -1,0 +1,205 @@
+{
+  "artifact_file_sha256": {
+    "assessment": "c5af46e4af3c96b64a60be5b9048e1467426cbfdf0e2ae19046ea8272146c4bd",
+    "audit": "593b51bac438502fcf77c1d1690c18f270c336ffcd1e26c9c9276058025e414a",
+    "curriculum": "b0009d70497c892916aaf15d6d2a98eab949ee8a802ad2b8c15819279bfcaa6d",
+    "ordinary_pool": "387d597721c89b756c10d3766e7d263d64e999d2d3fac6d294f5472d0c3e8ac4",
+    "stage_gates": "bec569b4521e231b9c7a8f55e82f6e46734914516b8dfc6fe8889d711b26d03e"
+  },
+  "code_file_sha256": {
+    "experiments/swarm_arena/scripts/bind_runtime_certificate.py": "c846711c090b7633d8a9ea67e67a3f10027536896d24d9056af590a6f42b67f6",
+    "experiments/swarm_arena/scripts/capture_runtime_parity_probe.py": "0bfd03460d3f94a1e02fe93c845cefa98a4322175493e8d23e66e9d79b897d0b",
+    "experiments/swarm_arena/scripts/freeze_v14_7_a6000_execution.py": "aa486a19d5c7064277728aade61a442f14d2e7968cbecce699f50bf0a1f66f73",
+    "experiments/swarm_arena/scripts/freeze_v14_8_measurement_repair.py": "dfa24e4b3fe0c4978ffcd83b9af51e4d2c965ec77ebc5ada6189341edf3cc234",
+    "experiments/swarm_arena/scripts/launch_inference_pool.sh": "5718cfa2114e31fa37c403d16b4b324e5e6b9c4eca5852478e869fee800fa1ae",
+    "experiments/swarm_arena/scripts/launch_staged_rl.sh": "c0b0f04206bdf1ed6628b46206b0f589a76f7791c771d8b9d0add06e907f30f1",
+    "experiments/swarm_arena/scripts/log_live_rl_wandb.py": "345d48715428e8153ac461c344bd5e110a299a7e01f355c1c8c2d4772fb9e6fa",
+    "experiments/swarm_arena/scripts/preflight_staged_budget.py": "90c48f5aeef413df8de4aaf310aa64473abc0a25f72dd4269fec0c4814284352",
+    "experiments/swarm_arena/scripts/preflight_staged_rl.py": "567fc316fda4fadc54f9e7852d1da65c84aa1a543fdb28e4e037ba4efdc05afb",
+    "experiments/swarm_arena/scripts/run_live_artifact_mirror.py": "9426056a0eceacf3efd6498da90f66c9592dea0359c8817234f06cbae7d779e9",
+    "experiments/swarm_arena/scripts/run_progress_eval_v4.py": "468f1e0dfcf20bc2d73e8a1cd90895820068bae8ed932adfea27dd7b5e62192f",
+    "experiments/swarm_arena/scripts/run_staged_pulses.py": "a642e2d8886d98863f1039c3830aa6ac5e28b11552d8dcdab957d29176a3d428",
+    "experiments/swarm_arena/scripts/supervise_staged_role.py": "2e4e5427aab7fd5938290a8443681862b6422880a2b8080d006be9739a0956b4",
+    "experiments/swarm_arena/swarm_ctf_eval/evaluation_contract.py": "4eb6fdf1266d1441b5aade6f8969c4aee8944d1721e43d5cb9363713f534acdc"
+  },
+  "execution": {
+    "all_policy_updates_atomic": true,
+    "first_spend_decision_update": 10,
+    "logical_update_reporting_separate_from_optimizer_steps": true,
+    "maximum_optimizer_updates": 40,
+    "maximum_parity_quarantines_per_ten_update_stage": 1,
+    "no_retry_until_favorable": true,
+    "no_seed_search": true,
+    "parity_failure_optimizer_action": "discard_complete_atomic_update",
+    "parity_failure_sampling_action": "advance_without_replacement",
+    "parity_failure_scheduler_action": "do_not_step",
+    "restart_from_parent_initializer": "V13 update 80",
+    "resume_rejected_v14_3_run": false,
+    "resume_restores_append_only_quarantine_counts": true,
+    "runtime_probe_concurrency_per_server": 4,
+    "runtime_probe_samples": 128,
+    "runtime_probe_samples_per_policy": 32,
+    "runtime_probe_uses_production_like_batching": true,
+    "second_parity_failure_in_stage": "abort_before_optimizer_step",
+    "selection_input": "complete preceding training stage only",
+    "serving_profile": "parity_stable_a6000_v1",
+    "stage_gate_steps": [
+      10,
+      20,
+      30,
+      40
+    ],
+    "stage_updates": 10,
+    "zero_advantage_batch_action": "telemetry_only_continue"
+  },
+  "frozen_data_opened": false,
+  "gpu_budget": {
+    "assumed_hourly_usd": 1.68,
+    "auto_stop": "at failed stage gate, hard budget, or completed final artifact sync",
+    "maximum_rental_usd_at_declared_rate": 50.4,
+    "maximum_usd": 60.0,
+    "maximum_wall_hours": 30,
+    "never_optimize_before_runtime_and_zero_update_preflight_pass": true,
+    "target_hardware": "single 4x NVIDIA RTX A6000 48 GB",
+    "timing_basis": "historical_evaluation_rate_plus_unmeasured_update_reservation"
+  },
+  "inference": {
+    "async_scheduling": false,
+    "config": "experiments/swarm_arena/configs/inference_4b_a6000_parity_strict.toml",
+    "config_file_sha256": "fa561ff94f8114ecb9de0bfb1f026a0d1656c9e2422321e36ba5aaf191d725a2",
+    "enforce_eager": true,
+    "generation_config": "vllm",
+    "max_num_seqs": 4,
+    "native_rms_norm_kernels": true
+  },
+  "initializer": {
+    "claim_boundary": "continuation warm start, not a communication-claim pass",
+    "policy_adapter_sha256": {
+      "blue-0": "24ccd2920d79e65c24bc47bd1e9c1318fb8ca6b582a6651273ab2a53749e2d53",
+      "blue-1": "deeb19976f8941a90a9b4dd1f72114e2926d28024d7b68bbe5c5834636f0ae7a",
+      "blue-2": "1612d158354327cd732aaad5e1978a28252af0cef91355aac201e48cd545da44",
+      "blue-3": "016402a737c9b9cf897f9e38879308b1f085d6871360cc1e464a21367a98637a"
+    },
+    "policy_revision": "9eec6d60cae1b11179f9b421b7bdd23ad456b3da912cb9d13a901f1337992228",
+    "run": "rl-v13-role-adaptive4b80-21d756d1",
+    "step": 80
+  },
+  "launch_contract": {
+    "allowed_topology": "four_gpu_default",
+    "base_repo": "Qwen/Qwen3-4B-Instruct-2507",
+    "base_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+    "cpu_rehearsal_before_rental": true,
+    "four_gpu_default": {
+      "inference_gpu_ids": [
+        1,
+        2,
+        3
+      ],
+      "trainer_gpu_ids": [
+        0
+      ]
+    },
+    "minimum_vram_gb_per_gpu": 48,
+    "orchestrator_lora_schema": "student.model.lora",
+    "public_base_and_adapter_repo_ids_required": true,
+    "required_gpu_count": 4,
+    "required_gpu_name": "NVIDIA RTX A6000",
+    "runtime_certificate_regenerated_for_exact_topology": true,
+    "runtime_topology_must_assign_every_gpu_exactly_once": true,
+    "topology_profile_inputs": "operational_timings_only",
+    "topology_profile_minimum_updates": 3,
+    "uv_argv": [
+      "run",
+      "--frozen",
+      "--extra",
+      "flash-attn"
+    ]
+  },
+  "measurement_repair": {
+    "evaluation_identity": "actual-initializer-v1",
+    "historical_evaluation_resume_allowed": false,
+    "paired_initializer_comparison": true,
+    "scientific_training_settings_changed": false,
+    "semantic_probe_in_staged_schedule": false,
+    "served_adapter_hash_verification": true,
+    "sft_reference_from_frozen_snapshot": true
+  },
+  "parent_cpu_bundle_sha256": "b3dafe8339cc68180707f772e39b3ed6e72d9690530d49034ebfac831f819fa7",
+  "plan": {
+    "path": "experiments/swarm_arena/V14_8_MEASUREMENT_REPAIR_PLAN.md",
+    "sha256": "38705a2ce6af09068bc71be3bb7b0d023887e81f664a8764c224cb099ca7c2db"
+  },
+  "preventive_fixes": [
+    "eager vLLM execution",
+    "synchronous scheduling",
+    "neutral vLLM generation config",
+    "native RMSNorm serving kernels",
+    "four-sequence serving cap",
+    "production-like concurrent runtime parity certification"
+  ],
+  "required_preflight": [
+    "publish and independently verify exact V14.8 source and CPU bundle",
+    "verify exactly four NVIDIA RTX A6000 GPUs with at least 48 GB each",
+    "bind the strict inference config to the exact runtime certificate",
+    "capture 128 predetermined parity decisions at concurrency four",
+    "pass pooled and policy-local parity under unchanged thresholds",
+    "complete the unchanged 192-row update-zero evaluation",
+    "arm exact-pod recovery, idle, terminal, budget, and teardown supervisors",
+    "admit explicitly labeled extended-time reservation against actual provider deadline",
+    "HF and W&B compact mirror preflights before update-zero evaluation",
+    "actual initializer aliases and SFT snapshot identity verification"
+  ],
+  "routing": {
+    "curriculum_sha256": "197e50e9253798f75a83d29e306c321618c7b9633d3b86b4133e54bb0bb8e0e5",
+    "development_or_frozen_feedback": false,
+    "fresh_rollouts_only": true,
+    "ordinary_case_pool_sha256": "4d39e513aeb5a83b1cd836f3ea1a6e591fa8a312ffa868131aed429016b44999",
+    "pilot_assessment_sha256": "ba8abe53e1d973600f6c9c9c1690354cb9009d122586883e265fc98857bc3087",
+    "pilot_trajectories_used_for_optimization": false,
+    "policy_modes": {
+      "blue-0": "expand",
+      "blue-1": "consolidate",
+      "blue-2": "consolidate",
+      "blue-3": "discover"
+    },
+    "stage_gate_sha256": "27098650c9e6f604e8393a75fc01cb0a0e6c694cf80286ba7d8965de84a1f8c2"
+  },
+  "sha256": "8d785e047c20d345a93e8b5f576422031b0440283284f2e3d7d7f66e7d91588c",
+  "status": "cpu_bound_pending_exact_host_certification",
+  "stop_contract": "stage-gate rejection, hard budget, TTL, operationally unrecoverable fault, or verified completion requires compact sync and immediate exact-instance teardown",
+  "trainer": {
+    "config": "experiments/swarm_arena/configs/rl_v14_5_4b_policy_routed_40.toml",
+    "config_file_sha256": "d6e257658468c6e49c29ebdda3a77b987047b9f0592b7daa7274ec55fdd41115",
+    "optimization_dtype_changed": false,
+    "parity_recovery": {
+      "action": "quarantine_logical_update",
+      "max_quarantined_updates_per_window": 1,
+      "window_size": 10
+    },
+    "parity_thresholds": {
+      "max_mean_logprob_error": 0.25,
+      "max_mean_mismatch_kl": 0.002,
+      "probability_tail_threshold": 0.05
+    },
+    "prior_config_file_sha256": "efd3cb87221e7a0dafa055ce67959e6b8a16962264a9e7ff14bdc1c94ebc83c9",
+    "reduce_dtype_changed": false,
+    "unchanged_scientific_body_sha256": "d385f2a678ba548b9325591a27d71d362a5ecc79f9085b3c7153ea979b11ab74"
+  },
+  "v14_5_observed_failure": {
+    "durable_optimizer_steps": 2,
+    "final_pod_cost_usd": 5.36,
+    "first_failed_mean_mismatch_kl": 0.011002085,
+    "logical_updates_attempted": 4,
+    "pod_decommissioned": true,
+    "quarantined_logical_updates": [
+      1
+    ],
+    "second_failed_logical_update": 4,
+    "second_failed_mean_mismatch_kl": 0.003157224,
+    "stage_gate_evaluated": false,
+    "threshold": 0.002,
+    "update_zero_passed": true,
+    "update_zero_rows": 192
+  },
+  "version": "arena-rl-v14.8-measurement-repair-v1"
+}

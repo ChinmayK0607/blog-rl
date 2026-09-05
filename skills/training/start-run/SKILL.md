@@ -311,6 +311,12 @@ uv run rl @ examples/reverse_text/rl.toml --dry-run                             
   a shorter controller timeout than the measured evaluation requires.
   A faster concurrent evaluation path needs its own measured/recertified profile
   before admission. This launcher currently admits only sequential full pulses.
+  If the user explicitly extends the time budget, a
+  `staged-reservation-profile-v1` may instead reserve at least 900 seconds/update.
+  It must disclose `update_timing_basis: unmeasured_conservative_reservation`
+  and record `extended_time_authorization`. This is a budget allocation, not
+  measured training throughput. Preserve the dollar cap and all scientific
+  gates; recheck actual progress against the remaining deadline.
 - Wrap staged controller and pulse processes with `supervise_staged_role.py`.
   A nonzero process exit must leave a durable `ABORTED.json` or `REJECTED.json`
   for the exact-pod terminal supervisor, even if the trainer remains resident.

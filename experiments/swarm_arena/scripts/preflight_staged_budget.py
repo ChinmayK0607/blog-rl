@@ -27,8 +27,13 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     profile = json.loads(args.profile.read_text())
-    if profile["version"] != "staged-operational-profile-v1":
+    if profile["version"] not in {"staged-operational-profile-v1", "staged-reservation-profile-v1"}:
         raise ValueError("unsupported operational profile")
+    if profile["version"] == "staged-reservation-profile-v1":
+        if profile.get("update_timing_basis") != "unmeasured_conservative_reservation":
+            raise ValueError("reservation profile must disclose unmeasured update timing")
+        if not profile.get("extended_time_authorization") or profile["update_seconds"] < 900:
+            raise ValueError("reservation requires extended-time authorization and at least 900 seconds/update")
     for name, path in (("inference", args.inference_config), ("trainer", args.trainer_config)):
         if hashlib.sha256(path.read_bytes()).hexdigest() != profile[name + "_config_sha256"]:
             raise ValueError(f"operational profile {name} configuration mismatch")
@@ -54,6 +59,7 @@ def main() -> None:
     )
     report["profile_sha256"] = hashlib.sha256(args.profile.read_bytes()).hexdigest()
     report["profile"] = profile
+    report["measured_training_throughput"] = profile["version"] == "staged-operational-profile-v1"
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(json.dumps(report, sort_keys=True))

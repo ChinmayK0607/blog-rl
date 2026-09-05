@@ -7295,6 +7295,24 @@ no more critical-specific than decoy-specific. Therefore:
   `bec569b4521e231b9c7a8f55e82f6e46734914516b8dfc6fe8889d711b26d03e`.
   These are CPU regression checks, not a fresh exact-host runtime certificate.
 
+### 2026-09-05 — V14.8 extended-time authorization and launch preparation
+
+- User explicitly requested extending the time budget and using the available
+  4×A6000. The $60 cap remains; a 30-hour TTL at $1.68/hour is at most $50.40.
+- Fresh measurement-repaired run, not a resume of mislabeled V14.7 rows.
+  New CPU bundle preserves initializer, training configs, curriculum and gates,
+  and binds repaired runtime files. Exact-host certification remains mandatory.
+- Budget basis is explicitly mixed: historical A6000 evaluation rate ~1.3
+  games/minute, plus an **unmeasured conservative allocation** of 900 seconds
+  per logical update. With 1.25 safety factor, five 600-second checkpoint
+  reserves, one hour setup remainder and 2700 seconds final sync, reserve
+  ~25.86 hours for 672 fresh games and 40 updates. This is not a measured
+  training-performance claim. The actual deadline is checked again at launch.
+- No timing-only calibration or concurrent-game change was implemented: the
+  user's extended-time authorization superseded that prospective approach.
+- CPU checks cover explicit extended-time authorization, continued rejection
+  of the same schedule under nine hours, and unchanged scientific identities.
+
 ## Future entry template
 
 Copy this block for each material run:
